@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const { execSync, exec } = require('child_process');
 const prompts = require('prompts');
 const process = require('process');
+const git = require('simple-git')();
 
 const homedir = require('os').homedir();
 
@@ -17,111 +18,95 @@ const createFolders = (pathx) => {
   });
 };
 
-const removeClonedRepo = () => {
-  const sourcePath = `${homedir}/.gluestackio/ui`;
+const removeClonedRepo = async () => {
+  const sourcePath = `${homedir}/.gluestackio/`;
 
-  return new Promise((resolve, reject) => {
-    exec(
-      `cd ${sourcePath} && rm -rf gluestack-ui-components`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.warn(error);
-        }
-        resolve(stdout ? stdout : stderr);
-      }
-    );
+  await exec(`cd ${sourcePath} && rm -rf ui`, (error, stdout, stderr) => {
+    if (error) {
+      console.warn(error);
+    }
   });
 };
 
 const copyFolders = async (sourcePath, targetPath) => {
-  const allComponentTypes = [];
-  const allComponents = {};
+  const allComponents = [];
   fs.readdirSync(sourcePath).forEach((directory) => {
     if (directory !== 'index.ts') {
-      allComponentTypes.push({
+      allComponents.push({
         title: directory,
         value: directory,
       });
-      allComponents[directory] = allComponents[directory] || [];
-      fs.readdirSync(`${sourcePath}/${directory}`).forEach((subdirectory) => {
-        if (subdirectory !== 'index.ts') {
-          allComponents[directory].push({
-            title: subdirectory,
-            value: subdirectory,
-          });
-        }
-      });
     }
   });
 
-  const selectedComponentType = await prompts({
+  const selectComponents = await prompts({
     type: 'multiselect',
-    name: 'componentType',
-    message: `Select the type of components:`,
-    choices: [...allComponentTypes, { title: 'none', value: 'none' }],
+    name: 'components',
+    message: `Select components:`,
+    choices: allComponents,
   });
-  const selectedComponents = {};
+  const selectedComponents = selectComponents.components;
 
   await Promise.all(
-    selectedComponentType.componentType.map(async (component) => {
-      if (allComponents[component].length !== 0) {
-        const selectComponents = await prompts({
-          type: 'multiselect',
-          name: 'components',
-          message: `Select ${component} components:`,
-          choices: allComponents[component],
+    selectedComponents.map((component) => {
+      createFolders(`${targetPath}/${component}/`);
+      fs.copy(`${sourcePath}/${component}/src`, `${targetPath}/${component}`)
+        .then(() => {
+          console.log(`${component} copied!`);
+        })
+        .catch((err) => {
+          console.error(err);
         });
-        selectedComponents[component] = selectComponents.components;
-      } else {
-        console.log(`No components of ${component} type!`);
-      }
     })
   );
-
-  await Promise.all(
-    Object.keys(selectedComponents).map((component) => {
-      createFolders(`${targetPath}/${component}`);
-      selectedComponents[component].map((subcomponent) => {
-        createFolders(`${targetPath}/${component}/${subcomponent}`);
-        fs.copy(
-          `${sourcePath}/${component}/${subcomponent}`,
-          `${targetPath}/${component}/${subcomponent}`
-        )
-          .then(() => {
-            console.log(`${subcomponent} copied!`);
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      });
-    })
-  );
-  removeClonedRepo();
+  await removeClonedRepo();
 };
 
-const cloneComponentRepo = (folderPath) => {
-  const cloneLocation = homedir + '/.gluestackio/ui';
+const cloneComponentRepo = async () => {
+  const cloneLocation = homedir + '/.gluestackio';
+  const clonedpath = cloneLocation + '/ui';
   createFolders(cloneLocation);
-  execSync(
-    `cd ${cloneLocation} && git clone git@github.com:gluestack/components.git gluestack-ui-components`,
-    {
-      stdio: [0, 1, 2],
-      cwd: folderPath,
+  const gitURL = 'git@github.com:gluestack/ui.git';
+  const callback = () => {
+    console.log('DONE!');
+  };
+
+  await removeClonedRepo();
+
+  await git
+    .outputHandler((command, stdout, stderr) => {
+      stdout.pipe(process.stdout);
+      stderr.pipe(process.stderr);
+
+      stdout.on('data', (data) => {
+        console.log(data.toString('utf8'));
+      });
+    })
+    .clone(gitURL, clonedpath, [], callback);
+};
+
+const addIndexFile = (path) => {
+  const presentComponents = [];
+  fs.readdirSync(path).forEach((component) => {
+    if (directory !== 'index.ts') {
+      presentComponents.push(component);
     }
-  );
+  });
 };
 
 const componentAdder = async () => {
   try {
+    console.log('Testing Complete!');
     const folderPath = process.cwd();
     const config = require(`${folderPath}/gluestack-ui.config.js`);
-    cloneComponentRepo(folderPath);
+    await cloneComponentRepo(folderPath);
     createFolders(`${folderPath}/${config.componentsPath}`);
-    const sourcePath = `${homedir}/.gluestackio/ui/gluestack-ui-components/src`;
+    const sourcePath = `${homedir}/.gluestackio/ui/packages`;
     const targetPath = `${folderPath}/${config.componentsPath}`;
-    copyFolders(sourcePath, targetPath);
+    await copyFolders(sourcePath, targetPath);
+    addIndexFile(targetPath);
   } catch (err) {
-    console.log('Error: gluestack-ui is not initialised!');
+    console.log(err);
   }
 };
 
