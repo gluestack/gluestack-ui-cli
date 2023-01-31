@@ -88,7 +88,7 @@ const cloneComponentRepo = async () => {
 const addIndexFile = (path) => {
   const presentComponents = [];
   fs.readdirSync(path).forEach((component) => {
-    if (directory !== 'index.ts') {
+    if (component !== 'index.ts') {
       presentComponents.push(component);
     }
   });
