@@ -1,17 +1,15 @@
 const fs = require('fs');
 
 const initChecker = async () => {
-  let gluestackConfigPresent = false;
-  fs.readdirSync('../').forEach((directory) => {
-    if (directory === 'gluestack.config.js') {
-      gluestackConfigPresent = true;
+  let gluestackUIConfigPresent = false;
+  const folderPath = process.cwd();
+
+  fs.readdirSync(folderPath).forEach((directory) => {
+    if (directory === 'gluestack-ui.config.js') {
+      gluestackUIConfigPresent = true;
     }
   });
-  if (!gluestackConfigPresent) {
-    console.log('gluestack.config.js is not present.');
-  } else {
-    console.log('gluestack.config.js is already present.');
-  }
+  return gluestackUIConfigPresent;
 };
 
 module.exports = { initChecker };

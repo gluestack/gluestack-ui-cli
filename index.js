@@ -20,7 +20,7 @@ const main = async () => {
     choices: commands,
     initial: 0,
   });
-  console.log(commands[actionResponse.selectedOption]);
+
   if (commands[actionResponse.selectedOption] === 'initializer') {
     await initializer();
   } else if (commands[actionResponse.selectedOption] === 'init-checker') {
@@ -32,4 +32,4 @@ const main = async () => {
   }
 };
 
-await main();
+main();

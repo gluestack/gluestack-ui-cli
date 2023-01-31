@@ -1,34 +1,31 @@
 const fs = require('fs');
-const path = require('path');
 const prompts = require('prompts');
+const { initChecker } = require('../init-checker');
+const process = require('process');
 
 const initializer = async () => {
-  let gluestackConfigPresent = false;
-  fs.readdirSync('../').forEach((directory) => {
-    if (directory === 'gluestack.config.js') {
-      gluestackConfigPresent = true;
-    }
-  });
-  if (!gluestackConfigPresent) {
+  let gluestackUIConfigPresent = await initChecker();
+  const folderPath = process.cwd();
+  if (!gluestackUIConfigPresent) {
     // Add gluestack.config.ts
-    const configPath = path.resolve(`../gluestack.config.js`);
+    const configPath = folderPath + '/gluestack-ui.config.js';
 
     const response = await prompts({
       type: 'text',
-      name: 'folderPath',
+      name: 'folderName',
       message: 'Enter folder name where you want to add your components',
     });
 
     const newConfig = `module.exports = {
-      componentsPath: ['./${response.folderPath}'],
+      componentsPath: ['./${response.folderName}'],
     };`;
 
     fs.writeFile(configPath, newConfig, function (err) {
       if (err) throw err;
-      console.log('gluestack.config.js is created successfully.');
+      console.log('gluestack-ui.config.js is created successfully.');
     });
   } else {
-    console.log('gluestack.config.js is already present.');
+    console.log('gluestack-ui.config.js is already present.');
   }
 };
 
