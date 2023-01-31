@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/ui-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A script to add gluestack/ui to your projects",
   "main": "index.js",
   "scripts": {
