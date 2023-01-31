@@ -19,7 +19,7 @@ const createFolders = (pathx) => {
 };
 
 const removeClonedRepo = async () => {
-  const sourcePath = `${homedir}/.gluestackio/`;
+  const sourcePath = `${homedir}/.gluestack/cache`;
 
   await exec(`cd ${sourcePath} && rm -rf ui`, (error, stdout, stderr) => {
     if (error) {
@@ -63,7 +63,7 @@ const copyFolders = async (sourcePath, targetPath) => {
 };
 
 const cloneComponentRepo = async () => {
-  const cloneLocation = homedir + '/.gluestackio';
+  const cloneLocation = homedir + '/.gluestack/cache';
   const clonedpath = cloneLocation + '/ui';
   createFolders(cloneLocation);
   const gitURL = 'git@github.com:gluestack/ui.git';
@@ -96,12 +96,11 @@ const addIndexFile = (path) => {
 
 const componentAdder = async () => {
   try {
-    console.log('Testing Complete!');
     const folderPath = process.cwd();
     const config = require(`${folderPath}/gluestack-ui.config.js`);
     await cloneComponentRepo(folderPath);
     createFolders(`${folderPath}/${config.componentsPath}`);
-    const sourcePath = `${homedir}/.gluestackio/ui/packages`;
+    const sourcePath = `${homedir}/.gluestack/cache/ui/packages`;
     const targetPath = `${folderPath}/${config.componentsPath}`;
     await copyFolders(sourcePath, targetPath);
     addIndexFile(targetPath);

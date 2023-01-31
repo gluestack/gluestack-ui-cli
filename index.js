@@ -3,9 +3,10 @@
 const prompts = require('prompts');
 const { componentAdder } = require('./component-adder');
 const { initChecker } = require('./init-checker');
-const { initializer } = require('./initializer');
+const { initializer } = require('./installer/initializer');
 
 const main = async () => {
+  console.log('Mayank');
   const commands = [
     'initializer',
     'init-checker',
