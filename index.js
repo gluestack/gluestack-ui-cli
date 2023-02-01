@@ -4,14 +4,19 @@ const prompts = require('prompts');
 const { componentAdder } = require('./component-adder');
 const { initChecker } = require('./init-checker');
 const { initializer } = require('./installer/initializer');
+const { projectDetector } = require('./project-detector');
+const { nextInstaller } = require('./installer/next');
+
+
 
 const main = async () => {
-  console.log('Mayank Testing locallly updated');
   const commands = [
     'initializer',
     'init-checker',
     'version manager',
     'component adder',
+    'project detector',
+    'installer',
   ];
 
   const actionResponse = await prompts({
@@ -30,6 +35,10 @@ const main = async () => {
     await componentAdder();
   } else if (commands[actionResponse.selectedOption] === 'version manager') {
     console.log('This feature is not available currently :(');
+  } else if (commands[actionResponse.selectedOption] === 'project detector') {
+    projectDetector();
+  } else if (commands[actionResponse.selectedOption] === 'installer') {
+    nextInstaller();
   }
 };
 

@@ -28,23 +28,18 @@ const removeClonedRepo = async (sourcePath) => {
 };
 
 const copyFolders = async (sourcePath, targetPath) => {
-  const groupedComponents = { advanced: ['comp1', 'comp2', 'comp3'] };
-
-  const tempKeywords = ['b', 'core_type', 'a'];
+  const groupedComponents = {};
 
   fs.readdirSync(sourcePath).forEach((component) => {
     if (component !== 'index.ts') {
       // Read in the existing package.json file
-      // const packageJsonPath = `${sourcePath}/${component}/package.json`;
-      // const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-      // TODO: Uncomment above lines and Replce "tempKeywords" with "packageJson.keywords"
+      const packageJsonPath = `${sourcePath}/${component}/package.json`;
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
       let componentType;
-      tempKeywords.map((key) => {
-        const splitedKey = key.split('_');
-        if (splitedKey[1] === 'type') {
-          componentType = splitedKey[0];
-        }
-      });
+      if (packageJson.keywords.indexOf('components') !== -1) {
+        componentType = packageJson.keywords[1];
+      }
 
       groupedComponents[componentType] = groupedComponents[componentType] || [];
       groupedComponents[componentType].push(component);
@@ -98,28 +93,6 @@ const copyFolders = async (sourcePath, targetPath) => {
       });
     })
   );
-
-  // const selectComponents = await prompts({
-  //   type: 'multiselect',
-  //   name: 'components',
-  //   message: `Select components:`,
-  //   choices: allComponents,
-  // });
-
-  // const selectedComponents = selectComponents.components;
-
-  // await Promise.all(
-  //   selectedComponents.map((component) => {
-  //     createFolders(`${targetPath}/${component}/`);
-  //     fs.copy(`${sourcePath}/${component}/src`, `${targetPath}/${component}`)
-  //       .then(() => {
-  //         console.log(`${component} copied!`);
-  //       })
-  //       .catch((err) => {
-  //         console.error(err);
-  //       });
-  //   })
-  // );
 
   // await removeClonedRepo(`${homeDir}/.gluestack/cache`);
 };
