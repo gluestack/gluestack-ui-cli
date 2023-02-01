@@ -6,7 +6,7 @@ const { initChecker } = require('./init-checker');
 const { initializer } = require('./installer/initializer');
 
 const main = async () => {
-  console.log('Mayank');
+  console.log('Mayank Testing locallly updated');
   const commands = [
     'initializer',
     'init-checker',
