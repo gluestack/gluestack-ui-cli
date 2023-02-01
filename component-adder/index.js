@@ -28,41 +28,100 @@ const removeClonedRepo = async (sourcePath) => {
 };
 
 const copyFolders = async (sourcePath, targetPath) => {
-  const allComponents = [];
-  const groupedComponents = {};
+  const groupedComponents = { advanced: ['comp1', 'comp2', 'comp3'] };
 
-  fs.readdirSync(sourcePath).forEach((directory) => {
-    if (directory !== 'index.ts') {
-      allComponents.push({
-        title: directory,
-        value: directory,
+  const tempKeywords = ['b', 'core_type', 'a'];
+
+  fs.readdirSync(sourcePath).forEach((component) => {
+    if (component !== 'index.ts') {
+      // Read in the existing package.json file
+      // const packageJsonPath = `${sourcePath}/${component}/package.json`;
+      // const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      // TODO: Uncomment above lines and Replce "tempKeywords" with "packageJson.keywords"
+      let componentType;
+      tempKeywords.map((key) => {
+        const splitedKey = key.split('_');
+        if (splitedKey[1] === 'type') {
+          componentType = splitedKey[0];
+        }
       });
+
+      groupedComponents[componentType] = groupedComponents[componentType] || [];
+      groupedComponents[componentType].push(component);
     }
   });
 
-  const selectComponents = await prompts({
+  const selectedComponentType = await prompts({
     type: 'multiselect',
-    name: 'components',
-    message: `Select components:`,
-    choices: allComponents,
+    name: 'componentType',
+    message: `Select the type of components:`,
+    choices: Object.keys(groupedComponents).map((type) => {
+      return { title: type, value: type };
+    }),
   });
 
-  const selectedComponents = selectComponents.components;
+  const selectedComponents = {};
 
   await Promise.all(
-    selectedComponents.map((component) => {
-      createFolders(`${targetPath}/${component}/`);
-      fs.copy(`${sourcePath}/${component}/src`, `${targetPath}/${component}`)
-        .then(() => {
-          console.log(`${component} copied!`);
-        })
-        .catch((err) => {
-          console.error(err);
+    selectedComponentType.componentType.map(async (component) => {
+      if (groupedComponents[component].length !== 0) {
+        const selectComponents = await prompts({
+          type: 'multiselect',
+          name: 'components',
+          message: `Select ${component} components:`,
+          choices: groupedComponents[component].map((type) => {
+            return { title: type, value: type };
+          }),
         });
+        selectedComponents[component] = selectComponents.components;
+      } else {
+        console.log(`No components of ${component} type!`);
+      }
     })
   );
 
-  await removeClonedRepo(`${homeDir}/.gluestack/cache`);
+  await Promise.all(
+    Object.keys(selectedComponents).map((component) => {
+      createFolders(`${targetPath}/${component}`);
+      selectedComponents[component].map((subcomponent) => {
+        createFolders(`${targetPath}/${component}/${subcomponent}`);
+        fs.copy(
+          `${sourcePath}/${subcomponent}/src`,
+          `${targetPath}/${component}/${subcomponent}`
+        )
+          .then(() => {
+            console.log(`${subcomponent} copied!`);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      });
+    })
+  );
+
+  // const selectComponents = await prompts({
+  //   type: 'multiselect',
+  //   name: 'components',
+  //   message: `Select components:`,
+  //   choices: allComponents,
+  // });
+
+  // const selectedComponents = selectComponents.components;
+
+  // await Promise.all(
+  //   selectedComponents.map((component) => {
+  //     createFolders(`${targetPath}/${component}/`);
+  //     fs.copy(`${sourcePath}/${component}/src`, `${targetPath}/${component}`)
+  //       .then(() => {
+  //         console.log(`${component} copied!`);
+  //       })
+  //       .catch((err) => {
+  //         console.error(err);
+  //       });
+  //   })
+  // );
+
+  // await removeClonedRepo(`${homeDir}/.gluestack/cache`);
 };
 
 const cloneComponentRepo = async (targetpath, gitURL) => {
@@ -90,10 +149,10 @@ const componentAdder = async () => {
     const config = require(`${currDir}/gluestack-ui.config.js`);
 
     // Clone repo locally in users home directory
-    const cloneLocation = homeDir + '/.gluestack/cache';
-    const clonedpath = cloneLocation + '/ui';
-    createFolders(cloneLocation);
-    await cloneComponentRepo(clonedpath, 'git@github.com:gluestack/ui.git');
+    // const cloneLocation = homeDir + '/.gluestack/cache';
+    // const clonedpath = cloneLocation + '/ui';
+    // createFolders(cloneLocation);
+    // await cloneComponentRepo(clonedpath, 'git@github.com:gluestack/ui.git');
 
     // Copy requested components to the users project
     createFolders(`${currDir}/${config.componentsPath}`);
