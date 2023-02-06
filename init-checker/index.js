@@ -5,7 +5,7 @@ const initChecker = async () => {
   const folderPath = process.cwd();
 
   fs.readdirSync(folderPath).forEach((directory) => {
-    if (directory === 'gluestack-ui.config.js') {
+    if (directory === 'gluestack-ui.config.ts') {
       gluestackUIConfigPresent = true;
     }
   });

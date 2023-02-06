@@ -2,34 +2,27 @@
 
 const prompts = require('prompts');
 const { componentAdder } = require('./component-adder');
-const { initChecker } = require('./init-checker');
-const { initializer } = require('./initializer');
+const { initializer } = require('./installer/initializer');
 
 const main = async () => {
-  const commands = [
-    'initializer',
-    'init-checker',
-    'version manager',
-    'component adder',
-  ];
+  const commands = ['init', 'component adder'];
 
-  const actionResponse = await prompts({
-    type: 'select',
-    name: 'selectedOption',
-    message: 'Select task: ',
-    choices: commands,
-    initial: 0,
-  });
+  // const actionResponse = await prompts({
+  //   type: 'select',
+  //   name: 'selectedOption',
+  //   message: 'Select task: ',
+  //   choices: commands,
+  //   initial: 0,
+  // });
 
-  if (commands[actionResponse.selectedOption] === 'initializer') {
-    await initializer();
-  } else if (commands[actionResponse.selectedOption] === 'init-checker') {
-    initChecker();
-  } else if (commands[actionResponse.selectedOption] === 'component adder') {
-    await componentAdder();
-  } else if (commands[actionResponse.selectedOption] === 'version manager') {
-    console.log('This feature is not available currently :(');
-  }
+  // console.log('Mayank is testing locally...');
+  // if (commands[actionResponse.selectedOption] === 'init') {
+  //   await initializer();
+  // } else if (commands[actionResponse.selectedOption] === 'component adder') {
+  //   await componentAdder();
+  // }
+  await initializer();
+  await componentAdder();
 };
 
 main();
