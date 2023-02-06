@@ -1,34 +1,18 @@
 const fs = require('fs-extra');
-const { exec } = require('child_process');
 const prompts = require('prompts');
 const path = require('path');
 const process = require('process');
-const git = require('simple-git')();
 const util = require('util');
+const {
+  cloneComponentRepo,
+  createFolders,
+  pullComponentRepo,
+  checkIfFolderExits,
+} = require('./utils');
 const homeDir = require('os').homedir();
 const currDir = process.cwd();
-
 const copyAsync = util.promisify(fs.copy);
-
-const createFolders = (pathx) => {
-  const parts = pathx.split('/');
-  let currentPath = '';
-
-  parts.forEach((part) => {
-    currentPath += part + '/';
-    if (!fs.existsSync(currentPath)) {
-      fs.mkdirSync(currentPath);
-    }
-  });
-};
-
-const removeClonedRepo = async (sourcePath) => {
-  await exec(`cd ${sourcePath} && rm -rf ui`, (error, stdout, stderr) => {
-    if (error) {
-      console.warn(error);
-    }
-  });
-};
+const stat = util.promisify(fs.stat);
 
 const copyFolders = async (sourcePath, targetPath) => {
   const groupedComponents = {};
@@ -100,43 +84,21 @@ const copyFolders = async (sourcePath, targetPath) => {
   // await removeClonedRepo(`${homeDir}/.gluestack/cache`);
 };
 
-const cloneComponentRepo = async (targetpath, gitURL) => {
-  const callback = () => {
-    console.log('DONE!');
-  };
-
-  await removeClonedRepo(`${homeDir}/.gluestack/cache`);
-
-  await git
-    .outputHandler((command, stdout, stderr) => {
-      stdout.pipe(process.stdout);
-      stderr.pipe(process.stderr);
-
-      stdout.on('data', (data) => {
-        console.log(data.toString('utf8'));
-      });
-    })
-    .clone(gitURL, targetpath, [], callback);
-};
-
 const componentAdder = async () => {
   try {
     // Get config
-    // const config = require(`${currDir}/gluestack-ui.config.ts`);
+    const configFile = fs.readFileSync(
+      `${currDir}/gluestack-ui.config.ts`,
+      'utf-8'
+    );
 
-    // Clone repo locally in users home directory
-    // const cloneLocation = homeDir + '/.gluestack/cache';
-    // const clonedpath = cloneLocation + '/ui';
-    // createFolders(cloneLocation);
-    // await cloneComponentRepo(clonedpath, 'git@github.com:gluestack/ui.git');
+    const match = configFile.match(/componentPath:\s+'([^']+)'/);
+    const componentPath = match && match[1];
 
-    // Copy requested components to the users project
-    // createFolders(`${currDir}/${config.componentsPath}`);
-    createFolders(`${currDir}/components`);
+    await getComponentGitRepo();
+    createFolders(path.join(currDir, componentPath));
     const sourcePath = `${homeDir}/.gluestack/cache/ui/components`;
-    // const targetPath = `${currDir}/${config.componentsPath}`;
-    const targetPath = `${currDir}/components`;
-
+    const targetPath = path.join(currDir, componentPath);
     await copyFolders(sourcePath, targetPath);
   } catch (err) {
     console.log(err);
@@ -146,31 +108,28 @@ const componentAdder = async () => {
 const addProvider = async (sourcePath, targetPath) => {
   createFolders(`${targetPath}/core`);
   createFolders(`${targetPath}/core/gluestack-ui-provider`);
+
   await copyAsync(
     `${sourcePath}/gluestack-ui-provider/src`,
     `${targetPath}/core/gluestack-ui-provider`
   );
 
-  // Copy config to root
+  // Copy config
   const gluestackConfig = fs.readFileSync(
     `${targetPath}/core/gluestack-ui-provider/gluestack-ui.config.ts`,
     'utf8'
   );
 
-  fs.writeFile(
-    `${currDir}/gluestack-ui.config.ts`,
-    gluestackConfig,
-    function (err) {
-      if (err) throw err;
-    }
-  );
+  // Write it to root
+
+  fs.writeFile(`${currDir}/gluestack-ui.config.ts`, gluestackConfig);
 
   // Delete config
   fs.unlinkSync(
     `${targetPath}/core/gluestack-ui-provider/gluestack-ui.config.ts`
   );
 
-  // Update Provider Config
+  // Update Provider Config Path
   const providerIndexFile = fs.readFileSync(
     `${targetPath}/core/gluestack-ui-provider/index.tsx`,
     'utf8'
@@ -190,15 +149,47 @@ const addProvider = async (sourcePath, targetPath) => {
     `${targetPath}/core/gluestack-ui-provider/index.tsx`,
     modifiedProviderIndexFile
   );
+
+  // if (fs.existsSync(currDir + '/gluestack-ui.config.ts')) {
+  //   console.log(`The file exists.`);
+  // } else {
+  //   console.log(`The file does not exist.`);
+  // }
+
+  // console.log(`${currDir}/gluestack-ui.config.ts`);
+  // const configFile = await fs.readFileSync(
+  //   `${currDir}/gluestack-ui.config.ts`,
+  //   'utf8'
+  // );
+
+  // const match = configFile.match(/componentPath:\s+'([^']+)'/);
+  // const componentPath = match && match[1];
+  // console.log(componentPath);
+  // const newString = configFile.replace(
+  //   /componentPath:\s+'[^']+'/,
+  //   "componentPath: './mayank'"
+  // );
+  // console.log(newString);
+};
+
+const getComponentGitRepo = async () => {
+  // Clone repo locally in users home directory
+  const cloneLocation = homeDir + '/.gluestack/cache';
+  const clonedpath = cloneLocation + '/ui';
+
+  let clonedRepoExists = await checkIfFolderExits(clonedpath);
+
+  if (clonedRepoExists) {
+    await pullComponentRepo(clonedpath);
+  } else {
+    createFolders(cloneLocation);
+    await cloneComponentRepo(clonedpath, 'git@github.com:gluestack/ui.git');
+  }
 };
 
 const initialProviderAdder = async (componentFolderPath) => {
   try {
-    // Clone repo locally in users home directory
-    const cloneLocation = homeDir + '/.gluestack/cache';
-    const clonedpath = cloneLocation + '/ui';
-    createFolders(cloneLocation);
-    await cloneComponentRepo(clonedpath, 'git@github.com:gluestack/ui.git');
+    await getComponentGitRepo();
 
     // Copy requested components to the users project
     createFolders(`${currDir}/${componentFolderPath}`);

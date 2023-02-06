@@ -13,11 +13,8 @@ const addDependencies = async () => {
   // Add a new dependency to the package.json file
   packageJson.dependencies = packageJson.dependencies || {};
   packageJson.dependencies['@dank-style/react'] = '^0.1.30';
-  packageJson.dependencies['@universa11y/overlay'] = '^0.1.1';
   packageJson.dependencies['@universa11y/provider'] = '^0.1.5';
-  packageJson.dependencies['@universa11y/react-native-aria'] = '^0.1.5';
-  packageJson.dependencies['@universa11y/toast'] = '^0.1.5';
-  packageJson.dependencies['@universa11y/transitions'] = '^0.1.5';
+  packageJson.dependencies['@gluestack/ui-next-adapter'] = 'latest';
 
   // Add a new devDependency to the package.json file
   packageJson.devDependencies = packageJson.devDependencies || {};

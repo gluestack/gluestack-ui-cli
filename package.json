@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@gluestack/ui-project-detector": "^0.0.1",
+    "cli-spinner": "^0.2.10",
     "commander": "^10.0.0",
     "fs-extra": "^11.1.0",
     "prompts": "^2.4.2",

@@ -5,24 +5,24 @@ const { componentAdder } = require('./component-adder');
 const { initializer } = require('./installer/initializer');
 
 const main = async () => {
+  console.log('Mayank Testing Clone....');
   const commands = ['init', 'component adder'];
 
-  // const actionResponse = await prompts({
-  //   type: 'select',
-  //   name: 'selectedOption',
-  //   message: 'Select task: ',
-  //   choices: commands,
-  //   initial: 0,
-  // });
+  const actionResponse = await prompts({
+    type: 'select',
+    name: 'selectedOption',
+    message: 'Select task: ',
+    choices: commands,
+    initial: 0,
+  });
 
-  // console.log('Mayank is testing locally...');
-  // if (commands[actionResponse.selectedOption] === 'init') {
-  //   await initializer();
-  // } else if (commands[actionResponse.selectedOption] === 'component adder') {
-  //   await componentAdder();
-  // }
-  await initializer();
-  await componentAdder();
+  if (commands[actionResponse.selectedOption] === 'init') {
+    await initializer();
+  } else if (commands[actionResponse.selectedOption] === 'component adder') {
+    await componentAdder();
+  }
+  // await initializer();
+  // await componentAdder();
 };
 
 main();
