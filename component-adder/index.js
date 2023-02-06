@@ -8,6 +8,7 @@ const {
   createFolders,
   pullComponentRepo,
   checkIfFolderExits,
+  yarnInstall,
 } = require('./utils');
 const homeDir = require('os').homedir();
 const currDir = process.cwd();
@@ -66,6 +67,27 @@ const copyFolders = async (sourcePath, targetPath) => {
     Object.keys(selectedComponents).map((component) => {
       createFolders(`${targetPath}/${component}`);
       selectedComponents[component].map((subcomponent) => {
+        // Add Packages
+        const compPackageJsonPath = `${sourcePath}/${subcomponent}/package.json`;
+        const compPackageJson = JSON.parse(
+          fs.readFileSync(compPackageJsonPath, 'utf8')
+        );
+
+        const rootPackageJsonPath = `${currDir}/package.json`;
+        const rootPackageJson = JSON.parse(
+          fs.readFileSync(rootPackageJsonPath, 'utf8')
+        );
+
+        rootPackageJson.dependencies = {
+          ...rootPackageJson.dependencies,
+          ...compPackageJson.dependencies,
+        };
+
+        fs.writeFileSync(
+          rootPackageJsonPath,
+          JSON.stringify(rootPackageJson, null, 2)
+        );
+
         createFolders(`${targetPath}/${component}/${subcomponent}`);
         fs.copy(
           `${sourcePath}/${subcomponent}/src`,
@@ -100,6 +122,7 @@ const componentAdder = async () => {
     const sourcePath = `${homeDir}/.gluestack/cache/ui/components`;
     const targetPath = path.join(currDir, componentPath);
     await copyFolders(sourcePath, targetPath);
+    await yarnInstall();
   } catch (err) {
     console.log(err);
   }

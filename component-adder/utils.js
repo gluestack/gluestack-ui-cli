@@ -3,6 +3,7 @@ const { exec } = require('child_process');
 const fs = require('fs-extra');
 const util = require('util');
 const stat = util.promisify(fs.stat);
+var spawn = require('child_process').spawn;
 
 const homeDir = require('os').homedir();
 
@@ -97,10 +98,27 @@ const checkIfFolderExits = async (path) => {
   }
 };
 
+const yarnInstall = async () => {
+  var ls = spawn('yarn');
+
+  ls.stdout.on('data', function (data) {
+    console.log('stdout: ' + data.toString());
+  });
+
+  ls.stderr.on('data', function (data) {
+    console.log('stderr: ' + data.toString());
+  });
+
+  ls.on('exit', function (code) {
+    console.log('child process exited with code ' + code.toString());
+  });
+};
+
 module.exports = {
   createFolders,
   removeClonedRepo,
   cloneComponentRepo,
   pullComponentRepo,
   checkIfFolderExits,
+  yarnInstall,
 };
