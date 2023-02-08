@@ -19,6 +19,8 @@ const addDependencies = async () => {
   // Add a new devDependency to the package.json file
   packageJson.devDependencies = packageJson.devDependencies || {};
   packageJson.devDependencies['react-native-web'] = '^0.18.12';
+  packageJson.devDependencies['next-compose-plugins'] = '^2.2.1';
+  packageJson.devDependencies['next-transpile-modules'] = '^10.0.0';
 
   // Write the updated package.json file
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
