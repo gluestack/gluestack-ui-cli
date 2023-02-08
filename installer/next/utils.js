@@ -12,15 +12,13 @@ const addDependencies = async () => {
 
   // Add a new dependency to the package.json file
   packageJson.dependencies = packageJson.dependencies || {};
-  packageJson.dependencies['@dank-style/react'] = '^0.1.30';
-  packageJson.dependencies['@universa11y/provider'] = '^0.1.5';
+  packageJson.dependencies['@dank-style/react'] = 'latest';
+  packageJson.dependencies['@universa11y/provider'] = 'latest';
   packageJson.dependencies['@gluestack/ui-next-adapter'] = 'latest';
 
   // Add a new devDependency to the package.json file
   packageJson.devDependencies = packageJson.devDependencies || {};
   packageJson.devDependencies['react-native-web'] = '^0.18.12';
-  packageJson.devDependencies['next-compose-plugins'] = '^2.2.1';
-  packageJson.devDependencies['next-transpile-modules'] = '^10.0.0';
 
   // Write the updated package.json file
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
