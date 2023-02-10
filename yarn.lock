@@ -4,7 +4,7 @@
 
 "@gluestack/ui-project-detector@^0.0.1":
   version "0.0.1"
-  resolved "https://registry.npmjs.org/@gluestack/ui-project-detector/-/ui-project-detector-0.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/@gluestack/ui-project-detector/-/ui-project-detector-0.0.1.tgz#920d29aa5a1719c16709ce7dc1f39d4e407fbba0"
   integrity sha512-BBTFrUwU6P4xkbP7dAVqife+ZHOsq4lhoNf3Y+jhuDECE5FP6BrHyEkdBu4O9n5X/i4gIt1YJfEXZE7oooS8JQ==
 
 "@kwsites/file-exists@^1.1.1":

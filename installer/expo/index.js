@@ -1,7 +1,7 @@
 // const prompts = require('prompts');
 const { addDependencies, yarnInstall } = require('../utils');
 
-// const nextInstaller = async () => {
+// const expoInstaller = async () => {
 //   console.log(
 //     '\x1b[33m',
 //     `\nThis script will make changes in your folder to the following files:`,
@@ -21,7 +21,7 @@ const { addDependencies, yarnInstall } = require('../utils');
 //       '\nMaking changes to the specified files...',
 //       '\x1b[0m'
 //     );
-//     await addDependencies('Next');
+//     await addDependencies('Expo');
 //     await yarnInstall();
 //   } else if (proceedResponse.proceed.toLowerCase() === 'n') {
 //     console.log('\nExiting script.');
@@ -34,9 +34,9 @@ const { addDependencies, yarnInstall } = require('../utils');
 //   }
 // };
 
-const nextInstaller = async () => {
-  await addDependencies('Next');
+const expoInstaller = async () => {
+  await addDependencies('Expo');
   await yarnInstall();
 };
 
-module.exports = { nextInstaller };
+module.exports = { expoInstaller };

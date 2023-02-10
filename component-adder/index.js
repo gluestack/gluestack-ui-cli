@@ -13,11 +13,13 @@ const {
 const homeDir = require('os').homedir();
 const currDir = process.cwd();
 const copyAsync = util.promisify(fs.copy);
-const stat = util.promisify(fs.stat);
 
-const copyFolders = async (sourcePath, targetPath) => {
+const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   const groupedComponents = {};
 
+  let specificComponentType;
+
+  //  Traverse all components
   fs.readdirSync(sourcePath).forEach((component) => {
     if (component !== 'index.ts' && component !== 'index.tsx') {
       // Read in the existing package.json file
@@ -31,37 +33,45 @@ const copyFolders = async (sourcePath, targetPath) => {
 
       groupedComponents[componentType] = groupedComponents[componentType] || [];
       groupedComponents[componentType].push(component);
+      if (component.toLowerCase() === specificComponent.toLowerCase()) {
+        specificComponentType = componentType;
+      }
     }
-  });
-
-  const selectedComponentType = await prompts({
-    type: 'multiselect',
-    name: 'componentType',
-    message: `Select the type of components:`,
-    choices: Object.keys(groupedComponents).map((type) => {
-      return { title: type, value: type };
-    }),
   });
 
   const selectedComponents = {};
 
-  await Promise.all(
-    selectedComponentType.componentType.map(async (component) => {
-      if (groupedComponents[component].length !== 0) {
-        const selectComponents = await prompts({
-          type: 'multiselect',
-          name: 'components',
-          message: `Select ${component} components:`,
-          choices: groupedComponents[component].map((type) => {
-            return { title: type, value: type };
-          }),
-        });
-        selectedComponents[component] = selectComponents.components;
-      } else {
-        console.log(`No components of ${component} type!`);
-      }
-    })
-  );
+  // Ask component type
+  if (!specificComponentType) {
+    const selectedComponentType = await prompts({
+      type: 'multiselect',
+      name: 'componentType',
+      message: `Select the type of components:`,
+      choices: Object.keys(groupedComponents).map((type) => {
+        return { title: type, value: type };
+      }),
+    });
+
+    await Promise.all(
+      selectedComponentType.componentType.map(async (component) => {
+        if (groupedComponents[component].length !== 0) {
+          const selectComponents = await prompts({
+            type: 'multiselect',
+            name: 'components',
+            message: `Select ${component} components:`,
+            choices: groupedComponents[component].map((type) => {
+              return { title: type, value: type };
+            }),
+          });
+          selectedComponents[component] = selectComponents.components;
+        } else {
+          console.log(`No components of ${component} type!`);
+        }
+      })
+    );
+  } else {
+    selectedComponents[specificComponentType] = [specificComponent];
+  }
 
   await Promise.all(
     Object.keys(selectedComponents).map((component) => {
@@ -102,11 +112,9 @@ const copyFolders = async (sourcePath, targetPath) => {
       });
     })
   );
-
-  // await removeClonedRepo(`${homeDir}/.gluestack/cache`);
 };
 
-const componentAdder = async () => {
+const componentAdder = async (specificComponent = 'null') => {
   try {
     // Get config
     const configFile = fs.readFileSync(
@@ -121,7 +129,7 @@ const componentAdder = async () => {
     createFolders(path.join(currDir, componentPath));
     const sourcePath = `${homeDir}/.gluestack/cache/ui/components`;
     const targetPath = path.join(currDir, componentPath);
-    await copyFolders(sourcePath, targetPath);
+    await copyFolders(sourcePath, targetPath, specificComponent);
     await yarnInstall();
   } catch (err) {
     console.log(err);
@@ -145,7 +153,7 @@ const addProvider = async (sourcePath, targetPath) => {
 
   // Write it to root
 
-  fs.writeFile(`${currDir}/gluestack-ui.config.ts`, gluestackConfig);
+  await fs.writeFile(`${currDir}/gluestack-ui.config.ts`, gluestackConfig);
 
   // Delete config
   fs.unlinkSync(
@@ -192,7 +200,6 @@ const addProvider = async (sourcePath, targetPath) => {
   //   /componentPath:\s+'[^']+'/,
   //   "componentPath: './mayank'"
   // );
-  // console.log(newString);
 };
 
 const getComponentGitRepo = async () => {
@@ -214,7 +221,6 @@ const initialProviderAdder = async (componentFolderPath) => {
   try {
     await getComponentGitRepo();
 
-    // Copy requested components to the users project
     createFolders(`${currDir}/${componentFolderPath}`);
     const sourcePath = `${homeDir}/.gluestack/cache/ui/components`;
     const targetPath = path.join(currDir, componentFolderPath);
