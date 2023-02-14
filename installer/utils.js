@@ -39,14 +39,19 @@ const installDependencies = async (currDir) => {
 
   spinner.start();
 
-  ls.on('exit', function (code) {
-    spinner.stop();
+  return new Promise((resolve, reject) => {
+    ls.on('exit', function (code) {
+      spinner.stop();
 
-    if (code === 0) {
-      console.log('Dependencies installed successfully.');
-    } else {
-      console.error('Error installing dependencies.');
-    }
+      if (code === 0) {
+        console.log('Dependencies installed successfully.');
+        resolve();
+      } else {
+        console.error('Error installing dependencies.');
+        console.error('\x1b[31m%s\x1b[0m', `Error: Run '${command}' manually!`);
+        reject(new Error('Error installing dependencies.'));
+      }
+    });
   });
 };
 

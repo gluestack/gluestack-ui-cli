@@ -92,22 +92,30 @@ const installDependencies = async (currDir) => {
   const spinner = new Spinner('%s Installing dependencies... ');
   spinner.setSpinnerString('|/-\\');
 
+  let command = 'npm install';
+
   let ls = spawn('npm', ['install']);
 
   if (fs.existsSync(path.join(currDir, 'yarn.lock'))) {
     ls = spawn('yarn');
+    command = 'yarn';
   }
 
   spinner.start();
 
-  ls.on('exit', function (code) {
-    spinner.stop();
+  return new Promise((resolve, reject) => {
+    ls.on('exit', function (code) {
+      spinner.stop();
 
-    if (code === 0) {
-      console.log('Dependencies installed successfully.');
-    } else {
-      console.error('Error installing dependencies.');
-    }
+      if (code === 0) {
+        console.log('Dependencies installed successfully.');
+        resolve();
+      } else {
+        console.error('Error installing dependencies.');
+        console.error('\x1b[31m%s\x1b[0m', `Error: Run '${command}' manually!`);
+        reject(new Error('Error installing dependencies.'));
+      }
+    });
   });
 };
 

@@ -21,7 +21,10 @@ const addIndexFile = async (componentsDirectory, level = 0) => {
       throw err;
     }
     const exports = files
-      .filter((file) => file !== 'index.js' && file !== 'index.tsx')
+      .filter(
+        (file) =>
+          file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
+      )
       .map((file) => {
         if (level === 0) {
           addIndexFile(componentsDirectory + `/${file}`, level + 1);
@@ -31,7 +34,7 @@ const addIndexFile = async (componentsDirectory, level = 0) => {
       })
       .join('\n');
 
-    fs.writeFile(path.join(componentsDirectory, 'index.js'), exports, (err) => {
+    fs.writeFile(path.join(componentsDirectory, 'index.ts'), exports, (err) => {
       if (err) {
         throw err;
       }
@@ -76,24 +79,25 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
         return { title: type, value: type };
       }),
     });
-
-    await Promise.all(
-      selectedComponentType.componentType.map(async (component) => {
-        if (groupedComponents[component].length !== 0) {
-          const selectComponents = await prompts({
-            type: 'multiselect',
-            name: 'components',
-            message: `Select ${component} components:`,
-            choices: groupedComponents[component].map((type) => {
-              return { title: type, value: type };
-            }),
-          });
-          selectedComponents[component] = selectComponents.components;
-        } else {
-          console.log(`No components of ${component} type!`);
-        }
-      })
-    );
+    if (selectedComponentType.componentType) {
+      await Promise.all(
+        selectedComponentType.componentType.map(async (component) => {
+          if (groupedComponents[component].length !== 0) {
+            const selectComponents = await prompts({
+              type: 'multiselect',
+              name: 'components',
+              message: `Select ${component} components:`,
+              choices: groupedComponents[component].map((type) => {
+                return { title: type, value: type };
+              }),
+            });
+            selectedComponents[component] = selectComponents.components;
+          } else {
+            console.log(`No components of ${component} type!`);
+          }
+        })
+      );
+    }
   } else {
     selectedComponents[specificComponentType] = [specificComponent];
   }
@@ -131,7 +135,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
           .then(() => {
             console.log(
               '\x1b[36m%s\x1b[0m',
-              `\n${subcomponent} is added to your project!`
+              `${subcomponent} is added to your project!`
             );
           })
           .catch((err) => {
@@ -159,7 +163,7 @@ const componentAdder = async (specificComponent = 'null') => {
     const targetPath = path.join(currDir, componentPath);
     await copyFolders(sourcePath, targetPath, specificComponent);
     await installDependencies(currDir);
-    // await addIndexFile(targetPath);
+    await addIndexFile(targetPath);
   } catch (err) {
     console.log(err);
   }
