@@ -3,7 +3,6 @@ const { componentAdder } = require('./component-adder');
 const { initializer } = require('./installer/initializer');
 
 const main = async () => {
-  console.log('Hello Mayankkkk!!!');
   const askUserToInit = true;
   if (
     process.argv.length === 2 ||
