@@ -1,8 +1,10 @@
-const Spinner = require('cli-spinner').Spinner;
 const { exec } = require('child_process');
 const fs = require('fs-extra');
 const util = require('util');
 const stat = util.promisify(fs.stat);
+const path = require('path');
+const Spinner = require('cli-spinner').Spinner;
+
 var spawn = require('child_process').spawn;
 
 const homeDir = require('os').homedir();
@@ -33,33 +35,23 @@ const removeClonedRepo = async (sourcePath, repoName) => {
 const cloneComponentRepo = async (targetpath, gitURL) => {
   const git = require('simple-git')();
 
-  const callback = () => {
-    console.log('DONE!');
-  };
-
-  // await removeClonedRepo(`${homeDir}/.gluestack/cache`, 'ui');
-
-  const spinner = new Spinner('Cloning repository... %s');
+  const spinner = new Spinner('%s Cloning repository... ');
   spinner.setSpinnerString('|/-\\');
   spinner.start();
 
   await git
-    .outputHandler((command, stdout, stderr) => {
+    .outputHandler((stdout, stderr) => {
       stdout.pipe(process.stdout);
       stderr.pipe(process.stderr);
-
-      stdout.on('data', (data) => {
-        console.log(data.toString('utf8'));
-      });
     })
     .clone(gitURL, targetpath, [], (err) => {
       if (err) {
         spinner.stop(true);
-        console.error('Cloning failed');
+        console.error('\x1b[31m', '\nCloning failed', '\x1b[0m');
         callback(err);
       } else {
         spinner.stop(true);
-        console.log('Cloning successful');
+        console.log('\x1b[32m', '\nCloning successful.', '\x1b[0m');
         callback();
       }
     });
@@ -68,16 +60,17 @@ const cloneComponentRepo = async (targetpath, gitURL) => {
 const pullComponentRepo = async (targetpath) => {
   const git = require('simple-git')(targetpath);
 
-  const spinner = new Spinner('Pulling changes... %s');
+  const spinner = new Spinner('%s Pulling changes... ');
   spinner.setSpinnerString('|/-\\');
   spinner.start();
 
   try {
     await git.pull();
     spinner.stop();
-    console.log('Changes pulled successfully.');
+    console.log('\x1b[32m', '\nChanges pulled successful.', '\x1b[0m');
   } catch (err) {
     spinner.stop();
+    console.error('\x1b[31m', '\nFailed to pull the changes.', '\x1b[0m');
     throw err;
   }
 };
@@ -86,31 +79,35 @@ const checkIfFolderExits = async (path) => {
   try {
     const stats = await stat(path);
     if (stats.isDirectory()) {
-      console.log(`The folder exists.`);
       return true;
     } else {
-      console.log(`Is not a folder.`);
       return false;
     }
   } catch (err) {
-    console.log(`The folder does not exist.`);
     return false;
   }
 };
 
-const yarnInstall = async () => {
-  var ls = spawn('yarn');
+const installDependencies = async (currDir) => {
+  const spinner = new Spinner('%s Installing dependencies... ');
+  spinner.setSpinnerString('|/-\\');
 
-  ls.stdout.on('data', function (data) {
-    console.log('stdout: ' + data.toString());
-  });
+  let ls = spawn('npm', ['install']);
 
-  ls.stderr.on('data', function (data) {
-    console.log('stderr: ' + data.toString());
-  });
+  if (fs.existsSync(path.join(currDir, 'yarn.lock'))) {
+    ls = spawn('yarn');
+  }
+
+  spinner.start();
 
   ls.on('exit', function (code) {
-    console.log('child process exited with code ' + code.toString());
+    spinner.stop();
+
+    if (code === 0) {
+      console.log('Dependencies installed successfully.');
+    } else {
+      console.error('Error installing dependencies.');
+    }
   });
 };
 
@@ -120,5 +117,5 @@ module.exports = {
   cloneComponentRepo,
   pullComponentRepo,
   checkIfFolderExits,
-  yarnInstall,
+  installDependencies,
 };

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 var spawn = require('child_process').spawn;
+const Spinner = require('cli-spinner').Spinner;
 
 const currDir = process.cwd();
 
@@ -21,32 +22,35 @@ const addDependencies = async (projectType) => {
   // Add a new devDependency to the package.json file
   packageJson.devDependencies = packageJson.devDependencies || {};
   packageJson.devDependencies['react-native-web'] = '^0.18.12';
-  if (projectType === 'Next') {
-    packageJson.devDependencies['next-compose-plugins'] = '^2.2.1';
-    packageJson.devDependencies['next-transpile-modules'] = '^10.0.0';
-  }
 
   // Write the updated package.json file
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 };
 
-const yarnInstall = async () => {
-  var ls = spawn('yarn');
+const installDependencies = async (currDir) => {
+  const spinner = new Spinner('%s Installing dependencies... ');
+  spinner.setSpinnerString('|/-\\');
 
-  ls.stdout.on('data', function (data) {
-    console.log('stdout: ' + data.toString());
-  });
+  let ls = spawn('npm', ['install']);
 
-  ls.stderr.on('data', function (data) {
-    console.log('stderr: ' + data.toString());
-  });
+  if (fs.existsSync(path.join(currDir, 'yarn.lock'))) {
+    ls = spawn('yarn');
+  }
+
+  spinner.start();
 
   ls.on('exit', function (code) {
-    console.log('child process exited with code ' + code.toString());
+    spinner.stop();
+
+    if (code === 0) {
+      console.log('Dependencies installed successfully.');
+    } else {
+      console.error('Error installing dependencies.');
+    }
   });
 };
 
 module.exports = {
   addDependencies,
-  yarnInstall,
+  installDependencies,
 };

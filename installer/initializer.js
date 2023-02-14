@@ -1,14 +1,5 @@
-// const fs = require('fs');
+const fs = require('fs');
 const prompts = require('prompts');
-
-// const response = await prompts({
-//   type: 'text',
-//   name: 'folderName',
-//   message: 'Enter folder name where you want to add your components',
-//   initial: './components',
-// });
-// const folderName = './components';
-// await initialProviderAdder(folderName);
 const { initChecker } = require('../init-checker');
 const { initialProviderAdder } = require('../component-adder');
 const { projectDetector } = require('@gluestack/ui-project-detector');
@@ -16,8 +7,15 @@ const { nextInstaller } = require('./next');
 const { expoInstaller } = require('./expo');
 
 const installGluestackUI = async () => {
-  const folderName = './components';
-  await initialProviderAdder(folderName);
+  const response = await prompts({
+    type: 'text',
+    name: 'folderName',
+    message: 'Enter folder name where you want to add your components',
+    initial: 'components',
+  });
+
+  await initialProviderAdder('./' + response.folderName);
+
   const projectData = await projectDetector();
   if (projectData === 'Next') {
     await nextInstaller();
@@ -26,7 +24,7 @@ const installGluestackUI = async () => {
   } else if (projectData === 'React') {
     console.log(
       '\x1b[31m%s\x1b[0m',
-      'WARNING: The gluestack/ui react installer is currently not available. Please configure it manually in your project.'
+      'WARNING: gluestack/ui react installer is currently not available. Please configure it manually in your project.'
     );
   }
 };
@@ -37,8 +35,8 @@ const initializer = async (askUserToInit) => {
     let install = true;
     if (askUserToInit) {
       console.log(
-        '\x1b[33m',
-        `\nThe gluestack/ui is not initialised in your project!!!`,
+        '\x1b[31m',
+        `\ngluestack/ui is not initialised in your project!`,
         '\x1b[0m'
       );
 
@@ -46,6 +44,7 @@ const initializer = async (askUserToInit) => {
         type: 'text',
         name: 'proceed',
         message: 'Do you wish to initialise it? (y/n) ',
+        initial: 'y',
       });
 
       if (proceedResponse.proceed.toLowerCase() === 'n') {
@@ -57,7 +56,11 @@ const initializer = async (askUserToInit) => {
       await installGluestackUI();
     }
   } else {
-    console.log('gluestack/ui is already initialised!');
+    console.log(
+      '\x1b[32m',
+      `\ngluestack/ui is already initialised in your project!`,
+      '\x1b[0m'
+    );
   }
 };
 

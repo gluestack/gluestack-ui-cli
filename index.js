@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-const { componentAdder, addSpecificComponent } = require('./component-adder');
+const { componentAdder } = require('./component-adder');
 const { initializer } = require('./installer/initializer');
 
 const main = async () => {
+  console.log('Hello Mayankkkk!!!');
   const askUserToInit = true;
   if (
     process.argv.length === 2 ||
     (process.argv.length === 3 && process.argv[2] === 'add')
   ) {
-    await initializer(true);
+    await initializer(askUserToInit);
     await componentAdder();
   } else if (process.argv.length >= 3 && process.argv[2] === 'init') {
     await initializer(!askUserToInit);

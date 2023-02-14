@@ -3,16 +3,41 @@ const prompts = require('prompts');
 const path = require('path');
 const process = require('process');
 const util = require('util');
+
 const {
   cloneComponentRepo,
   createFolders,
   pullComponentRepo,
   checkIfFolderExits,
-  yarnInstall,
+  installDependencies,
 } = require('./utils');
 const homeDir = require('os').homedir();
 const currDir = process.cwd();
 const copyAsync = util.promisify(fs.copy);
+
+const addIndexFile = async (componentsDirectory, level = 0) => {
+  fs.readdir(componentsDirectory, (err, files) => {
+    if (err) {
+      throw err;
+    }
+    const exports = files
+      .filter((file) => file !== 'index.js' && file !== 'index.tsx')
+      .map((file) => {
+        if (level === 0) {
+          addIndexFile(componentsDirectory + `/${file}`, level + 1);
+        }
+
+        return `export * from './${file.split('.')[0]}';`;
+      })
+      .join('\n');
+
+    fs.writeFile(path.join(componentsDirectory, 'index.js'), exports, (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+  });
+};
 
 const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   const groupedComponents = {};
@@ -104,7 +129,10 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
           `${targetPath}/${component}/${subcomponent}`
         )
           .then(() => {
-            console.log(`${subcomponent} copied!`);
+            console.log(
+              '\x1b[36m%s\x1b[0m',
+              `\n${subcomponent} is added to your project!`
+            );
           })
           .catch((err) => {
             console.error(err);
@@ -130,7 +158,8 @@ const componentAdder = async (specificComponent = 'null') => {
     const sourcePath = `${homeDir}/.gluestack/cache/ui/components`;
     const targetPath = path.join(currDir, componentPath);
     await copyFolders(sourcePath, targetPath, specificComponent);
-    await yarnInstall();
+    await installDependencies(currDir);
+    // await addIndexFile(targetPath);
   } catch (err) {
     console.log(err);
   }
@@ -181,25 +210,19 @@ const addProvider = async (sourcePath, targetPath) => {
     modifiedProviderIndexFile
   );
 
-  // if (fs.existsSync(currDir + '/gluestack-ui.config.ts')) {
-  //   console.log(`The file exists.`);
-  // } else {
-  //   console.log(`The file does not exist.`);
-  // }
+  const configFile = fs.readFileSync(
+    `${currDir}/gluestack-ui.config.ts`,
+    'utf8'
+  );
 
-  // console.log(`${currDir}/gluestack-ui.config.ts`);
-  // const configFile = await fs.readFileSync(
-  //   `${currDir}/gluestack-ui.config.ts`,
-  //   'utf8'
-  // );
+  const folderName = targetPath.split('/').slice(-1)[0];
 
-  // const match = configFile.match(/componentPath:\s+'([^']+)'/);
-  // const componentPath = match && match[1];
-  // console.log(componentPath);
-  // const newString = configFile.replace(
-  //   /componentPath:\s+'[^']+'/,
-  //   "componentPath: './mayank'"
-  // );
+  const newConfig = configFile.replace(
+    /componentPath:\s+'[^']+'/,
+    `componentPath: './${folderName}'`
+  );
+
+  fs.writeFileSync(`${currDir}/gluestack-ui.config.ts`, newConfig);
 };
 
 const getComponentGitRepo = async () => {
@@ -226,6 +249,22 @@ const initialProviderAdder = async (componentFolderPath) => {
     const targetPath = path.join(currDir, componentFolderPath);
 
     await addProvider(sourcePath, targetPath);
+    await addIndexFile(targetPath);
+    const message = `
+    Gluestack Provider has been added to your components folder. 
+    To use it, simply wrap your app component with the <GluestackUIProvider> component like this:
+
+    export default function App() {
+      return (
+        <GluestackUIProvider>
+          <Component />
+        </GluestackUIProvider>
+      );
+    }
+   
+    `;
+
+    console.log(message);
   } catch (err) {
     console.log(err);
   }
