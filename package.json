@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/ui",
-  "version": "3.0.6-alpha.9",
+  "version": "3.0.6-alpha.10",
   "description": "A script to add gluestack/ui to your projects",
   "main": "index.js",
   "scripts": {
