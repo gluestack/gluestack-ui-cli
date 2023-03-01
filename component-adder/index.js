@@ -196,10 +196,8 @@ const addProvider = async (sourcePath, targetPath) => {
 
   await fs.writeFile(`${currDir}/gluestack-ui.config.ts`, gluestackConfig);
 
-  // Delete config
-  // fs.unlinkSync(
-  //   `${targetPath}/core/gluestack-ui-provider/gluestack-ui.config.ts`
-  // );
+  // Delete packagejson
+  fs.unlinkSync(`${targetPath}/core/gluestack-ui-provider/package.json`);
 
   // Update Provider Config Path
   const providerIndexFile = fs.readFileSync(

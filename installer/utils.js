@@ -30,12 +30,14 @@ const addDependencies = async (projectType) => {
 const installDependencies = async (currDir) => {
   const spinner = new Spinner("%s Installing dependencies... ");
   spinner.setSpinnerString("|/-\\");
+  let command = "yarn";
 
-  let ls = spawn("npm", ["install"]);
+  let ls = spawn("yarn");
+  console.log(fs.existsSync(path.join(currDir, "package-lock.json")));
 
-  if (fs.existsSync(path.join(currDir, "yarn.lock"))) {
-    ls = spawn("yarn");
-  }
+  // if (fs.existsSync(path.join(currDir, "package-lock.json"))) {
+  //   ls = spawn("npm", ["install", "--force"]);
+  // }
 
   spinner.start();
 

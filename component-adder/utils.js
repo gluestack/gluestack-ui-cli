@@ -91,13 +91,13 @@ const installDependencies = async (currDir) => {
   const spinner = new Spinner("%s Installing dependencies... ");
   spinner.setSpinnerString("|/-\\");
 
-  let command = "npm install";
+  let command = "yarn";
 
-  let ls = spawn("npm", ["install"]);
+  let ls = spawn("yarn");
 
-  if (fs.existsSync(path.join(currDir, "yarn.lock"))) {
-    ls = spawn("yarn");
-    command = "yarn";
+  if (fs.existsSync(path.join(currDir, "package-lock.json"))) {
+    ls = spawn("npm", ["install"]);
+    command = "npm install";
   }
 
   spinner.start();
