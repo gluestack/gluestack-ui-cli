@@ -7,7 +7,6 @@ const currDir = process.cwd();
 
 const addDependencies = async (projectType) => {
   const packageJsonPath = `${currDir}/package.json`;
-
   // Read in the existing package.json file
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
@@ -33,11 +32,10 @@ const installDependencies = async (currDir) => {
   let command = "yarn";
 
   let ls = spawn("yarn");
-  console.log(fs.existsSync(path.join(currDir, "package-lock.json")));
 
-  // if (fs.existsSync(path.join(currDir, "package-lock.json"))) {
-  //   ls = spawn("npm", ["install", "--force"]);
-  // }
+  if (fs.existsSync(path.join(currDir, "package-lock.json"))) {
+    ls = spawn("npm", ["install", "--force"]);
+  }
 
   spinner.start();
 

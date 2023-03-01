@@ -45,12 +45,12 @@ const addIndexFile = async (componentsDirectory, level = 0) => {
 const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   const groupedComponents = {};
   let specificComponentType;
-
+  console.log(sourcePath, targetPath, specificComponent);
   //  Traverse all components
   fs.readdirSync(sourcePath).forEach((component) => {
     if (component !== "index.ts" && component !== "index.tsx") {
       // Read in the existing package.json file
-      const packageJsonPath = `${sourcePath}/${component}/package.json`;
+      const packageJsonPath = `${sourcePath}/${component}/config.json`;
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
       let componentType;
@@ -106,7 +106,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
       createFolders(`${targetPath}/${component}`);
       selectedComponents[component].map((subcomponent) => {
         // Add Packages
-        const compPackageJsonPath = `${sourcePath}/${subcomponent}/package.json`;
+        const compPackageJsonPath = `${sourcePath}/${subcomponent}/config.json`;
         const compPackageJson = JSON.parse(
           fs.readFileSync(compPackageJsonPath, "utf8")
         );
@@ -133,7 +133,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
         )
           .then(() => {
             fs.unlinkSync(
-              `${targetPath}/${component}/${subcomponent}/package.json`
+              `${targetPath}/${component}/${subcomponent}/config.json`
             );
             console.log(
               "\x1b[36m%s\x1b[0m",
@@ -188,7 +188,7 @@ const addProvider = async (sourcePath, targetPath) => {
 
   const gluestackConfig = fs.readFileSync(
     // `${targetPath}/core/gluestack-ui-provider/gluestack-ui.config.ts`,
-    path.resolve(sourcePath, "../", "gluestack.config.ts"),
+    path.resolve(sourcePath, "../", "gluestack-ui.config.ts"),
     "utf8"
   );
 
@@ -196,8 +196,8 @@ const addProvider = async (sourcePath, targetPath) => {
 
   await fs.writeFile(`${currDir}/gluestack-ui.config.ts`, gluestackConfig);
 
-  // Delete packagejson
-  fs.unlinkSync(`${targetPath}/core/gluestack-ui-provider/package.json`);
+  // Delete config.json
+  fs.unlinkSync(`${targetPath}/core/gluestack-ui-provider/config.json`);
 
   // Update Provider Config Path
   const providerIndexFile = fs.readFileSync(

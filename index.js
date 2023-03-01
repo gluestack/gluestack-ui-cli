@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const { componentAdder } = require("./component-adder");
+const { updateComponent } = require("./update-component");
 const { initializer } = require("./installer/initializer");
 
 const main = async () => {
@@ -19,6 +20,10 @@ const main = async () => {
     }
   } else if (process.argv.length === 3 && process.argv[2] == "help") {
     console.log("Coming soon!!!");
+  } else if (process.argv.length >= 4 && process.argv[2] === "update") {
+    if (process.argv[3]) {
+      await updateComponent(process.argv[3]);
+    }
   }
 };
 

@@ -3,10 +3,8 @@ const { addDependencies, installDependencies } = require("../utils");
 const currDir = process.cwd();
 
 const expoInstaller = async () => {
-  await addDependencies("Next");
-  await installDependencies(currDir);
   try {
-    await addDependencies("Next");
+    await addDependencies("Expo");
     await installDependencies(currDir);
   } catch (err) {}
 };
