@@ -2,17 +2,13 @@ const fs = require("fs-extra");
 const currDir = process.cwd();
 const path = require("path");
 const prompts = require("prompts");
-const { componentAdder } = require("../component-adder");
 
-async function updateComponent(component = null) {
+async function removeComponent(component = null) {
   try {
     const proceedResponse = await prompts({
       type: "text",
       name: "proceed",
-      message:
-        "Are you sure you want to update " +
-        component +
-        " ? This will remove all your existing changes and replace them with new (y/n) ",
+      message: "Are you sure you want to remove " + component + " ? ",
       initial: "n",
     });
     if (proceedResponse.proceed == "y") {
@@ -28,7 +24,7 @@ async function updateComponent(component = null) {
       if (fs.existsSync(dirPath)) {
         fs.rmSync(dirPath, { recursive: true, force: true });
       }
-      await componentAdder(component);
+      // await componentAdder(component);
     }
     // const configFile = fs.readFileSync(
     //   `${currDir}/gluestack-ui.config.ts`,
@@ -49,5 +45,5 @@ async function updateComponent(component = null) {
 }
 
 module.exports = {
-  updateComponent,
+  removeComponent,
 };

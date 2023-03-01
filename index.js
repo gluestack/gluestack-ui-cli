@@ -2,6 +2,7 @@
 const { componentAdder } = require("./component-adder");
 const { updateComponent } = require("./update-component");
 const { initializer } = require("./installer/initializer");
+const { removeComponent } = require("./remove-component");
 
 const main = async () => {
   const askUserToInit = true;
@@ -23,6 +24,12 @@ const main = async () => {
   } else if (process.argv.length >= 4 && process.argv[2] === "update") {
     if (process.argv[3]) {
       await updateComponent(process.argv[3]);
+    }
+  } else if (process.argv.length == 4 && process.argv[2] === "update") {
+    await updateComponent(null);
+  } else if (process.argv.length == 4 && process.argv[2] === "remove") {
+    if (process.argv[3]) {
+      await removeComponent(process.argv[3]);
     }
   }
 };
