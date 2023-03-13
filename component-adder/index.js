@@ -45,7 +45,7 @@ const addIndexFile = async (componentsDirectory, level = 0) => {
 const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   const groupedComponents = {};
   let specificComponentType;
-  console.log(sourcePath, targetPath, specificComponent);
+  // console.log(sourcePath, targetPath, specificComponent);
   //  Traverse all components
   fs.readdirSync(sourcePath).forEach((component) => {
     if (component !== "index.ts" && component !== "index.tsx") {

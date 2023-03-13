@@ -17,11 +17,11 @@ const installGluestackUI = async () => {
   await initialProviderAdder("./" + response.folderName);
 
   const projectData = await projectDetector();
-  console.log(projectData, "HEREE");
+  // console.log(projectData, "HEREE");
   if (projectData === "Next") {
     await nextInstaller();
   } else if (projectData === "Expo") {
-    console.log("In expo");
+    // console.log("In expo");
     await expoInstaller();
   } else if (projectData === "React") {
     console.log(
