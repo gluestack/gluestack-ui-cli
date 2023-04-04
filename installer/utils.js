@@ -14,6 +14,7 @@ const addDependencies = async (projectType) => {
   packageJson.dependencies = packageJson.dependencies || {};
   packageJson.dependencies["@dank-style/react"] = "latest";
   packageJson.dependencies["@gluestack-ui/provider"] = "latest";
+  packageJson.dependencies["@dank-style/animation-plugin"] = "latest";
   if (projectType === "Next") {
     packageJson.dependencies["@gluestack/ui-next-adapter"] = "latest";
   }
