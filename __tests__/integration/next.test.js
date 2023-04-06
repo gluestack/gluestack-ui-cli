@@ -17,7 +17,6 @@ const nextAppUrl = `http://localhost:${NEXT_PORT}`;
 describe('Next.js App Integration Test', () => {
   let appProcess;
   let initNextAppProcess;
-
   let nextServerStarted;
 
 
@@ -133,28 +132,21 @@ describe('Next.js App Integration Test', () => {
       shell: true,
     });
 
-
-    await initGluestack();
-
   }, 60000);
 
 
-  // test('Should render a component', async () => {
-  //   // Send a GET request to the app URL
-  //   // const response = await request(appUrl).get('/');
-  //   // // Verify that the response contains a component with a specific class
-  //   // expect(response.text).toMatch(/<div class="my-component">/);
-  // });
 
-  test('Should exist gluestack-ui.config.ts', () => {
+
+  test('Init gluestack: Should exist gluestack-ui.config.ts', async () => {
+    await initGluestack();
     const filePath = path.join(nextAppPath, 'gluestack-ui.config.ts');
     const fileExists = fs.existsSync(filePath);
     expect(fileExists).toBe(true);
-  });
+  }, 60000);
 
 
 
-  test('Should exist components folder', () => {
+  test('Init gluestack: Should exist components folder', () => {
     const filePath = path.join(nextAppPath, 'components');
     const fileExists = fs.existsSync(filePath);
     expect(fileExists).toBe(true);
@@ -162,7 +154,7 @@ describe('Next.js App Integration Test', () => {
 
 
 
-  test('Update configuration ', async () => {
+  test('Update configuration: Should exist __document.tsx', async () => {
 
     await updateNextjsConfiguration();
 
@@ -174,7 +166,7 @@ describe('Next.js App Integration Test', () => {
 
 
 
-  test('Add component ', async () => {
+  test('Add component: Should exist button folder ', async () => {
 
     await addComponent();
 
@@ -187,10 +179,7 @@ describe('Next.js App Integration Test', () => {
     // expect(fileExists).toBe(true);
   }, 30000);
 
-  test('Should render next app', async () => {
-    // const filePath = 'data/example.txt';
-    // const fileExists = fs.existsSync(filePath);
-    // expect(fileExists).toBe(true);
+  test('Start Next.js app: Should render next app', async () => {
 
     appProcess = spawn(`yarn dev --port=${NEXT_PORT}`, {
       cwd: nextAppPath, // Path to your Next.js app directory
@@ -214,14 +203,7 @@ describe('Next.js App Integration Test', () => {
       }
     });
 
-    // }
 
-    // console.log(appUrl);
-  }, 30000);
-
-
-
-  test('Should boot next app', async () => {
     while (!nextServerStarted) {
       const output = await promisify(setTimeout)(1000);
       console.log("Waiting for server to start")
@@ -230,36 +212,25 @@ describe('Next.js App Integration Test', () => {
     const response = await request(nextAppUrl).get('/');
     //   // Verify that the response contains a component with text
     expect(response.text).toMatch(/Get started by editing/);
+
   }, 30000);
 
 
-
-  test('Usage button component', () => {
-    // while (!nextServerStarted) {
-    //   const output = await promisify(setTimeout)(1000);
-    //   console.log("Waiting for server to start")
-    // }
-
-
-    // // Send a GET request to the app URL
-    // const response = await request(nextAppUrl).get('/');
-
-    // console.log(response);
-    //   // Verify that the response contains a component with a specific class
-    // expect(response.text).toMatch(/<div class="my-component">/);
-  }, 30000);
+  test('Usage button component: Should render button component', () => {
+    expect(false).toMatch(true);
+  },);
 
 
   afterAll(() => {
-    // if (appProcess) {
-    //   appProcess.kill();
-    // }
-    // // Stop the app process
-    // spawnSync('rm -rf', ['my-next-app'], {
-    //   cwd: nextAppRootDirectory, // Path to your Next.js app directory
-    //   stdio: 'inherit',
-    //   shell: true,
-    // })
+    if (appProcess) {
+      appProcess.kill();
+    }
+    // Stop the app process
+    spawnSync('rm -rf', ['my-next-app'], {
+      cwd: nextAppRootDirectory, // Path to your Next.js app directory
+      stdio: 'inherit',
+      shell: true,
+    })
   });
 
 

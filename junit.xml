@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="8" failures="0" errors="0" time="61.542">
-  <testsuite name="Next.js App Integration Test" errors="0" failures="0" skipped="0" timestamp="2023-04-06T07:44:58" time="61.51" tests="8">
-    <testcase classname="Next.js App Integration Test Should render a component" name="Next.js App Integration Test Should render a component" time="0">
+<testsuites name="jest tests" tests="6" failures="1" errors="0" time="60.4">
+  <testsuite name="Next.js App Integration Test" errors="0" failures="1" skipped="0" timestamp="2023-04-06T07:54:33" time="60.358" tests="6">
+    <testcase classname="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" name="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" time="20.524">
     </testcase>
-    <testcase classname="Next.js App Integration Test Should exist gluestack-ui.config.ts" name="Next.js App Integration Test Should exist gluestack-ui.config.ts" time="0.001">
+    <testcase classname="Next.js App Integration Test Init gluestack: Should exist components folder" name="Next.js App Integration Test Init gluestack: Should exist components folder" time="0.001">
     </testcase>
-    <testcase classname="Next.js App Integration Test Should exist components folder" name="Next.js App Integration Test Should exist components folder" time="0">
+    <testcase classname="Next.js App Integration Test Update configuration: Should exist __document.tsx" name="Next.js App Integration Test Update configuration: Should exist __document.tsx" time="0">
     </testcase>
-    <testcase classname="Next.js App Integration Test Update configuration " name="Next.js App Integration Test Update configuration " time="0.001">
+    <testcase classname="Next.js App Integration Test Add component: Should exist button folder " name="Next.js App Integration Test Add component: Should exist button folder " time="10.126">
     </testcase>
-    <testcase classname="Next.js App Integration Test Add component " name="Next.js App Integration Test Add component " time="12.31">
+    <testcase classname="Next.js App Integration Test Start Next.js app: Should render next app" name="Next.js App Integration Test Start Next.js app: Should render next app" time="9.064">
     </testcase>
-    <testcase classname="Next.js App Integration Test Should render next app" name="Next.js App Integration Test Should render next app" time="1.036">
-    </testcase>
-    <testcase classname="Next.js App Integration Test Should boot next app" name="Next.js App Integration Test Should boot next app" time="9.838">
-    </testcase>
-    <testcase classname="Next.js App Integration Test Usage button component" name="Next.js App Integration Test Usage button component" time="0">
+    <testcase classname="Next.js App Integration Test Usage button component: Should render button components" name="Next.js App Integration Test Usage button component: Should render button components" time="0.001">
+      <failure>Error: expect(received).toMatch(expected)
+
+Matcher error: received value must be a string
+
+Received has type:  boolean
+Received has value: false
+    at Object.toMatch (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/__tests__/integration/next.test.js:220:19)
+    at Promise.then.completed (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/utils.js:293:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/utils.js:226:10)
+    at _callCircusTest (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/run.js:297:40)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at _runTest (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/run.js:233:3)
+    at _runTestsForDescribeBlock (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/run.js:135:9)
+    at _runTestsForDescribeBlock (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/run.js:130:9)
+    at run (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/run.js:68:3)
+    at runAndTransformResultsToJestFormat (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/node_modules/jest-runner/build/runTest.js:444:34)</failure>
     </testcase>
   </testsuite>
 </testsuites>
