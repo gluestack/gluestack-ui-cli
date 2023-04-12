@@ -3,6 +3,8 @@ const prompts = require("prompts");
 const path = require("path");
 const process = require("process");
 const util = require("util");
+var finder = require("find-package-json");
+var f = finder(__dirname);
 
 const {
   cloneComponentRepo,
@@ -111,7 +113,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
           fs.readFileSync(compPackageJsonPath, "utf8")
         );
 
-        const rootPackageJsonPath = `${currDir}/package.json`;
+        const rootPackageJsonPath = f.next().filename;
         const rootPackageJson = JSON.parse(
           fs.readFileSync(rootPackageJsonPath, "utf8")
         );
