@@ -5,7 +5,7 @@ const currDir = process.cwd();
 const expoInstaller = async () => {
   try {
     await addDependencies("Expo");
-    await installDependencies(currDir);
+    // await installDependencies(currDir);
   } catch (err) {}
 };
 

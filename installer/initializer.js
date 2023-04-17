@@ -60,7 +60,7 @@ const initializer = async (askUserToInit) => {
   } else {
     console.log(
       "\x1b[32m",
-      `\ngluestack/ui is already initialised in your project!`,
+      `\ngluestack-ui is already initialised in your project!`,
       "\x1b[0m"
     );
   }
