@@ -63,7 +63,8 @@ describe('Next.js App Integration Test', () => {
       child.stdout.on('close', function () {
         resolve(true);
       });
-      child.stdout.on('error', function () {
+      child.stdout.on('error', function (error) {
+        console.log(error)
         reject();
       });
     });
@@ -165,6 +166,8 @@ describe('Next.js App Integration Test', () => {
 
   test('Init gluestack: Should exist components folder', () => {
     const filePath = path.join(nextAppPath, 'components');
+
+    console.log(filePath, "component file path")
     const fileExists = fs.existsSync(filePath);
     expect(fileExists).toBe(true);
   });
