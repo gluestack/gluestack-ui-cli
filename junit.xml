@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="5" failures="0" errors="0" time="186.861">
+  <testsuite name="Next.js App Integration Test" errors="0" failures="0" skipped="0" timestamp="2023-04-17T10:23:27" time="186.739" tests="5">
+    <testcase classname="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" name="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" time="68.205">
+    </testcase>
+    <testcase classname="Next.js App Integration Test Init gluestack: Should exist components folder" name="Next.js App Integration Test Init gluestack: Should exist components folder" time="0.009">
+    </testcase>
+    <testcase classname="Next.js App Integration Test Update configuration: Should exist __document.tsx" name="Next.js App Integration Test Update configuration: Should exist __document.tsx" time="0.003">
+    </testcase>
+    <testcase classname="Next.js App Integration Test Add component: Should exist button folder " name="Next.js App Integration Test Add component: Should exist button folder " time="10.707">
+    </testcase>
+    <testcase classname="Next.js App Integration Test Start Next.js app: Should render next app" name="Next.js App Integration Test Start Next.js app: Should render next app" time="18.553">
+    </testcase>
+  </testsuite>
+</testsuites>
