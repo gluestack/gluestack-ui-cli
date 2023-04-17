@@ -20,7 +20,7 @@ describe('Next.js App Integration Test', () => {
 
   const initGluestack = () => {
     return new Promise((resolve, reject) => {
-      const child = spawn('npx -y gluestack-ui@next init', {
+      const child = spawn('npx -y gluestack-ui@latest init', {
         shell: true,
         cwd: nextAppPath, // Path to your Next.js app directory
         // stdio: 'inherit',
@@ -43,7 +43,7 @@ describe('Next.js App Integration Test', () => {
 
   const addComponent = () => {
     return new Promise((resolve, reject) => {
-      const child = spawn('npx -y gluestack-ui@next add button', {
+      const child = spawn('npx -y gluestack-ui@latest add button', {
         shell: true,
         cwd: nextAppPath, // Path to your Next.js app directory
         // stdio: 'inherit',
