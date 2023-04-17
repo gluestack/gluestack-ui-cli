@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="5" failures="0" errors="0" time="92.919">
-  <testsuite name="Next.js App Integration Test" errors="0" failures="0" skipped="0" timestamp="2023-04-17T07:17:05" time="92.86" tests="5">
-    <testcase classname="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" name="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" time="43.262">
+<testsuites name="jest tests" tests="5" failures="0" errors="0" time="82.427">
+  <testsuite name="Next.js App Integration Test" errors="0" failures="0" skipped="0" timestamp="2023-04-17T07:40:13" time="82.347" tests="5">
+    <testcase classname="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" name="Next.js App Integration Test Init gluestack: Should exist gluestack-ui.config.ts" time="41.685">
     </testcase>
-    <testcase classname="Next.js App Integration Test Init gluestack: Should exist components folder" name="Next.js App Integration Test Init gluestack: Should exist components folder" time="0">
+    <testcase classname="Next.js App Integration Test Init gluestack: Should exist components folder" name="Next.js App Integration Test Init gluestack: Should exist components folder" time="0.002">
     </testcase>
-    <testcase classname="Next.js App Integration Test Update configuration: Should exist __document.tsx" name="Next.js App Integration Test Update configuration: Should exist __document.tsx" time="0.001">
+    <testcase classname="Next.js App Integration Test Update configuration: Should exist __document.tsx" name="Next.js App Integration Test Update configuration: Should exist __document.tsx" time="0.002">
     </testcase>
-    <testcase classname="Next.js App Integration Test Add component: Should exist button folder " name="Next.js App Integration Test Add component: Should exist button folder " time="10.242">
+    <testcase classname="Next.js App Integration Test Add component: Should exist button folder " name="Next.js App Integration Test Add component: Should exist button folder " time="9.352">
     </testcase>
-    <testcase classname="Next.js App Integration Test Start Next.js app: Should render next app" name="Next.js App Integration Test Start Next.js app: Should render next app" time="9.218">
+    <testcase classname="Next.js App Integration Test Start Next.js app: Should render next app" name="Next.js App Integration Test Start Next.js app: Should render next app" time="9.709">
     </testcase>
   </testsuite>
 </testsuites>
