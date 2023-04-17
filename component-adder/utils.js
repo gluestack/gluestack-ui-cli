@@ -15,7 +15,6 @@ const rootPackageJsonPath = f.next().filename;
 
 const projectRootPath = path.dirname(rootPackageJsonPath);
 
-
 const createFolders = (pathx) => {
   const parts = pathx.split("/");
   let currentPath = "";
@@ -63,21 +62,41 @@ const cloneComponentRepo = async (targetpath, gitURL) => {
     });
 };
 
-const pullComponentRepo = async (targetpath) => {
-  const git = require("simple-git")(targetpath);
+async function tryGitPull(targetPath) {
+  const git = require("simple-git")(targetPath);
 
+  if (fs.existsSync(targetPath)) {
+    await git.pull();
+  }
+}
+
+const wait = (msec) =>
+  new Promise((resolve, _) => {
+    setTimeout(resolve, msec);
+  });
+
+const pullComponentRepo = async (targetpath) => {
   const spinner = new Spinner("%s Pulling changes... ");
   spinner.setSpinnerString("|/-\\");
   spinner.start();
-
-  try {
-    await git.pull();
+  let retry = 0;
+  let success = false;
+  while (!success && retry < 3) {
+    try {
+      await wait(1000);
+      await tryGitPull(targetpath);
+      success = true;
+    } catch (err) {
+      console.error("\x1b[31m", "\nPulling failed - retring", "\x1b[0m", err);
+      retry++;
+    }
+  }
+  if (!success) {
     spinner.stop();
-    console.log("\x1b[32m", "\nChanges pulled successful.", "\x1b[0m");
-  } catch (err) {
+    console.error("\x1b[31m", "\nPulling failed!", "\x1b[0m");
+  } else {
     spinner.stop();
-    console.error("\x1b[31m", "\nFailed to pull the changes.", "\x1b[0m");
-    throw err;
+    console.log("\x1b[32m", "\nPulling successful.", "\x1b[0m");
   }
 };
 
@@ -100,10 +119,14 @@ const installDependencies = async (currDir) => {
 
   let command = "yarn";
 
-  let ls = spawn("yarn", { cwd: projectRootPath });
+  let ls = spawn("yarn", {
+    cwd: projectRootPath,
+  });
 
   if (fs.existsSync(path.join(projectRootPath, "package-lock.json"))) {
-    ls = spawn("npm", ["install"], { cwd: projectRootPath });
+    ls = spawn("npm", ["install"], {
+      cwd: projectRootPath,
+    });
     command = "npm install";
   }
 
