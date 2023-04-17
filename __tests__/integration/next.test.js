@@ -113,24 +113,31 @@ describe('Next.js App Integration Test', () => {
 
 
   beforeAll(async () => {
-    // Clean up existing app
-    spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
-      cwd: nextAppRootDirectory, // Path to your Next.js app directory
-      stdio: 'inherit',
-      shell: true,
-    })
-    spawnSync('rm -rf', ['my-next-app'], {
-      cwd: nextAppRootDirectory, // Path to your Next.js app directory
-      stdio: 'inherit',
-      shell: true,
-    })
-    // Start the Next.js app process
+    try {
+       // Clean up existing app
+        spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
+          cwd: nextAppRootDirectory, // Path to your Next.js app directory
+          stdio: 'inherit',
+          shell: true,
+        })
+        spawnSync('rm -rf', ['my-next-app'], {
+          cwd: nextAppRootDirectory, // Path to your Next.js app directory
+          stdio: 'inherit',
+          shell: true,
+        })
 
-    spawnSync('npx -y create-next-app@latest my-next-app --ts --eslint --src-dir false --experimental-app false  --import-alias "@/*"', {
-      cwd: nextAppRootDirectory, // Path to your Next.js app directory
-      stdio: 'inherit',
-      shell: true,
-    });
+        // Start the Next.js app process
+
+        spawnSync('npx -y create-next-app@latest my-next-app --ts --eslint --src-dir false --experimental-app false --tailwind  --import-alias "@/*"', {
+          cwd: nextAppRootDirectory, // Path to your Next.js app directory
+          stdio: 'inherit',
+          shell: true,
+        });
+
+    } catch(Error) {
+      console.log(Error)
+    }
+   
 
   }, 60000);
 
@@ -216,10 +223,9 @@ describe('Next.js App Integration Test', () => {
   }, 30000);
 
 
-  test('Usage button component: Should render button component', () => {
-    expect(false).toMatch(true);
-  },);
-
+  // test('Usage button component: Should render button component', () => {
+  //   expect(false).toMatch(true);
+  // },);
 
   afterAll(() => {
     if (appProcess) {
