@@ -220,7 +220,7 @@ describe('Next.js App Integration Test', () => {
       appProcess.kill();
     }
     // Stop the app process
-    spawnSync('rm -d', ['my-next-app'], {
+    spawnSync('rm -rf', ['my-next-app'], {
       cwd: nextAppRootDirectory, // Path to your Next.js app directory
       stdio: 'inherit',
       shell: true,
