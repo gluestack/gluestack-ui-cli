@@ -23,7 +23,7 @@ describe('Next.js App Integration Test', () => {
   const initGluestack = () => {
     return new Promise((resolve, reject) => {
 
-        const child = spawn('npx -y gluestack-ui@latest init', {
+        const child = spawn('npx -y gluestack-ui@next init', {
           shell: true,
           cwd: nextAppPath, // Path to your Next.js app directory
           // stdio: 'inherit',
@@ -40,7 +40,7 @@ describe('Next.js App Integration Test', () => {
           resolve(true);
         });
         child.stdout.on('error', function (error) {
-          console.log(error)
+          console.log(error);
           reject();
         });
     
@@ -49,7 +49,7 @@ describe('Next.js App Integration Test', () => {
 
   const addComponent = () => {
     return new Promise((resolve, reject) => {
-      const child = spawn('npx -y gluestack-ui@latest add button', {
+      const child = spawn('npx -y gluestack-ui@next add button', {
         shell: true,
         cwd: nextAppPath, // Path to your Next.js app directory
         // stdio: 'inherit',
@@ -57,6 +57,8 @@ describe('Next.js App Integration Test', () => {
 
       child.stdout.on('data', function (data) {
         child.stdin.write('\n');
+        console.log(data.toString())
+
       });
 
 
@@ -190,7 +192,7 @@ describe('Next.js App Integration Test', () => {
 
     await addComponent();
 
-    const filePath = path.join(nextAppPath, 'components/core/button');
+    const filePath = path.join(nextAppPath, 'components/core/Button');
     const fileExists = fs.existsSync(filePath);
     expect(fileExists).toBe(true);
 
