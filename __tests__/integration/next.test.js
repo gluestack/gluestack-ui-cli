@@ -22,23 +22,29 @@ describe('Next.js App Integration Test', () => {
 
   const initGluestack = () => {
     return new Promise((resolve, reject) => {
-      const child = spawn('npx -y gluestack-ui@latest init', {
-        shell: true,
-        cwd: nextAppPath, // Path to your Next.js app directory
-        // stdio: 'inherit',
-      });
 
-      child.stdout.on('data', function (data) {
-        child.stdin.write('\n');
-      });
-
-
-      child.stdout.on('close', function () {
-        resolve(true);
-      });
-      child.stdout.on('error', function () {
-        reject();
-      });
+      try {
+        const child = spawn('npx -y gluestack-ui@latest init', {
+          shell: true,
+          cwd: nextAppPath, // Path to your Next.js app directory
+          // stdio: 'inherit',
+        });
+  
+        child.stdout.on('data', function (data) {
+          child.stdin.write('\n');
+        });
+  
+  
+        child.stdout.on('close', function () {
+          resolve(true);
+        });
+        child.stdout.on('error', function () {
+          reject();
+        });
+      } catch(Error) {
+        console.log(Error)
+      }
+     
     });
   }
 
