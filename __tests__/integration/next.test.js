@@ -31,6 +31,8 @@ describe('Next.js App Integration Test', () => {
   
         child.stdout.on('data', function (data) {
           child.stdin.write('\n');
+          console.log(data)
+
         });
   
   
