@@ -10,7 +10,8 @@ var spawn = require("child_process").spawn;
 const homeDir = require("os").homedir();
 
 var finder = require("find-package-json");
-var f = finder(__dirname);
+const currDir = process.cwd();
+var f = finder(currDir);
 const rootPackageJsonPath = f.next().filename;
 
 const projectRootPath = path.dirname(rootPackageJsonPath);
@@ -124,16 +125,20 @@ const installDependencies =  (currDir) => {
     if (fs.existsSync(path.join(projectRootPath, "package-lock.json"))) {
       ls = spawnSync("npm", ["install"], {
         cwd: projectRootPath,
+        stdio: 'inherit'
+
       });
       command = "npm install";
     } else {
       ls = spawnSync("yarn", {
         cwd: projectRootPath,
+        stdio: 'inherit'
+
       });
     }
 
     spinner.stop();
-    console.log("Dependencies installed successfully.");
+    console.log("Dependencies installed successfully.", command,  projectRootPath);
 
   } catch(Error) {
     //

@@ -5,7 +5,7 @@ const Spinner = require("cli-spinner").Spinner;
 
 const currDir = process.cwd();
 
-const addDependencies = async (projectType) => {
+const addDependencies = (projectType) => {
   const packageJsonPath = `${currDir}/package.json`;
   // Read in the existing package.json file
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
@@ -27,36 +27,6 @@ const addDependencies = async (projectType) => {
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 };
 
-const installDependencies = async (currDir) => {
-  const spinner = new Spinner("%s Installing dependencies... ");
-  spinner.setSpinnerString("|/-\\");
-  let command = "yarn";
-
-  let ls = spawn("yarn");
-
-  if (fs.existsSync(path.join(currDir, "package-lock.json"))) {
-    ls = spawn("npm", ["install", "--force"]);
-  }
-
-  spinner.start();
-
-  return new Promise((resolve, reject) => {
-    ls.on("exit", function (code) {
-      spinner.stop();
-
-      if (code === 0) {
-        console.log("Dependencies installed successfully.");
-        resolve();
-      } else {
-        console.error("Error installing dependencies.");
-        console.error("\x1b[31m%s\x1b[0m", `Error: Run '${command}' manually!`);
-        reject(new Error("Error installing dependencies."));
-      }
-    });
-  });
-};
-
 module.exports = {
   addDependencies,
-  installDependencies,
 };
