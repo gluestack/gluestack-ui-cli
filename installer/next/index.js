@@ -5,7 +5,7 @@ const currDir = process.cwd();
 const nextInstaller = async () => {
   try {
     await addDependencies("Next");
-    await installDependencies(currDir);
+    installDependencies(currDir);
   } catch (err) {}
 };
 

@@ -1,4 +1,4 @@
-const { exec } = require("child_process");
+const { exec, spawnSync } = require("child_process");
 const fs = require("fs-extra");
 const util = require("util");
 const stat = util.promisify(fs.stat);
@@ -113,39 +113,34 @@ const checkIfFolderExits = async (path) => {
   }
 };
 
-const installDependencies = async (currDir) => {
+const installDependencies =  (currDir) => {
   const spinner = new Spinner("%s Installing dependencies... ");
   spinner.setSpinnerString("|/-\\");
-
   let command = "yarn";
 
-  let ls = spawn("yarn", {
-    cwd: projectRootPath,
-  });
+  try { 
+    spinner.start();
+    let ls;
+    if (fs.existsSync(path.join(projectRootPath, "package-lock.json"))) {
+      ls = spawnSync("npm", ["install"], {
+        cwd: projectRootPath,
+      });
+      command = "npm install";
+    } else {
+      ls = spawnSync("yarn", {
+        cwd: projectRootPath,
+      });
+    }
 
-  if (fs.existsSync(path.join(projectRootPath, "package-lock.json"))) {
-    ls = spawn("npm", ["install"], {
-      cwd: projectRootPath,
-    });
-    command = "npm install";
+    spinner.stop();
+    console.log("Dependencies installed successfully.");
+
+  } catch(Error) {
+    //
+    console.error("Error installing dependencies.");
+    console.error("\x1b[31m%s\x1b[0m", `Error: Run '${command}' manually!`);
+    reject(new Error("Error installing dependencies."));
   }
-
-  spinner.start();
-
-  return new Promise((resolve, reject) => {
-    ls.on("exit", function (code) {
-      spinner.stop();
-
-      if (code === 0) {
-        console.log("Dependencies installed successfully.");
-        resolve();
-      } else {
-        console.error("Error installing dependencies.");
-        console.error("\x1b[31m%s\x1b[0m", `Error: Run '${command}' manually!`);
-        reject(new Error("Error installing dependencies."));
-      }
-    });
-  });
 };
 
 module.exports = {

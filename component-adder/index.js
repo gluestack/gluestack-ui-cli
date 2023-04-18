@@ -244,7 +244,7 @@ const componentAdder = async (specificComponent = "") => {
       await addIndexFile(targetPath);
     }
 
-    await installDependencies(currDir);
+    installDependencies(currDir);
   } catch (err) {
     console.log(err);
   }
