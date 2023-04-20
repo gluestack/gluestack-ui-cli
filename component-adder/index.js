@@ -1,9 +1,9 @@
-const fs = require("fs-extra");
-const prompts = require("prompts");
-const path = require("path");
-const process = require("process");
-const util = require("util");
-var finder = require("find-package-json");
+const fs = require('fs-extra');
+const prompts = require('prompts');
+const path = require('path');
+const process = require('process');
+const util = require('util');
+var finder = require('find-package-json');
 var f = finder(__dirname);
 
 const {
@@ -12,8 +12,8 @@ const {
   pullComponentRepo,
   checkIfFolderExits,
   installDependencies,
-} = require("./utils");
-const homeDir = require("os").homedir();
+} = require('./utils');
+const homeDir = require('os').homedir();
 const currDir = process.cwd();
 const copyAsync = util.promisify(fs.copy);
 
@@ -25,18 +25,18 @@ const addIndexFile = async (componentsDirectory, level = 0) => {
     const exports = files
       .filter(
         (file) =>
-          file !== "index.js" && file !== "index.tsx" && file !== "index.ts"
+          file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
       )
       .map((file) => {
         if (level === 0) {
           addIndexFile(componentsDirectory + `/${file}`, level + 1);
         }
 
-        return `export * from './${file.split(".")[0]}';`;
+        return `export * from './${file.split('.')[0]}';`;
       })
-      .join("\n");
+      .join('\n');
 
-    fs.writeFile(path.join(componentsDirectory, "index.ts"), exports, (err) => {
+    fs.writeFile(path.join(componentsDirectory, 'index.ts'), exports, (err) => {
       if (err) {
         throw err;
       }
@@ -45,7 +45,7 @@ const addIndexFile = async (componentsDirectory, level = 0) => {
 };
 
 function pascalToDash(str) {
-  return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
 function dashToPascal(str) {
@@ -64,13 +64,13 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   let specificComponentType;
   //  Traverse all components
   fs.readdirSync(sourcePath).forEach((component, index) => {
-    if (component !== "index.ts" && component !== "index.tsx") {
+    if (component !== 'index.ts' && component !== 'index.tsx' && component !== 'Provider') {
       // Read in the existing package.json file
       const packageJsonPath = `${sourcePath}/${component}/config.json`;
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
       let componentType;
 
-      if (packageJson.keywords.indexOf("components") !== -1) {
+      if (packageJson.keywords.indexOf('components') !== -1) {
         componentType = packageJson.keywords[1];
       }
 
@@ -93,8 +93,8 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   // Ask component type
   if (!specificComponentType) {
     const selectedComponentType = await prompts({
-      type: "multiselect",
-      name: "componentType",
+      type: 'multiselect',
+      name: 'componentType',
       message: `Select the type of components:`,
       choices: Object.keys(groupedComponents).map((type) => {
         return { title: type, value: type };
@@ -105,8 +105,8 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
         selectedComponentType.componentType.map(async (component) => {
           if (groupedComponents[component].length !== 0) {
             const selectComponents = await prompts({
-              type: "multiselect",
-              name: "components",
+              type: 'multiselect',
+              name: 'components',
               message: `Select ${component} components:`,
               choices: groupedComponents[component].map((type) => {
                 return { title: type, value: type };
@@ -141,7 +141,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
         const compPackageJsonPath = `${sourcePath}/${originalComponentPath}/config.json`;
 
         const compPackageJson = JSON.parse(
-          fs.readFileSync(compPackageJsonPath, "utf8")
+          fs.readFileSync(compPackageJsonPath, 'utf8')
         );
 
         if (
@@ -155,7 +155,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
 
         const rootPackageJsonPath = `${currDir}/package.json`;
         const rootPackageJson = JSON.parse(
-          fs.readFileSync(rootPackageJsonPath, "utf8")
+          fs.readFileSync(rootPackageJsonPath, 'utf8')
         );
 
         rootPackageJson.dependencies = {
@@ -185,7 +185,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
             }
 
             console.log(
-              "\x1b[36m%s\x1b[0m",
+              '\x1b[36m%s\x1b[0m',
               `${originalComponentPath} is added to your project!`
             );
           })
@@ -197,7 +197,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   );
 };
 
-const componentAdder = async (specificComponent = "") => {
+const componentAdder = async (specificComponent = '') => {
   try {
     // Get config
     const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
@@ -205,15 +205,21 @@ const componentAdder = async (specificComponent = "") => {
     const groupedComponents = {};
     await getComponentGitRepo();
 
-    if (specificComponent === "--all") {
+    if (specificComponent === '--all') {
       fs.readdirSync(sourcePath).forEach((component) => {
-        if (!(component === "index.ts" || component === "index.tsx")) {
+        if (
+          !(
+            component === 'index.ts' ||
+            component === 'index.tsx' ||
+            component === 'Provider'
+          )
+        ) {
           const packageJsonPath = `${sourcePath}/${component}/config.json`;
           const packageJson = JSON.parse(
-            fs.readFileSync(packageJsonPath, "utf8")
+            fs.readFileSync(packageJsonPath, 'utf8')
           );
           let componentType;
-          if (packageJson.keywords.indexOf("components") !== -1) {
+          if (packageJson.keywords.indexOf('components') !== -1) {
             componentType = packageJson.keywords[1];
           }
           if (componentType) {
@@ -232,7 +238,7 @@ const componentAdder = async (specificComponent = "") => {
     for (const currentSpecificComponent of specificComponents) {
       const configFile = fs.readFileSync(
         `${currDir}/gluestack-ui.config.ts`,
-        "utf-8"
+        'utf-8'
       );
 
       const match = configFile.match(/componentPath:\s+'([^']+)'/);
@@ -271,8 +277,8 @@ const addProvider = async (sourcePath, targetPath) => {
 
   const gluestackConfig = fs.readFileSync(
     // `${targetPath}/core/gluestack-ui-provider/gluestack-ui.config.ts`,
-    path.resolve(sourcePath, "../", "gluestack-ui.config.ts"),
-    "utf8"
+    path.resolve(sourcePath, '../', 'gluestack-ui.config.ts'),
+    'utf8'
   );
 
   // Write it to root
@@ -286,11 +292,11 @@ const addProvider = async (sourcePath, targetPath) => {
   // Update Provider Config Path
   const providerIndexFile = fs.readFileSync(
     `${targetPath}/core/GluestackUIProvider/index.tsx`,
-    "utf8"
+    'utf8'
   );
 
   let modifiedProviderIndexFile = providerIndexFile.replace(
-    "./gluestack-ui.config",
+    './gluestack-ui.config',
     path
       .relative(
         `${targetPath}/core/GluestackUIProvider/index.tsx`,
@@ -306,10 +312,10 @@ const addProvider = async (sourcePath, targetPath) => {
 
   const configFile = fs.readFileSync(
     `${currDir}/gluestack-ui.config.ts`,
-    "utf8"
+    'utf8'
   );
 
-  const folderName = targetPath.split("/").slice(-1)[0];
+  const folderName = targetPath.split('/').slice(-1)[0];
 
   const newConfig = configFile.replace(
     /componentPath:\s+'[^']+'/,
@@ -321,8 +327,8 @@ const addProvider = async (sourcePath, targetPath) => {
 
 const getComponentGitRepo = async () => {
   // Clone repo locally in users home directory
-  const cloneLocation = homeDir + "/.gluestack/cache";
-  const clonedpath = cloneLocation + "/gluestack-ui";
+  const cloneLocation = homeDir + '/.gluestack/cache';
+  const clonedpath = cloneLocation + '/gluestack-ui';
   let clonedRepoExists = await checkIfFolderExits(clonedpath);
 
   if (clonedRepoExists) {
@@ -331,7 +337,7 @@ const getComponentGitRepo = async () => {
     createFolders(cloneLocation);
     await cloneComponentRepo(
       clonedpath,
-      "https://github.com/gluestack/gluestack-ui.git"
+      'https://github.com/gluestack/gluestack-ui.git'
     );
   }
 };
@@ -345,6 +351,7 @@ const initialProviderAdder = async (componentFolderPath) => {
     const targetPath = path.join(currDir, componentFolderPath);
     await addProvider(sourcePath, targetPath);
     await addIndexFile(targetPath);
+
     const message = `
     Gluestack Provider has been added to your components folder. 
     To use it, simply wrap your app component with the <GluestackUIProvider> component like this:
