@@ -88,16 +88,16 @@ const pullComponentRepo = async (targetpath) => {
       await tryGitPull(targetpath);
       success = true;
     } catch (err) {
-      console.error('\x1b[31m', '\nPulling failed - retring', '\x1b[0m', err);
+      console.error('\x1b[31m', '\nPulling failed - retring\n', '\x1b[0m', err);
       retry++;
     }
   }
   if (!success) {
     spinner.stop();
-    console.error('\x1b[31m', '\nPulling failed!', '\x1b[0m');
+    console.error('\x1b[31m', '\nPulling failed!\n', '\x1b[0m');
   } else {
     spinner.stop();
-    console.log('\x1b[32m', '\nPulling successful.', '\x1b[0m');
+    console.log('\x1b[32m', '\nPull successful.\n', '\x1b[0m');
   }
 };
 
@@ -136,7 +136,7 @@ const installDependencies = (currDir) => {
     }
     spinner.stop();
     console.log(
-      'Dependencies installed successfully.',
+      '\nDependencies have been installed successfully.',
       command,
       projectRootPath
     );

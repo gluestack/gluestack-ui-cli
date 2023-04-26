@@ -36,7 +36,7 @@ const installGluestackUI = async () => {
   if (projectData.framework === 'Next' && projectData.os === 'darwin') {
     setupTypeAutomatic = await nextInstaller(response.folderName);
     if (setupTypeAutomatic === 'y') {
-      console.log(`\n\nAuto setup was successful!`);
+      console.log(`\nAuto setup was successful!`);
     } else {
       console.log(finalmessage)
       console.log(

@@ -17,7 +17,7 @@ const main = async () => {
   } else if (process.argv.length >= 3 && process.argv[2] === 'init') {
     await initializer(!askUserToInit);
     console.log(
-      '\n\nGluestack UI is successfully initialised in your project. Please visit https://ui.gluestack.io/docs/components/layout/box to kick start your project by adding simple Box component.'
+      '\nThe Gluestack UI is now initialized in your project! Visit https://ui.gluestack.io/docs/components/layout/box to get started with adding the simple Box component.\n'
     );
   } else if (
     process.argv.length >= 4 &&
