@@ -135,11 +135,7 @@ const installDependencies = (currDir) => {
       });
     }
     spinner.stop();
-    console.log(
-      '\nDependencies have been installed successfully.',
-      command,
-      projectRootPath
-    );
+    console.log('\nDependencies have been installed successfully.');
   } catch (Error) {
     //
     console.error('Error installing dependencies.');
