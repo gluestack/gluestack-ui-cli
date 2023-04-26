@@ -5,7 +5,7 @@ const Spinner = require('cli-spinner').Spinner;
 
 const currDir = process.cwd();
 
-const addDependencies = (projectType) => {
+const addDependencies = (projectType = "") => {
   const packageJsonPath = `${currDir}/package.json`;
   // Read in the existing package.json file
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));

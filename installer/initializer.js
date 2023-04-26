@@ -18,7 +18,7 @@ const installGluestackUI = async () => {
 
   await initialProviderAdder('./' + response.folderName);
 
-    const finalmessage = `
+  const finalmessage = `
   Gluestack Provider has been added to your components folder.
   To use it, simply wrap your app component with the <GluestackUIProvider> component like this:
 
@@ -38,23 +38,21 @@ const installGluestackUI = async () => {
     if (setupTypeAutomatic === 'y') {
       console.log(`\nAuto setup was successful!`);
     } else {
-      console.log(finalmessage)
+      console.log(finalmessage);
       console.log(
         `\n\nPlease visit https://ui.gluestack.io/docs/getting-started/install-nextjs for more information on manual setup.`
       );
     }
   } else if (projectData.framework === 'Expo' && projectData.os === 'darwin') {
     await expoInstaller();
-    console.log(finalmessage)
+    console.log(finalmessage);
   } else {
     console.log(
       '\x1b[31m%s\x1b[0m',
-      'WARNING: gluestack-ui cli is currently not compatible with this platform. Please configure it manually in your project.'
+      'WARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.'
     );
+    await expoInstaller();
   }
-
-
-
 };
 
 const initializer = async (askUserToInit) => {

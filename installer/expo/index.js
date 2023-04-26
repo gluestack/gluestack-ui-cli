@@ -1,10 +1,11 @@
 // const prompts = require('prompts');
-const { addDependencies, installDependencies } = require('../utils');
+const { addDependencies } = require('../utils');
+const { installDependencies } = require('../../component-adder/utils');
 const currDir = process.cwd();
 
 const expoInstaller = async () => {
   try {
-    addDependencies('Expo');
+    addDependencies();
     await installDependencies(currDir);
   } catch (err) {}
 };
