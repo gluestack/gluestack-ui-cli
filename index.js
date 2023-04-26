@@ -53,7 +53,7 @@ const main = async () => {
           "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\n\nPlease make sure to commit your current changes before proceeding.\n\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
         initial: 'y',
       });
-      if (proceedResponse.proceed == 'y') {
+      if (proceedResponse.proceed.toLowerCase() == 'y') {
         await initializer(askUserToInit);
         await componentAdder('--all');
       }

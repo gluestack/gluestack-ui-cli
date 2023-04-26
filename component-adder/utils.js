@@ -67,7 +67,7 @@ async function tryGitPull(targetPath) {
   const git = require('simple-git')(targetPath);
 
   if (fs.existsSync(targetPath)) {
-    await git.pull();
+    await git.pull('origin', 'main');
   }
 }
 

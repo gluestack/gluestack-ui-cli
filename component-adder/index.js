@@ -64,7 +64,7 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
   let specificComponentType;
   //  Traverse all components
   fs.readdirSync(sourcePath).forEach((component, index) => {
-    if (component !== 'index.ts' && component !== 'index.tsx') {
+    if (component !== 'index.ts' && component !== 'index.tsx' && component !== 'Provider') {
       // Read in the existing package.json file
       const packageJsonPath = `${sourcePath}/${component}/config.json`;
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -207,7 +207,13 @@ const componentAdder = async (specificComponent = '') => {
 
     if (specificComponent === '--all') {
       fs.readdirSync(sourcePath).forEach((component) => {
-        if (!(component === 'index.ts' || component === 'index.tsx')) {
+        if (
+          !(
+            component === 'index.ts' ||
+            component === 'index.tsx' ||
+            component === 'Provider'
+          )
+        ) {
           const packageJsonPath = `${sourcePath}/${component}/config.json`;
           const packageJson = JSON.parse(
             fs.readFileSync(packageJsonPath, 'utf8')
