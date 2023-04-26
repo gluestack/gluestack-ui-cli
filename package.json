@@ -1,6 +1,6 @@
 {
   "name": "gluestack-ui",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "A script to add gluestack/ui to your projects",
   "scripts": {
     "test": "jest",
@@ -10,7 +10,7 @@
   "author": "Mayank Pagar",
   "license": "ISC",
   "dependencies": {
-    "@gluestack/ui-project-detector": "^0.0.1",
+    "@gluestack/ui-project-detector": "latest",
     "chalk": "^5.2.0",
     "cli-progress": "^3.11.2",
     "cli-spinner": "^0.2.10",

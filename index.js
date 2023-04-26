@@ -6,6 +6,7 @@ const { removeComponent } = require('./remove-component');
 const prompts = require('prompts');
 
 const main = async () => {
+  console.log('Hello Mayank!');
   const askUserToInit = true;
   if (
     process.argv.length === 2 ||
@@ -15,6 +16,9 @@ const main = async () => {
     await componentAdder();
   } else if (process.argv.length >= 3 && process.argv[2] === 'init') {
     await initializer(!askUserToInit);
+    console.log(
+      '\nThe Gluestack UI is now initialized in your project! Visit https://ui.gluestack.io/docs/components/layout/box to get started with adding the simple Box component.\n'
+    );
   } else if (
     process.argv.length >= 4 &&
     process.argv[2] === 'add' &&
@@ -46,10 +50,10 @@ const main = async () => {
         type: 'text',
         name: 'proceed',
         message:
-          'Warning: This action will erase existing components and replace them with new one. Save your work by committing changes before proceeding. (y/n)',
+          "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\n\nPlease make sure to commit your current changes before proceeding.\n\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
         initial: 'y',
       });
-      if (proceedResponse.proceed.toLowerCase() === 'y') {
+      if (proceedResponse.proceed.toLowerCase() == 'y') {
         await initializer(askUserToInit);
         await componentAdder('--all');
       }

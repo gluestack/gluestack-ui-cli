@@ -351,22 +351,6 @@ const initialProviderAdder = async (componentFolderPath) => {
     const targetPath = path.join(currDir, componentFolderPath);
     await addProvider(sourcePath, targetPath);
     await addIndexFile(targetPath);
-
-    const message = `
-    Gluestack Provider has been added to your components folder. 
-    To use it, simply wrap your app component with the <GluestackUIProvider> component like this:
-
-    export default function App() {
-      return (
-        <GluestackUIProvider>
-          <Component />
-        </GluestackUIProvider>
-      );
-    }
-   
-    `;
-
-    console.log(message);
   } catch (err) {
     console.log(err);
   }
