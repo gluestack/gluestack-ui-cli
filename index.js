@@ -6,7 +6,6 @@ const { removeComponent } = require('./remove-component');
 const prompts = require('prompts');
 
 const main = async () => {
-  console.log('Hello Mayank!');
   const askUserToInit = true;
   if (
     process.argv.length === 2 ||
@@ -29,7 +28,24 @@ const main = async () => {
       await componentAdder(process.argv[3]);
     }
   } else if (process.argv.length === 3 && process.argv[2] == 'help') {
-    console.log('Coming soon!!!');
+    console.log(`
+- Init gluestack-ui
+  npx gluestack-ui@latest init
+  
+- Init and add components
+  npx gluestack-ui@latest
+  
+- Add component
+  npx gluestack-ui@latest add <component-name>
+  
+- Update a component
+  npx gluestack-ui@latest update <component-name>
+  
+- Remove a component
+  npx gluestack-ui@latest remove <component-name>
+  
+- Help
+  npx gluestack-ui@latest help`);
   } else if (process.argv.length >= 4 && process.argv[2] === 'update') {
     if (process.argv[3]) {
       await updateComponent(process.argv[3]);
