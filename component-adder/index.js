@@ -14,8 +14,12 @@ const {
   installDependencies,
 } = require('./utils');
 const homeDir = require('os').homedir();
-const currDir = process.cwd();
 const copyAsync = util.promisify(fs.copy);
+
+var finder = require('find-package-json');
+const currDir = process.cwd();
+var f = finder(currDir);
+const rootPackageJsonPath = f.next().filename;
 
 const addIndexFile = async (componentsDirectory, level = 0) => {
   fs.readdir(componentsDirectory, (err, files) => {
@@ -153,7 +157,6 @@ const copyFolders = async (sourcePath, targetPath, specificComponent) => {
           });
         }
 
-        const rootPackageJsonPath = `${currDir}/package.json`;
         const rootPackageJson = JSON.parse(
           fs.readFileSync(rootPackageJsonPath, 'utf8')
         );

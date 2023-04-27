@@ -16,6 +16,7 @@ const rootPackageJsonPath = f.next().filename;
 
 const projectRootPath = path.dirname(rootPackageJsonPath);
 
+
 const createFolders = (pathx) => {
   const parts = pathx.split('/');
   let currentPath = '';
@@ -122,6 +123,9 @@ const installDependencies = (currDir) => {
   try {
     spinner.start();
     let ls;
+
+    console.log(projectRootPath, "PROJECT ROOT PATH Installing dependencies")
+
     if (fs.existsSync(path.join(projectRootPath, 'package-lock.json'))) {
       ls = spawnSync('npm', ['install', '--legacy-peer-deps'], {
         cwd: projectRootPath,
