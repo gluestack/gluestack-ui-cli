@@ -124,8 +124,6 @@ const installDependencies = (currDir) => {
     spinner.start();
     let ls;
 
-    console.log(projectRootPath, "PROJECT ROOT PATH Installing dependencies")
-
     if (fs.existsSync(path.join(projectRootPath, 'package-lock.json'))) {
       ls = spawnSync('npm', ['install', '--legacy-peer-deps'], {
         cwd: projectRootPath,
