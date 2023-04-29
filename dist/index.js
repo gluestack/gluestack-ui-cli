@@ -1,0 +1,129 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "./remove-component", "prompts"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const component_adder_1 = require("./component-adder");
+    const update_component_1 = require("./update-component");
+    const initializer_1 = require("./installer/initializer");
+    const remove_component_1 = require("./remove-component");
+    const prompts_1 = __importDefault(require("prompts"));
+    function main() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield (0, component_adder_1.getComponentGitRepo)();
+            const askUserToInit = true;
+            if (process.argv.length === 2 ||
+                (process.argv.length === 3 && process.argv[2] === 'add')) {
+                yield (0, initializer_1.initializer)(askUserToInit);
+                yield (0, component_adder_1.componentAdder)();
+            }
+            else if (process.argv.length >= 3 && process.argv[2] === 'init') {
+                const alreadyInitialised = yield (0, initializer_1.initializer)(!askUserToInit);
+                if (alreadyInitialised) {
+                    console.log(`\nReady to create amazing designs with ease? Let's start with the simple \x1b[36mBox\x1b[0m component. Check out \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to get started!`);
+                    console.log(`\n🚀 Feeling adventurous? Try out the \x1b[36m'npx gluestack-ui@latest add box'\x1b[0m command in your project and watch the magic happen! ✨`);
+                }
+                else {
+                    console.log(`\n\x1b[1m\x1b[36mCongrats, gluestack-ui is now part of your project! 🎉\x1b[0m\nTime to unleash your creativity with the simple \x1b[36mBox\x1b[0m component. Head over to \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to learn more!`);
+                    console.log(`\nFeeling adventurous? Try the \x1b[1m\x1b[36mnpx gluestack-ui@latest add box\x1b[0m\x1b[0m command and watch the magic happen. ✨`);
+                    // console.log(
+                    //   '\n' +
+                    //     'The gluestack-ui is now initialized in your project! Visit ' +
+                    //     '\x1b[36m' +
+                    //     'https://ui.gluestack.io/docs/components/layout/box' +
+                    //     '\x1b[0m' +
+                    //     ' to get started with adding the simple Box component.'
+                    // );
+                    // console.log(
+                    //   '\n' +
+                    //     'Or, you can directly try ' +
+                    //     '\x1b[36m' +
+                    //     'npx gluestack-ui@latest add box' +
+                    //     '\x1b[0m' +
+                    //     ' command in your project.'
+                    // );
+                }
+            }
+            else if (process.argv.length >= 4 &&
+                process.argv[2] === 'add' &&
+                process.argv[3] !== '--all') {
+                if (process.argv[3]) {
+                    yield (0, initializer_1.initializer)(askUserToInit);
+                    yield (0, component_adder_1.componentAdder)(process.argv[3]);
+                }
+            }
+            else if (process.argv.length === 3 && process.argv[2] == 'help') {
+                console.log(`
+  - Init gluestack-ui
+    npx gluestack-ui@latest init
+
+  - Init and add components
+    npx gluestack-ui@latest
+
+  - Add component
+    npx gluestack-ui@latest add <component-name>
+
+  - Update a component
+    npx gluestack-ui@latest update <component-name>
+
+  - Remove a component
+    npx gluestack-ui@latest remove <component-name>
+
+  - Help
+    npx gluestack-ui@latest help`);
+            }
+            else if (process.argv.length >= 4 && process.argv[2] === 'update') {
+                if (process.argv[3]) {
+                    yield (0, update_component_1.updateComponent)(process.argv[3]);
+                }
+            }
+            else if (process.argv.length == 4 && process.argv[2] === 'update') {
+                yield (0, update_component_1.updateComponent)('');
+            }
+            else if (process.argv.length == 4 && process.argv[2] === 'remove') {
+                if (process.argv[3]) {
+                    yield (0, remove_component_1.removeComponent)(process.argv[3]);
+                }
+            }
+            else if (process.argv.length >= 4 &&
+                process.argv[2] === 'add' &&
+                process.argv[3] === '--all') {
+                try {
+                    const proceedResponse = yield (0, prompts_1.default)({
+                        type: 'text',
+                        name: 'proceed',
+                        message: "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
+                        initial: 'y',
+                    });
+                    if (proceedResponse.proceed.toLowerCase() == 'y') {
+                        yield (0, initializer_1.initializer)(askUserToInit);
+                        yield (0, component_adder_1.componentAdder)('--all');
+                    }
+                }
+                catch (err) {
+                    console.log(err);
+                }
+            }
+            // await installDependencies();
+        });
+    }
+    main();
+});
