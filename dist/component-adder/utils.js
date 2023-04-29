@@ -117,7 +117,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         else {
             spinner.stop();
-            console.log('\x1b[32m', '\nGit pull successful.\n', '\x1b[0m');
+            console.log('\x1b[32m', '\nGit pull successful.', '\x1b[0m');
         }
     });
     exports.pullComponentRepo = pullComponentRepo;

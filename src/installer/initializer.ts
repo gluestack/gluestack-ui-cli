@@ -92,11 +92,7 @@ const initializer = async (askUserToInit: boolean): Promise<boolean> => {
       if (install) {
         await installGluestackUI();
       }
-      console.log(
-        '\x1b[32m',
-        'gluestack-ui initialization completed!',
-        '\x1b[0m'
-      );
+      console.log('\u001b[32mgluestack-ui initialization completed!\u001b[0m');
     } else {
       console.log(
         '\u001b[32mgluestack-ui is already initialized in your project!\u001b[0m'

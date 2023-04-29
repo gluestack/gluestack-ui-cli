@@ -26,7 +26,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const expoInstaller = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             (0, utils_1.default)();
-            // await installDependencies();
         }
         catch (err) {
             console.log('\x1b[31m%s\x1b[0m', `Error in Expo installer: ${err.message}`);

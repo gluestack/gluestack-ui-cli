@@ -48,7 +48,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     return `export * from './${file.split('.')[0]}';`;
                 })
                     .join('\n');
-                fs_extra_1.default.writeFile(path_1.default.join(componentsDirectory, 'index.ts'), exports, err => {
+                fs_extra_1.default.writeFile(path_1.default.join(componentsDirectory, 'index.ts'), exports, (err) => {
                     if (err) {
                         console.error('\x1b[31m%s\x1b[0m', err.message);
                         throw err;
@@ -74,7 +74,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         let specificComponentType;
         //  Traverse all components
         try {
-            fs_extra_1.default.readdirSync(sourcePath).forEach(component => {
+            fs_extra_1.default.readdirSync(sourcePath).forEach((component) => {
                 if (component !== 'index.ts' &&
                     component !== 'index.tsx' &&
                     component !== 'Provider') {
@@ -163,36 +163,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             });
         }));
     });
-    // const checkForExistingFolders = (specificComponents: string[]) => {
-    //   const alreadyExistingComponents: string[] = [];
-    //   for (const component of specificComponents) {
-    //     const configFile = fs.readFileSync(
-    //       `${currDir}/gluestack-ui.config.ts`,
-    //       'utf-8'
-    //     );
-    //     const match = configFile.match(/componentPath:\s+'([^']+)'/);
-    //     const componentPath = (match && match[1]) ?? '';
-    //     const pathToCheck = path.join(
-    //       currDir,
-    //       componentPath,
-    //       'core',
-    //       dashToPascal(component)
-    //     );
-    //     if (fs.existsSync(pathToCheck)) {
-    //       alreadyExistingComponents.push(component);
-    //       // const response = await prompts({
-    //       //   type: 'confirm',
-    //       //   name: 'value',
-    //       //   message: `The folder '${component}' already exists. Do you want to overwrite it?`,
-    //       //   initial: false,
-    //       // });
-    //       // if (!response.value) {
-    //       //   ignoreComponents.push(component);
-    //       // }
-    //     }
-    //   }
-    //   console.log(alreadyExistingComponents);
-    // };
+    const checkForExistingFolders = (specificComponents) => {
+        var _a;
+        const alreadyExistingComponents = [];
+        for (const component of specificComponents) {
+            const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
+            const match = configFile.match(/componentPath:\s+'([^']+)'/);
+            const componentPath = (_a = (match && match[1])) !== null && _a !== void 0 ? _a : '';
+            const pathToCheck = path_1.default.join(currDir, componentPath, 'core', dashToPascal(component));
+            if (fs_extra_1.default.existsSync(pathToCheck)) {
+                alreadyExistingComponents.push(component);
+                // const response = await prompts({
+                //   type: 'confirm',
+                //   name: 'value',
+                //   message: `The folder '${component}' already exists. Do you want to overwrite it?`,
+                //   initial: false,
+                // });
+                // if (!response.value) {
+                //   ignoreComponents.push(component);
+                // }
+            }
+        }
+        console.log(alreadyExistingComponents);
+    };
     const componentAdder = (specificComponent = '') => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Get config
@@ -201,7 +194,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const groupedComponents = {};
             let selectedComponents = {};
             if (specificComponent === '--all') {
-                fs_extra_1.default.readdirSync(sourcePath).forEach(component => {
+                fs_extra_1.default.readdirSync(sourcePath).forEach((component) => {
                     if (!(component === 'index.ts' ||
                         component === 'index.tsx' ||
                         component === 'Provider')) {

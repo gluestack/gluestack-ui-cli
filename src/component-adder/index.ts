@@ -9,7 +9,6 @@ import {
   createFolders,
   pullComponentRepo,
   checkIfFolderExists,
-  installDependencies,
 } from './utils';
 
 const homeDir = os.homedir();
@@ -18,7 +17,7 @@ const copyAsync = util.promisify(fs.copy);
 
 const addIndexFile = async (componentsDirectory: string, level = 0) => {
   try {
-    fs.readdir(componentsDirectory, (err, files) => {
+    fs.readdir(componentsDirectory, (err: any, files: string[]) => {
       if (err) {
         console.error('\x1b[31m%s\x1b[0m', err.message);
         throw err;
@@ -37,12 +36,16 @@ const addIndexFile = async (componentsDirectory: string, level = 0) => {
         })
         .join('\n');
 
-      fs.writeFile(path.join(componentsDirectory, 'index.ts'), exports, err => {
-        if (err) {
-          console.error('\x1b[31m%s\x1b[0m', err.message);
-          throw err;
+      fs.writeFile(
+        path.join(componentsDirectory, 'index.ts'),
+        exports,
+        (err: any) => {
+          if (err) {
+            console.error('\x1b[31m%s\x1b[0m', err.message);
+            throw err;
+          }
         }
-      });
+      );
     });
   } catch (error) {
     console.error('\x1b[31m%s\x1b[0m', `Error: ${(error as Error).message}`);
@@ -70,7 +73,7 @@ const copyFolders = async (
 
   //  Traverse all components
   try {
-    fs.readdirSync(sourcePath).forEach(component => {
+    fs.readdirSync(sourcePath).forEach((component: string) => {
       if (
         component !== 'index.ts' &&
         component !== 'index.tsx' &&
@@ -208,39 +211,39 @@ const copyFolders = async (
   );
 };
 
-// const checkForExistingFolders = (specificComponents: string[]) => {
-//   const alreadyExistingComponents: string[] = [];
+const checkForExistingFolders = (specificComponents: string[]) => {
+  const alreadyExistingComponents: string[] = [];
 
-//   for (const component of specificComponents) {
-//     const configFile = fs.readFileSync(
-//       `${currDir}/gluestack-ui.config.ts`,
-//       'utf-8'
-//     );
+  for (const component of specificComponents) {
+    const configFile = fs.readFileSync(
+      `${currDir}/gluestack-ui.config.ts`,
+      'utf-8'
+    );
 
-//     const match = configFile.match(/componentPath:\s+'([^']+)'/);
-//     const componentPath = (match && match[1]) ?? '';
-//     const pathToCheck = path.join(
-//       currDir,
-//       componentPath,
-//       'core',
-//       dashToPascal(component)
-//     );
-//     if (fs.existsSync(pathToCheck)) {
-//       alreadyExistingComponents.push(component);
-//       // const response = await prompts({
-//       //   type: 'confirm',
-//       //   name: 'value',
-//       //   message: `The folder '${component}' already exists. Do you want to overwrite it?`,
-//       //   initial: false,
-//       // });
-//       // if (!response.value) {
-//       //   ignoreComponents.push(component);
-//       // }
-//     }
-//   }
+    const match = configFile.match(/componentPath:\s+'([^']+)'/);
+    const componentPath = (match && match[1]) ?? '';
+    const pathToCheck = path.join(
+      currDir,
+      componentPath,
+      'core',
+      dashToPascal(component)
+    );
+    if (fs.existsSync(pathToCheck)) {
+      alreadyExistingComponents.push(component);
+      // const response = await prompts({
+      //   type: 'confirm',
+      //   name: 'value',
+      //   message: `The folder '${component}' already exists. Do you want to overwrite it?`,
+      //   initial: false,
+      // });
+      // if (!response.value) {
+      //   ignoreComponents.push(component);
+      // }
+    }
+  }
 
-//   console.log(alreadyExistingComponents);
-// };
+  console.log(alreadyExistingComponents);
+};
 
 const componentAdder = async (specificComponent = '') => {
   try {
@@ -252,7 +255,7 @@ const componentAdder = async (specificComponent = '') => {
     let selectedComponents: Record<string, string[]> = {};
 
     if (specificComponent === '--all') {
-      fs.readdirSync(sourcePath).forEach(component => {
+      fs.readdirSync(sourcePath).forEach((component: string) => {
         if (
           !(
             component === 'index.ts' ||

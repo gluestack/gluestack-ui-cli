@@ -28,7 +28,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         try {
             (0, utils_1.default)('Next');
             const setupTypeAutomatic = yield (0, utils_2.autoSetup)(folderName);
-            // await installDependencies();
             return setupTypeAutomatic === 'y';
         }
         catch (err) {

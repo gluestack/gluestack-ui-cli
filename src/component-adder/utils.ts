@@ -117,7 +117,7 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
     console.error('\x1b[31m', '\nPulling failed!\n', '\x1b[0m');
   } else {
     spinner.stop();
-    console.log('\x1b[32m', '\nGit pull successful.\n', '\x1b[0m');
+    console.log('\x1b[32m', '\nGit pull successful.', '\x1b[0m');
   }
 };
 
