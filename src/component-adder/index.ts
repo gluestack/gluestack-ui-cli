@@ -16,7 +16,6 @@ const currDir = process.cwd();
 const copyAsync = util.promisify(fs.copy);
 
 let existingComponentsChecked: boolean = false;
-let componentsToBeAdded: string[] = [];
 
 const addIndexFile = async (componentsDirectory: string, level = 0) => {
   try {
@@ -70,7 +69,8 @@ const copyFolders = async (
   sourcePath: string,
   targetPath: string,
   specificComponent: string,
-  showWarning: boolean
+  showWarning: boolean,
+  isUpdate: boolean
 ): Promise<void> => {
   const groupedComponents: Record<string, string[]> = {};
   let specificComponentType: string | undefined;
@@ -169,7 +169,7 @@ const copyFolders = async (
         ) {
           compPackageJson.componentDependencies.map(
             async (component: string) => {
-              await componentAdder(component, showWarning);
+              await componentAdder(component, false, true);
             }
           );
         }
@@ -205,7 +205,7 @@ const copyFolders = async (
           );
         }
 
-        if (showWarning) {
+        if (!isUpdate) {
           console.log(
             ` \x1b[32m ✔  ${'\u001b[1m' +
               originalComponentPath +
@@ -309,7 +309,11 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
-const componentAdder = async (requestedComponent = '', showWarning = true) => {
+const componentAdder = async (
+  requestedComponent = '',
+  showWarning = true,
+  isUpdate = false
+) => {
   try {
     // Get config
     const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
@@ -323,11 +327,14 @@ const componentAdder = async (requestedComponent = '', showWarning = true) => {
       requestedComponents.push(requestedComponent);
     }
 
-    if (!existingComponentsChecked && showWarning) {
+    if (
+      !existingComponentsChecked &&
+      showWarning &&
+      requestedComponent !== ''
+    ) {
       const updatedComponents = await checkForExistingFolders(
         requestedComponents
       );
-      componentsToBeAdded = [...updatedComponents];
       addComponents = [...updatedComponents];
     } else {
       addComponents = requestedComponents;
@@ -343,7 +350,13 @@ const componentAdder = async (requestedComponent = '', showWarning = true) => {
         const componentPath = (match && match[1]) ?? '';
         createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
-        await copyFolders(sourcePath, targetPath, component, showWarning);
+        await copyFolders(
+          sourcePath,
+          targetPath,
+          component,
+          showWarning,
+          isUpdate
+        );
         await addIndexFile(targetPath);
       })
     );
@@ -470,10 +483,4 @@ const initialProviderAdder = async (
   }
 };
 
-export {
-  componentAdder,
-  initialProviderAdder,
-  getComponentGitRepo,
-  checkForExistingFolders,
-  getAllComponents,
-};
+export { componentAdder, initialProviderAdder, getComponentGitRepo };

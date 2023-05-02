@@ -1,2 +1,2 @@
-declare function removeComponent(component: string | null): Promise<void>;
+declare function removeComponent(component?: string): Promise<void>;
 export { removeComponent };

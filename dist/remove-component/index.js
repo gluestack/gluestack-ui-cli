@@ -26,30 +26,59 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const path_1 = __importDefault(require("path"));
     const prompts_1 = __importDefault(require("prompts"));
     const currDir = process.cwd();
-    function removeComponent(component) {
+    const pascalToDash = (str) => {
+        return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    };
+    const getAllComponents = (source) => {
+        const requestedComponents = [];
+        fs_extra_1.default.readdirSync(source).forEach((component) => {
+            if (!(component === 'index.ts' ||
+                component === 'index.tsx' ||
+                component === 'GluestackUIProvider' ||
+                component === 'styled')) {
+                // const cliComponent = pascalToDash(component);
+                requestedComponents.push(component);
+            }
+        });
+        return requestedComponents;
+    };
+    function removeComponent(component = '') {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const proceedResponse = yield (0, prompts_1.default)({
-                    type: 'text',
-                    name: 'proceed',
-                    message: `Are you sure you want to remove ${component}?`,
-                    initial: 'n',
-                });
-                if (proceedResponse.proceed.toLowerCase() === 'y') {
-                    const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
-                    const match = configFile.match(/componentPath:\s+'([^']+)'/);
-                    const componentPath = (match && match[1]) || '';
-                    const dirPath = path_1.default.resolve(currDir, componentPath, 'core', component || '');
-                    if (fs_extra_1.default.existsSync(dirPath)) {
+                const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
+                const match = configFile.match(/componentPath:\s+'([^']+)'/);
+                const componentPath = (match && match[1]) || '';
+                const dirPath = path_1.default.resolve(currDir, componentPath, 'core', component);
+                if (component === '--all') {
+                    const source = path_1.default.resolve(process.cwd(), componentPath, 'core');
+                    const requestedComponents = getAllComponents(source);
+                    for (const component of requestedComponents) {
+                        const dirPath = path_1.default.resolve(currDir, componentPath, 'core', component);
                         fs_extra_1.default.rmSync(dirPath, { recursive: true, force: true });
-                        console.log(`Component "${component}" has been removed.`);
-                    }
-                    else {
-                        console.log(`Component "${component}" not found.`);
+                        console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                            component +
+                            '\u001b[22m'} \x1b[0m component removed successfully!`);
                     }
                 }
                 else {
-                    console.log(`Component "${component}" removal cancelled.`);
+                    const proceedResponse = yield (0, prompts_1.default)({
+                        type: 'text',
+                        name: 'proceed',
+                        message: `Are you sure you want to remove ${component}?`,
+                        initial: 'y',
+                    });
+                    if (proceedResponse.proceed.toLowerCase() === 'y') {
+                        if (fs_extra_1.default.existsSync(dirPath)) {
+                            fs_extra_1.default.rmSync(dirPath, { recursive: true, force: true });
+                            console.log('\x1b[32m%s\x1b[0m', `Component "${component}" has been removed.`);
+                        }
+                        else {
+                            console.log('\x1b[33m%s\x1b[0m', `Component "${component}" not found.`);
+                        }
+                    }
+                    else {
+                        console.log('\x1b[31m%s\x1b[0m', `The removal of component "${component}" has been canceled.`);
+                    }
                 }
             }
             catch (err) {

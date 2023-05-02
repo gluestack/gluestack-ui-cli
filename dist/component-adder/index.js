@@ -21,7 +21,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getAllComponents = exports.checkForExistingFolders = exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
+    exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const prompts_1 = __importDefault(require("prompts"));
     const path_1 = __importDefault(require("path"));
@@ -33,7 +33,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const currDir = process_1.default.cwd();
     const copyAsync = util_1.default.promisify(fs_extra_1.default.copy);
     let existingComponentsChecked = false;
-    let componentsToBeAdded = [];
     const addIndexFile = (componentsDirectory, level = 0) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             fs_extra_1.default.readdir(componentsDirectory, (err, files) => {
@@ -71,7 +70,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
             .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
     };
-    const copyFolders = (sourcePath, targetPath, specificComponent, showWarning) => __awaiter(void 0, void 0, void 0, function* () {
+    const copyFolders = (sourcePath, targetPath, specificComponent, showWarning, isUpdate) => __awaiter(void 0, void 0, void 0, function* () {
         const groupedComponents = {};
         let specificComponentType;
         //  Traverse all components
@@ -147,7 +146,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (compPackageJson.componentDependencies &&
                     compPackageJson.componentDependencies.length > 0) {
                     compPackageJson.componentDependencies.map((component) => __awaiter(void 0, void 0, void 0, function* () {
-                        yield componentAdder(component, showWarning);
+                        yield componentAdder(component, false, true);
                     }));
                 }
                 const rootPackageJsonPath = `${currDir}/package.json`;
@@ -159,7 +158,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (fs_extra_1.default.existsSync(`${targetPath}/${component}/${originalComponentPath}/config.json`)) {
                     fs_extra_1.default.unlinkSync(`${targetPath}/${component}/${originalComponentPath}/config.json`);
                 }
-                if (showWarning) {
+                if (!isUpdate) {
                     console.log(` \x1b[32m ✔  ${'\u001b[1m' +
                         originalComponentPath +
                         '\u001b[22m'} \x1b[0m component added successfully!`);
@@ -215,7 +214,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         existingComponentsChecked = true;
         return updatedComponents;
     });
-    exports.checkForExistingFolders = checkForExistingFolders;
     const getAllComponents = (source) => {
         const requestedComponents = [];
         fs_extra_1.default.readdirSync(source).forEach((component) => {
@@ -236,8 +234,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
         return requestedComponents;
     };
-    exports.getAllComponents = getAllComponents;
-    const componentAdder = (requestedComponent = '', showWarning = true) => __awaiter(void 0, void 0, void 0, function* () {
+    const componentAdder = (requestedComponent = '', showWarning = true, isUpdate = false) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Get config
             const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
@@ -249,9 +246,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             else {
                 requestedComponents.push(requestedComponent);
             }
-            if (!existingComponentsChecked && showWarning) {
+            if (!existingComponentsChecked &&
+                showWarning &&
+                requestedComponent !== '') {
                 const updatedComponents = yield checkForExistingFolders(requestedComponents);
-                componentsToBeAdded = [...updatedComponents];
                 addComponents = [...updatedComponents];
             }
             else {
@@ -264,7 +262,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const componentPath = (_b = (match && match[1])) !== null && _b !== void 0 ? _b : '';
                 (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
-                yield copyFolders(sourcePath, targetPath, component, showWarning);
+                yield copyFolders(sourcePath, targetPath, component, showWarning, isUpdate);
                 yield addIndexFile(targetPath);
             })));
         }

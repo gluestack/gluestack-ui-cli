@@ -91,17 +91,40 @@ async function main() {
         } catch (err) {
           console.log(err);
         }
-      } else {
+      } else if (subCommand) {
         await updateComponent(subCommand);
+      } else {
+        console.log(
+          '\x1b[31m%s\x1b[0m',
+          'Invalid command, checkout help command by running npx gluestack-ui@latest help'
+        );
       }
     }
   } else if (command === 'remove') {
     const { gluestackUIInstalled } = await initializer(askUserToInit);
     if (gluestackUIInstalled) {
       if (subCommand === '--all') {
-        console.log('Removing a component...');
+        try {
+          const proceedResponse = await prompts({
+            type: 'text',
+            name: 'proceed',
+            message:
+              "Are you sure you want to remove all components? To continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
+            initial: 'y',
+          });
+          if (proceedResponse.proceed.toLowerCase() == 'y') {
+            await removeComponent('--all');
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      } else if (subCommand) {
+        await removeComponent(subCommand);
       } else {
-        console.log('Invalid remove command');
+        console.log(
+          '\x1b[31m%s\x1b[0m',
+          'Invalid command, checkout help command by running npx gluestack-ui@latest help'
+        );
       }
     }
   } else {

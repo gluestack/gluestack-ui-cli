@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "prompts"], factory);
+        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "./remove-component", "prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,6 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const component_adder_1 = require("./component-adder");
     const update_component_1 = require("./update-component");
     const initializer_1 = require("./installer/initializer");
+    const remove_component_1 = require("./remove-component");
     const prompts_1 = __importDefault(require("prompts"));
     function main() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -105,8 +106,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             console.log(err);
                         }
                     }
-                    else {
+                    else if (subCommand) {
                         yield (0, update_component_1.updateComponent)(subCommand);
+                    }
+                    else {
+                        console.log('\x1b[31m%s\x1b[0m', 'Invalid command, checkout help command by running npx gluestack-ui@latest help');
                     }
                 }
             }
@@ -114,10 +118,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const { gluestackUIInstalled } = yield (0, initializer_1.initializer)(askUserToInit);
                 if (gluestackUIInstalled) {
                     if (subCommand === '--all') {
-                        console.log('Removing a component...');
+                        try {
+                            const proceedResponse = yield (0, prompts_1.default)({
+                                type: 'text',
+                                name: 'proceed',
+                                message: "Are you sure you want to remove all components? To continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
+                                initial: 'y',
+                            });
+                            if (proceedResponse.proceed.toLowerCase() == 'y') {
+                                yield (0, remove_component_1.removeComponent)('--all');
+                            }
+                        }
+                        catch (err) {
+                            console.log(err);
+                        }
+                    }
+                    else if (subCommand) {
+                        yield (0, remove_component_1.removeComponent)(subCommand);
                     }
                     else {
-                        console.log('Invalid remove command');
+                        console.log('\x1b[31m%s\x1b[0m', 'Invalid command, checkout help command by running npx gluestack-ui@latest help');
                     }
                 }
             }

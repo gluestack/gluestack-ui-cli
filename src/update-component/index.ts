@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import prompts from 'prompts';
-import { checkForExistingFolders, componentAdder } from '../component-adder';
+import { componentAdder } from '../component-adder';
 
 const pascalToDash = (str: string): string => {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -47,27 +47,26 @@ async function updateComponent(component = ''): Promise<void> {
       const source = path.resolve(process.cwd(), componentPath, 'core');
       const requestedComponents = getAllComponents(source);
       for (const component of requestedComponents) {
-        await componentAdder(component, false);
+        await componentAdder(component, false, true);
       }
     } else {
-      if (fs.existsSync(dirPath)) {
-        fs.rmSync(dirPath, { recursive: true, force: true });
-      } else {
-        console.log(
-          `\x1b[31mError: Component '${component}' not found.\x1b[0m`
-        );
-        return;
-      }
-
       const proceedResponse = await prompts({
         type: 'text',
         name: 'proceed',
         message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new (y/n)`,
-        initial: 'n',
+        initial: 'y',
       });
 
       if (proceedResponse.proceed === 'y') {
-        await componentAdder(component);
+        if (fs.existsSync(dirPath)) {
+          fs.rmSync(dirPath, { recursive: true, force: true });
+        } else {
+          console.log(
+            `\x1b[31mError: Component '${component}' not found.\x1b[0m`
+          );
+          return;
+        }
+        await componentAdder(component, false, true);
       } else {
         console.log(
           `\x1b[33mUpdate of the component '${component}' has been cancelled.\x1b[0m`
