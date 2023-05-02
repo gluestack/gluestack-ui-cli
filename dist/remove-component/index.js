@@ -100,7 +100,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     if (proceedResponse.proceed.toLowerCase() === 'y') {
                         if (fs_extra_1.default.existsSync(dirPath)) {
                             fs_extra_1.default.rmSync(componentsPath, { recursive: true, force: true });
-                            console.log('\x1b[32m%s\x1b[0m', `Component "${component}" has been removed.`);
+                            console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                                component +
+                                '\u001b[22m'} \x1b[0m component removed successfully!`);
                             //  Update index file
                             yield updateIndexFile(dirPath, componentPath);
                         }

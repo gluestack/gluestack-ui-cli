@@ -112,8 +112,9 @@ async function removeComponent(component = '') {
         if (fs.existsSync(dirPath)) {
           fs.rmSync(componentsPath, { recursive: true, force: true });
           console.log(
-            '\x1b[32m%s\x1b[0m',
-            `Component "${component}" has been removed.`
+            ` \x1b[32m ✔  ${'\u001b[1m' +
+              component +
+              '\u001b[22m'} \x1b[0m component removed successfully!`
           );
 
           //  Update index file
