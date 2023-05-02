@@ -4,10 +4,6 @@ import prompts from 'prompts';
 
 const currDir = process.cwd();
 
-const pascalToDash = (str: string): string => {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-};
-
 const getAllComponents = (source: string): string[] => {
   const requestedComponents: string[] = [];
 
@@ -28,6 +24,47 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
+const addIndexFile = async (componentsDirectory: string, level = 0) => {
+  try {
+    fs.readdir(componentsDirectory, (err: any, files: string[]) => {
+      if (err) {
+        console.error('\x1b[31m%s\x1b[0m', err.message);
+        throw err;
+      }
+
+      const exports = files
+        .filter(
+          file =>
+            file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
+        )
+        .map(file => {
+          return `export * from './${file.split('.')[0]}';`;
+        })
+        .join('\n');
+
+      fs.writeFile(
+        path.join(componentsDirectory, 'index.ts'),
+        exports,
+        (err: any) => {
+          if (err) {
+            console.error('\x1b[31m%s\x1b[0m', err.message);
+            throw err;
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `Error: ${(error as Error).message}`);
+  }
+};
+
+const updateIndexFile = async (dirPath: string, componentPath: string) => {
+  const indexPath = path.resolve(dirPath, 'index.ts');
+  fs.rmSync(indexPath);
+  const targetPath = path.join(currDir, componentPath, 'core');
+  addIndexFile(targetPath);
+};
+
 async function removeComponent(component = '') {
   try {
     const configFile = fs.readFileSync(
@@ -36,20 +73,33 @@ async function removeComponent(component = '') {
     );
     const match = configFile.match(/componentPath:\s+'([^']+)'/);
     const componentPath = (match && match[1]) || '';
-    const dirPath = path.resolve(currDir, componentPath, 'core', component);
+
+    const dirPath = path.resolve(currDir, componentPath, 'core');
+    const componentsPath = path.resolve(
+      currDir,
+      componentPath,
+      'core',
+      component
+    );
 
     if (component === '--all') {
-      const source = path.resolve(process.cwd(), componentPath, 'core');
-      const requestedComponents = getAllComponents(source);
+      const requestedComponents = getAllComponents(dirPath);
       for (const component of requestedComponents) {
-        const dirPath = path.resolve(currDir, componentPath, 'core', component);
-        fs.rmSync(dirPath, { recursive: true, force: true });
+        const componentsPath = path.resolve(
+          currDir,
+          componentPath,
+          'core',
+          component
+        );
+        fs.rmSync(componentsPath, { recursive: true, force: true });
         console.log(
           ` \x1b[32m ✔  ${'\u001b[1m' +
             component +
             '\u001b[22m'} \x1b[0m component removed successfully!`
         );
       }
+      //  Update index file
+      await updateIndexFile(dirPath, componentPath);
     } else {
       const proceedResponse = await prompts({
         type: 'text',
@@ -60,11 +110,14 @@ async function removeComponent(component = '') {
 
       if (proceedResponse.proceed.toLowerCase() === 'y') {
         if (fs.existsSync(dirPath)) {
-          fs.rmSync(dirPath, { recursive: true, force: true });
+          fs.rmSync(componentsPath, { recursive: true, force: true });
           console.log(
             '\x1b[32m%s\x1b[0m',
             `Component "${component}" has been removed.`
           );
+
+          //  Update index file
+          await updateIndexFile(dirPath, componentPath);
         } else {
           console.log(
             '\x1b[33m%s\x1b[0m',

@@ -483,4 +483,9 @@ const initialProviderAdder = async (
   }
 };
 
-export { componentAdder, initialProviderAdder, getComponentGitRepo };
+export {
+  componentAdder,
+  initialProviderAdder,
+  getComponentGitRepo,
+  addIndexFile,
+};

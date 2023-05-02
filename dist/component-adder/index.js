@@ -21,7 +21,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
+    exports.addIndexFile = exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const prompts_1 = __importDefault(require("prompts"));
     const path_1 = __importDefault(require("path"));
@@ -61,6 +61,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             console.error('\x1b[31m%s\x1b[0m', `Error: ${error.message}`);
         }
     });
+    exports.addIndexFile = addIndexFile;
     const pascalToDash = (str) => {
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
     };
