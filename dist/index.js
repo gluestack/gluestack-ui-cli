@@ -17,19 +17,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "./remove-component", "prompts"], factory);
+        define(["require", "exports", "./component-adder", "./component-adder/utils", "./update-component", "./installer/initializer", "./remove-component", "prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const component_adder_1 = require("./component-adder");
+    const utils_1 = require("./component-adder/utils");
     const update_component_1 = require("./update-component");
     const initializer_1 = require("./installer/initializer");
     const remove_component_1 = require("./remove-component");
     const prompts_1 = __importDefault(require("prompts"));
     function main() {
         return __awaiter(this, void 0, void 0, function* () {
-            // await getComponentGitRepo();
+            yield (0, component_adder_1.getComponentGitRepo)();
             const askUserToInit = true;
             const command = process.argv[2];
             const subCommand = process.argv[3];
@@ -159,7 +160,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, component_adder_1.componentAdder)(subCommand);
                 }
             }
-            // await installDependencies();
+            yield (0, utils_1.installDependencies)();
         });
     }
     main();

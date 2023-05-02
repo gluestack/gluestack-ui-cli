@@ -7,7 +7,7 @@ import { removeComponent } from './remove-component';
 import prompts from 'prompts';
 
 async function main() {
-  // await getComponentGitRepo();
+  await getComponentGitRepo();
   const askUserToInit = true;
 
   const command = process.argv[2];
@@ -145,7 +145,7 @@ async function main() {
     }
   }
 
-  // await installDependencies();
+  await installDependencies();
 }
 
 main();
