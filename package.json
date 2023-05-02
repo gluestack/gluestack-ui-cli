@@ -1,19 +1,19 @@
 {
   "name": "gluestack-ui",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "license": "MIT",
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=18"
   },
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
+    "prepare": "tsc",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "size": "size-limit",
