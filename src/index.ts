@@ -31,23 +31,6 @@ async function main() {
       console.log(
         `\nFeeling adventurous? Try the \x1b[1m\x1b[36mnpx gluestack-ui@latest add box\x1b[0m\x1b[0m command and watch the magic happen. ✨`
       );
-
-      // console.log(
-      //   '\n' +
-      //     'The gluestack-ui is now initialized in your project! Visit ' +
-      //     '\x1b[36m' +
-      //     'https://ui.gluestack.io/docs/components/layout/box' +
-      //     '\x1b[0m' +
-      //     ' to get started with adding the simple Box component.'
-      // );
-      // console.log(
-      //   '\n' +
-      //     'Or, you can directly try ' +
-      //     '\x1b[36m' +
-      //     'npx gluestack-ui@latest add box' +
-      //     '\x1b[0m' +
-      //     ' command in your project.'
-      // );
     }
   } else if (
     process.argv.length >= 4 &&
