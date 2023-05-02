@@ -15,6 +15,9 @@ const homeDir = os.homedir();
 const currDir = process.cwd();
 const copyAsync = util.promisify(fs.copy);
 
+let existingComponentsChecked: boolean = false;
+let componentsToBeAdded: string[] = [];
+
 const addIndexFile = async (componentsDirectory: string, level = 0) => {
   try {
     fs.readdir(componentsDirectory, (err: any, files: string[]) => {
@@ -52,16 +55,16 @@ const addIndexFile = async (componentsDirectory: string, level = 0) => {
   }
 };
 
-function pascalToDash(str: string): string {
+const pascalToDash = (str: string): string => {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-}
+};
 
-function dashToPascal(str: string): string {
+const dashToPascal = (str: string): string => {
   return str
     .toLowerCase()
     .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
     .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
-}
+};
 
 const copyFolders = async (
   sourcePath: string,
@@ -211,8 +214,9 @@ const copyFolders = async (
   );
 };
 
-const checkForExistingFolders = (specificComponents: string[]) => {
+const checkForExistingFolders = async (specificComponents: string[]) => {
   const alreadyExistingComponents: string[] = [];
+  let selectedComponents: string[] = [];
 
   for (const component of specificComponents) {
     const configFile = fs.readFileSync(
@@ -230,31 +234,43 @@ const checkForExistingFolders = (specificComponents: string[]) => {
     );
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);
-      // const response = await prompts({
-      //   type: 'confirm',
-      //   name: 'value',
-      //   message: `The folder '${component}' already exists. Do you want to overwrite it?`,
-      //   initial: false,
-      // });
-      // if (!response.value) {
-      //   ignoreComponents.push(component);
-      // }
     }
   }
 
-  console.log(alreadyExistingComponents);
+  if (alreadyExistingComponents.length > 0) {
+    const response = await prompts({
+      type: 'multiselect',
+      name: 'value',
+      message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
+      choices: alreadyExistingComponents.map(component => ({
+        title: component,
+        value: component,
+      })),
+    });
+    selectedComponents = response.value;
+  }
+
+  // Remove repeated components from all components
+  const filteredComponents = specificComponents.filter(
+    component => !alreadyExistingComponents.includes(component)
+  );
+
+  // Add selected components to all components
+  const updatedComponents = filteredComponents.concat(selectedComponents);
+  existingComponentsChecked = true;
+  return updatedComponents;
 };
 
-const componentAdder = async (specificComponent = '') => {
+const componentAdder = async (requestedComponent = '') => {
   try {
     // Get config
     const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
-    const specificComponents: string[] = [];
 
+    const requestedComponents: string[] = [];
     const groupedComponents: Record<string, string[]> = {};
-    let selectedComponents: Record<string, string[]> = {};
+    let addComponents: string[] = [];
 
-    if (specificComponent === '--all') {
+    if (requestedComponent === '--all') {
       fs.readdirSync(sourcePath).forEach((component: string) => {
         if (
           !(
@@ -276,18 +292,25 @@ const componentAdder = async (specificComponent = '') => {
             groupedComponents[componentType] =
               groupedComponents[componentType] || [];
             groupedComponents[componentType].push(cliComponent);
-            specificComponents.push(cliComponent);
+            requestedComponents.push(cliComponent);
           }
         }
       });
     } else {
-      specificComponents.push(specificComponent);
+      requestedComponents.push(requestedComponent);
     }
 
-    // checkForExistingFolders(specificComponents);
-
+    if (!existingComponentsChecked) {
+      componentsToBeAdded = await checkForExistingFolders(requestedComponents);
+      addComponents = [...componentsToBeAdded];
+    } else {
+      // addComponents = requestedComponents.filter(element =>
+      //   componentsToBeAdded.includes(pascalToDash(element))
+      // );
+      addComponents = requestedComponents;
+    }
     await Promise.all(
-      specificComponents.map(async currentSpecificComponent => {
+      addComponents.map(async component => {
         const configFile = fs.readFileSync(
           `${currDir}/gluestack-ui.config.ts`,
           'utf-8'
@@ -297,7 +320,7 @@ const componentAdder = async (specificComponent = '') => {
         const componentPath = (match && match[1]) ?? '';
         createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
-        await copyFolders(sourcePath, targetPath, currentSpecificComponent);
+        await copyFolders(sourcePath, targetPath, component);
         await addIndexFile(targetPath);
       })
     );

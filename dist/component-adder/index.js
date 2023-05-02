@@ -32,6 +32,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const homeDir = os_1.default.homedir();
     const currDir = process_1.default.cwd();
     const copyAsync = util_1.default.promisify(fs_extra_1.default.copy);
+    let existingComponentsChecked = false;
+    let componentsToBeAdded = [];
     const addIndexFile = (componentsDirectory, level = 0) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             fs_extra_1.default.readdir(componentsDirectory, (err, files) => {
@@ -60,15 +62,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             console.error('\x1b[31m%s\x1b[0m', `Error: ${error.message}`);
         }
     });
-    function pascalToDash(str) {
+    const pascalToDash = (str) => {
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-    }
-    function dashToPascal(str) {
+    };
+    const dashToPascal = (str) => {
         return str
             .toLowerCase()
             .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
             .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
-    }
+    };
     const copyFolders = (sourcePath, targetPath, specificComponent) => __awaiter(void 0, void 0, void 0, function* () {
         const groupedComponents = {};
         let specificComponentType;
@@ -163,9 +165,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             });
         }));
     });
-    const checkForExistingFolders = (specificComponents) => {
+    const checkForExistingFolders = (specificComponents) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const alreadyExistingComponents = [];
+        let selectedComponents = [];
         for (const component of specificComponents) {
             const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
             const match = configFile.match(/componentPath:\s+'([^']+)'/);
@@ -173,27 +176,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const pathToCheck = path_1.default.join(currDir, componentPath, 'core', dashToPascal(component));
             if (fs_extra_1.default.existsSync(pathToCheck)) {
                 alreadyExistingComponents.push(component);
-                // const response = await prompts({
-                //   type: 'confirm',
-                //   name: 'value',
-                //   message: `The folder '${component}' already exists. Do you want to overwrite it?`,
-                //   initial: false,
-                // });
-                // if (!response.value) {
-                //   ignoreComponents.push(component);
-                // }
             }
         }
-        console.log(alreadyExistingComponents);
-    };
-    const componentAdder = (specificComponent = '') => __awaiter(void 0, void 0, void 0, function* () {
+        if (alreadyExistingComponents.length > 0) {
+            const response = yield (0, prompts_1.default)({
+                type: 'multiselect',
+                name: 'value',
+                message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
+                choices: alreadyExistingComponents.map(component => ({
+                    title: component,
+                    value: component,
+                })),
+            });
+            selectedComponents = response.value;
+        }
+        // Remove repeated components from all components
+        const filteredComponents = specificComponents.filter(component => !alreadyExistingComponents.includes(component));
+        // Add selected components to all components
+        const updatedComponents = filteredComponents.concat(selectedComponents);
+        existingComponentsChecked = true;
+        return updatedComponents;
+    });
+    const componentAdder = (requestedComponent = '') => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Get config
             const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
-            const specificComponents = [];
+            const requestedComponents = [];
             const groupedComponents = {};
-            let selectedComponents = {};
-            if (specificComponent === '--all') {
+            let addComponents = [];
+            if (requestedComponent === '--all') {
                 fs_extra_1.default.readdirSync(sourcePath).forEach((component) => {
                     if (!(component === 'index.ts' ||
                         component === 'index.tsx' ||
@@ -209,23 +220,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             groupedComponents[componentType] =
                                 groupedComponents[componentType] || [];
                             groupedComponents[componentType].push(cliComponent);
-                            specificComponents.push(cliComponent);
+                            requestedComponents.push(cliComponent);
                         }
                     }
                 });
             }
             else {
-                specificComponents.push(specificComponent);
+                requestedComponents.push(requestedComponent);
             }
-            // checkForExistingFolders(specificComponents);
-            yield Promise.all(specificComponents.map((currentSpecificComponent) => __awaiter(void 0, void 0, void 0, function* () {
-                var _a;
+            if (!existingComponentsChecked) {
+                componentsToBeAdded = yield checkForExistingFolders(requestedComponents);
+                addComponents = [...componentsToBeAdded];
+            }
+            else {
+                // addComponents = requestedComponents.filter(element =>
+                //   componentsToBeAdded.includes(pascalToDash(element))
+                // );
+                addComponents = requestedComponents;
+            }
+            yield Promise.all(addComponents.map((component) => __awaiter(void 0, void 0, void 0, function* () {
+                var _b;
                 const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
                 const match = configFile.match(/componentPath:\s+'([^']+)'/);
-                const componentPath = (_a = (match && match[1])) !== null && _a !== void 0 ? _a : '';
+                const componentPath = (_b = (match && match[1])) !== null && _b !== void 0 ? _b : '';
                 (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
-                yield copyFolders(sourcePath, targetPath, currentSpecificComponent);
+                yield copyFolders(sourcePath, targetPath, component);
                 yield addIndexFile(targetPath);
             })));
         }
