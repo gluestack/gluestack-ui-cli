@@ -7,7 +7,7 @@ import { removeComponent } from './remove-component';
 import prompts from 'prompts';
 
 async function main() {
-  await getComponentGitRepo();
+  // await getComponentGitRepo();
   const askUserToInit = true;
 
   const command = process.argv[2];
@@ -67,16 +67,16 @@ async function main() {
     if (gluestackUIInstalled) {
       if (subCommand === '--all') {
         try {
-          const proceedResponse = await prompts({
-            type: 'text',
-            name: 'proceed',
-            message:
-              "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
-            initial: 'y',
-          });
-          if (proceedResponse.proceed.toLowerCase() == 'y') {
-            await componentAdder('--all');
-          }
+          // const proceedResponse = await prompts({
+          //   type: 'text',
+          //   name: 'proceed',
+          //   message:
+          //     "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
+          //   initial: 'y',
+          // });
+          // if (proceedResponse.proceed.toLowerCase() == 'y') {
+          await componentAdder('--all');
+          // }
         } catch (err) {
           console.log(err);
         }
@@ -145,7 +145,7 @@ async function main() {
     }
   }
 
-  await installDependencies();
+  // await installDependencies();
 }
 
 main();

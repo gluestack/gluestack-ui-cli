@@ -17,20 +17,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./component-adder", "./component-adder/utils", "./update-component", "./installer/initializer", "./remove-component", "prompts"], factory);
+        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "./remove-component", "prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const component_adder_1 = require("./component-adder");
-    const utils_1 = require("./component-adder/utils");
     const update_component_1 = require("./update-component");
     const initializer_1 = require("./installer/initializer");
     const remove_component_1 = require("./remove-component");
     const prompts_1 = __importDefault(require("prompts"));
     function main() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield (0, component_adder_1.getComponentGitRepo)();
+            // await getComponentGitRepo();
             const askUserToInit = true;
             const command = process.argv[2];
             const subCommand = process.argv[3];
@@ -80,15 +79,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (gluestackUIInstalled) {
                     if (subCommand === '--all') {
                         try {
-                            const proceedResponse = yield (0, prompts_1.default)({
-                                type: 'text',
-                                name: 'proceed',
-                                message: "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
-                                initial: 'y',
-                            });
-                            if (proceedResponse.proceed.toLowerCase() == 'y') {
-                                yield (0, component_adder_1.componentAdder)('--all');
-                            }
+                            // const proceedResponse = await prompts({
+                            //   type: 'text',
+                            //   name: 'proceed',
+                            //   message:
+                            //     "Are you sure you want to add all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.\nTo continue, type 'y' for yes. To cancel and exit, type 'n' for no.",
+                            //   initial: 'y',
+                            // });
+                            // if (proceedResponse.proceed.toLowerCase() == 'y') {
+                            yield (0, component_adder_1.componentAdder)('--all');
+                            // }
                         }
                         catch (err) {
                             console.log(err);
@@ -159,7 +159,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, component_adder_1.componentAdder)(subCommand);
                 }
             }
-            yield (0, utils_1.installDependencies)();
+            // await installDependencies();
         });
     }
     main();
