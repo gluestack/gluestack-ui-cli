@@ -237,7 +237,17 @@ const checkForExistingFolders = async (specificComponents: string[]) => {
     }
   }
 
-  if (alreadyExistingComponents.length > 0) {
+  if (alreadyExistingComponents.length === 1) {
+    const response = await prompts({
+      type: 'text',
+      name: 'value',
+      message: `The ${alreadyExistingComponents[0]} component already exists. Kindly proceed if you wish to replace. Be advised that if there are any interdependent components, proceeding will result in their dependent components being replaced as well.`,
+      initial: 'y',
+    });
+    if (response.value.toLowerCase() === 'y') {
+      selectedComponents = alreadyExistingComponents;
+    }
+  } else if (alreadyExistingComponents.length > 0) {
     const response = await prompts({
       type: 'multiselect',
       name: 'value',
