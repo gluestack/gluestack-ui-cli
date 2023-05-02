@@ -25,7 +25,7 @@
     }
   },
   "bin": {
-    "gluestack-ui-ts": "dist/index.js"
+    "gluestack-ui": "dist/index.js"
   },
   "prettier": {
     "printWidth": 80,
@@ -34,17 +34,6 @@
     "trailingComma": "es5"
   },
   "author": "mayank-96",
-  "module": "dist/gluestack-ui.esm.js",
-  "size-limit": [
-    {
-      "path": "dist/gluestack-ui.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/gluestack-ui.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "dependencies": {
     "@gluestack/ui-project-detector": "latest",
     "chalk": "^5.2.0",
