@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { componentAdder, getComponentGitRepo } from './component-adder';
 import { installDependencies } from './component-adder/utils';
 import { updateComponent } from './update-component';
