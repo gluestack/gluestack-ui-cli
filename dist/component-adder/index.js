@@ -21,7 +21,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
+    exports.getAllComponents = exports.checkForExistingFolders = exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const prompts_1 = __importDefault(require("prompts"));
     const path_1 = __importDefault(require("path"));
@@ -71,7 +71,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
             .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
     };
-    const copyFolders = (sourcePath, targetPath, specificComponent) => __awaiter(void 0, void 0, void 0, function* () {
+    const copyFolders = (sourcePath, targetPath, specificComponent, showWarning) => __awaiter(void 0, void 0, void 0, function* () {
         const groupedComponents = {};
         let specificComponentType;
         //  Traverse all components
@@ -147,7 +147,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (compPackageJson.componentDependencies &&
                     compPackageJson.componentDependencies.length > 0) {
                     compPackageJson.componentDependencies.map((component) => __awaiter(void 0, void 0, void 0, function* () {
-                        yield componentAdder(component);
+                        yield componentAdder(component, showWarning);
                     }));
                 }
                 const rootPackageJsonPath = `${currDir}/package.json`;
@@ -159,9 +159,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (fs_extra_1.default.existsSync(`${targetPath}/${component}/${originalComponentPath}/config.json`)) {
                     fs_extra_1.default.unlinkSync(`${targetPath}/${component}/${originalComponentPath}/config.json`);
                 }
-                console.log(` \x1b[32m ✔  ${'\u001b[1m' +
-                    originalComponentPath +
-                    '\u001b[22m'} \x1b[0m component added successfully!`);
+                if (showWarning) {
+                    console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                        originalComponentPath +
+                        '\u001b[22m'} \x1b[0m component added successfully!`);
+                }
+                else {
+                    console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                        originalComponentPath +
+                        '\u001b[22m'} \x1b[0m component updated successfully!`);
+                }
             });
         }));
     });
@@ -208,45 +215,46 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         existingComponentsChecked = true;
         return updatedComponents;
     });
-    const componentAdder = (requestedComponent = '') => __awaiter(void 0, void 0, void 0, function* () {
+    exports.checkForExistingFolders = checkForExistingFolders;
+    const getAllComponents = (source) => {
+        const requestedComponents = [];
+        fs_extra_1.default.readdirSync(source).forEach((component) => {
+            if (!(component === 'index.ts' ||
+                component === 'index.tsx' ||
+                component === 'Provider')) {
+                const packageJsonPath = `${source}/${component}/config.json`;
+                const packageJson = JSON.parse(fs_extra_1.default.readFileSync(packageJsonPath, 'utf8'));
+                let componentType;
+                if (packageJson.keywords.indexOf('components') !== -1) {
+                    componentType = packageJson.keywords[1];
+                }
+                if (componentType) {
+                    const cliComponent = pascalToDash(component);
+                    requestedComponents.push(cliComponent);
+                }
+            }
+        });
+        return requestedComponents;
+    };
+    exports.getAllComponents = getAllComponents;
+    const componentAdder = (requestedComponent = '', showWarning = true) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Get config
             const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
-            const requestedComponents = [];
-            const groupedComponents = {};
+            let requestedComponents = [];
             let addComponents = [];
             if (requestedComponent === '--all') {
-                fs_extra_1.default.readdirSync(sourcePath).forEach((component) => {
-                    if (!(component === 'index.ts' ||
-                        component === 'index.tsx' ||
-                        component === 'Provider')) {
-                        const packageJsonPath = `${sourcePath}/${component}/config.json`;
-                        const packageJson = JSON.parse(fs_extra_1.default.readFileSync(packageJsonPath, 'utf8'));
-                        let componentType;
-                        if (packageJson.keywords.indexOf('components') !== -1) {
-                            componentType = packageJson.keywords[1];
-                        }
-                        if (componentType) {
-                            const cliComponent = pascalToDash(component);
-                            groupedComponents[componentType] =
-                                groupedComponents[componentType] || [];
-                            groupedComponents[componentType].push(cliComponent);
-                            requestedComponents.push(cliComponent);
-                        }
-                    }
-                });
+                requestedComponents = getAllComponents(sourcePath);
             }
             else {
                 requestedComponents.push(requestedComponent);
             }
-            if (!existingComponentsChecked) {
-                componentsToBeAdded = yield checkForExistingFolders(requestedComponents);
-                addComponents = [...componentsToBeAdded];
+            if (!existingComponentsChecked && showWarning) {
+                const updatedComponents = yield checkForExistingFolders(requestedComponents);
+                componentsToBeAdded = [...updatedComponents];
+                addComponents = [...updatedComponents];
             }
             else {
-                // addComponents = requestedComponents.filter(element =>
-                //   componentsToBeAdded.includes(pascalToDash(element))
-                // );
                 addComponents = requestedComponents;
             }
             yield Promise.all(addComponents.map((component) => __awaiter(void 0, void 0, void 0, function* () {
@@ -256,7 +264,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const componentPath = (_b = (match && match[1])) !== null && _b !== void 0 ? _b : '';
                 (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
-                yield copyFolders(sourcePath, targetPath, component);
+                yield copyFolders(sourcePath, targetPath, component, showWarning);
                 yield addIndexFile(targetPath);
             })));
         }

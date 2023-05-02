@@ -69,7 +69,8 @@ const dashToPascal = (str: string): string => {
 const copyFolders = async (
   sourcePath: string,
   targetPath: string,
-  specificComponent: string
+  specificComponent: string,
+  showWarning: boolean
 ): Promise<void> => {
   const groupedComponents: Record<string, string[]> = {};
   let specificComponentType: string | undefined;
@@ -168,7 +169,7 @@ const copyFolders = async (
         ) {
           compPackageJson.componentDependencies.map(
             async (component: string) => {
-              await componentAdder(component);
+              await componentAdder(component, showWarning);
             }
           );
         }
@@ -204,17 +205,27 @@ const copyFolders = async (
           );
         }
 
-        console.log(
-          ` \x1b[32m ✔  ${'\u001b[1m' +
-            originalComponentPath +
-            '\u001b[22m'} \x1b[0m component added successfully!`
-        );
+        if (showWarning) {
+          console.log(
+            ` \x1b[32m ✔  ${'\u001b[1m' +
+              originalComponentPath +
+              '\u001b[22m'} \x1b[0m component added successfully!`
+          );
+        } else {
+          console.log(
+            ` \x1b[32m ✔  ${'\u001b[1m' +
+              originalComponentPath +
+              '\u001b[22m'} \x1b[0m component updated successfully!`
+          );
+        }
       });
     })
   );
 };
 
-const checkForExistingFolders = async (specificComponents: string[]) => {
+const checkForExistingFolders = async (
+  specificComponents: string[]
+): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let selectedComponents: string[] = [];
 
@@ -271,52 +282,54 @@ const checkForExistingFolders = async (specificComponents: string[]) => {
   return updatedComponents;
 };
 
-const componentAdder = async (requestedComponent = '') => {
+const getAllComponents = (source: string): string[] => {
+  const requestedComponents: string[] = [];
+
+  fs.readdirSync(source).forEach((component: string) => {
+    if (
+      !(
+        component === 'index.ts' ||
+        component === 'index.tsx' ||
+        component === 'Provider'
+      )
+    ) {
+      const packageJsonPath = `${source}/${component}/config.json`;
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      let componentType;
+      if (packageJson.keywords.indexOf('components') !== -1) {
+        componentType = packageJson.keywords[1];
+      }
+      if (componentType) {
+        const cliComponent = pascalToDash(component);
+        requestedComponents.push(cliComponent);
+      }
+    }
+  });
+
+  return requestedComponents;
+};
+
+const componentAdder = async (requestedComponent = '', showWarning = true) => {
   try {
     // Get config
     const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
 
-    const requestedComponents: string[] = [];
-    const groupedComponents: Record<string, string[]> = {};
+    let requestedComponents: string[] = [];
     let addComponents: string[] = [];
 
     if (requestedComponent === '--all') {
-      fs.readdirSync(sourcePath).forEach((component: string) => {
-        if (
-          !(
-            component === 'index.ts' ||
-            component === 'index.tsx' ||
-            component === 'Provider'
-          )
-        ) {
-          const packageJsonPath = `${sourcePath}/${component}/config.json`;
-          const packageJson = JSON.parse(
-            fs.readFileSync(packageJsonPath, 'utf8')
-          );
-          let componentType;
-          if (packageJson.keywords.indexOf('components') !== -1) {
-            componentType = packageJson.keywords[1];
-          }
-          if (componentType) {
-            const cliComponent = pascalToDash(component);
-            groupedComponents[componentType] =
-              groupedComponents[componentType] || [];
-            groupedComponents[componentType].push(cliComponent);
-            requestedComponents.push(cliComponent);
-          }
-        }
-      });
+      requestedComponents = getAllComponents(sourcePath);
     } else {
       requestedComponents.push(requestedComponent);
     }
 
-    if (!existingComponentsChecked) {
-      componentsToBeAdded = await checkForExistingFolders(requestedComponents);
-      addComponents = [...componentsToBeAdded];
+    if (!existingComponentsChecked && showWarning) {
+      const updatedComponents = await checkForExistingFolders(
+        requestedComponents
+      );
+      componentsToBeAdded = [...updatedComponents];
+      addComponents = [...updatedComponents];
     } else {
-      // addComponents = requestedComponents.filter(element =>
-      //   componentsToBeAdded.includes(pascalToDash(element))
-      // );
       addComponents = requestedComponents;
     }
     await Promise.all(
@@ -330,7 +343,7 @@ const componentAdder = async (requestedComponent = '') => {
         const componentPath = (match && match[1]) ?? '';
         createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
-        await copyFolders(sourcePath, targetPath, component);
+        await copyFolders(sourcePath, targetPath, component, showWarning);
         await addIndexFile(targetPath);
       })
     );
@@ -457,4 +470,10 @@ const initialProviderAdder = async (
   }
 };
 
-export { componentAdder, initialProviderAdder, getComponentGitRepo };
+export {
+  componentAdder,
+  initialProviderAdder,
+  getComponentGitRepo,
+  checkForExistingFolders,
+  getAllComponents,
+};

@@ -5,7 +5,7 @@ import { projectDetector } from '@gluestack/ui-project-detector';
 import { nextInstaller } from './next';
 import { expoInstaller } from './expo';
 
-const installGluestackUI = async (): Promise<void> => {
+const installGluestackUI = async (): Promise<boolean> => {
   try {
     const response = await prompts({
       type: 'text',
@@ -57,17 +57,22 @@ const installGluestackUI = async (): Promise<void> => {
       );
       await expoInstaller();
     }
+    return true;
   } catch (error) {
     console.error(
       '\x1b[31m',
       `Error installing gluestack-ui: ${(error as Error).message}`
     );
+    return false;
   }
 };
 
-const initializer = async (askUserToInit: boolean): Promise<boolean> => {
+const initializer = async (
+  askUserToInit: boolean
+): Promise<Record<string, boolean>> => {
   try {
     const gluestackUIConfigPresent = await initChecker();
+    let gluestackUIInstalled = false;
     if (!gluestackUIConfigPresent) {
       let install = true;
       if (askUserToInit) {
@@ -90,21 +95,26 @@ const initializer = async (askUserToInit: boolean): Promise<boolean> => {
       }
 
       if (install) {
-        await installGluestackUI();
+        gluestackUIInstalled = await installGluestackUI();
+        console.log(
+          '\u001b[32mgluestack-ui initialization completed!\u001b[0m'
+        );
+      } else {
+        console.log('\u001b[31mgluestack-ui initialization canceled!\u001b[0m');
       }
-      console.log('\u001b[32mgluestack-ui initialization completed!\u001b[0m');
     } else {
+      gluestackUIInstalled = true;
       console.log(
         '\u001b[32mgluestack-ui is already initialized in your project!\u001b[0m'
       );
     }
-    return gluestackUIConfigPresent;
+    return { gluestackUIConfigPresent, gluestackUIInstalled };
   } catch (err) {
     console.error(
       '\x1b[31m',
       `Error initializing gluestack-ui: ${(err as Error).message}`
     );
-    return false;
+    return { gluestackUIConfigPresent: false, gluestackUIInstalled: false };
   }
 };
 

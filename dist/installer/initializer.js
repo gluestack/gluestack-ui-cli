@@ -70,14 +70,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 console.warn('\x1b[31m%s\x1b[0m', 'WARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.');
                 yield (0, expo_1.expoInstaller)();
             }
+            return true;
         }
         catch (error) {
             console.error('\x1b[31m', `Error installing gluestack-ui: ${error.message}`);
+            return false;
         }
     });
     const initializer = (askUserToInit) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const gluestackUIConfigPresent = yield (0, init_checker_1.initChecker)();
+            let gluestackUIInstalled = false;
             if (!gluestackUIConfigPresent) {
                 let install = true;
                 if (askUserToInit) {
@@ -93,18 +96,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     }
                 }
                 if (install) {
-                    yield installGluestackUI();
+                    gluestackUIInstalled = yield installGluestackUI();
+                    console.log('\u001b[32mgluestack-ui initialization completed!\u001b[0m');
                 }
-                console.log('\u001b[32mgluestack-ui initialization completed!\u001b[0m');
+                else {
+                    console.log('\u001b[31mgluestack-ui initialization canceled!\u001b[0m');
+                }
             }
             else {
+                gluestackUIInstalled = true;
                 console.log('\u001b[32mgluestack-ui is already initialized in your project!\u001b[0m');
             }
-            return gluestackUIConfigPresent;
+            return { gluestackUIConfigPresent, gluestackUIInstalled };
         }
         catch (err) {
             console.error('\x1b[31m', `Error initializing gluestack-ui: ${err.message}`);
-            return false;
+            return { gluestackUIConfigPresent: false, gluestackUIInstalled: false };
         }
     });
     exports.initializer = initializer;

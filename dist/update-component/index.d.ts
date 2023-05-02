@@ -1,2 +1,2 @@
-declare function updateComponent(component: string): Promise<void>;
+declare function updateComponent(component?: string): Promise<void>;
 export { updateComponent };
