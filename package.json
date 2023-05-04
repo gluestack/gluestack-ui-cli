@@ -1,6 +1,6 @@
 {
   "name": "gluestack-ui",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -32,14 +32,14 @@
   },
   "author": "mayank-96",
   "dependencies": {
+    "@dank-style/animation-plugin": "latest",
+    "@dank-style/react": "latest",
+    "@gluestack-ui/provider": "latest",
     "@gluestack/ui-project-detector": "0.1.1",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.0",
     "prompts": "^2.4.2",
-    "simple-git": "^3.16.0",
-    "@dank-style/react": "latest",
-    "@gluestack-ui/provider": "latest",
-    "@dank-style/animation-plugin": "latest"
+    "simple-git": "^3.16.0"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^8.2.4",
@@ -48,15 +48,15 @@
     "@types/node": "^18.16.3",
     "@types/prompts": "^2.4.4",
     "husky": "^8.0.3",
+    "jest": "^29.5.0",
+    "jest-junit": "^15.0.0",
+    "react-native": "^0.70.7",
+    "react-native-web": "^0.18.12",
     "size-limit": "^8.2.4",
+    "supertest": "^6.3.3",
     "tsdx": "^0.14.1",
     "tslib": "^2.5.0",
     "typescript": "^5.0.4",
-    "jest": "^29.5.0",
-    "jest-junit": "^15.0.0",
-    "supertest": "^6.3.3",
-    "util": "^0.12.5",
-    "react-native-web": "^0.18.12",
-    "react-native": "^0.70.7"
+    "util": "^0.12.5"
   }
 }
