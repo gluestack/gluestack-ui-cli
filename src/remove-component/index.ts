@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import prompts from 'prompts';
+import { getConfigComponentPath } from '../component-adder/utils';
 
 const currDir = process.cwd();
 
@@ -67,12 +68,7 @@ const updateIndexFile = async (dirPath: string, componentPath: string) => {
 
 async function removeComponent(component = '') {
   try {
-    const configFile = fs.readFileSync(
-      `${currDir}/gluestack-ui.config.ts`,
-      'utf-8'
-    );
-    const match = configFile.match(/componentPath:\s+'([^']+)'/);
-    const componentPath = (match && match[1]) || '';
+    const componentPath = getConfigComponentPath();
 
     const dirPath = path.resolve(currDir, componentPath, 'core');
     const componentsPath = path.resolve(

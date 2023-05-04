@@ -21,7 +21,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.installDependencies = exports.checkIfFolderExists = exports.pullComponentRepo = exports.cloneComponentRepo = exports.removeClonedRepo = exports.createFolders = void 0;
+    exports.getConfigComponentPath = exports.installDependencies = exports.checkIfFolderExists = exports.pullComponentRepo = exports.cloneComponentRepo = exports.removeClonedRepo = exports.createFolders = void 0;
     const child_process_1 = require("child_process");
     const cli_spinner_1 = require("cli-spinner");
     const fs_extra_1 = __importDefault(require("fs-extra"));
@@ -211,4 +211,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     });
     exports.installDependencies = installDependencies;
+    const getConfigComponentPath = () => {
+        var _a;
+        const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
+        const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
+        const componentPath = (_a = (match && match[1])) !== null && _a !== void 0 ? _a : '';
+        return componentPath;
+    };
+    exports.getConfigComponentPath = getConfigComponentPath;
 });

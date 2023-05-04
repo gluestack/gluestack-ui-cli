@@ -173,13 +173,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }));
     });
     const checkForExistingFolders = (specificComponents) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
         const alreadyExistingComponents = [];
         let selectedComponents = [];
         for (const component of specificComponents) {
-            const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
-            const match = configFile.match(/componentPath:\s+'([^']+)'/);
-            const componentPath = (_a = (match && match[1])) !== null && _a !== void 0 ? _a : '';
+            const componentPath = (0, utils_1.getConfigComponentPath)();
             const pathToCheck = path_1.default.join(currDir, componentPath, 'core', dashToPascal(component));
             if (fs_extra_1.default.existsSync(pathToCheck)) {
                 alreadyExistingComponents.push(component);
@@ -257,10 +254,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 addComponents = requestedComponents;
             }
             yield Promise.all(addComponents.map((component) => __awaiter(void 0, void 0, void 0, function* () {
-                var _b;
-                const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
-                const match = configFile.match(/componentPath:\s+'([^']+)'/);
-                const componentPath = (_b = (match && match[1])) !== null && _b !== void 0 ? _b : '';
+                const componentPath = (0, utils_1.getConfigComponentPath)();
                 (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
                 yield copyFolders(sourcePath, targetPath, component, showWarning, isUpdate);

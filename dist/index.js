@@ -34,6 +34,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const askUserToInit = true;
             const command = process.argv[2];
             const subCommand = process.argv[3];
+            const flag = process.argv[4];
             if (command === 'help') {
                 console.log(`
 

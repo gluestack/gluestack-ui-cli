@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "prompts", "../component-adder"], factory);
+        define(["require", "exports", "fs-extra", "path", "prompts", "../component-adder", "../component-adder/utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const path_1 = __importDefault(require("path"));
     const prompts_1 = __importDefault(require("prompts"));
     const component_adder_1 = require("../component-adder");
+    const utils_1 = require("../component-adder/utils");
     const pascalToDash = (str) => {
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
     };
@@ -45,9 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     function updateComponent(component = '') {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const configFile = fs_extra_1.default.readFileSync(`${process.cwd()}/gluestack-ui.config.ts`, 'utf-8');
-                const match = configFile.match(/componentPath:\s+'([^']+)'/);
-                const componentPath = (match && match[1]) || '';
+                const componentPath = (0, utils_1.getConfigComponentPath)();
                 const dirPath = path_1.default.resolve(process.cwd(), componentPath, 'core', component);
                 if (component === '--all') {
                     const source = path_1.default.resolve(process.cwd(), componentPath, 'core');

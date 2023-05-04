@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import prompts from 'prompts';
 import { componentAdder } from '../component-adder';
+import { getConfigComponentPath } from '../component-adder/utils';
 
 const pascalToDash = (str: string): string => {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -29,13 +30,8 @@ const getAllComponents = (source: string): string[] => {
 
 async function updateComponent(component = ''): Promise<void> {
   try {
-    const configFile = fs.readFileSync(
-      `${process.cwd()}/gluestack-ui.config.ts`,
-      'utf-8'
-    );
+    const componentPath = getConfigComponentPath();
 
-    const match = configFile.match(/componentPath:\s+'([^']+)'/);
-    const componentPath = (match && match[1]) || '';
     const dirPath = path.resolve(
       process.cwd(),
       componentPath,

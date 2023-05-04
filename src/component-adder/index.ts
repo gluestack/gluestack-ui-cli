@@ -9,6 +9,7 @@ import {
   createFolders,
   pullComponentRepo,
   checkIfFolderExists,
+  getConfigComponentPath,
 } from './utils';
 
 const homeDir = os.homedir();
@@ -230,13 +231,7 @@ const checkForExistingFolders = async (
   let selectedComponents: string[] = [];
 
   for (const component of specificComponents) {
-    const configFile = fs.readFileSync(
-      `${currDir}/gluestack-ui.config.ts`,
-      'utf-8'
-    );
-
-    const match = configFile.match(/componentPath:\s+'([^']+)'/);
-    const componentPath = (match && match[1]) ?? '';
+    const componentPath = getConfigComponentPath();
     const pathToCheck = path.join(
       currDir,
       componentPath,
@@ -341,13 +336,7 @@ const componentAdder = async (
     }
     await Promise.all(
       addComponents.map(async component => {
-        const configFile = fs.readFileSync(
-          `${currDir}/gluestack-ui.config.ts`,
-          'utf-8'
-        );
-
-        const match = configFile.match(/componentPath:\s+'([^']+)'/);
-        const componentPath = (match && match[1]) ?? '';
+        const componentPath = getConfigComponentPath();
         createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
         await copyFolders(

@@ -12,6 +12,7 @@ async function main() {
 
   const command = process.argv[2];
   const subCommand = process.argv[3];
+  const flag = process.argv[4];
 
   if (command === 'help') {
     console.log(`

@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "prompts"], factory);
+        define(["require", "exports", "fs-extra", "path", "prompts", "../component-adder/utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -25,6 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const path_1 = __importDefault(require("path"));
     const prompts_1 = __importDefault(require("prompts"));
+    const utils_1 = require("../component-adder/utils");
     const currDir = process.cwd();
     const getAllComponents = (source) => {
         const requestedComponents = [];
@@ -73,9 +74,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     function removeComponent(component = '') {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
-                const match = configFile.match(/componentPath:\s+'([^']+)'/);
-                const componentPath = (match && match[1]) || '';
+                const componentPath = (0, utils_1.getConfigComponentPath)();
                 const dirPath = path_1.default.resolve(currDir, componentPath, 'core');
                 const componentsPath = path_1.default.resolve(currDir, componentPath, 'core', component);
                 if (component === '--all') {
