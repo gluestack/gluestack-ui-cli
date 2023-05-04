@@ -3,7 +3,7 @@ run-name: 'Integration Test'
 on: [pull_request]
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
