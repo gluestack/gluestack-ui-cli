@@ -1,5 +1,4 @@
 import { exec, spawnSync } from 'child_process';
-import { Spinner } from 'cli-spinner';
 import fs from 'fs-extra';
 import path from 'path';
 import finder from 'find-package-json';
@@ -57,16 +56,12 @@ const cloneComponentRepo = async (
   gitURL: string
 ): Promise<void> => {
   const git = simpleGit();
-  const spinner = new Spinner('%s Cloning repository... ');
-  spinner.setSpinnerString('|/-\\');
-  spinner.start();
+  console.log('⏳ Cloning repository...');
 
   try {
     await git.clone(gitURL, targetPath);
-    spinner.stop(true);
     console.log('\x1b[32m', '\nCloning successful.', '\x1b[0m');
   } catch (error) {
-    spinner.stop(true);
     console.error('\x1b[31m', '\nCloning failed', '\x1b[0m');
     console.error(error);
   }
@@ -92,9 +87,8 @@ const wait = (msec: number): Promise<void> =>
   });
 
 const pullComponentRepo = async (targetpath: string): Promise<void> => {
-  const spinner = new Spinner('%s Pulling latest changes... ');
-  spinner.setSpinnerString('|/-\\');
-  spinner.start();
+  console.log('⏳ Pulling latest changes...');
+
   let retry = 0;
   let success = false;
   while (!success && retry < 3) {
@@ -113,10 +107,8 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
     }
   }
   if (!success) {
-    spinner.stop();
     console.error('\x1b[31m', '\nPulling failed!\n', '\x1b[0m');
   } else {
-    spinner.stop();
     console.log('\x1b[32m', '\nGit pull successful.', '\x1b[0m');
   }
 };
@@ -126,9 +118,6 @@ const checkIfFolderExists = async (path: string): Promise<boolean> => {
     const stats = await stat(path);
     return stats.isDirectory();
   } catch (error) {
-    console.warn(
-      `Error while checking if folder exists: ${(error as Error).message}`
-    );
     return false;
   }
 };
@@ -165,8 +154,7 @@ const promptVersionManager = async (): Promise<string> => {
 };
 
 const installDependencies = async (): Promise<void> => {
-  const spinner = new Spinner('%s Installing dependencies... ');
-  spinner.setSpinnerString('|/-\\');
+  console.log('⏳ Installing dependencies...');
 
   let versionManager: string | null = detectLockFile();
   if (!versionManager) {
@@ -199,13 +187,11 @@ const installDependencies = async (): Promise<void> => {
   }
 
   try {
-    spinner.start();
     spawnSync(command, {
       cwd: projectRootPath,
       stdio: 'inherit',
       shell: true,
     });
-    spinner.stop();
     console.log(
       '\x1b[32m%s\x1b[0m',
       '\nDependencies have been installed successfully.'
@@ -225,7 +211,7 @@ const getConfigComponentPath = () => {
   );
   const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
 
-  const componentPath = (match && match[1]) ?? '';
+  const componentPath = (match && match[2]) ?? '';
 
   return componentPath;
 };

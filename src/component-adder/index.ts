@@ -18,38 +18,24 @@ const copyAsync = util.promisify(fs.copy);
 
 let existingComponentsChecked: boolean = false;
 
-const addIndexFile = async (componentsDirectory: string, level = 0) => {
+const addIndexFile = (componentsDirectory: string, level = 0) => {
   try {
-    fs.readdir(componentsDirectory, (err: any, files: string[]) => {
-      if (err) {
-        console.error('\x1b[31m%s\x1b[0m', err.message);
-        throw err;
-      }
+    const files = fs.readdirSync(componentsDirectory);
 
-      const exports = files
-        .filter(
-          file =>
-            file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
-        )
-        .map(file => {
-          if (level === 0) {
-            addIndexFile(`${componentsDirectory}/${file}`, level + 1);
-          }
-          return `export * from './${file.split('.')[0]}';`;
-        })
-        .join('\n');
-
-      fs.writeFile(
-        path.join(componentsDirectory, 'index.ts'),
-        exports,
-        (err: any) => {
-          if (err) {
-            console.error('\x1b[31m%s\x1b[0m', err.message);
-            throw err;
-          }
+    const exports = files
+      .filter(
+        file =>
+          file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
+      )
+      .map(file => {
+        if (level === 0) {
+          addIndexFile(`${componentsDirectory}/${file}`, level + 1);
         }
-      );
-    });
+        return `export * from './${file.split('.')[0]}';`;
+      })
+      .join('\n');
+
+    fs.writeFileSync(path.join(componentsDirectory, 'index.ts'), exports);
   } catch (error) {
     console.error('\x1b[31m%s\x1b[0m', `Error: ${(error as Error).message}`);
   }
@@ -208,13 +194,13 @@ const copyFolders = async (
 
         if (!isUpdate) {
           console.log(
-            ` \x1b[32m ✔  ${'\u001b[1m' +
+            ` \x1b[32m ✅  ${'\u001b[1m' +
               originalComponentPath +
               '\u001b[22m'} \x1b[0m component added successfully!`
           );
         } else {
           console.log(
-            ` \x1b[32m ✔  ${'\u001b[1m' +
+            ` \x1b[32m ✅  ${'\u001b[1m' +
               originalComponentPath +
               '\u001b[22m'} \x1b[0m component updated successfully!`
           );
@@ -346,7 +332,7 @@ const componentAdder = async (
           showWarning,
           isUpdate
         );
-        await addIndexFile(targetPath);
+        addIndexFile(targetPath);
       })
     );
   } catch (err) {
@@ -434,21 +420,21 @@ const getComponentGitRepo = async (): Promise<void> => {
     const clonedRepoExists = await checkIfFolderExists(clonedPath);
 
     if (clonedRepoExists) {
-      console.log('gluestack-ui repository already cloned.');
+      console.log('Repository already cloned.');
       await pullComponentRepo(clonedPath);
     } else {
-      console.log('Cloning gluestack-ui repository...');
+      console.log('Cloning repository...');
       createFolders(cloneLocation);
       await cloneComponentRepo(
         clonedPath,
         'https://github.com/gluestack/gluestack-ui.git'
       );
-      console.log('gluestack-ui repository cloned successfully.');
+      console.log('Repository cloned successfully.');
     }
   } catch (err) {
     console.error(
       '\x1b[31m',
-      `Error while cloning or pulling gluestack-ui repository: ${err}`,
+      `Error while cloning or pulling repository: ${err}`,
       '\x1b[0m'
     );
   }
@@ -458,12 +444,11 @@ const initialProviderAdder = async (
   componentFolderPath: string
 ): Promise<void> => {
   try {
-    // await getComponentGitRepo();
     createFolders(`${currDir}/${componentFolderPath}`);
     const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
     const targetPath = path.join(currDir, componentFolderPath);
     await addProvider(sourcePath, targetPath);
-    await addIndexFile(targetPath);
+    addIndexFile(targetPath);
   } catch (error) {
     console.log(
       '\x1b[31m%s\x1b[0m',

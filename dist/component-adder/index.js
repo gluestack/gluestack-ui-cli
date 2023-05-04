@@ -33,34 +33,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const currDir = process_1.default.cwd();
     const copyAsync = util_1.default.promisify(fs_extra_1.default.copy);
     let existingComponentsChecked = false;
-    const addIndexFile = (componentsDirectory, level = 0) => __awaiter(void 0, void 0, void 0, function* () {
+    const addIndexFile = (componentsDirectory, level = 0) => {
         try {
-            fs_extra_1.default.readdir(componentsDirectory, (err, files) => {
-                if (err) {
-                    console.error('\x1b[31m%s\x1b[0m', err.message);
-                    throw err;
+            const files = fs_extra_1.default.readdirSync(componentsDirectory);
+            const exports = files
+                .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
+                .map(file => {
+                if (level === 0) {
+                    addIndexFile(`${componentsDirectory}/${file}`, level + 1);
                 }
-                const exports = files
-                    .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
-                    .map(file => {
-                    if (level === 0) {
-                        addIndexFile(`${componentsDirectory}/${file}`, level + 1);
-                    }
-                    return `export * from './${file.split('.')[0]}';`;
-                })
-                    .join('\n');
-                fs_extra_1.default.writeFile(path_1.default.join(componentsDirectory, 'index.ts'), exports, (err) => {
-                    if (err) {
-                        console.error('\x1b[31m%s\x1b[0m', err.message);
-                        throw err;
-                    }
-                });
-            });
+                return `export * from './${file.split('.')[0]}';`;
+            })
+                .join('\n');
+            fs_extra_1.default.writeFileSync(path_1.default.join(componentsDirectory, 'index.ts'), exports);
         }
         catch (error) {
             console.error('\x1b[31m%s\x1b[0m', `Error: ${error.message}`);
         }
-    });
+    };
     exports.addIndexFile = addIndexFile;
     const pascalToDash = (str) => {
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -160,12 +150,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     fs_extra_1.default.unlinkSync(`${targetPath}/${component}/${originalComponentPath}/config.json`);
                 }
                 if (!isUpdate) {
-                    console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                    console.log(` \x1b[32m ✅  ${'\u001b[1m' +
                         originalComponentPath +
                         '\u001b[22m'} \x1b[0m component added successfully!`);
                 }
                 else {
-                    console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                    console.log(` \x1b[32m ✅  ${'\u001b[1m' +
                         originalComponentPath +
                         '\u001b[22m'} \x1b[0m component updated successfully!`);
                 }
@@ -258,7 +248,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
                 yield copyFolders(sourcePath, targetPath, component, showWarning, isUpdate);
-                yield addIndexFile(targetPath);
+                addIndexFile(targetPath);
             })));
         }
         catch (err) {
@@ -305,29 +295,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const clonedPath = `${cloneLocation}/gluestack-ui`;
             const clonedRepoExists = yield (0, utils_1.checkIfFolderExists)(clonedPath);
             if (clonedRepoExists) {
-                console.log('gluestack-ui repository already cloned.');
+                console.log('Repository already cloned.');
                 yield (0, utils_1.pullComponentRepo)(clonedPath);
             }
             else {
-                console.log('Cloning gluestack-ui repository...');
+                console.log('Cloning repository...');
                 (0, utils_1.createFolders)(cloneLocation);
                 yield (0, utils_1.cloneComponentRepo)(clonedPath, 'https://github.com/gluestack/gluestack-ui.git');
-                console.log('gluestack-ui repository cloned successfully.');
+                console.log('Repository cloned successfully.');
             }
         }
         catch (err) {
-            console.error('\x1b[31m', `Error while cloning or pulling gluestack-ui repository: ${err}`, '\x1b[0m');
+            console.error('\x1b[31m', `Error while cloning or pulling repository: ${err}`, '\x1b[0m');
         }
     });
     exports.getComponentGitRepo = getComponentGitRepo;
     const initialProviderAdder = (componentFolderPath) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            // await getComponentGitRepo();
             (0, utils_1.createFolders)(`${currDir}/${componentFolderPath}`);
             const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
             const targetPath = path_1.default.join(currDir, componentFolderPath);
             yield addProvider(sourcePath, targetPath);
-            yield addIndexFile(targetPath);
+            addIndexFile(targetPath);
         }
         catch (error) {
             console.log('\x1b[31m%s\x1b[0m', `❌Failed to add gluestack-ui Provider: ${error}`);

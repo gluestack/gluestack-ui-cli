@@ -30,11 +30,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const prompts_1 = __importDefault(require("prompts"));
     function main() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield (0, component_adder_1.getComponentGitRepo)();
-            const askUserToInit = true;
             const command = process.argv[2];
             const subCommand = process.argv[3];
-            const flag = process.argv[4];
             if (command === 'help') {
                 console.log(`
 
@@ -63,9 +60,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
       \x1b[33mnpx gluestack-ui@latest remove --all\x1b[0m
 
     \x1b[36m- Help\x1b[0m
-      \x1b[33mnpx gluestack-ui@latest help\x1b[0m`);
+      \x1b[33mnpx gluestack-ui@latest help\x1b[0m
+        
+        `);
+                return;
             }
-            else if (command === 'init') {
+            yield (0, component_adder_1.getComponentGitRepo)();
+            const askUserToInit = true;
+            if (command === 'init') {
                 const { gluestackUIConfigPresent: alreadyInitialised } = yield (0, initializer_1.initializer)(!askUserToInit);
                 if (alreadyInitialised) {
                     console.log(`\nReady to create amazing designs with ease? Let's start with the simple \x1b[36mBox\x1b[0m component. Check out \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to get started!`);

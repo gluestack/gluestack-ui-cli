@@ -21,6 +21,7 @@ const addDependencies = (projectType = ''): void => {
     packageJson.devDependencies = packageJson.devDependencies || {};
     packageJson.devDependencies['react-native-web'] = '^0.18.12';
     packageJson.devDependencies['react-native'] = '^0.70.7';
+    packageJson.devDependencies['@types/react-native'] = '^0.71.6';
 
     // Write the updated package.json file
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));

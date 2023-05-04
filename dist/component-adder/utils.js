@@ -16,14 +16,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "child_process", "cli-spinner", "fs-extra", "path", "find-package-json", "simple-git", "util", "prompts"], factory);
+        define(["require", "exports", "child_process", "fs-extra", "path", "find-package-json", "simple-git", "util", "prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getConfigComponentPath = exports.installDependencies = exports.checkIfFolderExists = exports.pullComponentRepo = exports.cloneComponentRepo = exports.removeClonedRepo = exports.createFolders = void 0;
     const child_process_1 = require("child_process");
-    const cli_spinner_1 = require("cli-spinner");
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const path_1 = __importDefault(require("path"));
     const find_package_json_1 = __importDefault(require("find-package-json"));
@@ -62,16 +61,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.removeClonedRepo = removeClonedRepo;
     const cloneComponentRepo = (targetPath, gitURL) => __awaiter(void 0, void 0, void 0, function* () {
         const git = (0, simple_git_1.default)();
-        const spinner = new cli_spinner_1.Spinner('%s Cloning repository... ');
-        spinner.setSpinnerString('|/-\\');
-        spinner.start();
+        console.log('⏳ Cloning repository...');
         try {
             yield git.clone(gitURL, targetPath);
-            spinner.stop(true);
             console.log('\x1b[32m', '\nCloning successful.', '\x1b[0m');
         }
         catch (error) {
-            spinner.stop(true);
             console.error('\x1b[31m', '\nCloning failed', '\x1b[0m');
             console.error(error);
         }
@@ -95,9 +90,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         setTimeout(resolve, msec);
     });
     const pullComponentRepo = (targetpath) => __awaiter(void 0, void 0, void 0, function* () {
-        const spinner = new cli_spinner_1.Spinner('%s Pulling latest changes... ');
-        spinner.setSpinnerString('|/-\\');
-        spinner.start();
+        console.log('⏳ Pulling latest changes...');
         let retry = 0;
         let success = false;
         while (!success && retry < 3) {
@@ -112,11 +105,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
         }
         if (!success) {
-            spinner.stop();
             console.error('\x1b[31m', '\nPulling failed!\n', '\x1b[0m');
         }
         else {
-            spinner.stop();
             console.log('\x1b[32m', '\nGit pull successful.', '\x1b[0m');
         }
     });
@@ -127,7 +118,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return stats.isDirectory();
         }
         catch (error) {
-            console.warn(`Error while checking if folder exists: ${error.message}`);
             return false;
         }
     });
@@ -163,8 +153,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         return response.value;
     });
     const installDependencies = () => __awaiter(void 0, void 0, void 0, function* () {
-        const spinner = new cli_spinner_1.Spinner('%s Installing dependencies... ');
-        spinner.setSpinnerString('|/-\\');
+        console.log('⏳ Installing dependencies...');
         let versionManager = detectLockFile();
         if (!versionManager) {
             versionManager = yield promptVersionManager();
@@ -195,13 +184,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 throw new Error('Invalid package manager selected');
         }
         try {
-            spinner.start();
             (0, child_process_1.spawnSync)(command, {
                 cwd: projectRootPath,
                 stdio: 'inherit',
                 shell: true,
             });
-            spinner.stop();
             console.log('\x1b[32m%s\x1b[0m', '\nDependencies have been installed successfully.');
             process.exit();
         }
@@ -216,7 +203,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         var _a;
         const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
         const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
-        const componentPath = (_a = (match && match[1])) !== null && _a !== void 0 ? _a : '';
+        const componentPath = (_a = (match && match[2])) !== null && _a !== void 0 ? _a : '';
         return componentPath;
     };
     exports.getConfigComponentPath = getConfigComponentPath;

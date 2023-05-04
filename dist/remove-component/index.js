@@ -40,31 +40,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
         return requestedComponents;
     };
-    const addIndexFile = (componentsDirectory, level = 0) => __awaiter(void 0, void 0, void 0, function* () {
+    const addIndexFile = (componentsDirectory, level = 0) => {
         try {
-            fs_extra_1.default.readdir(componentsDirectory, (err, files) => {
-                if (err) {
-                    console.error('\x1b[31m%s\x1b[0m', err.message);
-                    throw err;
-                }
-                const exports = files
-                    .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
-                    .map(file => {
-                    return `export * from './${file.split('.')[0]}';`;
-                })
-                    .join('\n');
-                fs_extra_1.default.writeFile(path_1.default.join(componentsDirectory, 'index.ts'), exports, (err) => {
-                    if (err) {
-                        console.error('\x1b[31m%s\x1b[0m', err.message);
-                        throw err;
-                    }
-                });
-            });
+            const files = fs_extra_1.default.readdirSync(componentsDirectory);
+            const exports = files
+                .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
+                .map(file => {
+                return `export * from './${file.split('.')[0]}';`;
+            })
+                .join('\n');
+            fs_extra_1.default.writeFileSync(path_1.default.join(componentsDirectory, 'index.ts'), exports);
         }
         catch (error) {
             console.error('\x1b[31m%s\x1b[0m', `Error: ${error.message}`);
         }
-    });
+    };
     const updateIndexFile = (dirPath, componentPath) => __awaiter(void 0, void 0, void 0, function* () {
         const indexPath = path_1.default.resolve(dirPath, 'index.ts');
         fs_extra_1.default.rmSync(indexPath);
@@ -82,7 +72,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     for (const component of requestedComponents) {
                         const componentsPath = path_1.default.resolve(currDir, componentPath, 'core', component);
                         fs_extra_1.default.rmSync(componentsPath, { recursive: true, force: true });
-                        console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                        console.log(` \x1b[32m ✅  ${'\u001b[1m' +
                             component +
                             '\u001b[22m'} \x1b[0m component removed successfully!`);
                     }
@@ -99,7 +89,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     if (proceedResponse.proceed.toLowerCase() === 'y') {
                         if (fs_extra_1.default.existsSync(dirPath)) {
                             fs_extra_1.default.rmSync(componentsPath, { recursive: true, force: true });
-                            console.log(` \x1b[32m ✔  ${'\u001b[1m' +
+                            console.log(` \x1b[32m ✅  ${'\u001b[1m' +
                                 component +
                                 '\u001b[22m'} \x1b[0m component removed successfully!`);
                             //  Update index file

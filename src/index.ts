@@ -7,12 +7,8 @@ import { removeComponent } from './remove-component';
 import prompts from 'prompts';
 
 async function main() {
-  await getComponentGitRepo();
-  const askUserToInit = true;
-
   const command = process.argv[2];
   const subCommand = process.argv[3];
-  const flag = process.argv[4];
 
   if (command === 'help') {
     console.log(`
@@ -42,8 +38,17 @@ async function main() {
       \x1b[33mnpx gluestack-ui@latest remove --all\x1b[0m
 
     \x1b[36m- Help\x1b[0m
-      \x1b[33mnpx gluestack-ui@latest help\x1b[0m`);
-  } else if (command === 'init') {
+      \x1b[33mnpx gluestack-ui@latest help\x1b[0m
+        
+        `);
+
+    return;
+  }
+
+  await getComponentGitRepo();
+  const askUserToInit = true;
+
+  if (command === 'init') {
     const { gluestackUIConfigPresent: alreadyInitialised } = await initializer(
       !askUserToInit
     );

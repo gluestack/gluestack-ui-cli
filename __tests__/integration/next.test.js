@@ -60,12 +60,15 @@ const requiredDependencies = [
   '@dank-style/animation-plugin',
   '@gluestack/ui-next-adapter',
 ];
-const devDependencies = ['react-native-web', 'react-native'];
+const devDependencies = [
+  'react-native-web',
+  'react-native',
+  '@types/react-native',
+];
 const nextAppRootDirectory = join(__dirname, '../apps');
 const nextAppPath = join(__dirname, '../apps/my-next-app');
 const homeDir = os.homedir();
 const repoPath = path.join(homeDir, '.gluestack/cache/gluestack-ui');
-const componentPath = getConfigComponentPath();
 
 const NEXT_PORT = '3039';
 const nextAppUrl = `http://localhost:${NEXT_PORT}`;
@@ -77,12 +80,12 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
   beforeAll(async () => {
     try {
       // Kill any processes listening on the NEXT_PORT
-      // console.log(`Killing processes listening on port ${NEXT_PORT}...`);
-      // spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
-      //   cwd: nextAppRootDirectory,
-      //   stdio: 'inherit',
-      //   shell: true,
-      // });
+      console.log(`Killing processes listening on port ${NEXT_PORT}...`);
+      spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
+        cwd: nextAppRootDirectory,
+        stdio: 'inherit',
+        shell: true,
+      });
 
       // Remove any existing my-next-app directory
       console.log('Removing any existing my-next-app directory...');
@@ -123,13 +126,13 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
   it('creates a gluestack-ui repo in the home directory', () => {
     const isRepoExists = fs.existsSync(repoPath);
     expect(isRepoExists).toBe(true);
-    console.log('✔️  Gluestack UI repo is present in home dir');
+    console.log('✅️  Gluestack UI repo is present in home dir');
   });
 
   it('adds a gluestack-ui.config file', () => {
     const gluestackUiConfigPresent = checkGluestackConfig();
     expect(gluestackUiConfigPresent).toBeTruthy();
-    console.log('✔️  Gluestack UI config file is added');
+    console.log('✅️  Gluestack UI config file is added');
   });
 
   it('adds required dependencies to package.json', () => {
@@ -140,7 +143,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     requiredDependencies.forEach(dependency => {
       expect(packageJsonData.dependencies).toHaveProperty(dependency);
     });
-    console.log('✔️  Required dependencies are added to package.json');
+    console.log('✅️  Required dependencies are added to package.json');
   });
 
   it('adds required devDependencies to package.json', () => {
@@ -151,7 +154,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     devDependencies.forEach(dependency => {
       expect(packageJsonData.devDependencies).toHaveProperty(dependency);
     });
-    console.log('✔️  Required devDependencies are added to package.json');
+    console.log('✅️  Required devDependencies are added to package.json');
   });
 
   it('updates next.config.js', () => {
@@ -159,7 +162,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const nextConfigPath = path.join(nextAppPath, 'next.config.js');
     const nextConfigCode = fs.readFileSync(nextConfigPath, 'utf-8');
     expect(nextConfigCode).toEqual(nextConfig);
-    console.log('✔️  next.config.js is updated');
+    console.log('✅️  next.config.js is updated');
   });
 
   it('updates _document.tsx', () => {
@@ -167,7 +170,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const documentPath = path.join(nextAppPath, 'pages/_document.tsx');
     const documentCode = fs.readFileSync(documentPath, 'utf-8');
     expect(document).toEqual(documentCode);
-    console.log('✔️  _document.tsx is updated');
+    console.log('✅️  _document.tsx is updated');
   });
 
   it('updates _app.tsx', () => {
@@ -175,22 +178,25 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const appPath = path.join(nextAppPath, 'pages/_app.tsx');
     const appCode = fs.readFileSync(appPath, 'utf-8');
     expect(app).toEqual(appCode);
-    console.log('✔️  _app.tsx is updated');
+    console.log('✅️  _app.tsx is updated');
   });
 
   it('check if components folder is created', () => {
+    const componentPath = getConfigComponentPath();
     const componentsFolderPath = path.join(nextAppPath, componentPath);
     expect(fs.existsSync(componentsFolderPath)).toBe(true);
-    console.log('✔️  components folder is created');
+    console.log('✅️  components folder is created');
   });
 
   it('check if core folder is created inside components folder', () => {
+    const componentPath = getConfigComponentPath();
     const coreFolderPath = path.join(nextAppPath, componentPath, 'core');
     expect(fs.existsSync(coreFolderPath)).toBe(true);
-    console.log('✔️  core folder is created inside components folder');
+    console.log('✅️  core folder is created inside components folder');
   });
 
   it('check if styled folder is created inside core folder', () => {
+    const componentPath = getConfigComponentPath();
     const styledFolderPath = path.join(
       nextAppPath,
       componentPath,
@@ -198,10 +204,11 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
       'styled'
     );
     expect(fs.existsSync(styledFolderPath)).toBe(true);
-    console.log('✔️  styled folder is created inside core folder');
+    console.log('✅️  styled folder is created inside core folder');
   });
 
   it('check if GluestackUIProvider component is created inside core folder', () => {
+    const componentPath = getConfigComponentPath();
     const gluestackProviderFolderPath = path.join(
       nextAppPath,
       componentPath,
@@ -210,7 +217,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     );
     expect(fs.existsSync(gluestackProviderFolderPath)).toBe(true);
     console.log(
-      '✔️  GluestackUIProvider component is created inside core folder'
+      '✅️  GluestackUIProvider component is created inside core folder'
     );
   });
 
@@ -222,7 +229,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     requiredDependencies.forEach(dependency => {
       expect(installedDependencies.hasOwnProperty(dependency)).toBe(true);
     });
-    console.log('✔️  dependencies are installed correctly');
+    console.log('✅️  dependencies are installed correctly');
   });
 
   it('check if dev dependencies are installed correctly', () => {
@@ -233,7 +240,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     devDependencies.forEach(dependency => {
       expect(installedDevDependencies.hasOwnProperty(dependency)).toBe(true);
     });
-    console.log('✔️  dev dependencies are installed correctly');
+    console.log('✅️  dev dependencies are installed correctly');
   });
 
   it('start and check if next js project is running', async () => {
@@ -253,18 +260,18 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
       console.log('Waiting for server to start');
     }
     const response = await request(nextAppUrl).get('/');
-    const match = response.text.match(/Get started by editing/);
-    expect(match).toBeTruthy();
-  }, 30000);
+    const responseBody = response.text;
+    expect(responseBody.includes('Get started by editing')).toBe(true);
+  }, 50000);
 
   afterAll(() => {
     if (appProcess) {
       appProcess.kill();
     }
-    // spawnSync('rm -rf', ['my-next-app'], {
-    //   cwd: nextAppRootDirectory,
-    //   stdio: 'inherit',
-    //   shell: true,
-    // });
+    spawnSync('rm -rf', ['my-next-app'], {
+      cwd: nextAppRootDirectory,
+      stdio: 'inherit',
+      shell: true,
+    });
   });
 });

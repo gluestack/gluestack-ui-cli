@@ -25,35 +25,21 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
-const addIndexFile = async (componentsDirectory: string, level = 0) => {
+const addIndexFile = (componentsDirectory: string, level = 0) => {
   try {
-    fs.readdir(componentsDirectory, (err: any, files: string[]) => {
-      if (err) {
-        console.error('\x1b[31m%s\x1b[0m', err.message);
-        throw err;
-      }
+    const files = fs.readdirSync(componentsDirectory);
 
-      const exports = files
-        .filter(
-          file =>
-            file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
-        )
-        .map(file => {
-          return `export * from './${file.split('.')[0]}';`;
-        })
-        .join('\n');
+    const exports = files
+      .filter(
+        file =>
+          file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
+      )
+      .map(file => {
+        return `export * from './${file.split('.')[0]}';`;
+      })
+      .join('\n');
 
-      fs.writeFile(
-        path.join(componentsDirectory, 'index.ts'),
-        exports,
-        (err: any) => {
-          if (err) {
-            console.error('\x1b[31m%s\x1b[0m', err.message);
-            throw err;
-          }
-        }
-      );
-    });
+    fs.writeFileSync(path.join(componentsDirectory, 'index.ts'), exports);
   } catch (error) {
     console.error('\x1b[31m%s\x1b[0m', `Error: ${(error as Error).message}`);
   }
@@ -89,7 +75,7 @@ async function removeComponent(component = '') {
         );
         fs.rmSync(componentsPath, { recursive: true, force: true });
         console.log(
-          ` \x1b[32m ✔  ${'\u001b[1m' +
+          ` \x1b[32m ✅  ${'\u001b[1m' +
             component +
             '\u001b[22m'} \x1b[0m component removed successfully!`
         );
@@ -108,7 +94,7 @@ async function removeComponent(component = '') {
         if (fs.existsSync(dirPath)) {
           fs.rmSync(componentsPath, { recursive: true, force: true });
           console.log(
-            ` \x1b[32m ✔  ${'\u001b[1m' +
+            ` \x1b[32m ✅  ${'\u001b[1m' +
               component +
               '\u001b[22m'} \x1b[0m component removed successfully!`
           );
