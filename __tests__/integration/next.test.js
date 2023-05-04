@@ -1,39 +1,12 @@
-const { join } = require('path');
+const os = require('os');
+const fs = require('fs');
 const path = require('path');
+const request = require('supertest');
+const { join } = require('path');
 const { spawnSync } = require('child_process');
 const { spawn } = require('child_process');
-const fs = require('fs');
 const { promisify } = require('util');
-const request = require('supertest');
 const { getDataFiles } = require('../../dist/installer/next/data');
-
-const nextAppRootDirectory = join(__dirname, '../apps');
-const nextAppPath = join(__dirname, '../apps/my-next-app');
-const NEXT_PORT = '3039';
-const nextAppUrl = `http://localhost:${NEXT_PORT}`;
-
-const initGluestack = () => {
-  return new Promise((resolve, reject) => {
-    const child = spawn('node ../../../dist/index.js init', {
-      shell: true,
-      cwd: nextAppPath,
-    });
-
-    child.stdout.on('data', function(data) {
-      child.stdin.write('\n');
-      console.log(data.toString());
-    });
-
-    child.stdout.on('close', function() {
-      resolve(true);
-    });
-
-    child.stdout.on('error', function(error) {
-      console.log(error);
-      reject();
-    });
-  });
-};
 
 const checkGluestackConfig = () => {
   const filePath = path.join(nextAppPath, 'gluestack-ui.config.ts');
@@ -52,19 +25,64 @@ const getConfigComponentPath = () => {
   return componentPath;
 };
 
-describe('Next.js App Integration Test', () => {
+const initGluestack = () => {
+  return new Promise((resolve, reject) => {
+    const child = spawn('node ../../../dist/index.js init', {
+      shell: true,
+      cwd: nextAppPath,
+    });
+
+    child.stdout.on('data', function(data) {
+      child.stdin.write('\n');
+      console.log(data.toString());
+    });
+
+    child.on('close', code => {
+      console.log(`child process close all stdio with code ${code}`);
+      resolve();
+    });
+
+    child.on('exit', code => {
+      console.log(`child process exited with code ${code}`);
+      resolve();
+    });
+
+    child.on('error', function(error) {
+      console.log(error);
+      reject();
+    });
+  });
+};
+
+const requiredDependencies = [
+  '@dank-style/react',
+  '@gluestack-ui/provider',
+  '@dank-style/animation-plugin',
+  '@gluestack/ui-next-adapter',
+];
+const devDependencies = ['react-native-web', 'react-native'];
+const nextAppRootDirectory = join(__dirname, '../apps');
+const nextAppPath = join(__dirname, '../apps/my-next-app');
+const homeDir = os.homedir();
+const repoPath = path.join(homeDir, '.gluestack/cache/gluestack-ui');
+const componentPath = getConfigComponentPath();
+
+const NEXT_PORT = '3039';
+const nextAppUrl = `http://localhost:${NEXT_PORT}`;
+
+describe('Next.js Command: npx gluestack-ui@latest init', () => {
   let appProcess;
   let nextServerStarted;
 
   beforeAll(async () => {
     try {
       // Kill any processes listening on the NEXT_PORT
-      console.log(`Killing processes listening on port ${NEXT_PORT}...`);
-      spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
-        cwd: nextAppRootDirectory,
-        stdio: 'inherit',
-        shell: true,
-      });
+      // console.log(`Killing processes listening on port ${NEXT_PORT}...`);
+      // spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
+      //   cwd: nextAppRootDirectory,
+      //   stdio: 'inherit',
+      //   shell: true,
+      // });
 
       // Remove any existing my-next-app directory
       console.log('Removing any existing my-next-app directory...');
@@ -93,85 +111,86 @@ describe('Next.js App Integration Test', () => {
       });
       console.log('my-next-app setup completed successfully');
 
-      // Alternatively, you can use yarn to install dependencies:
-      // console.log('Installing dependencies using yarn...');
-      // const installResult = spawnSync('yarn', [], {
-      //   cwd: `${nextAppRootDirectory}/my-next-app`,
-      //   stdio: 'inherit',
-      //   shell: true,
-      // });
-      // if (installResult.status !== 0) {
-      //   console.error('Failed to install dependencies using yarn');
-      //   console.error(installResult.stderr.toString());
-      //   return;
-      // }
-
       // Runs "npx gluestack-ui@latest init"
       await initGluestack();
       console.log('gluestack-ui init setup completed successfully');
-      
     } catch (error) {
       console.error('Error occurred during my-next-app setup:');
       console.error(error);
     }
   }, 200000);
 
-  test('Command: npx gluestack-ui@latest init', () => {
-    // Check weather gluestack-ui repo is present in home dir
-    const homeDir = os.homedir();
-    const repoPath = path.join(homeDir, '.gluestack/cache/gluestack-ui');
+  it('creates a gluestack-ui repo in the home directory', () => {
     const isRepoExists = fs.existsSync(repoPath);
     expect(isRepoExists).toBe(true);
+    console.log('✔️  Gluestack UI repo is present in home dir');
+  });
 
-    // Checks weather gluestack-ui.config is added or not
+  it('adds a gluestack-ui.config file', () => {
     const gluestackUiConfigPresent = checkGluestackConfig();
     expect(gluestackUiConfigPresent).toBeTruthy();
+    console.log('✔️  Gluestack UI config file is added');
+  });
 
-    // Checks weather required dependencies are added or not
+  it('adds required dependencies to package.json', () => {
     const packageJsonPath = path.join(nextAppPath, 'package.json');
     const packageJsonData = JSON.parse(
       fs.readFileSync(packageJsonPath, 'utf-8')
     );
-    const requiredDependencies = [
-      '@dank-style/react',
-      '@gluestack-ui/provider',
-      '@dank-style/animation-plugin',
-      '@gluestack/ui-next-adapter',
-    ];
-    const devDependencies = ['react-native-web', 'react-native'];
     requiredDependencies.forEach(dependency => {
       expect(packageJsonData.dependencies).toHaveProperty(dependency);
     });
+    console.log('✔️  Required dependencies are added to package.json');
+  });
+
+  it('adds required devDependencies to package.json', () => {
+    const packageJsonPath = path.join(nextAppPath, 'package.json');
+    const packageJsonData = JSON.parse(
+      fs.readFileSync(packageJsonPath, 'utf-8')
+    );
     devDependencies.forEach(dependency => {
       expect(packageJsonData.devDependencies).toHaveProperty(dependency);
     });
+    console.log('✔️  Required devDependencies are added to package.json');
+  });
 
-    const { document, nextConfig, app } = getDataFiles('components');
-    // Checks weather next.config is updated or not
+  it('updates next.config.js', () => {
+    const { nextConfig } = getDataFiles('components');
     const nextConfigPath = path.join(nextAppPath, 'next.config.js');
     const nextConfigCode = fs.readFileSync(nextConfigPath, 'utf-8');
     expect(nextConfigCode).toEqual(nextConfig);
+    console.log('✔️  next.config.js is updated');
+  });
 
-    // Checks weather _document is updated or not
+  it('updates _document.tsx', () => {
+    const { document } = getDataFiles('components');
     const documentPath = path.join(nextAppPath, 'pages/_document.tsx');
     const documentCode = fs.readFileSync(documentPath, 'utf-8');
     expect(document).toEqual(documentCode);
+    console.log('✔️  _document.tsx is updated');
+  });
 
-    // Checks weather _app is updated or not
+  it('updates _app.tsx', () => {
+    const { app } = getDataFiles('components');
     const appPath = path.join(nextAppPath, 'pages/_app.tsx');
     const appCode = fs.readFileSync(appPath, 'utf-8');
     expect(app).toEqual(appCode);
+    console.log('✔️  _app.tsx is updated');
+  });
 
-    const componentPath = getConfigComponentPath();
-    // Check weather components folder is created
+  it('check if components folder is created', () => {
     const componentsFolderPath = path.join(nextAppPath, componentPath);
     expect(fs.existsSync(componentsFolderPath)).toBe(true);
+    console.log('✔️  components folder is created');
+  });
 
-    // Check weather components folder is created
+  it('check if core folder is created inside components folder', () => {
     const coreFolderPath = path.join(nextAppPath, componentPath, 'core');
     expect(fs.existsSync(coreFolderPath)).toBe(true);
+    console.log('✔️  core folder is created inside components folder');
+  });
 
-    // Check weather styled component is added
+  it('check if styled folder is created inside core folder', () => {
     const styledFolderPath = path.join(
       nextAppPath,
       componentPath,
@@ -179,8 +198,10 @@ describe('Next.js App Integration Test', () => {
       'styled'
     );
     expect(fs.existsSync(styledFolderPath)).toBe(true);
+    console.log('✔️  styled folder is created inside core folder');
+  });
 
-    // Check weather gluestack provider component is added
+  it('check if GluestackUIProvider component is created inside core folder', () => {
     const gluestackProviderFolderPath = path.join(
       nextAppPath,
       componentPath,
@@ -188,24 +209,53 @@ describe('Next.js App Integration Test', () => {
       'GluestackUIProvider'
     );
     expect(fs.existsSync(gluestackProviderFolderPath)).toBe(true);
+    console.log(
+      '✔️  GluestackUIProvider component is created inside core folder'
+    );
+  });
 
-    // Check weather dependencies are installed correctly
+  it('check if required dependencies are installed correctly', () => {
     const packageJsonLockPath = path.join(nextAppPath, 'package-lock.json');
-
     const installedDependencies = JSON.parse(
       fs.readFileSync(packageJsonLockPath, 'utf-8')
     ).dependencies;
     requiredDependencies.forEach(dependency => {
       expect(installedDependencies.hasOwnProperty(dependency)).toBe(true);
     });
+    console.log('✔️  dependencies are installed correctly');
+  });
 
+  it('check if dev dependencies are installed correctly', () => {
+    const packageJsonLockPath = path.join(nextAppPath, 'package-lock.json');
     const installedDevDependencies = JSON.parse(
       fs.readFileSync(packageJsonLockPath, 'utf-8')
-    ).devDependencies;
+    ).packages[''].devDependencies;
     devDependencies.forEach(dependency => {
       expect(installedDevDependencies.hasOwnProperty(dependency)).toBe(true);
     });
-  }, 200000);
+    console.log('✔️  dev dependencies are installed correctly');
+  });
+
+  it('start and check if next js project is running', async () => {
+    appProcess = spawn(`yarn dev --port=${NEXT_PORT}`, {
+      cwd: nextAppPath,
+      shell: true,
+    });
+    await promisify(setTimeout)(1000);
+    appProcess.stdout.on('data', function(data) {
+      const match = data.toString().match(/started server/);
+      if (match) {
+        nextServerStarted = true;
+      }
+    });
+    while (!nextServerStarted) {
+      await promisify(setTimeout)(1000);
+      console.log('Waiting for server to start');
+    }
+    const response = await request(nextAppUrl).get('/');
+    const match = response.text.match(/Get started by editing/);
+    expect(match).toBeTruthy();
+  }, 30000);
 
   afterAll(() => {
     if (appProcess) {

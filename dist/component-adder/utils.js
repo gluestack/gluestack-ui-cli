@@ -157,7 +157,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             choices: [
                 { title: 'npm', value: 'npm' },
                 { title: 'yarn', value: 'yarn' },
-                { title: 'pnpm', value: 'pnpm' },
+                // { title: 'pnpm', value: 'pnpm' },
             ],
         });
         return response.value;
@@ -203,6 +203,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             });
             spinner.stop();
             console.log('\x1b[32m%s\x1b[0m', '\nDependencies have been installed successfully.');
+            process.exit();
         }
         catch (error) {
             console.error('Error installing dependencies.');

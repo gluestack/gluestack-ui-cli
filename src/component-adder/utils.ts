@@ -158,7 +158,7 @@ const promptVersionManager = async (): Promise<string> => {
     choices: [
       { title: 'npm', value: 'npm' },
       { title: 'yarn', value: 'yarn' },
-      { title: 'pnpm', value: 'pnpm' },
+      // { title: 'pnpm', value: 'pnpm' },
     ],
   });
   return response.value;
@@ -210,6 +210,7 @@ const installDependencies = async (): Promise<void> => {
       '\x1b[32m%s\x1b[0m',
       '\nDependencies have been installed successfully.'
     );
+    process.exit();
   } catch (error) {
     console.error('Error installing dependencies.');
     console.error('\x1b[31m%s\x1b[0m', `Error: Run '${command}' manually!`);
