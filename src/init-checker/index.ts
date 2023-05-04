@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { log } from '@clack/prompts';
 
 const initChecker = async (): Promise<boolean> => {
   try {
@@ -7,7 +8,7 @@ const initChecker = async (): Promise<boolean> => {
     const gluestackUIConfigPresent = files.includes('gluestack-ui.config.ts');
     return gluestackUIConfigPresent;
   } catch (err) {
-    console.log('\x1b[31m%s\x1b[0m', 'Error:', (err as Error).message);
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return false;
   }
 };

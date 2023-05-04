@@ -1,7 +1,7 @@
-import prompts from 'prompts';
 import path from 'path';
 import fs from 'fs';
 import { getDataFiles } from './data';
+import { isCancel, cancel, confirm, log } from '@clack/prompts';
 
 const currentDirectory = process.cwd();
 
@@ -17,17 +17,13 @@ const updateDocument = async (document: string): Promise<void> => {
   );
   try {
     fs.writeFileSync(documentPath, document, 'utf8');
-    console.log(
-      '\x1b[32m',
-      `- pages/_document.${documentExt} file is updated successfully!`
+    log.step(
+      '- ' +
+        `\x1b[32mpages/_document.${documentExt}\x1b[0m` +
+        ' file is updated successfully!'
     );
   } catch (err) {
-    console.error(
-      '\x1b[31m',
-      `Error updating pages/_document.${documentExt} file: ${
-        (err as Error).message
-      }`
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -35,12 +31,11 @@ const updateNextConfig = async (nextConfig: string): Promise<void> => {
   const documentPath = path.resolve(`${currentDirectory}/next.config.js`);
   try {
     fs.writeFileSync(documentPath, nextConfig, 'utf8');
-    console.log('\x1b[32m', `- next.config.js file is updated successfully!`);
-  } catch (err) {
-    console.error(
-      '\x1b[31m',
-      `Error updating next.config.js file: ${(err as Error).message}`
+    log.step(
+      '- ' + '\x1b[32mnext.config.js\x1b[0m' + ' file is updated successfully!'
     );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -51,15 +46,13 @@ const updateApp = async (app: string): Promise<void> => {
   );
   try {
     fs.writeFileSync(documentPath, app, 'utf8');
-    console.log(
-      '\x1b[32m',
-      `- pages/_app.${documentExt} file is updated successfully!`
+    log.step(
+      '- ' +
+        `\x1b[32mpages/_app.${documentExt}\x1b[0m` +
+        ' file is updated successfully!'
     );
   } catch (err) {
-    console.error(
-      '\x1b[31m',
-      `Error updating pages/_app.${documentExt} file: ${(err as Error).message}`
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -70,34 +63,43 @@ const replaceFiles = async (folderName: string): Promise<void> => {
   await updateNextConfig(nextConfig);
 };
 
-const autoSetup = async (folderName: string): Promise<string> => {
+const autoSetup = async (folderName: string): Promise<any> => {
   try {
-    const proceedResponse: any = await prompts({
-      type: 'text',
-      name: 'proceed',
-      message: `We detected that this is a Next.js project. Would you like to proceed with automatic setup? This is recommended for new projects.\nPlease note that the following files will be overwritten:\n- next.config.ts\n- _app.tsx\n- _document.tsx\n\nIt's recommended to commit your current changes before proceeding.\n\nTo proceed and overwrite the files, type 'y'. To cancel and exit, type 'n'.`,
-      initial: 'y',
+    log.info(
+      "Hey there! It looks like we've stumbled upon a \x1b[34mNext.js project\x1b[0m! Would you like to take the express lane and proceed with the automatic setup?"
+    );
+    log.warning(
+      `👉 Keep in mind that we'll be shaking things up a bit and overwriting a few files, namely
+
+-  next.config.ts
+-  _app.tsx
+-  _document.tsx
+
+So, it's advisable to save your current changes by committing them before proceeding.`
+    );
+
+    const shouldContinue = await confirm({
+      message: `Would you like to proceed with the automatic setup?`,
     });
 
-    if (proceedResponse.proceed.toLowerCase() === 'y') {
-      console.log('\x1b[33m%s\x1b[0m', '\nOverwriting files...');
+    if (isCancel(shouldContinue)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
+
+    if (shouldContinue) {
+      log.warning('\x1b[33mOverwriting files...\x1b[0m');
       await replaceFiles(folderName);
-    } else if (proceedResponse.answer === 'n') {
-      console.log(
-        '\x1b[33m%s\x1b[0m',
-        'Exiting without overwriting the files...'
-      );
-      console.log(
+    } else {
+      log.warning(`\x1b[33mExiting without overwriting the files...\x1b[0m`);
+      log.step(
         `Please visit https://ui.gluestack.io/docs/getting-started/install-nextjs for more information on manual setup.`
       );
     }
 
-    return proceedResponse.proceed.toLowerCase();
+    return shouldContinue;
   } catch (err) {
-    console.error(
-      '\x1b[31m%s\x1b[0m',
-      `Error in autoSetup: ${(err as Error).message}`
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return '';
   }
 };

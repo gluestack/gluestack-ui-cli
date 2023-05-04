@@ -1,5 +1,6 @@
 import fs from 'fs';
 const currDir = process.cwd();
+import { log } from '@clack/prompts';
 
 const addDependencies = (projectType = ''): void => {
   const packageJsonPath = `${currDir}/package.json`;
@@ -26,9 +27,7 @@ const addDependencies = (projectType = ''): void => {
     // Write the updated package.json file
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
   } catch (err) {
-    console.error(
-      `Error updating package.json file: ${(err as Error).message}`
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 

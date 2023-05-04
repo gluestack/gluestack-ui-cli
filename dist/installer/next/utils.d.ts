@@ -1,2 +1,2 @@
-declare const autoSetup: (folderName: string) => Promise<string>;
+declare const autoSetup: (folderName: string) => Promise<any>;
 export { autoSetup };

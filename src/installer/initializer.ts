@@ -1,20 +1,28 @@
-import prompts from 'prompts';
 import { initChecker } from '../init-checker';
 import { initialProviderAdder } from '../component-adder';
 import { projectDetector } from '@gluestack/ui-project-detector';
 import { nextInstaller } from './next';
 import { expoInstaller } from './expo';
+import { isCancel, cancel, text, confirm, log } from '@clack/prompts';
 
 const installGluestackUI = async (): Promise<boolean> => {
   try {
-    const response = await prompts({
-      type: 'text',
-      name: 'folderName',
-      message: 'Enter folder path where you want to add your components',
-      initial: 'components',
+    const folderPath = await text({
+      message:
+        'Can you please provide the path where you would like to add your components?',
+      placeholder: './components',
+      initialValue: './components',
+      validate(value) {
+        if (value.length === 0) return `Value is required!`;
+      },
     });
 
-    await initialProviderAdder('./' + response.folderName);
+    if (isCancel(folderPath)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
+
+    await initialProviderAdder('./' + folderPath);
 
     const finalMessage = `
     Gluestack Provider has been added to your components folder.
@@ -33,15 +41,16 @@ const installGluestackUI = async (): Promise<boolean> => {
     let setupTypeAutomatic = false;
 
     if (projectData.framework === 'Next' && projectData.os === 'darwin') {
-      setupTypeAutomatic = await nextInstaller(response.folderName);
+      setupTypeAutomatic = await nextInstaller(folderPath);
 
       if (setupTypeAutomatic) {
-        console.log('\x1b[32m', '\nAuto setup was successful!');
+        log.success('Auto setup was successful!');
       } else {
-        console.log('\x1b[32m', finalMessage);
-        console.log(
-          '\x1b[32m',
-          `\nPlease visit https://ui.gluestack.io/docs/getting-started/install-nextjs for more information on manual setup.`
+        log.info('\x1b[32m' + finalMessage + '\x1b[0m');
+        log.info(
+          '\x1b[32m' +
+            `Please visit https://ui.gluestack.io/docs/getting-started/install-nextjs for more information on manual setup.` +
+            '\x1b[0m'
         );
       }
     } else if (
@@ -49,20 +58,16 @@ const installGluestackUI = async (): Promise<boolean> => {
       projectData.os === 'darwin'
     ) {
       await expoInstaller();
-      console.log('\x1b[32m', finalMessage);
+      log.info('\x1b[32m' + finalMessage + '\x1b[0m');
     } else {
-      console.warn(
-        '\x1b[31m%s\x1b[0m',
-        'WARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.'
+      log.warn(
+        '\x1b[31mWARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.\x1b[0m'
       );
       await expoInstaller();
     }
     return true;
-  } catch (error) {
-    console.error(
-      '\x1b[31m',
-      `Error installing gluestack-ui: ${(error as Error).message}`
-    );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return false;
   }
 };
@@ -76,44 +81,41 @@ const initializer = async (
     if (!gluestackUIConfigPresent) {
       let install = true;
       if (askUserToInit) {
-        console.log(
-          '\x1b[31m',
-          `\ngluestack-ui is not initialised in your project!`,
-          '\x1b[0m'
+        log.error(
+          '\x1b[31m' +
+            `gluestack-ui is not initialised in your project!` +
+            '\x1b[0m'
         );
 
-        const proceedResponse = await prompts({
-          type: 'text',
-          name: 'proceed',
-          message: 'Do you wish to initialise it? (y/n) ',
-          initial: 'y',
+        const shouldContinue = await confirm({
+          message: 'Do you wish to initialise it?',
         });
 
-        if (proceedResponse.proceed.toLowerCase() === 'n') {
+        if (isCancel(shouldContinue)) {
+          cancel('Operation cancelled.');
+          process.exit(0);
+        }
+
+        if (!shouldContinue) {
           install = false;
         }
       }
 
       if (install) {
         gluestackUIInstalled = await installGluestackUI();
-        console.log(
-          '\u001b[32mgluestack-ui initialization completed!\u001b[0m'
-        );
+        log.success('gluestack-ui initialization completed!');
       } else {
-        console.log('\u001b[31mgluestack-ui initialization canceled!\u001b[0m');
+        log.error('\u001b[31mgluestack-ui initialization canceled!\u001b[0m');
       }
     } else {
       gluestackUIInstalled = true;
-      console.log(
+      log.success(
         '\u001b[32mgluestack-ui is already initialized in your project!\u001b[0m'
       );
     }
     return { gluestackUIConfigPresent, gluestackUIInstalled };
   } catch (err) {
-    console.error(
-      '\x1b[31m',
-      `Error initializing gluestack-ui: ${(err as Error).message}`
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return { gluestackUIConfigPresent: false, gluestackUIInstalled: false };
   }
 };

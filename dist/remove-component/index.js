@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "prompts", "../component-adder/utils"], factory);
+        define(["require", "exports", "fs-extra", "path", "../utils", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,8 +24,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.removeComponent = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const path_1 = __importDefault(require("path"));
-    const prompts_1 = __importDefault(require("prompts"));
-    const utils_1 = require("../component-adder/utils");
+    const utils_1 = require("../utils");
+    const prompts_1 = require("@clack/prompts");
     const currDir = process.cwd();
     const getAllComponents = (source) => {
         const requestedComponents = [];
@@ -34,32 +34,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 component === 'index.tsx' ||
                 component === 'GluestackUIProvider' ||
                 component === 'styled')) {
-                // const cliComponent = pascalToDash(component);
                 requestedComponents.push(component);
             }
         });
         return requestedComponents;
     };
-    const addIndexFile = (componentsDirectory, level = 0) => {
-        try {
-            const files = fs_extra_1.default.readdirSync(componentsDirectory);
-            const exports = files
-                .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
-                .map(file => {
-                return `export * from './${file.split('.')[0]}';`;
-            })
-                .join('\n');
-            fs_extra_1.default.writeFileSync(path_1.default.join(componentsDirectory, 'index.ts'), exports);
-        }
-        catch (error) {
-            console.error('\x1b[31m%s\x1b[0m', `Error: ${error.message}`);
-        }
-    };
     const updateIndexFile = (dirPath, componentPath) => __awaiter(void 0, void 0, void 0, function* () {
         const indexPath = path_1.default.resolve(dirPath, 'index.ts');
         fs_extra_1.default.rmSync(indexPath);
         const targetPath = path_1.default.join(currDir, componentPath, 'core');
-        addIndexFile(targetPath);
+        (0, utils_1.addIndexFile)(targetPath, 1);
     });
     function removeComponent(component = '') {
         return __awaiter(this, void 0, void 0, function* () {
@@ -72,7 +56,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     for (const component of requestedComponents) {
                         const componentsPath = path_1.default.resolve(currDir, componentPath, 'core', component);
                         fs_extra_1.default.rmSync(componentsPath, { recursive: true, force: true });
-                        console.log(` \x1b[32m ✅  ${'\u001b[1m' +
+                        prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
                             component +
                             '\u001b[22m'} \x1b[0m component removed successfully!`);
                     }
@@ -80,32 +64,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield updateIndexFile(dirPath, componentPath);
                 }
                 else {
-                    const proceedResponse = yield (0, prompts_1.default)({
-                        type: 'text',
-                        name: 'proceed',
+                    const shouldContinue = yield (0, prompts_1.confirm)({
                         message: `Are you sure you want to remove ${component}?`,
-                        initial: 'y',
                     });
-                    if (proceedResponse.proceed.toLowerCase() === 'y') {
+                    if ((0, prompts_1.isCancel)(shouldContinue)) {
+                        (0, prompts_1.cancel)('Operation cancelled.');
+                        process.exit(0);
+                    }
+                    if (shouldContinue) {
                         if (fs_extra_1.default.existsSync(dirPath)) {
                             fs_extra_1.default.rmSync(componentsPath, { recursive: true, force: true });
-                            console.log(` \x1b[32m ✅  ${'\u001b[1m' +
+                            prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
                                 component +
                                 '\u001b[22m'} \x1b[0m component removed successfully!`);
                             //  Update index file
                             yield updateIndexFile(dirPath, componentPath);
                         }
                         else {
-                            console.log('\x1b[33m%s\x1b[0m', `Component "${component}" not found.`);
+                            prompts_1.log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
                         }
                     }
                     else {
-                        console.log('\x1b[31m%s\x1b[0m', `The removal of component "${component}" has been canceled.`);
+                        prompts_1.log.error(`\x1b[33mThe removal of component "${component}" has been canceled.\x1b[0m`);
                     }
                 }
             }
             catch (err) {
-                console.error(`Error removing component: ${err.message}`);
+                prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
             }
         });
     }

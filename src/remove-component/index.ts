@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
-import prompts from 'prompts';
-import { getConfigComponentPath } from '../component-adder/utils';
+import { addIndexFile, getConfigComponentPath } from '../utils';
+import { isCancel, cancel, confirm, log } from '@clack/prompts';
 
 const currDir = process.cwd();
 
@@ -17,7 +17,6 @@ const getAllComponents = (source: string): string[] => {
         component === 'styled'
       )
     ) {
-      // const cliComponent = pascalToDash(component);
       requestedComponents.push(component);
     }
   });
@@ -25,31 +24,11 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
-const addIndexFile = (componentsDirectory: string, level = 0) => {
-  try {
-    const files = fs.readdirSync(componentsDirectory);
-
-    const exports = files
-      .filter(
-        file =>
-          file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
-      )
-      .map(file => {
-        return `export * from './${file.split('.')[0]}';`;
-      })
-      .join('\n');
-
-    fs.writeFileSync(path.join(componentsDirectory, 'index.ts'), exports);
-  } catch (error) {
-    console.error('\x1b[31m%s\x1b[0m', `Error: ${(error as Error).message}`);
-  }
-};
-
 const updateIndexFile = async (dirPath: string, componentPath: string) => {
   const indexPath = path.resolve(dirPath, 'index.ts');
   fs.rmSync(indexPath);
   const targetPath = path.join(currDir, componentPath, 'core');
-  addIndexFile(targetPath);
+  addIndexFile(targetPath, 1);
 };
 
 async function removeComponent(component = '') {
@@ -74,8 +53,8 @@ async function removeComponent(component = '') {
           component
         );
         fs.rmSync(componentsPath, { recursive: true, force: true });
-        console.log(
-          ` \x1b[32m ✅  ${'\u001b[1m' +
+        log.success(
+          `\x1b[32m✅  ${'\u001b[1m' +
             component +
             '\u001b[22m'} \x1b[0m component removed successfully!`
         );
@@ -83,18 +62,20 @@ async function removeComponent(component = '') {
       //  Update index file
       await updateIndexFile(dirPath, componentPath);
     } else {
-      const proceedResponse = await prompts({
-        type: 'text',
-        name: 'proceed',
+      const shouldContinue = await confirm({
         message: `Are you sure you want to remove ${component}?`,
-        initial: 'y',
       });
 
-      if (proceedResponse.proceed.toLowerCase() === 'y') {
+      if (isCancel(shouldContinue)) {
+        cancel('Operation cancelled.');
+        process.exit(0);
+      }
+
+      if (shouldContinue) {
         if (fs.existsSync(dirPath)) {
           fs.rmSync(componentsPath, { recursive: true, force: true });
-          console.log(
-            ` \x1b[32m ✅  ${'\u001b[1m' +
+          log.success(
+            `\x1b[32m✅  ${'\u001b[1m' +
               component +
               '\u001b[22m'} \x1b[0m component removed successfully!`
           );
@@ -102,20 +83,16 @@ async function removeComponent(component = '') {
           //  Update index file
           await updateIndexFile(dirPath, componentPath);
         } else {
-          console.log(
-            '\x1b[33m%s\x1b[0m',
-            `Component "${component}" not found.`
-          );
+          log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
         }
       } else {
-        console.log(
-          '\x1b[31m%s\x1b[0m',
-          `The removal of component "${component}" has been canceled.`
+        log.error(
+          `\x1b[33mThe removal of component "${component}" has been canceled.\x1b[0m`
         );
       }
     }
   } catch (err) {
-    console.error(`Error removing component: ${(err as Error).message}`);
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 }
 

@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../utils", "./utils"], factory);
+        define(["require", "exports", "../utils", "./utils", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,14 +24,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.nextInstaller = void 0;
     const utils_1 = __importDefault(require("../utils"));
     const utils_2 = require("./utils");
+    const prompts_1 = require("@clack/prompts");
     const nextInstaller = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             (0, utils_1.default)('Next');
             const setupTypeAutomatic = yield (0, utils_2.autoSetup)(folderName);
-            return setupTypeAutomatic === 'y';
+            return setupTypeAutomatic;
         }
         catch (err) {
-            console.error(`Error installing Next.js dependencies: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
             return false;
         }
     });

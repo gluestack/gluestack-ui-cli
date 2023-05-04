@@ -36,13 +36,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs"], factory);
+        define(["require", "exports", "fs", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.initChecker = void 0;
     const fs = __importStar(require("fs"));
+    const prompts_1 = require("@clack/prompts");
     const initChecker = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const folderPath = process.cwd();
@@ -51,7 +52,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return gluestackUIConfigPresent;
         }
         catch (err) {
-            console.log('\x1b[31m%s\x1b[0m', 'Error:', err.message);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
             return false;
         }
     });

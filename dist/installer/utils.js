@@ -7,13 +7,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs"], factory);
+        define(["require", "exports", "fs", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const fs_1 = __importDefault(require("fs"));
     const currDir = process.cwd();
+    const prompts_1 = require("@clack/prompts");
     const addDependencies = (projectType = '') => {
         const packageJsonPath = `${currDir}/package.json`;
         try {
@@ -36,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             fs_1.default.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
         }
         catch (err) {
-            console.error(`Error updating package.json file: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     };
     exports.default = addDependencies;

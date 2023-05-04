@@ -16,19 +16,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../utils"], factory);
+        define(["require", "exports", "../utils", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.expoInstaller = void 0;
     const utils_1 = __importDefault(require("../utils"));
+    const prompts_1 = require("@clack/prompts");
     const expoInstaller = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             (0, utils_1.default)();
         }
         catch (err) {
-            console.log('\x1b[31m%s\x1b[0m', `Error in Expo installer: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     exports.expoInstaller = expoInstaller;

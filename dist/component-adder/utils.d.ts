@@ -3,6 +3,4 @@ declare const removeClonedRepo: (sourcePath: string, repoName: string) => Promis
 declare const cloneComponentRepo: (targetPath: string, gitURL: string) => Promise<void>;
 declare const pullComponentRepo: (targetpath: string) => Promise<void>;
 declare const checkIfFolderExists: (path: string) => Promise<boolean>;
-declare const installDependencies: () => Promise<void>;
-declare const getConfigComponentPath: () => string;
-export { createFolders, removeClonedRepo, cloneComponentRepo, pullComponentRepo, checkIfFolderExists, installDependencies, getConfigComponentPath, };
+export { createFolders, removeClonedRepo, cloneComponentRepo, pullComponentRepo, checkIfFolderExists, };

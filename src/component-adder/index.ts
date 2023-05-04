@@ -1,5 +1,4 @@
 import fs from 'fs-extra';
-import prompts from 'prompts';
 import path from 'path';
 import process from 'process';
 import util from 'util';
@@ -9,8 +8,22 @@ import {
   createFolders,
   pullComponentRepo,
   checkIfFolderExists,
-  getConfigComponentPath,
 } from './utils';
+import {
+  getConfigComponentPath,
+  addIndexFile,
+  pascalToDash,
+  dashToPascal,
+} from '../utils';
+
+import {
+  isCancel,
+  cancel,
+  confirm,
+  multiselect,
+  spinner,
+  log,
+} from '@clack/prompts';
 
 const homeDir = os.homedir();
 const currDir = process.cwd();
@@ -18,45 +31,10 @@ const copyAsync = util.promisify(fs.copy);
 
 let existingComponentsChecked: boolean = false;
 
-const addIndexFile = (componentsDirectory: string, level = 0) => {
-  try {
-    const files = fs.readdirSync(componentsDirectory);
-
-    const exports = files
-      .filter(
-        file =>
-          file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
-      )
-      .map(file => {
-        if (level === 0) {
-          addIndexFile(`${componentsDirectory}/${file}`, level + 1);
-        }
-        return `export * from './${file.split('.')[0]}';`;
-      })
-      .join('\n');
-
-    fs.writeFileSync(path.join(componentsDirectory, 'index.ts'), exports);
-  } catch (error) {
-    console.error('\x1b[31m%s\x1b[0m', `Error: ${(error as Error).message}`);
-  }
-};
-
-const pascalToDash = (str: string): string => {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-};
-
-const dashToPascal = (str: string): string => {
-  return str
-    .toLowerCase()
-    .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
-    .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
-};
-
 const copyFolders = async (
   sourcePath: string,
   targetPath: string,
   specificComponent: string,
-  showWarning: boolean,
   isUpdate: boolean
 ): Promise<void> => {
   const groupedComponents: Record<string, string[]> = {};
@@ -95,40 +73,45 @@ const copyFolders = async (
         }
       }
     });
-  } catch (error) {
-    console.log(
-      '\x1b[31m%s\x1b[0m',
-      `Error occurred while reading config files: ${(error as Error).message}`
-    );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return;
   }
 
-  let selectedComponents: Record<string, string[]> = {};
+  let selectedComponents: any = {};
   // Ask component type
   if (!specificComponentType) {
-    const selectedComponentType = await prompts({
-      type: 'multiselect',
-      name: 'componentType',
-      message: `Select the type of components:`,
-      choices: Object.keys(groupedComponents).map(type => {
-        return { title: type, value: type };
+    const selectedComponentType = await multiselect({
+      message: 'Select the type of components:',
+      options: Object.keys(groupedComponents).map(type => {
+        return { value: type, label: type };
       }),
+      required: true,
     });
-    if (selectedComponentType.componentType) {
+    if (isCancel(selectedComponentType)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
+    if (Array.isArray(selectedComponentType)) {
       await Promise.all(
-        selectedComponentType.componentType.map(async (component: string) => {
+        selectedComponentType.map(async (component: any) => {
           if (groupedComponents[component].length !== 0) {
-            const selectComponents = await prompts({
-              type: 'multiselect',
-              name: 'components',
+            const selectComponents = await multiselect({
               message: `Select ${component} components:`,
-              choices: groupedComponents[component].map(type => {
-                return { title: type, value: type };
+              options: groupedComponents[component].map(type => {
+                return { value: type, label: type };
               }),
+              required: true,
             });
-            selectedComponents[component] = selectComponents.components;
+            if (isCancel(selectComponents)) {
+              cancel('Operation cancelled.');
+              process.exit(0);
+            }
+            selectedComponents[component] = selectComponents;
           } else {
-            console.log(`No components of ${component} type!`);
+            log.error(
+              `\x1b[31mError: No components of ${component} type!\x1b[0m`
+            );
           }
         })
       );
@@ -140,7 +123,7 @@ const copyFolders = async (
   await Promise.all(
     Object.keys(selectedComponents).map(component => {
       createFolders(`${targetPath}/${component}`);
-      selectedComponents[component].map(subcomponent => {
+      selectedComponents[component].map((subcomponent: any) => {
         // Add Packages
         const originalComponentPath = dashToPascal(subcomponent);
 
@@ -193,14 +176,14 @@ const copyFolders = async (
         }
 
         if (!isUpdate) {
-          console.log(
-            ` \x1b[32m ✅  ${'\u001b[1m' +
+          log.success(
+            `\x1b[32m✅  ${'\u001b[1m' +
               originalComponentPath +
               '\u001b[22m'} \x1b[0m component added successfully!`
           );
         } else {
-          console.log(
-            ` \x1b[32m ✅  ${'\u001b[1m' +
+          log.success(
+            `\x1b[32m✅  ${'\u001b[1m' +
               originalComponentPath +
               '\u001b[22m'} \x1b[0m component updated successfully!`
           );
@@ -214,7 +197,7 @@ const checkForExistingFolders = async (
   specificComponents: string[]
 ): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
-  let selectedComponents: string[] = [];
+  let selectedComponents: any = [];
 
   for (const component of specificComponents) {
     const componentPath = getConfigComponentPath();
@@ -230,26 +213,28 @@ const checkForExistingFolders = async (
   }
 
   if (alreadyExistingComponents.length === 1) {
-    const response = await prompts({
-      type: 'text',
-      name: 'value',
+    const shouldContinue = await confirm({
       message: `The ${alreadyExistingComponents[0]} component already exists. Kindly proceed if you wish to replace. Be advised that if there are any interdependent components, proceeding will result in their dependent components being replaced as well.`,
-      initial: 'y',
     });
-    if (response.value.toLowerCase() === 'y') {
+    if (isCancel(shouldContinue)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
+    if (shouldContinue) {
       selectedComponents = alreadyExistingComponents;
     }
   } else if (alreadyExistingComponents.length > 0) {
-    const response = await prompts({
-      type: 'multiselect',
-      name: 'value',
+    selectedComponents = await multiselect({
       message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-      choices: alreadyExistingComponents.map(component => ({
-        title: component,
+      options: alreadyExistingComponents.map(component => ({
+        label: component,
         value: component,
       })),
     });
-    selectedComponents = response.value;
+    if (isCancel(selectedComponents)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
   }
 
   // Remove repeated components from all components
@@ -325,22 +310,12 @@ const componentAdder = async (
         const componentPath = getConfigComponentPath();
         createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
-        await copyFolders(
-          sourcePath,
-          targetPath,
-          component,
-          showWarning,
-          isUpdate
-        );
+        await copyFolders(sourcePath, targetPath, component, isUpdate);
         addIndexFile(targetPath);
       })
     );
   } catch (err) {
-    console.log(
-      '\x1b[31m%s\x1b[0m',
-      'Error adding components:',
-      (err as Error).message
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -399,16 +374,13 @@ const addProvider = async (sourcePath: string, targetPath: string) => {
       `componentPath: './${folderName}'`
     );
     fs.writeFileSync(`${currDir}/gluestack-ui.config.ts`, newConfig);
-    console.log(
-      '\x1b[32m%s\x1b[0m',
-      'gluestack-ui provider added successfully!'
+    log.success(
+      `\x1b[32m✅  ${'\u001b[1m' +
+        'GluestackUIProvider' +
+        '\u001b[22m'} \x1b[0m added successfully!`
     );
   } catch (err) {
-    console.log(
-      '\x1b[31m%s\x1b[0m',
-      'Error while adding gluestack-ui provider:',
-      (err as Error).message
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -420,23 +392,20 @@ const getComponentGitRepo = async (): Promise<void> => {
     const clonedRepoExists = await checkIfFolderExists(clonedPath);
 
     if (clonedRepoExists) {
-      console.log('Repository already cloned.');
+      log.step('Repository already cloned.');
       await pullComponentRepo(clonedPath);
     } else {
-      console.log('Cloning repository...');
+      const s = spinner();
+      s.start('Cloning repository...');
       createFolders(cloneLocation);
       await cloneComponentRepo(
         clonedPath,
         'https://github.com/gluestack/gluestack-ui.git'
       );
-      console.log('Repository cloned successfully.');
+      s.stop('Repository cloned successfully.');
     }
   } catch (err) {
-    console.error(
-      '\x1b[31m',
-      `Error while cloning or pulling repository: ${err}`,
-      '\x1b[0m'
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -449,17 +418,9 @@ const initialProviderAdder = async (
     const targetPath = path.join(currDir, componentFolderPath);
     await addProvider(sourcePath, targetPath);
     addIndexFile(targetPath);
-  } catch (error) {
-    console.log(
-      '\x1b[31m%s\x1b[0m',
-      `❌Failed to add gluestack-ui Provider: ${error}`
-    );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
-export {
-  componentAdder,
-  initialProviderAdder,
-  getComponentGitRepo,
-  addIndexFile,
-};
+export { componentAdder, initialProviderAdder, getComponentGitRepo };

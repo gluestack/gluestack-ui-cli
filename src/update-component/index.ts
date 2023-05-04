@@ -1,12 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
-import prompts from 'prompts';
 import { componentAdder } from '../component-adder';
-import { getConfigComponentPath } from '../component-adder/utils';
-
-const pascalToDash = (str: string): string => {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-};
+import { getConfigComponentPath, pascalToDash } from '../utils';
+import { isCancel, cancel, confirm, log } from '@clack/prompts';
 
 const getAllComponents = (source: string): string[] => {
   const requestedComponents: string[] = [];
@@ -46,35 +42,32 @@ async function updateComponent(component = ''): Promise<void> {
         await componentAdder(component, false, true);
       }
     } else {
-      const proceedResponse = await prompts({
-        type: 'text',
-        name: 'proceed',
-        message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new (y/n)`,
-        initial: 'y',
+      const shouldContinue = await confirm({
+        message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new.`,
       });
 
-      if (proceedResponse.proceed === 'y') {
+      if (isCancel(shouldContinue)) {
+        cancel('Operation cancelled.');
+        process.exit(0);
+      }
+
+      if (shouldContinue) {
         if (fs.existsSync(dirPath)) {
           fs.rmSync(dirPath, { recursive: true, force: true });
         } else {
-          console.log(
-            `\x1b[31mError: Component '${component}' not found.\x1b[0m`
-          );
+          log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
+
           return;
         }
         await componentAdder(component, false, true);
       } else {
-        console.log(
-          `\x1b[33mUpdate of the component '${component}' has been cancelled.\x1b[0m`
+        log.error(
+          `\x1b[33mThe update of component "${component}" has been canceled.\x1b[0m`
         );
       }
     }
   } catch (err) {
-    console.log(
-      '\x1b[31m%s\x1b[0m',
-      'Error updating components:',
-      (err as Error).message
-    );
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 }
 

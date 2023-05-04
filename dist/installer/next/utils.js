@@ -16,16 +16,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "prompts", "path", "fs", "./data"], factory);
+        define(["require", "exports", "path", "fs", "./data", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.autoSetup = void 0;
-    const prompts_1 = __importDefault(require("prompts"));
     const path_1 = __importDefault(require("path"));
     const fs_1 = __importDefault(require("fs"));
     const data_1 = require("./data");
+    const prompts_1 = require("@clack/prompts");
     const currentDirectory = process.cwd();
     const getDocumentExtension = () => {
         const tsConfigPath = path_1.default.resolve(`${currentDirectory}/tsconfig.json`);
@@ -36,20 +36,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         const documentPath = path_1.default.resolve(`${currentDirectory}/pages/_document.${documentExt}`);
         try {
             fs_1.default.writeFileSync(documentPath, document, 'utf8');
-            console.log('\x1b[32m', `- pages/_document.${documentExt} file is updated successfully!`);
+            prompts_1.log.step('- ' +
+                `\x1b[32mpages/_document.${documentExt}\x1b[0m` +
+                ' file is updated successfully!');
         }
         catch (err) {
-            console.error('\x1b[31m', `Error updating pages/_document.${documentExt} file: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     const updateNextConfig = (nextConfig) => __awaiter(void 0, void 0, void 0, function* () {
         const documentPath = path_1.default.resolve(`${currentDirectory}/next.config.js`);
         try {
             fs_1.default.writeFileSync(documentPath, nextConfig, 'utf8');
-            console.log('\x1b[32m', `- next.config.js file is updated successfully!`);
+            prompts_1.log.step('- ' + '\x1b[32mnext.config.js\x1b[0m' + ' file is updated successfully!');
         }
         catch (err) {
-            console.error('\x1b[31m', `Error updating next.config.js file: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     const updateApp = (app) => __awaiter(void 0, void 0, void 0, function* () {
@@ -57,10 +59,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         const documentPath = path_1.default.resolve(`${currentDirectory}/pages/_app.${documentExt}`);
         try {
             fs_1.default.writeFileSync(documentPath, app, 'utf8');
-            console.log('\x1b[32m', `- pages/_app.${documentExt} file is updated successfully!`);
+            prompts_1.log.step('- ' +
+                `\x1b[32mpages/_app.${documentExt}\x1b[0m` +
+                ' file is updated successfully!');
         }
         catch (err) {
-            console.error('\x1b[31m', `Error updating pages/_app.${documentExt} file: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     const replaceFiles = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
@@ -71,24 +75,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     });
     const autoSetup = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const proceedResponse = yield (0, prompts_1.default)({
-                type: 'text',
-                name: 'proceed',
-                message: `We detected that this is a Next.js project. Would you like to proceed with automatic setup? This is recommended for new projects.\nPlease note that the following files will be overwritten:\n- next.config.ts\n- _app.tsx\n- _document.tsx\n\nIt's recommended to commit your current changes before proceeding.\n\nTo proceed and overwrite the files, type 'y'. To cancel and exit, type 'n'.`,
-                initial: 'y',
+            prompts_1.log.info("Hey there! It looks like we've stumbled upon a \x1b[34mNext.js project\x1b[0m! Would you like to take the express lane and proceed with the automatic setup?");
+            prompts_1.log.warning(`👉 Keep in mind that we'll be shaking things up a bit and overwriting a few files, namely
+
+-  next.config.ts
+-  _app.tsx
+-  _document.tsx
+
+So, it's advisable to save your current changes by committing them before proceeding.`);
+            const shouldContinue = yield (0, prompts_1.confirm)({
+                message: `Would you like to proceed with the automatic setup?`,
             });
-            if (proceedResponse.proceed.toLowerCase() === 'y') {
-                console.log('\x1b[33m%s\x1b[0m', '\nOverwriting files...');
+            if ((0, prompts_1.isCancel)(shouldContinue)) {
+                (0, prompts_1.cancel)('Operation cancelled.');
+                process.exit(0);
+            }
+            if (shouldContinue) {
+                prompts_1.log.warning('\x1b[33mOverwriting files...\x1b[0m');
                 yield replaceFiles(folderName);
             }
-            else if (proceedResponse.answer === 'n') {
-                console.log('\x1b[33m%s\x1b[0m', 'Exiting without overwriting the files...');
-                console.log(`Please visit https://ui.gluestack.io/docs/getting-started/install-nextjs for more information on manual setup.`);
+            else {
+                prompts_1.log.warning(`\x1b[33mExiting without overwriting the files...\x1b[0m`);
+                prompts_1.log.step(`Please visit https://ui.gluestack.io/docs/getting-started/install-nextjs for more information on manual setup.`);
             }
-            return proceedResponse.proceed.toLowerCase();
+            return shouldContinue;
         }
         catch (err) {
-            console.error('\x1b[31m%s\x1b[0m', `Error in autoSetup: ${err.message}`);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
             return '';
         }
     });

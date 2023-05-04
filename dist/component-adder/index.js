@@ -16,52 +16,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "prompts", "path", "process", "util", "os", "./utils"], factory);
+        define(["require", "exports", "fs-extra", "path", "process", "util", "os", "./utils", "../utils", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.addIndexFile = exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
+    exports.getComponentGitRepo = exports.initialProviderAdder = exports.componentAdder = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
-    const prompts_1 = __importDefault(require("prompts"));
     const path_1 = __importDefault(require("path"));
     const process_1 = __importDefault(require("process"));
     const util_1 = __importDefault(require("util"));
     const os_1 = __importDefault(require("os"));
     const utils_1 = require("./utils");
+    const utils_2 = require("../utils");
+    const prompts_1 = require("@clack/prompts");
     const homeDir = os_1.default.homedir();
     const currDir = process_1.default.cwd();
     const copyAsync = util_1.default.promisify(fs_extra_1.default.copy);
     let existingComponentsChecked = false;
-    const addIndexFile = (componentsDirectory, level = 0) => {
-        try {
-            const files = fs_extra_1.default.readdirSync(componentsDirectory);
-            const exports = files
-                .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
-                .map(file => {
-                if (level === 0) {
-                    addIndexFile(`${componentsDirectory}/${file}`, level + 1);
-                }
-                return `export * from './${file.split('.')[0]}';`;
-            })
-                .join('\n');
-            fs_extra_1.default.writeFileSync(path_1.default.join(componentsDirectory, 'index.ts'), exports);
-        }
-        catch (error) {
-            console.error('\x1b[31m%s\x1b[0m', `Error: ${error.message}`);
-        }
-    };
-    exports.addIndexFile = addIndexFile;
-    const pascalToDash = (str) => {
-        return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-    };
-    const dashToPascal = (str) => {
-        return str
-            .toLowerCase()
-            .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
-            .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
-    };
-    const copyFolders = (sourcePath, targetPath, specificComponent, showWarning, isUpdate) => __awaiter(void 0, void 0, void 0, function* () {
+    const copyFolders = (sourcePath, targetPath, specificComponent, isUpdate) => __awaiter(void 0, void 0, void 0, function* () {
         const groupedComponents = {};
         let specificComponentType;
         //  Traverse all components
@@ -78,48 +51,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         componentType = packageJson.keywords[1];
                     }
                     if (componentType) {
-                        const cliComponent = pascalToDash(component);
+                        const cliComponent = (0, utils_2.pascalToDash)(component);
                         groupedComponents[componentType] =
                             groupedComponents[componentType] || [];
                         groupedComponents[componentType].push(cliComponent);
                     }
-                    const sourceComponent = pascalToDash(component);
+                    const sourceComponent = (0, utils_2.pascalToDash)(component);
                     if (sourceComponent.toLowerCase() === specificComponent.toLowerCase()) {
                         specificComponentType = componentType;
                     }
                 }
             });
         }
-        catch (error) {
-            console.log('\x1b[31m%s\x1b[0m', `Error occurred while reading config files: ${error.message}`);
+        catch (err) {
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
             return;
         }
         let selectedComponents = {};
         // Ask component type
         if (!specificComponentType) {
-            const selectedComponentType = yield (0, prompts_1.default)({
-                type: 'multiselect',
-                name: 'componentType',
-                message: `Select the type of components:`,
-                choices: Object.keys(groupedComponents).map(type => {
-                    return { title: type, value: type };
+            const selectedComponentType = yield (0, prompts_1.multiselect)({
+                message: 'Select the type of components:',
+                options: Object.keys(groupedComponents).map(type => {
+                    return { value: type, label: type };
                 }),
+                required: true,
             });
-            if (selectedComponentType.componentType) {
-                yield Promise.all(selectedComponentType.componentType.map((component) => __awaiter(void 0, void 0, void 0, function* () {
+            if ((0, prompts_1.isCancel)(selectedComponentType)) {
+                (0, prompts_1.cancel)('Operation cancelled.');
+                process_1.default.exit(0);
+            }
+            if (Array.isArray(selectedComponentType)) {
+                yield Promise.all(selectedComponentType.map((component) => __awaiter(void 0, void 0, void 0, function* () {
                     if (groupedComponents[component].length !== 0) {
-                        const selectComponents = yield (0, prompts_1.default)({
-                            type: 'multiselect',
-                            name: 'components',
+                        const selectComponents = yield (0, prompts_1.multiselect)({
                             message: `Select ${component} components:`,
-                            choices: groupedComponents[component].map(type => {
-                                return { title: type, value: type };
+                            options: groupedComponents[component].map(type => {
+                                return { value: type, label: type };
                             }),
+                            required: true,
                         });
-                        selectedComponents[component] = selectComponents.components;
+                        if ((0, prompts_1.isCancel)(selectComponents)) {
+                            (0, prompts_1.cancel)('Operation cancelled.');
+                            process_1.default.exit(0);
+                        }
+                        selectedComponents[component] = selectComponents;
                     }
                     else {
-                        console.log(`No components of ${component} type!`);
+                        prompts_1.log.error(`\x1b[31mError: No components of ${component} type!\x1b[0m`);
                     }
                 })));
             }
@@ -129,9 +108,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         yield Promise.all(Object.keys(selectedComponents).map(component => {
             (0, utils_1.createFolders)(`${targetPath}/${component}`);
-            selectedComponents[component].map(subcomponent => {
+            selectedComponents[component].map((subcomponent) => {
                 // Add Packages
-                const originalComponentPath = dashToPascal(subcomponent);
+                const originalComponentPath = (0, utils_2.dashToPascal)(subcomponent);
                 const compPackageJsonPath = `${sourcePath}/${originalComponentPath}/config.json`;
                 const compPackageJson = JSON.parse(fs_extra_1.default.readFileSync(compPackageJsonPath, 'utf8'));
                 if (compPackageJson.componentDependencies &&
@@ -150,12 +129,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     fs_extra_1.default.unlinkSync(`${targetPath}/${component}/${originalComponentPath}/config.json`);
                 }
                 if (!isUpdate) {
-                    console.log(` \x1b[32m ✅  ${'\u001b[1m' +
+                    prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
                         originalComponentPath +
                         '\u001b[22m'} \x1b[0m component added successfully!`);
                 }
                 else {
-                    console.log(` \x1b[32m ✅  ${'\u001b[1m' +
+                    prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
                         originalComponentPath +
                         '\u001b[22m'} \x1b[0m component updated successfully!`);
                 }
@@ -166,34 +145,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         const alreadyExistingComponents = [];
         let selectedComponents = [];
         for (const component of specificComponents) {
-            const componentPath = (0, utils_1.getConfigComponentPath)();
-            const pathToCheck = path_1.default.join(currDir, componentPath, 'core', dashToPascal(component));
+            const componentPath = (0, utils_2.getConfigComponentPath)();
+            const pathToCheck = path_1.default.join(currDir, componentPath, 'core', (0, utils_2.dashToPascal)(component));
             if (fs_extra_1.default.existsSync(pathToCheck)) {
                 alreadyExistingComponents.push(component);
             }
         }
         if (alreadyExistingComponents.length === 1) {
-            const response = yield (0, prompts_1.default)({
-                type: 'text',
-                name: 'value',
+            const shouldContinue = yield (0, prompts_1.confirm)({
                 message: `The ${alreadyExistingComponents[0]} component already exists. Kindly proceed if you wish to replace. Be advised that if there are any interdependent components, proceeding will result in their dependent components being replaced as well.`,
-                initial: 'y',
             });
-            if (response.value.toLowerCase() === 'y') {
+            if ((0, prompts_1.isCancel)(shouldContinue)) {
+                (0, prompts_1.cancel)('Operation cancelled.');
+                process_1.default.exit(0);
+            }
+            if (shouldContinue) {
                 selectedComponents = alreadyExistingComponents;
             }
         }
         else if (alreadyExistingComponents.length > 0) {
-            const response = yield (0, prompts_1.default)({
-                type: 'multiselect',
-                name: 'value',
+            selectedComponents = yield (0, prompts_1.multiselect)({
                 message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-                choices: alreadyExistingComponents.map(component => ({
-                    title: component,
+                options: alreadyExistingComponents.map(component => ({
+                    label: component,
                     value: component,
                 })),
             });
-            selectedComponents = response.value;
+            if ((0, prompts_1.isCancel)(selectedComponents)) {
+                (0, prompts_1.cancel)('Operation cancelled.');
+                process_1.default.exit(0);
+            }
         }
         // Remove repeated components from all components
         const filteredComponents = specificComponents.filter(component => !alreadyExistingComponents.includes(component));
@@ -215,7 +196,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     componentType = packageJson.keywords[1];
                 }
                 if (componentType) {
-                    const cliComponent = pascalToDash(component);
+                    const cliComponent = (0, utils_2.pascalToDash)(component);
                     requestedComponents.push(cliComponent);
                 }
             }
@@ -244,15 +225,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 addComponents = requestedComponents;
             }
             yield Promise.all(addComponents.map((component) => __awaiter(void 0, void 0, void 0, function* () {
-                const componentPath = (0, utils_1.getConfigComponentPath)();
+                const componentPath = (0, utils_2.getConfigComponentPath)();
                 (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
-                yield copyFolders(sourcePath, targetPath, component, showWarning, isUpdate);
-                addIndexFile(targetPath);
+                yield copyFolders(sourcePath, targetPath, component, isUpdate);
+                (0, utils_2.addIndexFile)(targetPath);
             })));
         }
         catch (err) {
-            console.log('\x1b[31m%s\x1b[0m', 'Error adding components:', err.message);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     exports.componentAdder = componentAdder;
@@ -282,10 +263,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const folderName = targetPath.split('/').slice(-1)[0];
             const newConfig = configFile.replace(/componentPath:\s+'[^']+'/, `componentPath: './${folderName}'`);
             fs_extra_1.default.writeFileSync(`${currDir}/gluestack-ui.config.ts`, newConfig);
-            console.log('\x1b[32m%s\x1b[0m', 'gluestack-ui provider added successfully!');
+            prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
+                'GluestackUIProvider' +
+                '\u001b[22m'} \x1b[0m added successfully!`);
         }
         catch (err) {
-            console.log('\x1b[31m%s\x1b[0m', 'Error while adding gluestack-ui provider:', err.message);
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     const getComponentGitRepo = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -295,18 +278,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const clonedPath = `${cloneLocation}/gluestack-ui`;
             const clonedRepoExists = yield (0, utils_1.checkIfFolderExists)(clonedPath);
             if (clonedRepoExists) {
-                console.log('Repository already cloned.');
+                prompts_1.log.step('Repository already cloned.');
                 yield (0, utils_1.pullComponentRepo)(clonedPath);
             }
             else {
-                console.log('Cloning repository...');
+                const s = (0, prompts_1.spinner)();
+                s.start('Cloning repository...');
                 (0, utils_1.createFolders)(cloneLocation);
                 yield (0, utils_1.cloneComponentRepo)(clonedPath, 'https://github.com/gluestack/gluestack-ui.git');
-                console.log('Repository cloned successfully.');
+                s.stop('Repository cloned successfully.');
             }
         }
         catch (err) {
-            console.error('\x1b[31m', `Error while cloning or pulling repository: ${err}`, '\x1b[0m');
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     exports.getComponentGitRepo = getComponentGitRepo;
@@ -316,10 +300,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const sourcePath = `${homeDir}/.gluestack/cache/gluestack-ui/example/storybook/src/ui-components`;
             const targetPath = path_1.default.join(currDir, componentFolderPath);
             yield addProvider(sourcePath, targetPath);
-            addIndexFile(targetPath);
+            (0, utils_2.addIndexFile)(targetPath);
         }
-        catch (error) {
-            console.log('\x1b[31m%s\x1b[0m', `❌Failed to add gluestack-ui Provider: ${error}`);
+        catch (err) {
+            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     exports.initialProviderAdder = initialProviderAdder;

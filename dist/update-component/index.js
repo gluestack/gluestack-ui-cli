@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "prompts", "../component-adder", "../component-adder/utils"], factory);
+        define(["require", "exports", "fs-extra", "path", "../component-adder", "../utils", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,12 +24,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.updateComponent = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const path_1 = __importDefault(require("path"));
-    const prompts_1 = __importDefault(require("prompts"));
     const component_adder_1 = require("../component-adder");
-    const utils_1 = require("../component-adder/utils");
-    const pascalToDash = (str) => {
-        return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-    };
+    const utils_1 = require("../utils");
+    const prompts_1 = require("@clack/prompts");
     const getAllComponents = (source) => {
         const requestedComponents = [];
         fs_extra_1.default.readdirSync(source).forEach((component) => {
@@ -37,7 +34,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 component === 'index.tsx' ||
                 component === 'GluestackUIProvider' ||
                 component === 'styled')) {
-                const cliComponent = pascalToDash(component);
+                const cliComponent = (0, utils_1.pascalToDash)(component);
                 requestedComponents.push(cliComponent);
             }
         });
@@ -56,29 +53,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     }
                 }
                 else {
-                    const proceedResponse = yield (0, prompts_1.default)({
-                        type: 'text',
-                        name: 'proceed',
-                        message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new (y/n)`,
-                        initial: 'y',
+                    const shouldContinue = yield (0, prompts_1.confirm)({
+                        message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new.`,
                     });
-                    if (proceedResponse.proceed === 'y') {
+                    if ((0, prompts_1.isCancel)(shouldContinue)) {
+                        (0, prompts_1.cancel)('Operation cancelled.');
+                        process.exit(0);
+                    }
+                    if (shouldContinue) {
                         if (fs_extra_1.default.existsSync(dirPath)) {
                             fs_extra_1.default.rmSync(dirPath, { recursive: true, force: true });
                         }
                         else {
-                            console.log(`\x1b[31mError: Component '${component}' not found.\x1b[0m`);
+                            prompts_1.log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
                             return;
                         }
                         yield (0, component_adder_1.componentAdder)(component, false, true);
                     }
                     else {
-                        console.log(`\x1b[33mUpdate of the component '${component}' has been cancelled.\x1b[0m`);
+                        prompts_1.log.error(`\x1b[33mThe update of component "${component}" has been canceled.\x1b[0m`);
                     }
                 }
             }
             catch (err) {
-                console.log('\x1b[31m%s\x1b[0m', 'Error updating components:', err.message);
+                prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
             }
         });
     }
