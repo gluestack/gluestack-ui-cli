@@ -3,6 +3,7 @@ import { initialProviderAdder } from '../component-adder';
 import { projectDetector } from '@gluestack/ui-project-detector';
 import { nextInstaller } from './next';
 import { expoInstaller } from './expo';
+import path from 'path';
 import { isCancel, cancel, text, confirm, log } from '@clack/prompts';
 
 const installGluestackUI = async (): Promise<boolean> => {
@@ -22,7 +23,7 @@ const installGluestackUI = async (): Promise<boolean> => {
       process.exit(0);
     }
 
-    await initialProviderAdder('./' + folderPath);
+    await initialProviderAdder(path.join('./', folderPath));
 
     const finalMessage = `
     Gluestack Provider has been added to your components folder.

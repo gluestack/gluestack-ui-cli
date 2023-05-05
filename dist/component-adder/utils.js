@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "child_process", "fs-extra", "simple-git", "util", "@clack/prompts"], factory);
+        define(["require", "exports", "child_process", "fs-extra", "path", "simple-git", "util", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,16 +24,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.checkIfFolderExists = exports.pullComponentRepo = exports.cloneComponentRepo = exports.removeClonedRepo = exports.createFolders = void 0;
     const child_process_1 = require("child_process");
     const fs_extra_1 = __importDefault(require("fs-extra"));
+    const path_1 = __importDefault(require("path"));
     const simple_git_1 = __importDefault(require("simple-git"));
     const util_1 = __importDefault(require("util"));
     const prompts_1 = require("@clack/prompts");
     const stat = util_1.default.promisify(fs_extra_1.default.stat);
+    const splitPath = (path) => {
+        const regex = /[\\/]/;
+        return path.split(regex);
+    };
     const createFolders = (pathx) => {
-        const parts = pathx.split('/');
+        const parts = splitPath(pathx);
         let currentPath = '';
         try {
             parts.forEach(part => {
-                currentPath += part + '/';
+                currentPath = path_1.default.join(currentPath, part);
                 if (!fs_extra_1.default.existsSync(currentPath)) {
                     fs_extra_1.default.mkdirSync(currentPath);
                 }

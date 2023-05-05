@@ -1,18 +1,24 @@
 import { exec } from 'child_process';
 import fs from 'fs-extra';
+import path from "path";
 import simpleGit from 'simple-git';
 import util from 'util';
 import { spinner, log } from '@clack/prompts';
 
 const stat = util.promisify(fs.stat);
 
+const splitPath = (path: string) => {
+  const regex = /[\\/]/;
+  return path.split(regex);
+}
+
 const createFolders = (pathx: string) => {
-  const parts = pathx.split('/');
+  const parts = splitPath(pathx);
   let currentPath = '';
 
   try {
     parts.forEach(part => {
-      currentPath += part + '/';
+      currentPath = path.join(currentPath, part);
       if (!fs.existsSync(currentPath)) {
         fs.mkdirSync(currentPath);
       }

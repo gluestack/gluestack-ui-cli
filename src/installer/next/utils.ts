@@ -6,14 +6,14 @@ import { isCancel, cancel, confirm, log } from '@clack/prompts';
 const currentDirectory = process.cwd();
 
 const getDocumentExtension = (): string => {
-  const tsConfigPath = path.resolve(`${currentDirectory}/tsconfig.json`);
+  const tsConfigPath = path.resolve(currentDirectory, "tsconfig.json");
   return fs.existsSync(tsConfigPath) ? 'tsx' : 'jsx';
 };
 
 const updateDocument = async (document: string): Promise<void> => {
   const documentExt = getDocumentExtension();
   const documentPath = path.resolve(
-    `${currentDirectory}/pages/_document.${documentExt}`
+    currentDirectory, "pages", `_document.${documentExt}`
   );
   try {
     fs.writeFileSync(documentPath, document, 'utf8');
@@ -28,7 +28,7 @@ const updateDocument = async (document: string): Promise<void> => {
 };
 
 const updateNextConfig = async (nextConfig: string): Promise<void> => {
-  const documentPath = path.resolve(`${currentDirectory}/next.config.js`);
+  const documentPath = path.resolve(currentDirectory, "next.config.js");
   try {
     fs.writeFileSync(documentPath, nextConfig, 'utf8');
     log.step(
@@ -42,7 +42,7 @@ const updateNextConfig = async (nextConfig: string): Promise<void> => {
 const updateApp = async (app: string): Promise<void> => {
   const documentExt = getDocumentExtension();
   const documentPath = path.resolve(
-    `${currentDirectory}/pages/_app.${documentExt}`
+    currentDirectory, "pages", `_app.${documentExt}`
   );
   try {
     fs.writeFileSync(documentPath, app, 'utf8');

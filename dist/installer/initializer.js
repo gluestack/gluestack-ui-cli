@@ -7,13 +7,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../init-checker", "../component-adder", "@gluestack/ui-project-detector", "./next", "./expo", "@clack/prompts"], factory);
+        define(["require", "exports", "../init-checker", "../component-adder", "@gluestack/ui-project-detector", "./next", "./expo", "path", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,6 +27,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const ui_project_detector_1 = require("@gluestack/ui-project-detector");
     const next_1 = require("./next");
     const expo_1 = require("./expo");
+    const path_1 = __importDefault(require("path"));
     const prompts_1 = require("@clack/prompts");
     const installGluestackUI = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -40,7 +44,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 (0, prompts_1.cancel)('Operation cancelled.');
                 process.exit(0);
             }
-            yield (0, component_adder_1.initialProviderAdder)('./' + folderPath);
+            yield (0, component_adder_1.initialProviderAdder)(path_1.default.join('./', folderPath));
             const finalMessage = `
     Gluestack Provider has been added to your components folder.
     To use it, simply wrap your app component with the <GluestackUIProvider> component like this:

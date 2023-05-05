@@ -97,7 +97,7 @@ const installDependencies = async (): Promise<void> => {
 
 const getConfigComponentPath = () => {
   const configFile = fs.readFileSync(
-    `${currDir}/gluestack-ui.config.ts`,
+    path.join(currDir, "gluestack-ui.config.ts"),
     'utf-8'
   );
   const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);

@@ -109,7 +109,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.installDependencies = installDependencies;
     const getConfigComponentPath = () => {
         var _a;
-        const configFile = fs_extra_1.default.readFileSync(`${currDir}/gluestack-ui.config.ts`, 'utf-8');
+        const configFile = fs_extra_1.default.readFileSync(path_1.default.join(currDir, "gluestack-ui.config.ts"), 'utf-8');
         const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
         const componentPath = (_a = (match && match[2])) !== null && _a !== void 0 ? _a : '';
         return componentPath;

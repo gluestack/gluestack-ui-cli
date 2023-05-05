@@ -28,12 +28,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const prompts_1 = require("@clack/prompts");
     const currentDirectory = process.cwd();
     const getDocumentExtension = () => {
-        const tsConfigPath = path_1.default.resolve(`${currentDirectory}/tsconfig.json`);
+        const tsConfigPath = path_1.default.resolve(currentDirectory, "tsconfig.json");
         return fs_1.default.existsSync(tsConfigPath) ? 'tsx' : 'jsx';
     };
     const updateDocument = (document) => __awaiter(void 0, void 0, void 0, function* () {
         const documentExt = getDocumentExtension();
-        const documentPath = path_1.default.resolve(`${currentDirectory}/pages/_document.${documentExt}`);
+        const documentPath = path_1.default.resolve(currentDirectory, "pages", `_document.${documentExt}`);
         try {
             fs_1.default.writeFileSync(documentPath, document, 'utf8');
             prompts_1.log.step('- ' +
@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     });
     const updateNextConfig = (nextConfig) => __awaiter(void 0, void 0, void 0, function* () {
-        const documentPath = path_1.default.resolve(`${currentDirectory}/next.config.js`);
+        const documentPath = path_1.default.resolve(currentDirectory, "next.config.js");
         try {
             fs_1.default.writeFileSync(documentPath, nextConfig, 'utf8');
             prompts_1.log.step('- ' + '\x1b[32mnext.config.js\x1b[0m' + ' file is updated successfully!');
@@ -56,7 +56,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     });
     const updateApp = (app) => __awaiter(void 0, void 0, void 0, function* () {
         const documentExt = getDocumentExtension();
-        const documentPath = path_1.default.resolve(`${currentDirectory}/pages/_app.${documentExt}`);
+        const documentPath = path_1.default.resolve(currentDirectory, "pages", `_app.${documentExt}`);
         try {
             fs_1.default.writeFileSync(documentPath, app, 'utf8');
             prompts_1.log.step('- ' +
