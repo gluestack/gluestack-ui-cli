@@ -44,7 +44,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     component !== 'index.tsx' &&
                     component !== 'Provider') {
                     // Read in the existing package.json file
-                    const packageJsonPath = path_1.default.join(sourcePath, component, "config.json");
+                    const packageJsonPath = path_1.default.join(sourcePath, component, 'config.json');
                     const packageJson = JSON.parse(fs_extra_1.default.readFileSync(packageJsonPath, 'utf8'));
                     let componentType;
                     if (packageJson.keywords.indexOf('components') !== -1) {
@@ -107,11 +107,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             selectedComponents[specificComponentType] = [specificComponent];
         }
         yield Promise.all(Object.keys(selectedComponents).map(component => {
-            (0, utils_1.createFolders)(path_1.default.join(targetPath, component));
+            // createFolders(path.join(targetPath, component));
             selectedComponents[component].map((subcomponent) => {
                 // Add Packages
                 const originalComponentPath = (0, utils_2.dashToPascal)(subcomponent);
-                const compPackageJsonPath = path_1.default.join(sourcePath, originalComponentPath, "config.json");
+                const compPackageJsonPath = path_1.default.join(sourcePath, originalComponentPath, 'config.json');
                 const compPackageJson = JSON.parse(fs_extra_1.default.readFileSync(compPackageJsonPath, 'utf8'));
                 if (compPackageJson.componentDependencies &&
                     compPackageJson.componentDependencies.length > 0) {
@@ -119,14 +119,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         yield componentAdder(component, false, true);
                     }));
                 }
-                const rootPackageJsonPath = path_1.default.join(currDir, "package.json");
+                const rootPackageJsonPath = path_1.default.join(currDir, 'package.json');
                 const rootPackageJson = JSON.parse(fs_extra_1.default.readFileSync(rootPackageJsonPath, 'utf8'));
                 rootPackageJson.dependencies = Object.assign(Object.assign({}, rootPackageJson.dependencies), compPackageJson.dependencies);
                 fs_extra_1.default.writeFileSync(rootPackageJsonPath, JSON.stringify(rootPackageJson, null, 2));
-                (0, utils_1.createFolders)(path_1.default.join(targetPath, component, originalComponentPath));
+                // createFolders(path.join(targetPath, component, originalComponentPath));
                 fs_extra_1.default.copySync(path_1.default.join(sourcePath, originalComponentPath), path_1.default.join(targetPath, component, originalComponentPath));
-                if (fs_extra_1.default.existsSync(path_1.default.join(targetPath, component, originalComponentPath, "config.json"))) {
-                    fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, component, originalComponentPath, "config.json"));
+                if (fs_extra_1.default.existsSync(path_1.default.join(targetPath, component, originalComponentPath, 'config.json'))) {
+                    fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, component, originalComponentPath, 'config.json'));
                 }
                 if (!isUpdate) {
                     prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
@@ -189,7 +189,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             if (!(component === 'index.ts' ||
                 component === 'index.tsx' ||
                 component === 'Provider')) {
-                const packageJsonPath = path_1.default.join(source, component, "config.json");
+                const packageJsonPath = path_1.default.join(source, component, 'config.json');
                 const packageJson = JSON.parse(fs_extra_1.default.readFileSync(packageJsonPath, 'utf8'));
                 let componentType;
                 if (packageJson.keywords.indexOf('components') !== -1) {
@@ -206,7 +206,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const componentAdder = (requestedComponent = '', showWarning = true, isUpdate = false) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Get config
-            const sourcePath = path_1.default.join(homeDir, ".gluestack", "cache", "gluestack-ui", "example", "storybook", "src", "ui-components");
+            const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');
             let requestedComponents = [];
             let addComponents = [];
             if (requestedComponent === '--all') {
@@ -226,7 +226,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
             yield Promise.all(addComponents.map((component) => __awaiter(void 0, void 0, void 0, function* () {
                 const componentPath = (0, utils_2.getConfigComponentPath)();
-                (0, utils_1.createFolders)(path_1.default.join(currDir, componentPath));
+                // createFolders(path.join(currDir, componentPath));
                 const targetPath = path_1.default.join(currDir, componentPath);
                 yield copyFolders(sourcePath, targetPath, component, isUpdate);
                 (0, utils_2.addIndexFile)(targetPath);
@@ -244,29 +244,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const addProvider = (sourcePath, targetPath) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Create necessary folders
-            (0, utils_1.createFolders)(path_1.default.join(targetPath, "core"));
-            (0, utils_1.createFolders)(path_1.default.join(targetPath, "core", "GluestackUIProvider"));
-            (0, utils_1.createFolders)(path_1.default.join(targetPath, "core", "styled"));
+            // createFolders(path.join(targetPath, 'core'));
+            // createFolders(path.join(targetPath, 'core', 'GluestackUIProvider'));
+            // createFolders(path.join(targetPath, 'core', 'styled'));
             // Copy Provider and styled folder
-            yield copyAsync(path_1.default.join(sourcePath, "Provider"), path_1.default.join(targetPath, "core", "GluestackUIProvider"));
-            yield copyAsync(path_1.default.join(sourcePath, "styled"), path_1.default.join(targetPath, "core", "styled"));
+            yield copyAsync(path_1.default.join(sourcePath, 'Provider'), path_1.default.join(targetPath, 'core', 'GluestackUIProvider'));
+            yield copyAsync(path_1.default.join(sourcePath, 'styled'), path_1.default.join(targetPath, 'core', 'styled'));
             // Copy Gluestack UI config to root
             const gluestackConfig = yield fs_extra_1.default.readFile(path_1.default.resolve(sourcePath, '../', 'gluestack-ui.config.ts'), 'utf8');
-            yield fs_extra_1.default.writeFile(path_1.default.join(currDir, "gluestack-ui.config.ts"), gluestackConfig);
+            yield fs_extra_1.default.writeFile(path_1.default.join(currDir, 'gluestack-ui.config.ts'), gluestackConfig);
             // Delete config.json files
-            fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, "core", "GluestackUIProvider", "config.json"));
-            fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, "core", "styled", "config.json"));
+            fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'config.json'));
+            fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, 'core', 'styled', 'config.json'));
             // Update Provider Config Path
-            const providerIndexFile = yield fs_extra_1.default.readFile(path_1.default.join(targetPath, "core", "GluestackUIProvider", "index.tsx"), 'utf8');
+            const providerIndexFile = yield fs_extra_1.default.readFile(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'), 'utf8');
             const modifiedProviderIndexFile = providerIndexFile.replace('./gluestack-ui.config', path_1.default
-                .relative(path_1.default.join(targetPath, "core", "GluestackUIProvider", "index.tsx"), path_1.default.join(currDir, "gluestack-ui.config"))
+                .relative(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'), path_1.default.join(currDir, 'gluestack-ui.config'))
                 .slice(3));
-            fs_extra_1.default.writeFileSync(path_1.default.join(targetPath, "core", "GluestackUIProvider", "index.tsx"), modifiedProviderIndexFile);
+            fs_extra_1.default.writeFileSync(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'), modifiedProviderIndexFile);
             // Update Gluestack UI config file
-            const configFile = yield fs_extra_1.default.readFile(path_1.default.join(currDir, "gluestack-ui.config.ts"), 'utf8');
+            const configFile = yield fs_extra_1.default.readFile(path_1.default.join(currDir, 'gluestack-ui.config.ts'), 'utf8');
             const folderName = splitPath(targetPath).slice(-1)[0];
             const newConfig = configFile.replace(/componentPath:\s+'[^']+'/, `componentPath: './${folderName}'`);
-            fs_extra_1.default.writeFileSync(path_1.default.join(currDir, "gluestack-ui.config.ts"), newConfig);
+            fs_extra_1.default.writeFileSync(path_1.default.join(currDir, 'gluestack-ui.config.ts'), newConfig);
             prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
                 'GluestackUIProvider' +
                 '\u001b[22m'} \x1b[0m added successfully!`);
@@ -278,8 +278,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const getComponentGitRepo = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Clone repo locally in users home directory
-            const cloneLocation = path_1.default.join(homeDir, ".gluestack", "cache");
-            const clonedPath = path_1.default.join(cloneLocation, "gluestack-ui");
+            const cloneLocation = path_1.default.join(homeDir, '.gluestack', 'cache');
+            const clonedPath = path_1.default.join(cloneLocation, 'gluestack-ui');
             const clonedRepoExists = yield (0, utils_1.checkIfFolderExists)(clonedPath);
             if (clonedRepoExists) {
                 prompts_1.log.step('Repository already cloned.');
@@ -288,7 +288,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             else {
                 const s = (0, prompts_1.spinner)();
                 s.start('Cloning repository...');
-                (0, utils_1.createFolders)(cloneLocation);
+                // createFolders(cloneLocation);
                 yield (0, utils_1.cloneComponentRepo)(clonedPath, 'https://github.com/gluestack/gluestack-ui.git');
                 s.stop('Repository cloned successfully.');
             }
@@ -300,8 +300,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.getComponentGitRepo = getComponentGitRepo;
     const initialProviderAdder = (componentFolderPath) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            (0, utils_1.createFolders)(path_1.default.join(currDir, componentFolderPath));
-            const sourcePath = path_1.default.join(homeDir, "\.gluestack", "cache", "gluestack-ui", "example", "storybook", "src", "ui-components");
+            // createFolders(path.join(currDir, componentFolderPath));
+            const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');
             const targetPath = path_1.default.join(currDir, componentFolderPath);
             yield addProvider(sourcePath, targetPath);
             (0, utils_2.addIndexFile)(targetPath);

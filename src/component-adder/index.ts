@@ -49,7 +49,7 @@ const copyFolders = async (
         component !== 'Provider'
       ) {
         // Read in the existing package.json file
-        const packageJsonPath = path.join(sourcePath, component, "config.json");
+        const packageJsonPath = path.join(sourcePath, component, 'config.json');
 
         const packageJson = JSON.parse(
           fs.readFileSync(packageJsonPath, 'utf8')
@@ -123,13 +123,16 @@ const copyFolders = async (
 
   await Promise.all(
     Object.keys(selectedComponents).map(component => {
-      createFolders(path.join(targetPath, component));
+      // createFolders(path.join(targetPath, component));
       selectedComponents[component].map((subcomponent: any) => {
         // Add Packages
         const originalComponentPath = dashToPascal(subcomponent);
 
-        const compPackageJsonPath = path.join(sourcePath, originalComponentPath, "config.json");
-
+        const compPackageJsonPath = path.join(
+          sourcePath,
+          originalComponentPath,
+          'config.json'
+        );
 
         const compPackageJson = JSON.parse(
           fs.readFileSync(compPackageJsonPath, 'utf8')
@@ -145,7 +148,7 @@ const copyFolders = async (
             }
           );
         }
-        const rootPackageJsonPath = path.join(currDir, "package.json")
+        const rootPackageJsonPath = path.join(currDir, 'package.json');
 
         const rootPackageJson = JSON.parse(
           fs.readFileSync(rootPackageJsonPath, 'utf8')
@@ -161,21 +164,31 @@ const copyFolders = async (
           JSON.stringify(rootPackageJson, null, 2)
         );
 
-        createFolders(path.join(targetPath, component, originalComponentPath));
+        // createFolders(path.join(targetPath, component, originalComponentPath));
 
         fs.copySync(
-        path.join(sourcePath, originalComponentPath),
+          path.join(sourcePath, originalComponentPath),
           path.join(targetPath, component, originalComponentPath)
         );
 
         if (
           fs.existsSync(
-           path.join(targetPath, component, originalComponentPath, "config.json")
+            path.join(
+              targetPath,
+              component,
+              originalComponentPath,
+              'config.json'
+            )
           )
         ) {
           fs.unlinkSync(
-            path.join(targetPath, component, originalComponentPath, "config.json")
-           )
+            path.join(
+              targetPath,
+              component,
+              originalComponentPath,
+              'config.json'
+            )
+          );
         }
 
         if (!isUpdate) {
@@ -262,7 +275,7 @@ const getAllComponents = (source: string): string[] => {
         component === 'Provider'
       )
     ) {
-      const packageJsonPath = path.join(source, component, "config.json")
+      const packageJsonPath = path.join(source, component, 'config.json');
 
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
       let componentType;
@@ -286,8 +299,16 @@ const componentAdder = async (
 ) => {
   try {
     // Get config
-    const sourcePath = path.join(homeDir, ".gluestack", "cache", "gluestack-ui", "example", "storybook", "src", "ui-components" )
-
+    const sourcePath = path.join(
+      homeDir,
+      '.gluestack',
+      'cache',
+      'gluestack-ui',
+      'example',
+      'storybook',
+      'src',
+      'ui-components'
+    );
 
     let requestedComponents: string[] = [];
     let addComponents: string[] = [];
@@ -313,7 +334,7 @@ const componentAdder = async (
     await Promise.all(
       addComponents.map(async component => {
         const componentPath = getConfigComponentPath();
-        createFolders(path.join(currDir, componentPath));
+        // createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
         await copyFolders(sourcePath, targetPath, component, isUpdate);
         addIndexFile(targetPath);
@@ -327,55 +348,63 @@ const componentAdder = async (
 const splitPath = (path: string) => {
   const regex = /[\\/]/;
   return path.split(regex);
-}
+};
 
 const addProvider = async (sourcePath: string, targetPath: string) => {
   try {
     // Create necessary folders
-    createFolders(path.join(targetPath, "core"));
-    createFolders(path.join(targetPath,"core", "GluestackUIProvider" ));
-    createFolders(path.join(targetPath, "core", "styled"));
+    // createFolders(path.join(targetPath, 'core'));
+    // createFolders(path.join(targetPath, 'core', 'GluestackUIProvider'));
+    // createFolders(path.join(targetPath, 'core', 'styled'));
 
     // Copy Provider and styled folder
     await copyAsync(
-      path.join(sourcePath, "Provider"),
-      path.join(targetPath, "core", "GluestackUIProvider")
+      path.join(sourcePath, 'Provider'),
+      path.join(targetPath, 'core', 'GluestackUIProvider')
     );
-    await copyAsync( path.join(sourcePath, "styled"),  path.join(targetPath, "core", "styled"));
+    await copyAsync(
+      path.join(sourcePath, 'styled'),
+      path.join(targetPath, 'core', 'styled')
+    );
 
     // Copy Gluestack UI config to root
     const gluestackConfig = await fs.readFile(
       path.resolve(sourcePath, '../', 'gluestack-ui.config.ts'),
       'utf8'
     );
-    await fs.writeFile(path.join(currDir, "gluestack-ui.config.ts"),  gluestackConfig);
+    await fs.writeFile(
+      path.join(currDir, 'gluestack-ui.config.ts'),
+      gluestackConfig
+    );
 
     // Delete config.json files
-    fs.unlinkSync(path.join(targetPath, "core", "GluestackUIProvider", "config.json"));
-    fs.unlinkSync(path.join(targetPath, "core", "styled", "config.json"));
+    fs.unlinkSync(
+      path.join(targetPath, 'core', 'GluestackUIProvider', 'config.json')
+    );
+    fs.unlinkSync(path.join(targetPath, 'core', 'styled', 'config.json'));
 
     // Update Provider Config Path
     const providerIndexFile = await fs.readFile(
-      path.join(targetPath, "core", "GluestackUIProvider", "index.tsx"),
+      path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
       'utf8'
     );
     const modifiedProviderIndexFile = providerIndexFile.replace(
       './gluestack-ui.config',
       path
         .relative(
-          path.join(targetPath, "core", "GluestackUIProvider", "index.tsx"),
-          path.join(currDir, "gluestack-ui.config")
+          path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+          path.join(currDir, 'gluestack-ui.config')
         )
         .slice(3)
     );
     fs.writeFileSync(
-      path.join(targetPath, "core", "GluestackUIProvider", "index.tsx"),
+      path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
       modifiedProviderIndexFile
     );
 
     // Update Gluestack UI config file
     const configFile = await fs.readFile(
-      path.join(currDir, "gluestack-ui.config.ts"),
+      path.join(currDir, 'gluestack-ui.config.ts'),
       'utf8'
     );
 
@@ -385,7 +414,7 @@ const addProvider = async (sourcePath: string, targetPath: string) => {
       /componentPath:\s+'[^']+'/,
       `componentPath: './${folderName}'`
     );
-    fs.writeFileSync(path.join(currDir, "gluestack-ui.config.ts"),  newConfig);
+    fs.writeFileSync(path.join(currDir, 'gluestack-ui.config.ts'), newConfig);
     log.success(
       `\x1b[32m✅  ${'\u001b[1m' +
         'GluestackUIProvider' +
@@ -399,8 +428,8 @@ const addProvider = async (sourcePath: string, targetPath: string) => {
 const getComponentGitRepo = async (): Promise<void> => {
   try {
     // Clone repo locally in users home directory
-    const cloneLocation = path.join(homeDir, ".gluestack", "cache");
-    const clonedPath = path.join(cloneLocation, "gluestack-ui");
+    const cloneLocation = path.join(homeDir, '.gluestack', 'cache');
+    const clonedPath = path.join(cloneLocation, 'gluestack-ui');
     const clonedRepoExists = await checkIfFolderExists(clonedPath);
 
     if (clonedRepoExists) {
@@ -409,7 +438,7 @@ const getComponentGitRepo = async (): Promise<void> => {
     } else {
       const s = spinner();
       s.start('Cloning repository...');
-      createFolders(cloneLocation);
+      // createFolders(cloneLocation);
       await cloneComponentRepo(
         clonedPath,
         'https://github.com/gluestack/gluestack-ui.git'
@@ -425,9 +454,18 @@ const initialProviderAdder = async (
   componentFolderPath: string
 ): Promise<void> => {
   try {
-    createFolders(path.join(currDir, componentFolderPath));
+    // createFolders(path.join(currDir, componentFolderPath));
 
-    const sourcePath = path.join(homeDir, "\.gluestack", "cache", "gluestack-ui", "example", "storybook", "src", "ui-components")
+    const sourcePath = path.join(
+      homeDir,
+      '.gluestack',
+      'cache',
+      'gluestack-ui',
+      'example',
+      'storybook',
+      'src',
+      'ui-components'
+    );
 
     const targetPath = path.join(currDir, componentFolderPath);
     await addProvider(sourcePath, targetPath);
