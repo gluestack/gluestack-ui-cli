@@ -59,7 +59,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     `;
             const projectData = yield (0, ui_project_detector_1.projectDetector)();
             let setupTypeAutomatic = false;
-            if (projectData.framework === 'Next' && projectData.os === 'darwin') {
+            if (projectData.framework === 'Next') {
                 setupTypeAutomatic = yield (0, next_1.nextInstaller)(folderPath);
                 if (setupTypeAutomatic) {
                     prompts_1.log.success('Auto setup was successful!');
@@ -71,13 +71,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         '\x1b[0m');
                 }
             }
-            else if (projectData.framework === 'Expo' &&
-                projectData.os === 'darwin') {
+            else if (projectData.framework === 'Expo') {
                 yield (0, expo_1.expoInstaller)();
                 prompts_1.log.info('\x1b[32m' + finalMessage + '\x1b[0m');
             }
             else {
-                prompts_1.log.warn('\x1b[31mWARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.\x1b[0m');
+                // log.warn(
+                //   '\x1b[31mWARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.\x1b[0m'
+                // );
                 yield (0, expo_1.expoInstaller)();
             }
             return true;

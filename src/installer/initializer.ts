@@ -41,7 +41,7 @@ const installGluestackUI = async (): Promise<boolean> => {
     const projectData = await projectDetector();
     let setupTypeAutomatic = false;
 
-    if (projectData.framework === 'Next' && projectData.os === 'darwin') {
+    if (projectData.framework === 'Next') {
       setupTypeAutomatic = await nextInstaller(folderPath);
 
       if (setupTypeAutomatic) {
@@ -54,16 +54,13 @@ const installGluestackUI = async (): Promise<boolean> => {
             '\x1b[0m'
         );
       }
-    } else if (
-      projectData.framework === 'Expo' &&
-      projectData.os === 'darwin'
-    ) {
+    } else if (projectData.framework === 'Expo') {
       await expoInstaller();
       log.info('\x1b[32m' + finalMessage + '\x1b[0m');
     } else {
-      log.warn(
-        '\x1b[31mWARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.\x1b[0m'
-      );
+      // log.warn(
+      //   '\x1b[31mWARNING: The gluestack-ui CLI is currently in an experimental stage for your specific framework or operating system configuration.\x1b[0m'
+      // );
       await expoInstaller();
     }
     return true;
