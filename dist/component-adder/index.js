@@ -237,10 +237,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     });
     exports.componentAdder = componentAdder;
-    const splitPath = (path) => {
-        const regex = /[\\/]/;
-        return path.split(regex);
-    };
     const addProvider = (sourcePath, targetPath) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Create necessary folders
@@ -257,14 +253,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'config.json'));
             fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, 'core', 'styled', 'config.json'));
             // Update Provider Config Path
-            const providerIndexFile = yield fs_extra_1.default.readFile(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'), 'utf8');
-            const modifiedProviderIndexFile = providerIndexFile.replace('./gluestack-ui.config', path_1.default
-                .relative(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'), path_1.default.join(currDir, 'gluestack-ui.config'))
-                .slice(3));
-            fs_extra_1.default.writeFileSync(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'), modifiedProviderIndexFile);
+            // const providerIndexFile = await fs.readFile(
+            //   path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+            //   'utf8'
+            // );
+            // const modifiedProviderIndexFile = providerIndexFile.replace(
+            //   './gluestack-ui.config',
+            //   path
+            //     .relative(
+            //       path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+            //       path.join(currDir, 'gluestack-ui.config')
+            //     )
+            //     .slice(3)
+            // );
+            // fs.writeFileSync(
+            //   path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+            //   modifiedProviderIndexFile
+            // );
             // Update Gluestack UI config file
             const configFile = yield fs_extra_1.default.readFile(path_1.default.join(currDir, 'gluestack-ui.config.ts'), 'utf8');
-            const folderName = splitPath(targetPath).slice(-1)[0];
+            const folderName = path_1.default.relative(currDir, targetPath);
             const newConfig = configFile.replace(/componentPath:\s+'[^']+'/, `componentPath: './${folderName}'`);
             fs_extra_1.default.writeFileSync(path_1.default.join(currDir, 'gluestack-ui.config.ts'), newConfig);
             prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +

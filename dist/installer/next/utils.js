@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "fs", "./data", "@clack/prompts"], factory);
+        define(["require", "exports", "path", "fs", "./data", "@clack/prompts", "../utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,26 +26,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const fs_1 = __importDefault(require("fs"));
     const data_1 = require("./data");
     const prompts_1 = require("@clack/prompts");
+    const utils_1 = require("../utils");
     const currentDirectory = process.cwd();
     const getDocumentExtension = () => {
-        const tsConfigPath = path_1.default.resolve(currentDirectory, "tsconfig.json");
+        const tsConfigPath = path_1.default.resolve(currentDirectory, 'tsconfig.json');
         return fs_1.default.existsSync(tsConfigPath) ? 'tsx' : 'jsx';
     };
-    const updateDocument = (document) => __awaiter(void 0, void 0, void 0, function* () {
+    const updateDocument = (document, fileName, isFollowingSrcDirFlag) => __awaiter(void 0, void 0, void 0, function* () {
         const documentExt = getDocumentExtension();
-        const documentPath = path_1.default.resolve(currentDirectory, "pages", `_document.${documentExt}`);
+        const appDirectory = isFollowingSrcDirFlag
+            ? path_1.default.join('src', 'pages')
+            : 'pages';
+        const documentPath = path_1.default.join(appDirectory, `${fileName}.${documentExt}`);
         try {
-            fs_1.default.writeFileSync(documentPath, document, 'utf8');
-            prompts_1.log.step('- ' +
-                `\x1b[32mpages/_document.${documentExt}\x1b[0m` +
-                ' file is updated successfully!');
+            const fullPath = path_1.default.resolve(currentDirectory, documentPath);
+            fs_1.default.writeFileSync(fullPath, document, 'utf8');
+            prompts_1.log.step(`- \x1b[32m${documentPath}\x1b[0m file is updated successfully!`);
         }
         catch (err) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
     const updateNextConfig = (nextConfig) => __awaiter(void 0, void 0, void 0, function* () {
-        const documentPath = path_1.default.resolve(currentDirectory, "next.config.js");
+        const documentPath = path_1.default.resolve(currentDirectory, 'next.config.js');
         try {
             fs_1.default.writeFileSync(documentPath, nextConfig, 'utf8');
             prompts_1.log.step('- ' + '\x1b[32mnext.config.js\x1b[0m' + ' file is updated successfully!');
@@ -54,23 +57,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
-    const updateApp = (app) => __awaiter(void 0, void 0, void 0, function* () {
-        const documentExt = getDocumentExtension();
-        const documentPath = path_1.default.resolve(currentDirectory, "pages", `_app.${documentExt}`);
-        try {
-            fs_1.default.writeFileSync(documentPath, app, 'utf8');
-            prompts_1.log.step('- ' +
-                `\x1b[32mpages/_app.${documentExt}\x1b[0m` +
-                ' file is updated successfully!');
-        }
-        catch (err) {
-            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
-        }
-    });
     const replaceFiles = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
         const { document, nextConfig, app } = (0, data_1.getDataFiles)(folderName);
-        yield updateDocument(document);
-        yield updateApp(app);
+        const isFollowingSrcDirFlag = (0, utils_1.isFollowingSrcDir)();
+        yield updateDocument(document, '_document', isFollowingSrcDirFlag);
+        yield updateDocument(app, '_app', isFollowingSrcDirFlag);
         yield updateNextConfig(nextConfig);
     });
     const autoSetup = (folderName) => __awaiter(void 0, void 0, void 0, function* () {

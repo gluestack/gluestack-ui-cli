@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.isFollowingSrcDir = exports.addDependencies = void 0;
     const fs_1 = __importDefault(require("fs"));
-    const currDir = process.cwd();
     const path_1 = __importDefault(require("path"));
     const prompts_1 = require("@clack/prompts");
+    const currDir = process.cwd();
     const addDependencies = (projectType = '') => {
-        const packageJsonPath = path_1.default.join(currDir, "package.json");
+        const packageJsonPath = path_1.default.join(currDir, 'package.json');
         try {
             // Read in the existing package.json file
             const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, 'utf8'));
@@ -41,5 +42,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     };
-    exports.default = addDependencies;
+    exports.addDependencies = addDependencies;
+    const isFollowingSrcDir = () => {
+        try {
+            const files = fs_1.default.readdirSync(currDir);
+            if (files.includes('src') && fs_1.default.statSync(`${currDir}/src`).isDirectory()) {
+                return true;
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+        return false;
+    };
+    exports.isFollowingSrcDir = isFollowingSrcDir;
 });

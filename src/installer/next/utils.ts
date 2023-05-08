@@ -2,33 +2,37 @@ import path from 'path';
 import fs from 'fs';
 import { getDataFiles } from './data';
 import { isCancel, cancel, confirm, log } from '@clack/prompts';
+import { isFollowingSrcDir } from '../utils';
 
 const currentDirectory = process.cwd();
 
 const getDocumentExtension = (): string => {
-  const tsConfigPath = path.resolve(currentDirectory, "tsconfig.json");
+  const tsConfigPath = path.resolve(currentDirectory, 'tsconfig.json');
   return fs.existsSync(tsConfigPath) ? 'tsx' : 'jsx';
 };
 
-const updateDocument = async (document: string): Promise<void> => {
+const updateDocument = async (
+  document: string,
+  fileName: string,
+  isFollowingSrcDirFlag: boolean
+): Promise<void> => {
   const documentExt = getDocumentExtension();
-  const documentPath = path.resolve(
-    currentDirectory, "pages", `_document.${documentExt}`
-  );
+  const appDirectory = isFollowingSrcDirFlag
+    ? path.join('src', 'pages')
+    : 'pages';
+  const documentPath = path.join(appDirectory, `${fileName}.${documentExt}`);
+
   try {
-    fs.writeFileSync(documentPath, document, 'utf8');
-    log.step(
-      '- ' +
-        `\x1b[32mpages/_document.${documentExt}\x1b[0m` +
-        ' file is updated successfully!'
-    );
+    const fullPath = path.resolve(currentDirectory, documentPath);
+    fs.writeFileSync(fullPath, document, 'utf8');
+    log.step(`- \x1b[32m${documentPath}\x1b[0m file is updated successfully!`);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
 const updateNextConfig = async (nextConfig: string): Promise<void> => {
-  const documentPath = path.resolve(currentDirectory, "next.config.js");
+  const documentPath = path.resolve(currentDirectory, 'next.config.js');
   try {
     fs.writeFileSync(documentPath, nextConfig, 'utf8');
     log.step(
@@ -39,27 +43,11 @@ const updateNextConfig = async (nextConfig: string): Promise<void> => {
   }
 };
 
-const updateApp = async (app: string): Promise<void> => {
-  const documentExt = getDocumentExtension();
-  const documentPath = path.resolve(
-    currentDirectory, "pages", `_app.${documentExt}`
-  );
-  try {
-    fs.writeFileSync(documentPath, app, 'utf8');
-    log.step(
-      '- ' +
-        `\x1b[32mpages/_app.${documentExt}\x1b[0m` +
-        ' file is updated successfully!'
-    );
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-};
-
 const replaceFiles = async (folderName: string): Promise<void> => {
   const { document, nextConfig, app } = getDataFiles(folderName);
-  await updateDocument(document);
-  await updateApp(app);
+  const isFollowingSrcDirFlag = isFollowingSrcDir();
+  await updateDocument(document, '_document', isFollowingSrcDirFlag);
+  await updateDocument(app, '_app', isFollowingSrcDirFlag);
   await updateNextConfig(nextConfig);
 };
 

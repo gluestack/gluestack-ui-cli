@@ -16,39 +16,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "child_process", "fs-extra", "path", "simple-git", "util", "@clack/prompts"], factory);
+        define(["require", "exports", "child_process", "fs-extra", "simple-git", "util", "@clack/prompts"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.checkIfFolderExists = exports.pullComponentRepo = exports.cloneComponentRepo = exports.removeClonedRepo = exports.createFolders = void 0;
+    exports.checkIfFolderExists = exports.pullComponentRepo = exports.cloneComponentRepo = exports.removeClonedRepo = void 0;
     const child_process_1 = require("child_process");
     const fs_extra_1 = __importDefault(require("fs-extra"));
-    const path_1 = __importDefault(require("path"));
     const simple_git_1 = __importDefault(require("simple-git"));
     const util_1 = __importDefault(require("util"));
     const prompts_1 = require("@clack/prompts");
     const stat = util_1.default.promisify(fs_extra_1.default.stat);
-    const splitPath = (path) => {
-        const regex = /[\\/]/;
-        return path.split(regex);
-    };
-    const createFolders = (pathx) => {
-        const parts = splitPath(pathx);
-        let currentPath = '';
-        try {
-            parts.forEach(part => {
-                currentPath = path_1.default.join(currentPath, part);
-                if (!fs_extra_1.default.existsSync(currentPath)) {
-                    fs_extra_1.default.mkdirSync(currentPath);
-                }
-            });
-        }
-        catch (err) {
-            prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
-        }
-    };
-    exports.createFolders = createFolders;
+    // const splitPath = (path: string) => {
+    //   const regex = /[\\/]/;
+    //   return path.split(regex);
+    // }
+    // const createFolders = (pathx: string) => {
+    //   const parts = splitPath(pathx);
+    //   let currentPath = '';
+    //   try {
+    //     parts.forEach(part => {
+    //       currentPath = path.join(currentPath, part);
+    //       if (!fs.existsSync(currentPath)) {
+    //         fs.mkdirSync(currentPath);
+    //       }
+    //     });
+    //   } catch (err) {
+    //     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+    //   }
+    // };
     const removeClonedRepo = (sourcePath, repoName) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield util_1.default.promisify(child_process_1.exec)(`cd ${sourcePath} && rm -rf ${repoName}`);

@@ -1,2 +1,3 @@
 declare const addDependencies: (projectType?: string) => void;
-export default addDependencies;
+declare const isFollowingSrcDir: () => boolean;
+export { addDependencies, isFollowingSrcDir };

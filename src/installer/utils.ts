@@ -1,11 +1,11 @@
 import fs from 'fs';
-const currDir = process.cwd();
 import path from 'path';
-
 import { log } from '@clack/prompts';
 
+const currDir = process.cwd();
+
 const addDependencies = (projectType = ''): void => {
-  const packageJsonPath = path.join(currDir, "package.json");
+  const packageJsonPath = path.join(currDir, 'package.json');
 
   try {
     // Read in the existing package.json file
@@ -33,4 +33,16 @@ const addDependencies = (projectType = ''): void => {
   }
 };
 
-export default addDependencies;
+const isFollowingSrcDir = (): boolean => {
+  try {
+    const files = fs.readdirSync(currDir);
+    if (files.includes('src') && fs.statSync(`${currDir}/src`).isDirectory()) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+}
+
+export { addDependencies, isFollowingSrcDir };

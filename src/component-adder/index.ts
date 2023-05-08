@@ -5,7 +5,7 @@ import util from 'util';
 import os from 'os';
 import {
   cloneComponentRepo,
-  createFolders,
+  // createFolders,
   pullComponentRepo,
   checkIfFolderExists,
 } from './utils';
@@ -345,11 +345,6 @@ const componentAdder = async (
   }
 };
 
-const splitPath = (path: string) => {
-  const regex = /[\\/]/;
-  return path.split(regex);
-};
-
 const addProvider = async (sourcePath: string, targetPath: string) => {
   try {
     // Create necessary folders
@@ -384,23 +379,23 @@ const addProvider = async (sourcePath: string, targetPath: string) => {
     fs.unlinkSync(path.join(targetPath, 'core', 'styled', 'config.json'));
 
     // Update Provider Config Path
-    const providerIndexFile = await fs.readFile(
-      path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
-      'utf8'
-    );
-    const modifiedProviderIndexFile = providerIndexFile.replace(
-      './gluestack-ui.config',
-      path
-        .relative(
-          path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
-          path.join(currDir, 'gluestack-ui.config')
-        )
-        .slice(3)
-    );
-    fs.writeFileSync(
-      path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
-      modifiedProviderIndexFile
-    );
+    // const providerIndexFile = await fs.readFile(
+    //   path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+    //   'utf8'
+    // );
+    // const modifiedProviderIndexFile = providerIndexFile.replace(
+    //   './gluestack-ui.config',
+    //   path
+    //     .relative(
+    //       path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+    //       path.join(currDir, 'gluestack-ui.config')
+    //     )
+    //     .slice(3)
+    // );
+    // fs.writeFileSync(
+    //   path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
+    //   modifiedProviderIndexFile
+    // );
 
     // Update Gluestack UI config file
     const configFile = await fs.readFile(
@@ -408,7 +403,7 @@ const addProvider = async (sourcePath: string, targetPath: string) => {
       'utf8'
     );
 
-    const folderName = splitPath(targetPath).slice(-1)[0];
+    const folderName = path.relative(currDir, targetPath);
 
     const newConfig = configFile.replace(
       /componentPath:\s+'[^']+'/,

@@ -3,12 +3,13 @@ import { initialProviderAdder } from '../component-adder';
 import { projectDetector } from '@gluestack/ui-project-detector';
 import { nextInstaller } from './next';
 import { expoInstaller } from './expo';
-import path from 'path';
 import { isCancel, cancel, text, confirm, log } from '@clack/prompts';
+import { isFollowingSrcDir } from './utils';
+import path from 'path';
 
 const installGluestackUI = async (): Promise<boolean> => {
   try {
-    const folderPath = await text({
+    let folderPath = await text({
       message:
         'Can you please provide the path where you would like to add your components?',
       placeholder: './components',
@@ -21,6 +22,29 @@ const installGluestackUI = async (): Promise<boolean> => {
     if (isCancel(folderPath)) {
       cancel('Operation cancelled.');
       process.exit(0);
+    }
+
+    const isSrcDir = isFollowingSrcDir();
+
+    if (isSrcDir) {
+      const shouldContinue = await confirm({
+        message: `Detected "src" folder. Do you want to update component paths to use "${path.join(
+          'src',
+          folderPath
+        )}"?`,
+      });
+
+      if (isCancel(shouldContinue)) {
+        cancel('Operation cancelled.');
+        process.exit(0);
+      }
+
+      if (shouldContinue) {
+        folderPath = path.join('src', folderPath);
+        log.success('Component paths updated to use "./src/components".');
+      } else {
+        log.warning('Component paths not updated.');
+      }
     }
 
     await initialProviderAdder(path.join('./', folderPath));

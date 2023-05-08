@@ -7,9 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
@@ -22,11 +19,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.expoInstaller = void 0;
-    const utils_1 = __importDefault(require("../utils"));
+    const utils_1 = require("../utils");
     const prompts_1 = require("@clack/prompts");
     const expoInstaller = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            (0, utils_1.default)();
+            (0, utils_1.addDependencies)();
         }
         catch (err) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);

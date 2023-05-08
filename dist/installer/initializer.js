@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../init-checker", "../component-adder", "@gluestack/ui-project-detector", "./next", "./expo", "path", "@clack/prompts"], factory);
+        define(["require", "exports", "../init-checker", "../component-adder", "@gluestack/ui-project-detector", "./next", "./expo", "@clack/prompts", "./utils", "path"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -27,11 +27,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const ui_project_detector_1 = require("@gluestack/ui-project-detector");
     const next_1 = require("./next");
     const expo_1 = require("./expo");
-    const path_1 = __importDefault(require("path"));
     const prompts_1 = require("@clack/prompts");
+    const utils_1 = require("./utils");
+    const path_1 = __importDefault(require("path"));
     const installGluestackUI = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const folderPath = yield (0, prompts_1.text)({
+            let folderPath = yield (0, prompts_1.text)({
                 message: 'Can you please provide the path where you would like to add your components?',
                 placeholder: './components',
                 initialValue: './components',
@@ -43,6 +44,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             if ((0, prompts_1.isCancel)(folderPath)) {
                 (0, prompts_1.cancel)('Operation cancelled.');
                 process.exit(0);
+            }
+            const isSrcDir = (0, utils_1.isFollowingSrcDir)();
+            if (isSrcDir) {
+                const shouldContinue = yield (0, prompts_1.confirm)({
+                    message: `Detected "src" folder. Do you want to update component paths to use "${path_1.default.join('src', folderPath)}"?`,
+                });
+                if ((0, prompts_1.isCancel)(shouldContinue)) {
+                    (0, prompts_1.cancel)('Operation cancelled.');
+                    process.exit(0);
+                }
+                if (shouldContinue) {
+                    folderPath = path_1.default.join('src', folderPath);
+                    prompts_1.log.success('Component paths updated to use "./src/components".');
+                }
+                else {
+                    prompts_1.log.warning('Component paths not updated.');
+                }
             }
             yield (0, component_adder_1.initialProviderAdder)(path_1.default.join('./', folderPath));
             const finalMessage = `

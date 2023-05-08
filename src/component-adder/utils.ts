@@ -1,32 +1,32 @@
 import { exec } from 'child_process';
 import fs from 'fs-extra';
-import path from "path";
+import path from 'path';
 import simpleGit from 'simple-git';
 import util from 'util';
 import { spinner, log } from '@clack/prompts';
 
 const stat = util.promisify(fs.stat);
 
-const splitPath = (path: string) => {
-  const regex = /[\\/]/;
-  return path.split(regex);
-}
+// const splitPath = (path: string) => {
+//   const regex = /[\\/]/;
+//   return path.split(regex);
+// }
 
-const createFolders = (pathx: string) => {
-  const parts = splitPath(pathx);
-  let currentPath = '';
+// const createFolders = (pathx: string) => {
+//   const parts = splitPath(pathx);
+//   let currentPath = '';
 
-  try {
-    parts.forEach(part => {
-      currentPath = path.join(currentPath, part);
-      if (!fs.existsSync(currentPath)) {
-        fs.mkdirSync(currentPath);
-      }
-    });
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-};
+//   try {
+//     parts.forEach(part => {
+//       currentPath = path.join(currentPath, part);
+//       if (!fs.existsSync(currentPath)) {
+//         fs.mkdirSync(currentPath);
+//       }
+//     });
+//   } catch (err) {
+//     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+//   }
+// };
 
 const removeClonedRepo = async (
   sourcePath: string,
@@ -110,7 +110,7 @@ const checkIfFolderExists = async (path: string): Promise<boolean> => {
 };
 
 export {
-  createFolders,
+  // createFolders,
   removeClonedRepo,
   cloneComponentRepo,
   pullComponentRepo,
