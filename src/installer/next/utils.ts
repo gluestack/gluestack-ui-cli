@@ -43,9 +43,21 @@ const updateNextConfig = async (nextConfig: string): Promise<void> => {
   }
 };
 
+function convertToValidString(input: string): string {
+  // Replace all occurrences of backslashes with forward slashes
+  const output = input.replace(/\\/g, "/");
+  return output;
+}
+
+
 const replaceFiles = async (folderName: string): Promise<void> => {
-  const { document, nextConfig, app } = getDataFiles(folderName);
   const isFollowingSrcDirFlag = isFollowingSrcDir();
+  const appDirectory = isFollowingSrcDirFlag
+  ? path.join('src', 'pages')
+  : 'pages';
+  const gluestackConfigImportPath = convertToValidString(path.relative(appDirectory, currentDirectory));
+
+  const { document, nextConfig, app } = getDataFiles(folderName, gluestackConfigImportPath);
   await updateDocument(document, '_document', isFollowingSrcDirFlag);
   await updateDocument(app, '_app', isFollowingSrcDirFlag);
   await updateNextConfig(nextConfig);

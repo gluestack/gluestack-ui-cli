@@ -30,6 +30,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const prompts_1 = require("@clack/prompts");
     const utils_1 = require("./utils");
     const path_1 = __importDefault(require("path"));
+    function mergePaths(str1, str2) {
+        if (str1.startsWith("./")) {
+            str1 = str1.slice(2);
+        }
+        if (str2.endsWith("/")) {
+            str2 = str2.slice(0, -1);
+        }
+        return `${str2}/${str1}`;
+    }
     const installGluestackUI = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             let folderPath = yield (0, prompts_1.text)({
@@ -55,14 +64,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     process.exit(0);
                 }
                 if (shouldContinue) {
-                    folderPath = path_1.default.join('src', folderPath);
+                    folderPath = mergePaths(folderPath, "./src");
                     prompts_1.log.success('Component paths updated to use "./src/components".');
                 }
                 else {
                     prompts_1.log.warning('Component paths not updated.');
                 }
             }
-            yield (0, component_adder_1.initialProviderAdder)(path_1.default.join('./', folderPath));
+            yield (0, component_adder_1.initialProviderAdder)(folderPath);
             const finalMessage = `
     Gluestack Provider has been added to your components folder.
     To use it, simply wrap your app component with the <GluestackUIProvider> component like this:

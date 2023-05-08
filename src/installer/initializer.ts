@@ -7,6 +7,17 @@ import { isCancel, cancel, text, confirm, log } from '@clack/prompts';
 import { isFollowingSrcDir } from './utils';
 import path from 'path';
 
+function mergePaths(str1: string, str2: string): string {
+  if (str1.startsWith("./")) {
+    str1 = str1.slice(2);
+  }
+  if (str2.endsWith("/")) {
+    str2 = str2.slice(0, -1);
+  }
+  return `${str2}/${str1}`;
+}
+
+
 const installGluestackUI = async (): Promise<boolean> => {
   try {
     let folderPath = await text({
@@ -40,14 +51,14 @@ const installGluestackUI = async (): Promise<boolean> => {
       }
 
       if (shouldContinue) {
-        folderPath = path.join('src', folderPath);
+        folderPath = mergePaths(folderPath, "./src");
         log.success('Component paths updated to use "./src/components".');
       } else {
         log.warning('Component paths not updated.');
       }
     }
 
-    await initialProviderAdder(path.join('./', folderPath));
+    await initialProviderAdder(folderPath);
 
     const finalMessage = `
     Gluestack Provider has been added to your components folder.

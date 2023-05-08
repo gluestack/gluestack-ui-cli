@@ -345,7 +345,7 @@ const componentAdder = async (
   }
 };
 
-const addProvider = async (sourcePath: string, targetPath: string) => {
+const addProvider = async (sourcePath: string, targetPath: string, componentFolderPath:string) => {
   try {
     // Create necessary folders
     // createFolders(path.join(targetPath, 'core'));
@@ -403,11 +403,11 @@ const addProvider = async (sourcePath: string, targetPath: string) => {
       'utf8'
     );
 
-    const folderName = path.relative(currDir, targetPath);
+    // const folderName = path.relative(currDir, targetPath);
 
     const newConfig = configFile.replace(
       /componentPath:\s+'[^']+'/,
-      `componentPath: './${folderName}'`
+      `componentPath: '${componentFolderPath}'`
     );
     fs.writeFileSync(path.join(currDir, 'gluestack-ui.config.ts'), newConfig);
     log.success(
@@ -463,7 +463,7 @@ const initialProviderAdder = async (
     );
 
     const targetPath = path.join(currDir, componentFolderPath);
-    await addProvider(sourcePath, targetPath);
+    await addProvider(sourcePath, targetPath, componentFolderPath);
     addIndexFile(targetPath);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);

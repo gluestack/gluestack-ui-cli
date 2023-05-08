@@ -10,7 +10,12 @@
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getDataFiles = void 0;
-    const getDataFiles = (folderName) => {
+    const getDataFiles = (folderName, gluestackConfigImportPath) => {
+        const splitPath = folderName.split("/");
+        if (splitPath[1] === "src") {
+            splitPath.splice(1, 1);
+        }
+        const importPath = splitPath.join("/");
         const document = `
   import * as React from 'react';
   import { Html, Head, Main, NextScript } from 'next/document';
@@ -52,8 +57,8 @@
         const app = `
   import '@/styles/globals.css';
   import type { AppProps } from 'next/app';
-  import { GluestackUIProvider } from '../${folderName}';
-  import { config } from '../gluestack-ui.config';
+  import { GluestackUIProvider } from '../${importPath.slice(2)}';
+  import { config } from '${gluestackConfigImportPath}/gluestack-ui.config';
   
   export default function App({ Component, pageProps }: AppProps) {
     return (

@@ -57,9 +57,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
         }
     });
+    function convertToValidString(input) {
+        // Replace all occurrences of backslashes with forward slashes
+        const output = input.replace(/\\/g, "/");
+        return output;
+    }
     const replaceFiles = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
-        const { document, nextConfig, app } = (0, data_1.getDataFiles)(folderName);
         const isFollowingSrcDirFlag = (0, utils_1.isFollowingSrcDir)();
+        const appDirectory = isFollowingSrcDirFlag
+            ? path_1.default.join('src', 'pages')
+            : 'pages';
+        const gluestackConfigImportPath = convertToValidString(path_1.default.relative(appDirectory, currentDirectory));
+        const { document, nextConfig, app } = (0, data_1.getDataFiles)(folderName, gluestackConfigImportPath);
         yield updateDocument(document, '_document', isFollowingSrcDirFlag);
         yield updateDocument(app, '_app', isFollowingSrcDirFlag);
         yield updateNextConfig(nextConfig);
