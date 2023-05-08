@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.isFollowingSrcDir = exports.addDependencies = void 0;
+    exports.mergePaths = exports.isStartingWithSrc = exports.isFollowingSrcDir = exports.addDependencies = void 0;
     const fs_1 = __importDefault(require("fs"));
     const path_1 = __importDefault(require("path"));
     const prompts_1 = require("@clack/prompts");
@@ -43,6 +43,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     };
     exports.addDependencies = addDependencies;
+    function isStartingWithSrc(input) {
+        return input.startsWith('./src') || input.startsWith('src');
+    }
+    exports.isStartingWithSrc = isStartingWithSrc;
+    function mergePaths(str1, str2) {
+        if (str1.startsWith('./')) {
+            str1 = str1.slice(2);
+        }
+        if (str2.endsWith('/')) {
+            str2 = str2.slice(0, -1);
+        }
+        return `${str2}/${str1}`;
+    }
+    exports.mergePaths = mergePaths;
     const isFollowingSrcDir = () => {
         try {
             const files = fs_1.default.readdirSync(currDir);

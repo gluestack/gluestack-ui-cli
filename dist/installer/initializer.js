@@ -7,16 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../init-checker", "../component-adder", "@gluestack/ui-project-detector", "./next", "./expo", "@clack/prompts", "./utils", "path"], factory);
+        define(["require", "exports", "../init-checker", "../component-adder", "@gluestack/ui-project-detector", "./next", "./expo", "@clack/prompts", "./utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,16 +26,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const expo_1 = require("./expo");
     const prompts_1 = require("@clack/prompts");
     const utils_1 = require("./utils");
-    const path_1 = __importDefault(require("path"));
-    function mergePaths(str1, str2) {
-        if (str1.startsWith("./")) {
-            str1 = str1.slice(2);
-        }
-        if (str2.endsWith("/")) {
-            str2 = str2.slice(0, -1);
-        }
-        return `${str2}/${str1}`;
-    }
     const installGluestackUI = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             let folderPath = yield (0, prompts_1.text)({
@@ -55,16 +42,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 process.exit(0);
             }
             const isSrcDir = (0, utils_1.isFollowingSrcDir)();
-            if (isSrcDir) {
+            const isSrcIncludedInPath = (0, utils_1.isStartingWithSrc)(folderPath);
+            if (isSrcDir && !isSrcIncludedInPath) {
                 const shouldContinue = yield (0, prompts_1.confirm)({
-                    message: `Detected "src" folder. Do you want to update component paths to use "${path_1.default.join('src', folderPath)}"?`,
+                    message: `Detected "src" folder. Do you want to update component paths to use "${(0, utils_1.mergePaths)(folderPath, './src')}"?`,
                 });
                 if ((0, prompts_1.isCancel)(shouldContinue)) {
                     (0, prompts_1.cancel)('Operation cancelled.');
                     process.exit(0);
                 }
                 if (shouldContinue) {
-                    folderPath = mergePaths(folderPath, "./src");
+                    folderPath = (0, utils_1.mergePaths)(folderPath, './src');
                     prompts_1.log.success('Component paths updated to use "./src/components".');
                 }
                 else {

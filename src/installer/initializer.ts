@@ -4,19 +4,7 @@ import { projectDetector } from '@gluestack/ui-project-detector';
 import { nextInstaller } from './next';
 import { expoInstaller } from './expo';
 import { isCancel, cancel, text, confirm, log } from '@clack/prompts';
-import { isFollowingSrcDir } from './utils';
-import path from 'path';
-
-function mergePaths(str1: string, str2: string): string {
-  if (str1.startsWith("./")) {
-    str1 = str1.slice(2);
-  }
-  if (str2.endsWith("/")) {
-    str2 = str2.slice(0, -1);
-  }
-  return `${str2}/${str1}`;
-}
-
+import { isFollowingSrcDir, mergePaths, isStartingWithSrc } from './utils';
 
 const installGluestackUI = async (): Promise<boolean> => {
   try {
@@ -37,11 +25,13 @@ const installGluestackUI = async (): Promise<boolean> => {
 
     const isSrcDir = isFollowingSrcDir();
 
-    if (isSrcDir) {
+    const isSrcIncludedInPath = isStartingWithSrc(folderPath);
+
+    if (isSrcDir && !isSrcIncludedInPath) {
       const shouldContinue = await confirm({
-        message: `Detected "src" folder. Do you want to update component paths to use "${path.join(
-          'src',
-          folderPath
+        message: `Detected "src" folder. Do you want to update component paths to use "${mergePaths(
+          folderPath,
+          './src'
         )}"?`,
       });
 
@@ -51,7 +41,7 @@ const installGluestackUI = async (): Promise<boolean> => {
       }
 
       if (shouldContinue) {
-        folderPath = mergePaths(folderPath, "./src");
+        folderPath = mergePaths(folderPath, './src');
         log.success('Component paths updated to use "./src/components".');
       } else {
         log.warning('Component paths not updated.');

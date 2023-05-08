@@ -33,6 +33,20 @@ const addDependencies = (projectType = ''): void => {
   }
 };
 
+function isStartingWithSrc(input: string): boolean {
+  return input.startsWith('./src') || input.startsWith('src');
+}
+
+function mergePaths(str1: string, str2: string): string {
+  if (str1.startsWith('./')) {
+    str1 = str1.slice(2);
+  }
+  if (str2.endsWith('/')) {
+    str2 = str2.slice(0, -1);
+  }
+  return `${str2}/${str1}`;
+}
+
 const isFollowingSrcDir = (): boolean => {
   try {
     const files = fs.readdirSync(currDir);
@@ -43,6 +57,6 @@ const isFollowingSrcDir = (): boolean => {
     console.error(error);
   }
   return false;
-}
+};
 
-export { addDependencies, isFollowingSrcDir };
+export { addDependencies, isFollowingSrcDir, isStartingWithSrc, mergePaths };
