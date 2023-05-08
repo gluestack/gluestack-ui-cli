@@ -58,7 +58,7 @@ async function main() {
           `🚀 Feeling adventurous? Try out the \x1b[36m'npx gluestack-ui@latest add box'\x1b[0m command in your project and watch the magic happen! ✨`
         );
       } else {
-        // await installDependencies();
+        await installDependencies();
         log.info(
           `\x1b[1m\x1b[36mCongrats, gluestack-ui is now part of your project! 🎉\x1b[0m\nTime to unleash your creativity with the simple \x1b[36mBox\x1b[0m component. Head over to \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to learn more!`
         );
@@ -78,7 +78,7 @@ async function main() {
         } else {
           await componentAdder(subCommand);
         }
-        // await installDependencies();
+        await installDependencies();
       }
     } else if (command === 'update') {
       const { gluestackUIInstalled } = await initializer(askUserToInit);
@@ -102,7 +102,7 @@ async function main() {
             `\x1b[31mInvalid command, checkout help command by running npx gluestack-ui@latest help\x1b[0m`
           );
         }
-        // await installDependencies();
+        await installDependencies();
       }
     } else if (command === 'remove') {
       const { gluestackUIInstalled } = await initializer(askUserToInit);
@@ -130,7 +130,7 @@ async function main() {
       const { gluestackUIInstalled } = await initializer(askUserToInit);
       if (gluestackUIInstalled) {
         await componentAdder(subCommand);
-        // await installDependencies();
+        await installDependencies();
       }
     }
   }

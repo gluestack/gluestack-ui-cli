@@ -14,7 +14,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "./remove-component", "@clack/prompts"], factory);
+        define(["require", "exports", "./component-adder", "./update-component", "./installer/initializer", "./remove-component", "@clack/prompts", "./utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,6 +24,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const initializer_1 = require("./installer/initializer");
     const remove_component_1 = require("./remove-component");
     const prompts_1 = require("@clack/prompts");
+    const utils_1 = require("./utils");
     function main() {
         return __awaiter(this, void 0, void 0, function* () {
             (0, prompts_1.intro)(`gluestack-ui`);
@@ -69,7 +70,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                         prompts_1.log.info(`🚀 Feeling adventurous? Try out the \x1b[36m'npx gluestack-ui@latest add box'\x1b[0m command in your project and watch the magic happen! ✨`);
                     }
                     else {
-                        // await installDependencies();
+                        yield (0, utils_1.installDependencies)();
                         prompts_1.log.info(`\x1b[1m\x1b[36mCongrats, gluestack-ui is now part of your project! 🎉\x1b[0m\nTime to unleash your creativity with the simple \x1b[36mBox\x1b[0m component. Head over to \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to learn more!`);
                         prompts_1.log.info(`Feeling adventurous? Try the \x1b[1m\x1b[36mnpx gluestack-ui@latest add box\x1b[0m\x1b[0m command and watch the magic happen. ✨`);
                     }
@@ -88,7 +89,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                         else {
                             yield (0, component_adder_1.componentAdder)(subCommand);
                         }
-                        // await installDependencies();
+                        yield (0, utils_1.installDependencies)();
                     }
                 }
                 else if (command === 'update') {
@@ -113,7 +114,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                         else {
                             prompts_1.log.error(`\x1b[31mInvalid command, checkout help command by running npx gluestack-ui@latest help\x1b[0m`);
                         }
-                        // await installDependencies();
+                        yield (0, utils_1.installDependencies)();
                     }
                 }
                 else if (command === 'remove') {
@@ -144,7 +145,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                     const { gluestackUIInstalled } = yield (0, initializer_1.initializer)(askUserToInit);
                     if (gluestackUIInstalled) {
                         yield (0, component_adder_1.componentAdder)(subCommand);
-                        // await installDependencies();
+                        yield (0, utils_1.installDependencies)();
                     }
                 }
             }
