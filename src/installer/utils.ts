@@ -2,10 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import { log } from '@clack/prompts';
 
+import finder from 'find-package-json';
 const currDir = process.cwd();
+var f = finder(currDir);
+
+const rootPackageJsonPath: string = f.next().filename || '';
 
 const addDependencies = (projectType = ''): void => {
-  const packageJsonPath = path.join(currDir, 'package.json');
+  const packageJsonPath = rootPackageJsonPath;
 
   try {
     // Read in the existing package.json file

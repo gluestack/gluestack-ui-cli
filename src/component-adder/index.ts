@@ -25,8 +25,16 @@ import {
   log,
 } from '@clack/prompts';
 
-const homeDir = os.homedir();
+
+import finder from 'find-package-json';
+
 const currDir = process.cwd();
+var f = finder(currDir);
+
+const rootPackageJsonPath: string = f.next().filename || '';
+
+
+const homeDir = os.homedir();
 const copyAsync = util.promisify(fs.copy);
 
 let existingComponentsChecked: boolean = false;
@@ -148,7 +156,6 @@ const copyFolders = async (
             }
           );
         }
-        const rootPackageJsonPath = path.join(currDir, 'package.json');
 
         const rootPackageJson = JSON.parse(
           fs.readFileSync(rootPackageJsonPath, 'utf8')
@@ -194,14 +201,14 @@ const copyFolders = async (
         if (!isUpdate) {
           log.success(
             `\x1b[32m✅  ${'\u001b[1m' +
-              originalComponentPath +
-              '\u001b[22m'} \x1b[0m component added successfully!`
+            originalComponentPath +
+            '\u001b[22m'} \x1b[0m component added successfully!`
           );
         } else {
           log.success(
             `\x1b[32m✅  ${'\u001b[1m' +
-              originalComponentPath +
-              '\u001b[22m'} \x1b[0m component updated successfully!`
+            originalComponentPath +
+            '\u001b[22m'} \x1b[0m component updated successfully!`
           );
         }
       });
@@ -345,7 +352,7 @@ const componentAdder = async (
   }
 };
 
-const addProvider = async (sourcePath: string, targetPath: string, componentFolderPath:string) => {
+const addProvider = async (sourcePath: string, targetPath: string, componentFolderPath: string) => {
   try {
     // Create necessary folders
     // createFolders(path.join(targetPath, 'core'));
@@ -412,8 +419,8 @@ const addProvider = async (sourcePath: string, targetPath: string, componentFold
     fs.writeFileSync(path.join(currDir, 'gluestack-ui.config.ts'), newConfig);
     log.success(
       `\x1b[32m✅  ${'\u001b[1m' +
-        'GluestackUIProvider' +
-        '\u001b[22m'} \x1b[0m added successfully!`
+      'GluestackUIProvider' +
+      '\u001b[22m'} \x1b[0m added successfully!`
     );
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
