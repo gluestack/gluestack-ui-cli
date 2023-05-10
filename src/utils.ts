@@ -13,8 +13,12 @@ import {
 
 const currDir = process.cwd();
 
-var f = finder(currDir);
-const rootPackageJsonPath: string = f.next().filename || '';
+const getPackageJsonPath = (): string => {
+  var f = finder(currDir);
+  return f.next().filename || '';
+};
+
+const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = path.dirname(rootPackageJsonPath);
 
 const detectLockFile = (): string | null => {
@@ -97,7 +101,7 @@ const installDependencies = async (): Promise<void> => {
 
 const getConfigComponentPath = () => {
   const configFile = fs.readFileSync(
-    path.join(currDir, "gluestack-ui.config.ts"),
+    path.join(currDir, 'gluestack-ui.config.ts'),
     'utf-8'
   );
   const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
@@ -113,10 +117,10 @@ const addIndexFile = (componentsDirectory: string, level = 0) => {
 
     const exports = files
       .filter(
-        file =>
+        (file) =>
           file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
       )
-      .map(file => {
+      .map((file) => {
         if (level === 0) {
           addIndexFile(`${componentsDirectory}/${file}`, level + 1);
         }
@@ -147,4 +151,5 @@ export {
   addIndexFile,
   pascalToDash,
   dashToPascal,
+  getPackageJsonPath,
 };

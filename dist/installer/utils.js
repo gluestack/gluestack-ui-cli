@@ -7,7 +7,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs", "@clack/prompts", "find-package-json"], factory);
+        define(["require", "exports", "fs", "@clack/prompts", "../utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -15,10 +15,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.mergePaths = exports.isStartingWithSrc = exports.isFollowingSrcDir = exports.addDependencies = void 0;
     const fs_1 = __importDefault(require("fs"));
     const prompts_1 = require("@clack/prompts");
-    const find_package_json_1 = __importDefault(require("find-package-json"));
+    const utils_1 = require("../utils");
     const currDir = process.cwd();
-    var f = (0, find_package_json_1.default)(currDir);
-    const rootPackageJsonPath = f.next().filename || '';
+    const rootPackageJsonPath = (0, utils_1.getPackageJsonPath)();
     const addDependencies = (projectType = '') => {
         const packageJsonPath = rootPackageJsonPath;
         try {

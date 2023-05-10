@@ -21,15 +21,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.dashToPascal = exports.pascalToDash = exports.addIndexFile = exports.installDependencies = exports.getConfigComponentPath = void 0;
+    exports.getPackageJsonPath = exports.dashToPascal = exports.pascalToDash = exports.addIndexFile = exports.installDependencies = exports.getConfigComponentPath = void 0;
     const fs_extra_1 = __importDefault(require("fs-extra"));
     const path_1 = __importDefault(require("path"));
     const find_package_json_1 = __importDefault(require("find-package-json"));
     const child_process_1 = require("child_process");
     const prompts_1 = require("@clack/prompts");
     const currDir = process.cwd();
-    var f = (0, find_package_json_1.default)(currDir);
-    const rootPackageJsonPath = f.next().filename || '';
+    const getPackageJsonPath = () => {
+        var f = (0, find_package_json_1.default)(currDir);
+        return f.next().filename || '';
+    };
+    exports.getPackageJsonPath = getPackageJsonPath;
+    const rootPackageJsonPath = getPackageJsonPath();
     const projectRootPath = path_1.default.dirname(rootPackageJsonPath);
     const detectLockFile = () => {
         const packageLockPath = path_1.default.join(projectRootPath, 'package-lock.json');
@@ -109,7 +113,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.installDependencies = installDependencies;
     const getConfigComponentPath = () => {
         var _a;
-        const configFile = fs_extra_1.default.readFileSync(path_1.default.join(currDir, "gluestack-ui.config.ts"), 'utf-8');
+        const configFile = fs_extra_1.default.readFileSync(path_1.default.join(currDir, 'gluestack-ui.config.ts'), 'utf-8');
         const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
         const componentPath = (_a = (match && match[2])) !== null && _a !== void 0 ? _a : '';
         return componentPath;
@@ -119,8 +123,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         try {
             const files = fs_extra_1.default.readdirSync(componentsDirectory);
             const exports = files
-                .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
-                .map(file => {
+                .filter((file) => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
+                .map((file) => {
                 if (level === 0) {
                     addIndexFile(`${componentsDirectory}/${file}`, level + 1);
                 }

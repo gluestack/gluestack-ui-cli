@@ -1,12 +1,9 @@
 import fs from 'fs';
-import path from 'path';
 import { log } from '@clack/prompts';
+import { getPackageJsonPath } from '../utils';
 
-import finder from 'find-package-json';
 const currDir = process.cwd();
-var f = finder(currDir);
-
-const rootPackageJsonPath: string = f.next().filename || '';
+const rootPackageJsonPath: string = getPackageJsonPath();
 
 const addDependencies = (projectType = ''): void => {
   const packageJsonPath = rootPackageJsonPath;
