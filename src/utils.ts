@@ -44,6 +44,7 @@ const promptVersionManager = async (): Promise<any> => {
     options: [
       { value: 'npm', label: 'npm', hint: 'recommended' },
       { value: 'yarn', label: 'yarn' },
+      { value: 'pnpm', label: 'pnpm' },
     ],
   });
   if (isCancel(packageManager)) {
@@ -75,7 +76,7 @@ const installDependencies = async (): Promise<void> => {
       command = 'yarn';
       break;
     case 'pnpm':
-      command = 'pnpm install';
+      command = 'pnpm i --lockfile-only';
       break;
     default:
       throw new Error('Invalid package manager selected');
@@ -117,10 +118,10 @@ const addIndexFile = (componentsDirectory: string, level = 0) => {
 
     const exports = files
       .filter(
-        (file) =>
+        file =>
           file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
       )
-      .map((file) => {
+      .map(file => {
         if (level === 0) {
           addIndexFile(`${componentsDirectory}/${file}`, level + 1);
         }

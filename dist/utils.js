@@ -58,6 +58,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             options: [
                 { value: 'npm', label: 'npm', hint: 'recommended' },
                 { value: 'yarn', label: 'yarn' },
+                { value: 'pnpm', label: 'pnpm' },
             ],
         });
         if ((0, prompts_1.isCancel)(packageManager)) {
@@ -88,7 +89,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 command = 'yarn';
                 break;
             case 'pnpm':
-                command = 'pnpm install';
+                command = 'pnpm i --lockfile-only';
                 break;
             default:
                 throw new Error('Invalid package manager selected');
@@ -123,8 +124,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         try {
             const files = fs_extra_1.default.readdirSync(componentsDirectory);
             const exports = files
-                .filter((file) => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
-                .map((file) => {
+                .filter(file => file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts')
+                .map(file => {
                 if (level === 0) {
                     addIndexFile(`${componentsDirectory}/${file}`, level + 1);
                 }
