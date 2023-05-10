@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "process", "util", "os", "./utils", "../utils", "@clack/prompts"], factory);
+        define(["require", "exports", "fs-extra", "path", "process", "util", "os", "./utils", "../utils", "@clack/prompts", "find-package-json"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -30,8 +30,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const utils_1 = require("./utils");
     const utils_2 = require("../utils");
     const prompts_1 = require("@clack/prompts");
-    const homeDir = os_1.default.homedir();
+    const find_package_json_1 = __importDefault(require("find-package-json"));
     const currDir = process_1.default.cwd();
+    var f = (0, find_package_json_1.default)(currDir);
+    const rootPackageJsonPath = f.next().filename || '';
+    const homeDir = os_1.default.homedir();
     const copyAsync = util_1.default.promisify(fs_extra_1.default.copy);
     let existingComponentsChecked = false;
     const copyFolders = (sourcePath, targetPath, specificComponent, isUpdate) => __awaiter(void 0, void 0, void 0, function* () {
@@ -119,7 +122,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         yield componentAdder(component, false, true);
                     }));
                 }
-                const rootPackageJsonPath = path_1.default.join(currDir, 'package.json');
                 const rootPackageJson = JSON.parse(fs_extra_1.default.readFileSync(rootPackageJsonPath, 'utf8'));
                 rootPackageJson.dependencies = Object.assign(Object.assign({}, rootPackageJson.dependencies), compPackageJson.dependencies);
                 fs_extra_1.default.writeFileSync(rootPackageJsonPath, JSON.stringify(rootPackageJson, null, 2));
