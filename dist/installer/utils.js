@@ -7,18 +7,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs", "path", "@clack/prompts"], factory);
+        define(["require", "exports", "fs", "@clack/prompts", "../utils"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.mergePaths = exports.isStartingWithSrc = exports.isFollowingSrcDir = exports.addDependencies = void 0;
     const fs_1 = __importDefault(require("fs"));
-    const path_1 = __importDefault(require("path"));
     const prompts_1 = require("@clack/prompts");
+    const utils_1 = require("../utils");
     const currDir = process.cwd();
+    const rootPackageJsonPath = (0, utils_1.getPackageJsonPath)();
     const addDependencies = (projectType = '') => {
-        const packageJsonPath = path_1.default.join(currDir, 'package.json');
+        const packageJsonPath = rootPackageJsonPath;
         try {
             // Read in the existing package.json file
             const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, 'utf8'));

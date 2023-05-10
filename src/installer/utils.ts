@@ -1,11 +1,12 @@
 import fs from 'fs';
-import path from 'path';
 import { log } from '@clack/prompts';
+import { getPackageJsonPath } from '../utils';
 
 const currDir = process.cwd();
+const rootPackageJsonPath: string = getPackageJsonPath();
 
 const addDependencies = (projectType = ''): void => {
-  const packageJsonPath = path.join(currDir, 'package.json');
+  const packageJsonPath = rootPackageJsonPath;
 
   try {
     // Read in the existing package.json file

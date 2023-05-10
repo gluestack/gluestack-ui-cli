@@ -13,8 +13,12 @@ import {
 
 const currDir = process.cwd();
 
-var f = finder(currDir);
-const rootPackageJsonPath: string = f.next().filename || '';
+const getPackageJsonPath = (): string => {
+  var f = finder(currDir);
+  return f.next().filename || '';
+};
+
+const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = path.dirname(rootPackageJsonPath);
 
 const detectLockFile = (): string | null => {
@@ -40,6 +44,7 @@ const promptVersionManager = async (): Promise<any> => {
     options: [
       { value: 'npm', label: 'npm', hint: 'recommended' },
       { value: 'yarn', label: 'yarn' },
+      { value: 'pnpm', label: 'pnpm' },
     ],
   });
   if (isCancel(packageManager)) {
@@ -71,7 +76,7 @@ const installDependencies = async (): Promise<void> => {
       command = 'yarn';
       break;
     case 'pnpm':
-      command = 'pnpm install';
+      command = 'pnpm i --lockfile-only';
       break;
     default:
       throw new Error('Invalid package manager selected');
@@ -97,7 +102,7 @@ const installDependencies = async (): Promise<void> => {
 
 const getConfigComponentPath = () => {
   const configFile = fs.readFileSync(
-    path.join(currDir, "gluestack-ui.config.ts"),
+    path.join(currDir, 'gluestack-ui.config.ts'),
     'utf-8'
   );
   const match = configFile.match(/componentPath:\s+(['"])(.*?)\1/);
@@ -147,4 +152,5 @@ export {
   addIndexFile,
   pascalToDash,
   dashToPascal,
+  getPackageJsonPath,
 };
