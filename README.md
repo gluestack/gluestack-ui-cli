@@ -1,103 +1,68 @@
-# TSDX User Guide
+# GLUESTACK-UI CLI
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-> This TSDX setup is meant for developing libraries (not apps!) that can be published to NPM. If you’re looking to build a Node app, you could use `ts-node-dev`, plain `ts-node`, or simple `tsc`.
+> A CLI tool for easily adding components from `gluestack-ui` to your projects.
 
-> If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
+- gluestack-ui offers a powerful and user-friendly Command Line Interface (CLI) for developers.
+- Simplifies the development experience and provides a streamlined workflow.
+- Includes various commands to assist with installation setup, component management, and updates.
+- Some of the commands provided by the gluestack-ui CLI are:
+  - Installation setup command: Helps with the initial setup of the gluestack-ui library.
+  - Add component command: Allows users to add components from the gluestack-ui library to their projects.
+  - Update component command: Helps users update components in their projects to newer versions available in the gluestack-ui library.
+  - Remove component command: Enables users to remove components that are no longer needed from their projects.
+- These commands help developers efficiently manage their project components and keep them up to date.
+- The gluestack-ui CLI aims to enhance the development workflow and improve productivity.
 
-## Commands
+## Usage
 
-TSDX scaffolds your new library inside `/src`.
+To use the gluestack-ui CLI, you can run the following commands:
 
-To run TSDX, use:
+- **Initialize gluestack-ui -** This command sets up the gluestack-ui library in your project.
 
-```bash
-npm start # or yarn start
+```
+    npx gluestack-ui@latest init
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+- **Initialize and add components -**: This command initializes gluestack-ui and adds the required components to your project.
 
-To do a one-off build, use `npm run build` or `yarn build`.
-
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle Analysis
-
-[`size-limit`](https://github.com/ai/size-limit) is set up to calculate the real cost of your library with `npm run size` and visualize the bundle with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
+```
+    npx gluestack-ui@latest
 ```
 
-### Rollup
+- **Add a component -** Replace `<component-name>` with the name of the component you want to add or with special flag `--all` which will add all the components to your project.
 
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
-
-### TypeScript
-
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
-
-## Continuous Integration
-
-### GitHub Actions
-
-Two actions are added by default:
-
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
-
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
-}
+```
+    npx gluestack-ui@latest add <component-name>
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+- **Update a component -** Replace `<component-name>` with the name of the component you want to update or with special flag `--all` which will update all the components in your project.
 
-## Module Formats
+```
+    npx gluestack-ui@latest update <component-name>
+```
 
-CJS, ESModules, and UMD module formats are supported.
+- **Remove a component -** Replace `<component-name>` with the name of the component you want to remove or with special flag `--all` which will remove all the components from your project.
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+```
+    npx gluestack-ui@latest update <component-name>
+```
 
-## Named Exports
+- **Get help -** This command provides help and information about using the gluestack-ui CLI.
 
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
+```
+    npx gluestack-ui@latest update <component-name>
+```
 
-## Including Styles
+## Contributing
 
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
+Contributions are welcome! If you would like to contribute to this project, please follow these steps:
 
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them.
+4. Push your changes to your forked repository.
+5. Submit a pull request to the main repository.
 
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
+Please ensure that your code follows the project's coding conventions.
