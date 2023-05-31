@@ -55,9 +55,9 @@ const initGluestack = () => {
 };
 
 const requiredDependencies = [
-  '@dank-style/react',
+  '@gluestack-style/react',
   '@gluestack-ui/provider',
-  '@dank-style/animation-plugin',
+  '@gluestack-style/animation-plugin',
   '@gluestack/ui-next-adapter',
 ];
 const devDependencies = [
