@@ -25,9 +25,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, 'utf8'));
             // Add a new dependency to the package.json file
             packageJson.dependencies = packageJson.dependencies || {};
-            packageJson.dependencies['@dank-style/react'] = 'latest';
+            packageJson.dependencies['@gluestack-style/react'] = 'latest';
             packageJson.dependencies['@gluestack-ui/provider'] = 'latest';
-            packageJson.dependencies['@dank-style/animation-plugin'] = 'latest';
+            packageJson.dependencies['@gluestack-style/animation-plugin'] = 'latest';
             if (projectType === 'Next') {
                 packageJson.dependencies['@gluestack/ui-next-adapter'] = 'latest';
             }

@@ -1,14 +1,14 @@
 const getDataFiles = (folderName: string, gluestackConfigImportPath: string) => {
   const splitPath = folderName.split("/");
-  if(splitPath[1] === "src") {
-    splitPath.splice(1,1)
+  if (splitPath[1] === "src") {
+    splitPath.splice(1, 1)
   }
   const importPath = splitPath.join("/")
   const document = `
   import * as React from 'react';
   import { Html, Head, Main, NextScript } from 'next/document';
   import { AppRegistry } from 'react-native-web';
-  import { flush } from '@dank-style/react';
+  import { flush } from '@gluestack-style/react';
   
   function Document() {
     return (
