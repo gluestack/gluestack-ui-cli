@@ -44,7 +44,7 @@
   "dependencies": {
     "@clack/prompts": "^0.6.3",
     "@gluestack-style/animation-plugin": "latest",
-    "@gluestack-style/react": "latest",
+    "@gluestack-style/react": "^0.1.23",
     "@gluestack-ui/provider": "latest",
     "@gluestack/ui-project-detector": "0.1.1",
     "find-package-json": "^1.2.0",

@@ -73,7 +73,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (!specificComponentType) {
             const selectedComponentType = yield (0, prompts_1.multiselect)({
                 message: 'Select the type of components:',
-                options: Object.keys(groupedComponents).map((type) => {
+                options: Object.keys(groupedComponents).map(type => {
                     return { value: type, label: type };
                 }),
                 required: true,
@@ -87,7 +87,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     if (groupedComponents[component].length !== 0) {
                         const selectComponents = yield (0, prompts_1.multiselect)({
                             message: `Select ${component} components:`,
-                            options: groupedComponents[component].map((type) => {
+                            options: groupedComponents[component].map(type => {
                                 return { value: type, label: type };
                             }),
                             required: true,
@@ -107,7 +107,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         else {
             selectedComponents[specificComponentType] = [specificComponent];
         }
-        yield Promise.all(Object.keys(selectedComponents).map((component) => {
+        yield Promise.all(Object.keys(selectedComponents).map(component => {
             // createFolders(path.join(targetPath, component));
             selectedComponents[component].map((subcomponent) => {
                 // Add Packages
@@ -129,10 +129,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, component, originalComponentPath, 'config.json'));
                 }
                 if (!isUpdate) {
-                    prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' + originalComponentPath + '\u001b[22m'} \x1b[0m component added successfully!`);
+                    prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
+                        originalComponentPath +
+                        '\u001b[22m'} \x1b[0m component added successfully!`);
                 }
                 else {
-                    prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' + originalComponentPath + '\u001b[22m'} \x1b[0m component updated successfully!`);
+                    prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
+                        originalComponentPath +
+                        '\u001b[22m'} \x1b[0m component updated successfully!`);
                 }
             });
         }));
@@ -162,7 +166,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         else if (alreadyExistingComponents.length > 0) {
             selectedComponents = yield (0, prompts_1.multiselect)({
                 message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-                options: alreadyExistingComponents.map((component) => ({
+                options: alreadyExistingComponents.map(component => ({
                     label: component,
                     value: component,
                 })),
@@ -173,7 +177,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
         }
         // Remove repeated components from all components
-        const filteredComponents = specificComponents.filter((component) => !alreadyExistingComponents.includes(component));
+        const filteredComponents = specificComponents.filter(component => !alreadyExistingComponents.includes(component));
         // Add selected components to all components
         const updatedComponents = filteredComponents.concat(selectedComponents);
         existingComponentsChecked = true;
@@ -271,7 +275,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             // const folderName = path.relative(currDir, targetPath);
             const newConfig = configFile.replace(/componentPath:\s+'[^']+'/, `componentPath: '${componentFolderPath}'`);
             fs_extra_1.default.writeFileSync(path_1.default.join(currDir, 'gluestack-ui.config.ts'), newConfig);
-            prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' + 'GluestackUIProvider' + '\u001b[22m'} \x1b[0m added successfully!`);
+            prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
+                'GluestackUIProvider' +
+                '\u001b[22m'} \x1b[0m added successfully!`);
         }
         catch (err) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
