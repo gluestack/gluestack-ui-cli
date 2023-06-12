@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.mergePaths = exports.isStartingWithSrc = exports.isFollowingSrcDir = exports.addDependencies = void 0;
+    exports.isFollowingAppDir = exports.mergePaths = exports.isStartingWithSrc = exports.isFollowingSrcDir = exports.addDependencies = void 0;
     const fs_1 = __importDefault(require("fs"));
     const prompts_1 = require("@clack/prompts");
     const utils_1 = require("../utils");
@@ -71,4 +71,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         return false;
     };
     exports.isFollowingSrcDir = isFollowingSrcDir;
+    const isFollowingAppDir = () => {
+        try {
+            const files = fs_1.default.readdirSync(currDir);
+            if (files.includes('app') && fs_1.default.statSync(`${currDir}/app`).isDirectory()) {
+                return true;
+            }
+            if (files.includes('src') &&
+                fs_1.default.statSync(`${currDir}/src/app`).isDirectory()) {
+                return true;
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+        return false;
+    };
+    exports.isFollowingAppDir = isFollowingAppDir;
 });

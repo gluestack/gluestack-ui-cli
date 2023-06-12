@@ -2,5 +2,7 @@ declare const getDataFiles: (folderName: string, gluestackConfigImportPath: stri
     document: string;
     nextConfig: string;
     app: string;
+    providerContent: string;
+    layoutContent: string;
 };
 export { getDataFiles };

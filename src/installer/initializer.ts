@@ -26,7 +26,6 @@ const installGluestackUI = async (): Promise<boolean> => {
     const isSrcDir = isFollowingSrcDir();
 
     const isSrcIncludedInPath = isStartingWithSrc(folderPath);
-
     if (isSrcDir && !isSrcIncludedInPath) {
       const shouldContinue = await confirm({
         message: `Detected "src" folder. Do you want to update component paths to use "${mergePaths(
