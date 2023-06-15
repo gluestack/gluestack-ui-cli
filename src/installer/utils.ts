@@ -60,4 +60,28 @@ const isFollowingSrcDir = (): boolean => {
   return false;
 };
 
-export { addDependencies, isFollowingSrcDir, isStartingWithSrc, mergePaths };
+const isFollowingAppDir = (): boolean => {
+  try {
+    const files = fs.readdirSync(currDir);
+    if (files.includes('app') && fs.statSync(`${currDir}/app`).isDirectory()) {
+      return true;
+    }
+    if (
+      files.includes('src') &&
+      fs.statSync(`${currDir}/src/app`).isDirectory()
+    ) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
+
+export {
+  addDependencies,
+  isFollowingSrcDir,
+  isStartingWithSrc,
+  mergePaths,
+  isFollowingAppDir,
+};

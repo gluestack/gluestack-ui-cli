@@ -1,6 +1,16 @@
 {
   "name": "gluestack-ui",
-  "version": "0.4.0-alpha.0",
+  "keywords": [
+    "react",
+    "react-native",
+    "expo",
+    "storybook",
+    "nextjs",
+    "cross-platform",
+    "cli"
+  ],
+  "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
+  "version": "0.4.0",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -34,7 +44,7 @@
   "dependencies": {
     "@clack/prompts": "^0.6.3",
     "@gluestack-style/animation-plugin": "latest",
-    "@gluestack-style/react": "latest",
+    "@gluestack-style/react": "^0.1.23",
     "@gluestack-ui/provider": "latest",
     "@gluestack/ui-project-detector": "0.1.1",
     "find-package-json": "^1.2.0",
@@ -45,7 +55,7 @@
     "@size-limit/preset-small-lib": "^8.2.4",
     "@types/find-package-json": "^1.2.3",
     "@types/fs-extra": "^11.0.1",
-    "@types/node": "^18.16.3",
+    "@types/node": "^18.16.16",
     "husky": "^8.0.3",
     "jest": "^29.5.0",
     "jest-junit": "^15.0.0",
