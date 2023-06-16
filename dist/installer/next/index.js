@@ -22,10 +22,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const utils_1 = require("../utils");
     const utils_2 = require("./utils");
     const prompts_1 = require("@clack/prompts");
-    const nextInstaller = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
+    const nextInstaller = (folderName, packageName) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             (0, utils_1.addDependencies)('Next');
-            const setupTypeAutomatic = yield (0, utils_2.autoSetup)(folderName);
+            console.log(folderName, packageName, 'package nameeeee');
+            const setupTypeAutomatic = yield (0, utils_2.autoSetup)(folderName, packageName);
             return setupTypeAutomatic;
         }
         catch (err) {

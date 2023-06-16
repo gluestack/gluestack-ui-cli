@@ -42,7 +42,10 @@ function convertToValidString(input: string): string {
   return output;
 }
 
-const replaceFiles = async (folderName: string): Promise<void> => {
+const replaceFiles = async (
+  folderName: string,
+  packageName: string
+): Promise<void> => {
   const isAppDir = isFollowingAppDir();
   const appPath = getAppPath();
   const isFollowingSrcDirFlag = isFollowingSrcDir();
@@ -53,14 +56,14 @@ const replaceFiles = async (folderName: string): Promise<void> => {
     path.relative(appDirectory, currentDirectory)
   );
   const documentExt = getDocumentExtension();
-
+  console.log(folderName, gluestackConfigImportPath, 'Testtttt', packageName);
   const {
     document,
     nextConfig,
     app,
     providerContent,
     layoutContent,
-  } = getDataFiles(folderName, gluestackConfigImportPath);
+  } = getDataFiles(folderName, gluestackConfigImportPath, packageName);
   if (isAppDir) {
     await createProvidersFile(appPath, providerContent);
     await updateDocument(layoutContent, path.join(appPath, 'layout.tsx'));
@@ -69,7 +72,7 @@ const replaceFiles = async (folderName: string): Promise<void> => {
       document,
       path.join(appDirectory, `_document.${documentExt}`)
     );
-    await updateDocument(app, path.join(appDirectory, `app.${documentExt}`));
+    await updateDocument(app, path.join(appDirectory, `_app.${documentExt}`));
   }
   await updateNextConfig(nextConfig);
 };
@@ -106,7 +109,10 @@ const getAppPath = (): string => {
   return appPath;
 };
 
-const autoSetup = async (folderName: string): Promise<any> => {
+const autoSetup = async (
+  folderName: string,
+  packageName: string
+): Promise<any> => {
   const isAppDir = isFollowingAppDir();
 
   try {
@@ -143,7 +149,8 @@ So, it's advisable to save your current changes by committing them before procee
 
     if (shouldContinue) {
       log.warning('\x1b[33mOverwriting files...\x1b[0m');
-      await replaceFiles(folderName);
+      await replaceFiles(folderName, packageName);
+
       if (isAppDir) {
         log.step(
           `Just add 'use client' derivative at the top of your pages and you're good to go!`

@@ -237,18 +237,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     });
     exports.componentAdder = componentAdder;
-    const addProvider = (sourcePath, targetPath, componentFolderPath) => __awaiter(void 0, void 0, void 0, function* () {
+    const addConfig = (sourcePath, configTargetPath) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            // Create necessary folders
-            // createFolders(path.join(targetPath, 'core'));
-            // createFolders(path.join(targetPath, 'core', 'GluestackUIProvider'));
-            // createFolders(path.join(targetPath, 'core', 'styled'));
+            // Copy Gluestack UI config to root
+            const gluestackConfig = yield fs_extra_1.default.readFile(path_1.default.resolve(sourcePath, '../', 'gluestack-ui.config.ts'), 'utf8');
+            yield fs_extra_1.default.writeFile(path_1.default.join(configTargetPath, 'gluestack-ui.config.ts'), gluestackConfig);
+        }
+        catch (err) {
+            prompts_1.log.error(JSON.stringify(err));
+        }
+    });
+    const updateConfig = (componentFolderPath, configTargetPath) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            // Update Gluestack UI config file
+            const configFile = yield fs_extra_1.default.readFile(path_1.default.join(configTargetPath, 'gluestack-ui.config.ts'), 'utf8');
+            // const folderName = path.relative(currDir, targetPath);
+            const newConfig = configFile.replace(/componentPath:\s+'[^']+'/, `componentPath: '${componentFolderPath}'`);
+            fs_extra_1.default.writeFileSync(path_1.default.join(configTargetPath, 'gluestack-ui.config.ts'), newConfig);
+            prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
+                'GluestackUIProvider' +
+                '\u001b[22m'} \x1b[0m added successfully!`);
+        }
+        catch (err) {
+            prompts_1.log.error(JSON.stringify(err));
+        }
+    });
+    const addProvider = (sourcePath, targetPath) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
             // Copy Provider and styled folder
             yield copyAsync(path_1.default.join(sourcePath, 'Provider'), path_1.default.join(targetPath, 'core', 'GluestackUIProvider'));
             yield copyAsync(path_1.default.join(sourcePath, 'styled'), path_1.default.join(targetPath, 'core', 'styled'));
-            // Copy Gluestack UI config to root
-            const gluestackConfig = yield fs_extra_1.default.readFile(path_1.default.resolve(sourcePath, '../', 'gluestack-ui.config.ts'), 'utf8');
-            yield fs_extra_1.default.writeFile(path_1.default.join(currDir, 'gluestack-ui.config.ts'), gluestackConfig);
             // Delete config.json files
             fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, 'core', 'GluestackUIProvider', 'config.json'));
             fs_extra_1.default.unlinkSync(path_1.default.join(targetPath, 'core', 'styled', 'config.json'));
@@ -270,14 +288,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             //   path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
             //   modifiedProviderIndexFile
             // );
-            // Update Gluestack UI config file
-            const configFile = yield fs_extra_1.default.readFile(path_1.default.join(currDir, 'gluestack-ui.config.ts'), 'utf8');
-            // const folderName = path.relative(currDir, targetPath);
-            const newConfig = configFile.replace(/componentPath:\s+'[^']+'/, `componentPath: '${componentFolderPath}'`);
-            fs_extra_1.default.writeFileSync(path_1.default.join(currDir, 'gluestack-ui.config.ts'), newConfig);
-            prompts_1.log.success(`\x1b[32m✅  ${'\u001b[1m' +
-                'GluestackUIProvider' +
-                '\u001b[22m'} \x1b[0m added successfully!`);
         }
         catch (err) {
             prompts_1.log.error(`\x1b[31mError: ${err.message}\x1b[0m`);
@@ -306,12 +316,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     });
     exports.getComponentGitRepo = getComponentGitRepo;
-    const initialProviderAdder = (componentFolderPath) => __awaiter(void 0, void 0, void 0, function* () {
+    const initialProviderAdder = (componentFolderPath, projectType) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // createFolders(path.join(currDir, componentFolderPath));
             const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');
             const targetPath = path_1.default.join(currDir, componentFolderPath);
-            yield addProvider(sourcePath, targetPath, componentFolderPath);
+            let configTargetPath = currDir;
+            if (projectType === 'Unknown') {
+                configTargetPath = path_1.default.join(currDir, 'src');
+            }
+            yield addProvider(sourcePath, targetPath);
+            yield addConfig(sourcePath, configTargetPath);
+            yield updateConfig(componentFolderPath, configTargetPath);
             (0, utils_2.addIndexFile)(targetPath);
         }
         catch (err) {

@@ -20,6 +20,10 @@ const addDependencies = (projectType = ''): void => {
     if (projectType === 'Next') {
       packageJson.dependencies['@gluestack/ui-next-adapter'] = 'latest';
     }
+    if (projectType == 'Unknown') {
+      packageJson.scripts['build'] = 'tsc';
+      packageJson.scripts['watch'] = 'tsc --watch';
+    }
 
     // Add a new devDependency to the package.json file
     packageJson.devDependencies = packageJson.devDependencies || {};

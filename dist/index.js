@@ -61,7 +61,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         `);
             }
             else {
-                yield (0, component_adder_1.getComponentGitRepo)();
+                // await getComponentGitRepo();
                 const askUserToInit = true;
                 if (command === 'init') {
                     const { gluestackUIConfigPresent: alreadyInitialised, } = yield (0, initializer_1.initializer)(!askUserToInit);

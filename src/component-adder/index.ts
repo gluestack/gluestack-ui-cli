@@ -347,17 +347,56 @@ const componentAdder = async (
   }
 };
 
-const addProvider = async (
-  sourcePath: string,
-  targetPath: string,
-  componentFolderPath: string
+const addConfig = async (sourcePath: string, configTargetPath: string) => {
+  try {
+    // Copy Gluestack UI config to root
+    const gluestackConfig = await fs.readFile(
+      path.resolve(sourcePath, '../', 'gluestack-ui.config.ts'),
+      'utf8'
+    );
+
+    await fs.writeFile(
+      path.join(configTargetPath, 'gluestack-ui.config.ts'),
+      gluestackConfig
+    );
+  } catch (err) {
+    log.error(JSON.stringify(err));
+  }
+};
+
+const updateConfig = async (
+  componentFolderPath: string,
+  configTargetPath: string
 ) => {
   try {
-    // Create necessary folders
-    // createFolders(path.join(targetPath, 'core'));
-    // createFolders(path.join(targetPath, 'core', 'GluestackUIProvider'));
-    // createFolders(path.join(targetPath, 'core', 'styled'));
+    // Update Gluestack UI config file
+    const configFile = await fs.readFile(
+      path.join(configTargetPath, 'gluestack-ui.config.ts'),
+      'utf8'
+    );
 
+    // const folderName = path.relative(currDir, targetPath);
+
+    const newConfig = configFile.replace(
+      /componentPath:\s+'[^']+'/,
+      `componentPath: '${componentFolderPath}'`
+    );
+    fs.writeFileSync(
+      path.join(configTargetPath, 'gluestack-ui.config.ts'),
+      newConfig
+    );
+    log.success(
+      `\x1b[32m✅  ${'\u001b[1m' +
+        'GluestackUIProvider' +
+        '\u001b[22m'} \x1b[0m added successfully!`
+    );
+  } catch (err) {
+    log.error(JSON.stringify(err));
+  }
+};
+
+const addProvider = async (sourcePath: string, targetPath: string) => {
+  try {
     // Copy Provider and styled folder
     await copyAsync(
       path.join(sourcePath, 'Provider'),
@@ -366,16 +405,6 @@ const addProvider = async (
     await copyAsync(
       path.join(sourcePath, 'styled'),
       path.join(targetPath, 'core', 'styled')
-    );
-
-    // Copy Gluestack UI config to root
-    const gluestackConfig = await fs.readFile(
-      path.resolve(sourcePath, '../', 'gluestack-ui.config.ts'),
-      'utf8'
-    );
-    await fs.writeFile(
-      path.join(currDir, 'gluestack-ui.config.ts'),
-      gluestackConfig
     );
 
     // Delete config.json files
@@ -402,25 +431,6 @@ const addProvider = async (
     //   path.join(targetPath, 'core', 'GluestackUIProvider', 'index.tsx'),
     //   modifiedProviderIndexFile
     // );
-
-    // Update Gluestack UI config file
-    const configFile = await fs.readFile(
-      path.join(currDir, 'gluestack-ui.config.ts'),
-      'utf8'
-    );
-
-    // const folderName = path.relative(currDir, targetPath);
-
-    const newConfig = configFile.replace(
-      /componentPath:\s+'[^']+'/,
-      `componentPath: '${componentFolderPath}'`
-    );
-    fs.writeFileSync(path.join(currDir, 'gluestack-ui.config.ts'), newConfig);
-    log.success(
-      `\x1b[32m✅  ${'\u001b[1m' +
-        'GluestackUIProvider' +
-        '\u001b[22m'} \x1b[0m added successfully!`
-    );
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
@@ -452,7 +462,8 @@ const getComponentGitRepo = async (): Promise<void> => {
 };
 
 const initialProviderAdder = async (
-  componentFolderPath: string
+  componentFolderPath: string,
+  projectType: string
 ): Promise<void> => {
   try {
     // createFolders(path.join(currDir, componentFolderPath));
@@ -469,7 +480,13 @@ const initialProviderAdder = async (
     );
 
     const targetPath = path.join(currDir, componentFolderPath);
-    await addProvider(sourcePath, targetPath, componentFolderPath);
+    let configTargetPath = currDir;
+    if (projectType === 'Unknown') {
+      configTargetPath = path.join(currDir, 'src');
+    }
+    await addProvider(sourcePath, targetPath);
+    await addConfig(sourcePath, configTargetPath);
+    await updateConfig(componentFolderPath, configTargetPath);
     addIndexFile(targetPath);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);

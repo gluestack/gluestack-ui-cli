@@ -1,2 +1,2 @@
-declare const nextInstaller: (folderName: string) => Promise<boolean>;
+declare const nextInstaller: (folderName: string, packageName: string) => Promise<boolean>;
 export { nextInstaller };

@@ -42,7 +42,7 @@ async function main() {
   \x1b[33mnpx gluestack-ui@latest help\x1b[0m   
         `);
   } else {
-    await getComponentGitRepo();
+    // await getComponentGitRepo();
     const askUserToInit = true;
 
     if (command === 'init') {

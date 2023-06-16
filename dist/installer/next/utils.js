@@ -80,7 +80,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         const output = input.replace(/\\/g, '/');
         return output;
     }
-    const replaceFiles = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
+    const replaceFiles = (folderName, packageName) => __awaiter(void 0, void 0, void 0, function* () {
         const isAppDir = (0, utils_1.isFollowingAppDir)();
         const appPath = getAppPath();
         const isFollowingSrcDirFlag = (0, utils_1.isFollowingSrcDir)();
@@ -89,14 +89,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             : 'pages';
         const gluestackConfigImportPath = convertToValidString(path_1.default.relative(appDirectory, currentDirectory));
         const documentExt = getDocumentExtension();
-        const { document, nextConfig, app, providerContent, layoutContent, } = (0, data_1.getDataFiles)(folderName, gluestackConfigImportPath);
+        console.log(folderName, gluestackConfigImportPath, 'Testtttt', packageName);
+        const { document, nextConfig, app, providerContent, layoutContent, } = (0, data_1.getDataFiles)(folderName, gluestackConfigImportPath, packageName);
         if (isAppDir) {
             yield createProvidersFile(appPath, providerContent);
             yield updateDocument(layoutContent, path_1.default.join(appPath, 'layout.tsx'));
         }
         else {
             yield updateDocument(document, path_1.default.join(appDirectory, `_document.${documentExt}`));
-            yield updateDocument(app, path_1.default.join(appDirectory, `app.${documentExt}`));
+            yield updateDocument(app, path_1.default.join(appDirectory, `_app.${documentExt}`));
         }
         yield updateNextConfig(nextConfig);
     });
@@ -123,7 +124,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         return appPath;
     };
-    const autoSetup = (folderName) => __awaiter(void 0, void 0, void 0, function* () {
+    const autoSetup = (folderName, packageName) => __awaiter(void 0, void 0, void 0, function* () {
         const isAppDir = (0, utils_1.isFollowingAppDir)();
         try {
             prompts_1.log.info("Hey there! It looks like we've stumbled upon a \x1b[34mNext.js project\x1b[0m! Would you like to take the express lane and proceed with the automatic setup?");
@@ -151,7 +152,7 @@ So, it's advisable to save your current changes by committing them before procee
             }
             if (shouldContinue) {
                 prompts_1.log.warning('\x1b[33mOverwriting files...\x1b[0m');
-                yield replaceFiles(folderName);
+                yield replaceFiles(folderName, packageName);
                 if (isAppDir) {
                     prompts_1.log.step(`Just add 'use client' derivative at the top of your pages and you're good to go!`);
                     prompts_1.log.step(`You can now directly use gluestack-ui components in your app! 🎉`);

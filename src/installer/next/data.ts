@@ -1,6 +1,7 @@
 const getDataFiles = (
   folderName: string,
-  gluestackConfigImportPath: string
+  gluestackConfigImportPath: string,
+  packageName: string
 ) => {
   const splitPath = folderName.split('/');
   if (splitPath[1] === 'src') {
@@ -38,8 +39,10 @@ const getDataFiles = (
   const providerContent = `// app/providers.tsx
 "use client";
 
-import { GluestackUIProvider } from "../components";
-import { config } from "../../gluestack-ui.config";
+import { GluestackUIProvider } from "${
+    folderName ? '../' + importPath.slice(2) : packageName
+  }";
+import { config } from "${gluestackConfigImportPath}/gluestack-ui.config";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -62,7 +65,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const app = `
   import '@/styles/globals.css';
   import type { AppProps } from 'next/app';
-  import { GluestackUIProvider } from '../${importPath.slice(2)}';
+  import { GluestackUIProvider } from '${
+    folderName ? '../' + importPath.slice(2) : packageName
+  }';
   import { config } from '${gluestackConfigImportPath}/gluestack-ui.config';
   
   export default function App({ Component, pageProps }: AppProps) {
