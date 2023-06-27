@@ -35,6 +35,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const homeDir = os_1.default.homedir();
     const copyAsync = util_1.default.promisify(fs_extra_1.default.copy);
     let existingComponentsChecked = false;
+    const getComponentsList = () => __awaiter(void 0, void 0, void 0, function* () {
+        const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');
+        return fs_extra_1.default.readdirSync(sourcePath);
+    });
     const copyFolders = (sourcePath, targetPath, specificComponent, isUpdate) => __awaiter(void 0, void 0, void 0, function* () {
         const groupedComponents = {};
         let specificComponentType;
@@ -203,7 +207,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
         return requestedComponents;
     };
+    const checkIfComponentIsValid = (component) => __awaiter(void 0, void 0, void 0, function* () {
+        const componentList = yield getComponentsList();
+        if (componentList.includes(component)) {
+            return true;
+        }
+        return false;
+    });
     const componentAdder = (requestedComponent = '', showWarning = true, isUpdate = false) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!(yield checkIfComponentIsValid(requestedComponent))) {
+            prompts_1.log.error('\x1b[32m' +
+                `The ${requestedComponent} does not exists. Kindly choose from the below list.` +
+                '\x1b[0m');
+        }
         try {
             // Get config
             const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');

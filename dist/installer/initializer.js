@@ -81,7 +81,6 @@ export default function App() {
 }
 `;
     const autoInstaller = (folderPath) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(folderPath, 'folderPath in autoInstaller');
         const projectData = yield (0, ui_project_detector_1.projectDetector)();
         let setupTypeAutomatic = false;
         const isSrcDir = (0, utils_1.isFollowingSrcDir)();

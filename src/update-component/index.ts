@@ -3,7 +3,9 @@ import path from 'path';
 import { componentAdder } from '../component-adder';
 import { getConfigComponentPath, pascalToDash } from '../utils';
 import { isCancel, cancel, confirm, log } from '@clack/prompts';
+import os from 'os';
 
+const homeDir = os.homedir();
 const getAllComponents = (source: string): string[] => {
   const requestedComponents: string[] = [];
 
@@ -24,6 +26,29 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
+const getComponentsList = async (): Promise<Array<string>> => {
+  const sourcePath = path.join(
+    homeDir,
+    '.gluestack',
+    'cache',
+    'gluestack-ui',
+    'example',
+    'storybook',
+    'src',
+    'ui-components'
+  );
+  return fs.readdirSync(sourcePath);
+};
+
+const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
+  const componentList = await getComponentsList();
+
+  if (componentList.includes(component)) {
+    return true;
+  }
+  return false;
+};
+
 async function updateComponent(component = ''): Promise<void> {
   try {
     const componentPath = getConfigComponentPath();
@@ -34,6 +59,10 @@ async function updateComponent(component = ''): Promise<void> {
       'core',
       component
     );
+    if (!(await checkIfComponentIsValid(component))) {
+      log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
+      process.exit(0);
+    }
 
     if (component === '--all') {
       const source = path.resolve(process.cwd(), componentPath, 'core');

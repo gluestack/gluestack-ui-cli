@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "../component-adder", "../utils", "@clack/prompts"], factory);
+        define(["require", "exports", "fs-extra", "path", "../component-adder", "../utils", "@clack/prompts", "os"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -27,6 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const component_adder_1 = require("../component-adder");
     const utils_1 = require("../utils");
     const prompts_1 = require("@clack/prompts");
+    const os_1 = __importDefault(require("os"));
+    const homeDir = os_1.default.homedir();
     const getAllComponents = (source) => {
         const requestedComponents = [];
         fs_extra_1.default.readdirSync(source).forEach((component) => {
@@ -40,11 +42,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
         return requestedComponents;
     };
+    const getComponentsList = () => __awaiter(void 0, void 0, void 0, function* () {
+        const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');
+        return fs_extra_1.default.readdirSync(sourcePath);
+    });
+    const checkIfComponentIsValid = (component) => __awaiter(void 0, void 0, void 0, function* () {
+        const componentList = yield getComponentsList();
+        if (componentList.includes(component)) {
+            return true;
+        }
+        return false;
+    });
     function updateComponent(component = '') {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const componentPath = (0, utils_1.getConfigComponentPath)();
                 const dirPath = path_1.default.resolve(process.cwd(), componentPath, 'core', component);
+                if (!(yield checkIfComponentIsValid(component))) {
+                    prompts_1.log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
+                    process.exit(0);
+                }
                 if (component === '--all') {
                     const source = path_1.default.resolve(process.cwd(), componentPath, 'core');
                     const requestedComponents = getAllComponents(source);

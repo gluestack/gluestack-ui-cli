@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "../utils", "@clack/prompts"], factory);
+        define(["require", "exports", "fs-extra", "path", "../utils", "@clack/prompts", "os"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,6 +26,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const path_1 = __importDefault(require("path"));
     const utils_1 = require("../utils");
     const prompts_1 = require("@clack/prompts");
+    const os_1 = __importDefault(require("os"));
+    const homeDir = os_1.default.homedir();
     const currDir = process.cwd();
     const getAllComponents = (source) => {
         const requestedComponents = [];
@@ -39,6 +41,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
         return requestedComponents;
     };
+    const getComponentsList = () => __awaiter(void 0, void 0, void 0, function* () {
+        const sourcePath = path_1.default.join(homeDir, '.gluestack', 'cache', 'gluestack-ui', 'example', 'storybook', 'src', 'ui-components');
+        return fs_extra_1.default.readdirSync(sourcePath);
+    });
+    const checkIfComponentIsValid = (component) => __awaiter(void 0, void 0, void 0, function* () {
+        const componentList = yield getComponentsList();
+        if (componentList.includes(component)) {
+            return true;
+        }
+        return false;
+    });
     const updateIndexFile = (dirPath, componentPath) => __awaiter(void 0, void 0, void 0, function* () {
         const indexPath = path_1.default.resolve(dirPath, 'index.ts');
         fs_extra_1.default.rmSync(indexPath);
@@ -51,6 +64,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const componentPath = (0, utils_1.getConfigComponentPath)();
                 const dirPath = path_1.default.resolve(currDir, componentPath, 'core');
                 const componentsPath = path_1.default.resolve(currDir, componentPath, 'core', component);
+                if (!(yield checkIfComponentIsValid(component))) {
+                    prompts_1.log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m\n\x1b[33mPlease check the name of the component and try again.\x1b[0m`);
+                    process.exit(0);
+                }
                 if (component === '--all') {
                     const requestedComponents = getAllComponents(dirPath);
                     for (const component of requestedComponents) {

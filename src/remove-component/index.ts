@@ -2,6 +2,9 @@ import fs from 'fs-extra';
 import path from 'path';
 import { addIndexFile, getConfigComponentPath } from '../utils';
 import { isCancel, cancel, confirm, log } from '@clack/prompts';
+import os from 'os';
+
+const homeDir = os.homedir();
 
 const currDir = process.cwd();
 
@@ -24,6 +27,29 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
+const getComponentsList = async (): Promise<Array<string>> => {
+  const sourcePath = path.join(
+    homeDir,
+    '.gluestack',
+    'cache',
+    'gluestack-ui',
+    'example',
+    'storybook',
+    'src',
+    'ui-components'
+  );
+  return fs.readdirSync(sourcePath);
+};
+
+const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
+  const componentList = await getComponentsList();
+
+  if (componentList.includes(component)) {
+    return true;
+  }
+  return false;
+};
+
 const updateIndexFile = async (dirPath: string, componentPath: string) => {
   const indexPath = path.resolve(dirPath, 'index.ts');
   fs.rmSync(indexPath);
@@ -42,6 +68,12 @@ async function removeComponent(component = '') {
       'core',
       component
     );
+    if (!(await checkIfComponentIsValid(component))) {
+      log.error(
+        `\x1b[33mComponent "${component}" not found.\x1b[0m\n\x1b[33mPlease check the name of the component and try again.\x1b[0m`
+      );
+      process.exit(0);
+    }
 
     if (component === '--all') {
       const requestedComponents = getAllComponents(dirPath);

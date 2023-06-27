@@ -89,7 +89,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             : 'pages';
         const gluestackConfigImportPath = convertToValidString(path_1.default.relative(appDirectory, currentDirectory));
         const documentExt = getDocumentExtension();
-        console.log(folderName, gluestackConfigImportPath, 'Testtttt', packageName);
         const { document, nextConfig, app, providerContent, layoutContent, } = (0, data_1.getDataFiles)(folderName, gluestackConfigImportPath, packageName);
         if (isAppDir) {
             yield createProvidersFile(appPath, providerContent);

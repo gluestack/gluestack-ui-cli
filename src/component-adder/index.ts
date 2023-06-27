@@ -34,6 +34,20 @@ const copyAsync = util.promisify(fs.copy);
 
 let existingComponentsChecked: boolean = false;
 
+const getComponentsList = async (): Promise<Array<string>> => {
+  const sourcePath = path.join(
+    homeDir,
+    '.gluestack',
+    'cache',
+    'gluestack-ui',
+    'example',
+    'storybook',
+    'src',
+    'ui-components'
+  );
+  return fs.readdirSync(sourcePath);
+};
+
 const copyFolders = async (
   sourcePath: string,
   targetPath: string,
@@ -42,7 +56,6 @@ const copyFolders = async (
 ): Promise<void> => {
   const groupedComponents: Record<string, string[]> = {};
   let specificComponentType: string | undefined;
-
   //  Traverse all components
   try {
     fs.readdirSync(sourcePath).forEach((component: string) => {
@@ -81,8 +94,8 @@ const copyFolders = async (
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return;
   }
-
   let selectedComponents: any = {};
+
   // Ask component type
   if (!specificComponentType) {
     const selectedComponentType = await multiselect({
@@ -294,11 +307,27 @@ const getAllComponents = (source: string): string[] => {
   return requestedComponents;
 };
 
+const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
+  const componentList = await getComponentsList();
+
+  if (componentList.includes(component)) {
+    return true;
+  }
+  return false;
+};
+
 const componentAdder = async (
   requestedComponent = '',
   showWarning = true,
   isUpdate = false
 ) => {
+  if (!(await checkIfComponentIsValid(requestedComponent))) {
+    log.error(
+      '\x1b[32m' +
+        `The ${requestedComponent} does not exists. Kindly choose from the below list.` +
+        '\x1b[0m'
+    );
+  }
   try {
     // Get config
     const sourcePath = path.join(
@@ -333,11 +362,13 @@ const componentAdder = async (
     } else {
       addComponents = requestedComponents;
     }
+
     await Promise.all(
       addComponents.map(async component => {
         const componentPath = getConfigComponentPath();
         // createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
+
         await copyFolders(sourcePath, targetPath, component, isUpdate);
         addIndexFile(targetPath);
       })

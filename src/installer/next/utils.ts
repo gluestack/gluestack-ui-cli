@@ -56,7 +56,6 @@ const replaceFiles = async (
     path.relative(appDirectory, currentDirectory)
   );
   const documentExt = getDocumentExtension();
-  console.log(folderName, gluestackConfigImportPath, 'Testtttt', packageName);
   const {
     document,
     nextConfig,

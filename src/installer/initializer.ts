@@ -38,7 +38,6 @@ export default function App() {
 `;
 
 const autoInstaller = async (folderPath: string): Promise<any> => {
-  console.log(folderPath, 'folderPath in autoInstaller');
   const projectData = await projectDetector();
   let setupTypeAutomatic = false;
   const isSrcDir = isFollowingSrcDir();
