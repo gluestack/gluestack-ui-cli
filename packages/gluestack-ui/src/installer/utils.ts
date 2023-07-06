@@ -1,13 +1,14 @@
 import fs from 'fs';
 import { log } from '@clack/prompts';
 import { getPackageJsonPath } from '../utils';
+import { projectDetector } from '@gluestack/ui-project-detector';
 
 const currDir = process.cwd();
 const rootPackageJsonPath: string = getPackageJsonPath();
 
-const addDependencies = (projectType = ''): void => {
+const addDependencies = async (): Promise<void> => {
   const packageJsonPath = rootPackageJsonPath;
-
+  const projectType = await projectDetector();
   try {
     // Read in the existing package.json file
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -17,10 +18,10 @@ const addDependencies = (projectType = ''): void => {
     packageJson.dependencies['@gluestack-style/react'] = 'latest';
     packageJson.dependencies['@gluestack-ui/provider'] = 'latest';
     packageJson.dependencies['@gluestack-style/animation-plugin'] = 'latest';
-    if (projectType === 'Next') {
+    if (projectType.framework === 'Next') {
       packageJson.dependencies['@gluestack/ui-next-adapter'] = 'latest';
     }
-    if (projectType == 'Unknown') {
+    if (projectType.framework == 'Unknown') {
       packageJson.scripts['build'] = 'tsc';
       packageJson.scripts['watch'] = 'tsc --watch';
     }

@@ -24,6 +24,7 @@ import {
   spinner,
   log,
 } from '@clack/prompts';
+import { addDependencies } from '../installer/utils';
 
 const currDir = process.cwd();
 
@@ -526,6 +527,7 @@ const initialProviderAdder = async (
     await addConfig(sourcePath, configTargetPath);
     await updateConfig(componentFolderPath, configTargetPath);
     addIndexFile(targetPath);
+    addDependencies();
     return true;
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);

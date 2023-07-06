@@ -7,7 +7,7 @@ const nextInstaller = async (
   packageName: string
 ): Promise<boolean> => {
   try {
-    addDependencies('Next');
+    addDependencies();
     console.log(folderName, packageName, 'package nameeeee');
     const setupTypeAutomatic = await autoSetup(folderName, packageName);
     return setupTypeAutomatic;

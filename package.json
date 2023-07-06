@@ -8,7 +8,8 @@
     "create-expo-app-with-gluestack-ui": "npm run dev --workspace create-expo-app-with-gluestack-ui",
     "create-next-app-with-gluestack-ui": "npm run dev --workspace create-next-app-with-gluestack-ui",
     "watch:create-next-app-with-gluestack-ui": "npm run watch --workspace create-next-app-with-gluestack-ui",
-    "watch:create-expo-app-with-gluestack-ui": "npm run watch --workspace create-expo-app-with-gluestack-ui"
+    "watch:create-expo-app-with-gluestack-ui": "npm run watch --workspace create-expo-app-with-gluestack-ui",
+    "watch:gluestack-ui": "npm run watch --workspace gluestack-ui"
   },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",

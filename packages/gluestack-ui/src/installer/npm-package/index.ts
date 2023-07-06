@@ -8,7 +8,7 @@ const npmPackageInstaller = async (folderPath: string) => {
   try {
     await createIndexFile(folderPath);
     await addTsConfig();
-    addDependencies('Unknown');
+    addDependencies();
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
