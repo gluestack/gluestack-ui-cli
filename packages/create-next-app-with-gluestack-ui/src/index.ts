@@ -1,5 +1,7 @@
-#!/usr/bin/env node
+import minimist from 'minimist';
+const args = process.argv.slice(2);
 
+let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
 import path from 'path';
 import fs from 'fs';
 import {
@@ -13,7 +15,7 @@ import {
 import { select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
 
-function installDependencies(projectName: string) {
+function installDependencies(projectName: string, installationMethod: string) {
   const projectPath = path.join(process.cwd(), projectName);
   // try {
   //   execSync(`cd ${projectPath} && yarn`);
@@ -27,7 +29,7 @@ function installDependencies(projectName: string) {
 
   try {
     spawnSync(
-      `yarn && git init && touch .gitignore   
+      `git init && ${installationMethod} && touch .gitignore
     echo "node_modules .next" >> .gitignore`,
       {
         cwd: projectPath,
@@ -45,53 +47,97 @@ function installDependencies(projectName: string) {
 }
 
 async function main() {
+  let projectName: any = '',
+    installationMethod = 'npm install';
+  if (args.length > 0) {
+    if (!(args[0].startsWith('-') || args[0].startsWith('--'))) {
+      if (typeof args[0] === 'string') {
+        projectName = args[0];
+      }
+    }
+  }
+  for (let i = projectName !== '' ? 1 : 0; i < args.length; i++) {
+    if (supportedArgs.includes(args[i])) {
+      if (args[i] === '--help' || args[i] === '-h') {
+        console.log(
+          `
+              Usage: create-next-app-with-gluestack-ui [project-name] [options]
+
+              Options:
+                -h, --help          output usage information
+                --use-npm           use npm to install dependencies
+                --use-yarn          use yarn to install dependencies
+                --use-pnpm          use pnpm to install dependencies
+              `
+        );
+        process.exit(0);
+      } else if (args[i] === '--use-npm') {
+        installationMethod = 'npm install --legacy-peer-deps';
+      } else if (args[i] === '--use-yarn') {
+        installationMethod = 'yarn';
+      } else if (args[i] === '--use-pnpm') {
+        installationMethod = 'pnpm i --lockfile-only';
+      }
+    } else {
+      log.warning(
+        `Unsupported argument: ${args[i]}. For more information run npx create-next-app-with-gluestack-ui --help`
+      );
+      if (!(args[i].startsWith('-') || args[i].startsWith('--'))) {
+        log.warning(`Please pass project name as first argument.`);
+      }
+      process.exit(0);
+    }
+  }
+
   let projectPath = path.join(
     path.resolve(__dirname, '..'),
     'src',
     'page-router'
   );
-
-  const projectType = await select({
-    message: 'Pick a project type.',
+  if (projectName === '') {
+    projectName = await text({
+      message: 'What is the name of your application?',
+      placeholder: 'my-app',
+      defaultValue: 'my-app',
+      // validate(value) {
+      //   if (value.length === 0) return `Value is required!`;
+      // },
+    });
+    if (isCancel(projectName)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
+  }
+  const useAppRouter = await select({
+    message: 'Would you like to use App Router?',
     options: [
       {
-        value: 'app-router',
-        label: 'nextjs app Router',
-        hint: 'Next versions 13.4 and React server components support',
+        value: 'yes',
+        label: 'yes',
+        hint: 'Next versions 13.4 and React server components support (recommended)',
       },
       {
-        value: 'page-router',
-        label: 'nextjs page router',
+        value: 'no',
+        label: 'no',
         hint: 'Next js page routing',
       },
     ],
   });
-  if (isCancel(projectType)) {
+  if (isCancel(useAppRouter)) {
     cancel('Operation cancelled.');
     process.exit(0);
   }
-  if (projectType === 'app-router') {
+  if (useAppRouter === 'yes') {
     projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'app-router');
   }
 
-  const projectName = await text({
-    message: 'What is the name of your application?',
-    placeholder: 'my-app',
-    defaultValue: 'my-app',
-    // validate(value) {
-    //   if (value.length === 0) return `Value is required!`;
-    // },
-  });
-  if (isCancel(projectName)) {
-    cancel('Operation cancelled.');
-    process.exit(0);
-  }
   // copy directory
   const data = fs.cpSync(projectPath, path.join(process.cwd(), projectName), {
     recursive: true,
   });
+  log.info(` Using \x1b[33m ${installationMethod} \x1b!`);
 
-  installDependencies(projectName);
+  installDependencies(projectName, installationMethod);
 }
 
 main();

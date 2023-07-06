@@ -4,7 +4,11 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "create-expo-app-with-gluestack-ui": "npm run dev --workspace create-expo-app-with-gluestack-ui",
+    "create-next-app-with-gluestack-ui": "npm run dev --workspace create-next-app-with-gluestack-ui",
+    "watch:create-next-app-with-gluestack-ui": "npm run watch --workspace create-next-app-with-gluestack-ui",
+    "watch:create-expo-app-with-gluestack-ui": "npm run watch --workspace create-expo-app-with-gluestack-ui"
   },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",
@@ -18,5 +22,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@types/minimist": "^1.2.2",
+    "minimist": "^1.2.8"
+  }
 }
