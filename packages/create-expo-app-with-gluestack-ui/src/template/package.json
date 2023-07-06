@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/expo-template",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -9,20 +9,11 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "expo": "~48.0.18",
-    "expo-status-bar": "~1.4.4",
-    "react": "18.2.0",
-    "react-native": "0.71.8",
-    "react-native-web": "~0.18.10",
-    "react-dom": "18.2.0",
+    "@expo/html-elements": "latest",
     "@expo/webpack-config": "^18.0.1",
-    "@gluestack-style/react": "latest",
-    "@gluestack-ui/provider": "latest",
     "@gluestack-style/animation-plugin": "latest",
+    "@gluestack-style/react": "latest",
     "@gluestack-ui/actionsheet": "latest",
-    "@legendapp/motion": "latest",
-    "@gluestack-ui/icon": "latest",
-    "react-native-svg": "latest",
     "@gluestack-ui/alert": "latest",
     "@gluestack-ui/alert-dialog": "latest",
     "@gluestack-ui/avatar": "latest",
@@ -32,7 +23,7 @@
     "@gluestack-ui/fab": "latest",
     "@gluestack-ui/form-control": "latest",
     "@gluestack-ui/hstack": "latest",
-    "@expo/html-elements": "latest",
+    "@gluestack-ui/icon": "latest",
     "@gluestack-ui/input": "latest",
     "@gluestack-ui/link": "latest",
     "@gluestack-ui/menu": "latest",
@@ -40,6 +31,7 @@
     "@gluestack-ui/popover": "latest",
     "@gluestack-ui/pressable": "latest",
     "@gluestack-ui/progress": "latest",
+    "@gluestack-ui/provider": "latest",
     "@gluestack-ui/radio": "latest",
     "@gluestack-ui/select": "latest",
     "@gluestack-ui/slider": "latest",
@@ -49,13 +41,21 @@
     "@gluestack-ui/textarea": "latest",
     "@gluestack-ui/toast": "latest",
     "@gluestack-ui/tooltip": "latest",
-    "@gluestack-ui/vstack": "latest"
+    "@gluestack-ui/vstack": "latest",
+    "@legendapp/motion": "latest",
+    "expo": "~48.0.18",
+    "expo-status-bar": "~1.4.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.8",
+    "react-native-svg": "13.4.0",
+    "react-native-web": "~0.18.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~18.0.14",
-    "typescript": "^4.9.4",
-    "@types/react-native": "^0.71.6"
+    "@types/react-native": "^0.71.6",
+    "typescript": "^4.9.4"
   },
   "peerDependencies": {
     "react-native": ">=0.71.0",

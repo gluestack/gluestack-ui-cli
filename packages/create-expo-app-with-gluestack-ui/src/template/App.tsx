@@ -2,10 +2,6 @@ import { GluestackUIProvider } from "./components";
 import { config } from "./gluestack-ui.config";
 import { Box, Text, Image } from "./components";
 
-const gradientImage = require("./assets/gradient.svg");
-const documentImage = require("./assets/document-data.svg");
-const lightbulbImage = require("./assets/lightbulb-person.svg");
-const rocketImage = require("./assets/rocket.svg");
 export default function App() {
   return (
     <GluestackUIProvider config={config.theme}>
@@ -15,11 +11,7 @@ export default function App() {
 }
 
 const Home = () => {
-  return (
-    <div>
-      <Container />
-    </div>
-  );
+  return <Container />;
 };
 
 const FeatureCard = ({ iconSvg, name, desc }: any) => {
@@ -47,8 +39,12 @@ const FeatureCard = ({ iconSvg, name, desc }: any) => {
 };
 
 const Container = () => {
+  const gradientImage = require("./assets/gradient.svg");
+  const documentImage = require("./assets/document-data.svg");
+  const lightbulbImage = require("./assets/lightbulb-person.svg");
+  const rocketImage = require("./assets/rocket.svg");
   return (
-    <Box flex={1} bg="$black" h="100vh">
+    <Box flex={1} bg="$black" h="100%">
       <Box
         position="absolute"
         sx={{
@@ -62,7 +58,7 @@ const Container = () => {
           },
         }}
       >
-        <Image source={gradientImage} alt="Gradient" />
+        <Image source={gradientImage} alt="Gradient" h="100%" w="100%" />
       </Box>
       <Box
         flex={1}
@@ -98,7 +94,7 @@ const Container = () => {
             Get started by editing
           </Text>
           <Text color="$white" fontWeight="$medium" ml="$2">
-            <code>pages/index.tsx</code>
+            pages/index.tsx
           </Text>
         </Box>
         <Box
