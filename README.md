@@ -1,81 +1,68 @@
-# Turborepo starter
+# GLUESTACK-UI CLI
 
-This is an official starter Turborepo.
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-## Using this example
+> A CLI tool for easily adding components from `gluestack-ui` to your projects.
 
-Run the following command:
+- gluestack-ui offers a powerful and user-friendly Command Line Interface (CLI) for developers.
+- Simplifies the development experience and provides a streamlined workflow.
+- Includes various commands to assist with installation setup, component management, and updates.
+- Some of the commands provided by the gluestack-ui CLI are:
+  - Installation setup command: Helps with the initial setup of the gluestack-ui library.
+  - Add component command: Allows users to add components from the gluestack-ui library to their projects.
+  - Update component command: Helps users update components in their projects to newer versions available in the gluestack-ui library.
+  - Remove component command: Enables users to remove components that are no longer needed from their projects.
+- These commands help developers efficiently manage their project components and keep them up to date.
+- The gluestack-ui CLI aims to enhance the development workflow and improve productivity.
 
-```sh
-npx create-turbo@latest
-```
+## Usage
 
-## What's inside?
+To use the gluestack-ui CLI, you can run the following commands:
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+- **Initialize gluestack-ui -** This command sets up the gluestack-ui library in your project.
 
 ```
-cd my-turborepo
-pnpm build
+    npx gluestack-ui@latest init
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
+- **Initialize and add components -**: This command initializes gluestack-ui and adds the required components to your project.
 
 ```
-cd my-turborepo
-pnpm dev
+    npx gluestack-ui@latest
 ```
 
-### Remote Caching
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+- **Add a component -** Replace `<component-name>` with the name of the component you want to add or with special flag `--all` which will add all the components to your project.
 
 ```
-cd my-turborepo
-npx turbo login
+    npx gluestack-ui@latest add <component-name>
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- **Update a component -** Replace `<component-name>` with the name of the component you want to update or with special flag `--all` which will update all the components in your project.
 
 ```
-npx turbo link
+    npx gluestack-ui@latest update <component-name>
 ```
 
-## Useful Links
+- **Remove a component -** Replace `<component-name>` with the name of the component you want to remove or with special flag `--all` which will remove all the components from your project.
 
-Learn more about the power of Turborepo:
+```
+    npx gluestack-ui@latest update <component-name>
+```
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+- **Get help -** This command provides help and information about using the gluestack-ui CLI.
+
+```
+    npx gluestack-ui@latest update <component-name>
+```
+
+## Contributing
+
+Contributions are welcome! If you would like to contribute to this project, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them.
+4. Push your changes to your forked repository.
+5. Submit a pull request to the main repository.
+
+Please ensure that your code follows the project's coding conventions.
