@@ -100,7 +100,7 @@ const copyFolders = async (
   if (!specificComponentType) {
     const selectedComponentType = await multiselect({
       message: 'Select the type of components:',
-      options: Object.keys(groupedComponents).map(type => {
+      options: Object.keys(groupedComponents).map((type) => {
         return { value: type, label: type };
       }),
       required: true,
@@ -115,7 +115,7 @@ const copyFolders = async (
           if (groupedComponents[component].length !== 0) {
             const selectComponents = await multiselect({
               message: `Select ${component} components:`,
-              options: groupedComponents[component].map(type => {
+              options: groupedComponents[component].map((type) => {
                 return { value: type, label: type };
               }),
               required: true,
@@ -138,7 +138,7 @@ const copyFolders = async (
   }
 
   await Promise.all(
-    Object.keys(selectedComponents).map(component => {
+    Object.keys(selectedComponents).map((component) => {
       // createFolders(path.join(targetPath, component));
       selectedComponents[component].map((subcomponent: any) => {
         // Add Packages
@@ -208,15 +208,15 @@ const copyFolders = async (
 
         if (!isUpdate) {
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' +
-              originalComponentPath +
-              '\u001b[22m'} \x1b[0m component added successfully!`
+            `\x1b[32m✅  ${
+              '\u001b[1m' + originalComponentPath + '\u001b[22m'
+            } \x1b[0m component added successfully!`
           );
         } else {
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' +
-              originalComponentPath +
-              '\u001b[22m'} \x1b[0m component updated successfully!`
+            `\x1b[32m✅  ${
+              '\u001b[1m' + originalComponentPath + '\u001b[22m'
+            } \x1b[0m component updated successfully!`
           );
         }
       });
@@ -257,7 +257,7 @@ const checkForExistingFolders = async (
   } else if (alreadyExistingComponents.length > 0) {
     selectedComponents = await multiselect({
       message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-      options: alreadyExistingComponents.map(component => ({
+      options: alreadyExistingComponents.map((component) => ({
         label: component,
         value: component,
       })),
@@ -270,7 +270,7 @@ const checkForExistingFolders = async (
 
   // Remove repeated components from all components
   const filteredComponents = specificComponents.filter(
-    component => !alreadyExistingComponents.includes(component)
+    (component) => !alreadyExistingComponents.includes(component)
   );
 
   // Add selected components to all components
@@ -371,13 +371,12 @@ const componentAdder = async (
     }
 
     await Promise.all(
-      addComponents.map(async component => {
+      addComponents.map(async (component) => {
         const componentPath = getConfigComponentPath();
         // createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
 
         await copyFolders(sourcePath, targetPath, component, isUpdate);
-        console.log('targetPath', targetPath);
         addIndexFile(targetPath);
       })
     );
@@ -425,9 +424,9 @@ const updateConfig = async (
       newConfig
     );
     log.success(
-      `\x1b[32m✅  ${'\u001b[1m' +
-        'GluestackUIProvider' +
-        '\u001b[22m'} \x1b[0m added successfully!`
+      `\x1b[32m✅  ${
+        '\u001b[1m' + 'GluestackUIProvider' + '\u001b[22m'
+      } \x1b[0m added successfully!`
     );
   } catch (err) {
     log.error(JSON.stringify(err));
@@ -501,9 +500,9 @@ const getComponentGitRepo = async (): Promise<void> => {
 };
 
 const initialProviderAdder = async (
-  componentFolderPath: string,
-  projectType: string
-): Promise<void> => {
+  componentFolderPath: string
+  // projectType: string
+): Promise<boolean> => {
   try {
     // createFolders(path.join(currDir, componentFolderPath));
 
@@ -520,15 +519,17 @@ const initialProviderAdder = async (
 
     const targetPath = path.join(currDir, componentFolderPath);
     let configTargetPath = currDir;
-    if (projectType === 'Unknown') {
-      configTargetPath = path.join(currDir, 'src');
-    }
+    // if (projectType === 'Unknown') {
+    //   configTargetPath = path.join(currDir, 'src');
+    // }
     await addProvider(sourcePath, targetPath);
     await addConfig(sourcePath, configTargetPath);
     await updateConfig(componentFolderPath, configTargetPath);
     addIndexFile(targetPath);
+    return true;
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+    return false;
   }
 };
 

@@ -10,6 +10,7 @@ import { get } from 'http';
 import { npmPackageInstaller } from './npm-package';
 import path, { join } from 'path';
 import os from 'os';
+import { match } from 'assert';
 const getComponentRepoType = async (): Promise<string | symbol> => {
   const repoType: string | symbol = await select({
     message:
@@ -38,8 +39,8 @@ export default function App() {
 }
 `;
 
-const autoInstaller = async (folderPath: string): Promise<any> => {
-  const projectData = await projectDetector();
+const autoInstaller = async (folderPath: string): Promise<boolean> => {
+  // const projectData = await projectDetector();
   let setupTypeAutomatic = false;
   const isSrcDir = isFollowingSrcDir();
   const isSrcIncludedInPath = isStartingWithSrc(folderPath);
@@ -61,11 +62,11 @@ const autoInstaller = async (folderPath: string): Promise<any> => {
       log.warning('Component paths not updated.');
     }
   }
-  if (projectData.framework == 'Unknown' && !folderPath.includes('src')) {
-    fs.mkdirSync(path.join(process.cwd(), './src'));
-    folderPath = mergePaths(folderPath, './src');
-  }
-  await initialProviderAdder(folderPath, projectData.framework);
+  // if (projectData.framework == 'Unknown' && !folderPath.includes('src')) {
+  //   fs.mkdirSync(path.join(process.cwd(), './src'));
+  //   folderPath = mergePaths(folderPath, './src');
+  // }
+  return await initialProviderAdder(folderPath);
 
   // if (projectData.framework === 'Next') {
   //   setupTypeAutomatic = await nextInstaller(folderPath, '');
@@ -107,8 +108,7 @@ const autoSetup = async (): Promise<any> => {
       process.exit(0);
     }
 
-    await autoInstaller(folderPath);
-    return true;
+    return await autoInstaller(folderPath);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     return false;
@@ -204,6 +204,9 @@ const updateGluestackUIConfig = async (): Promise<any> => {
     let componentsPath;
     if (matches?.length) {
       componentsPath = matches[0].match(/\'(.*?)\'/gm);
+      if (componentsPath == null) {
+        componentsPath = matches[0].match(/\"(.*?)\"/gm);
+      }
     }
     // Update Gluestack UI config file
     const configFile = await fs.readFile(
@@ -222,9 +225,9 @@ const updateGluestackUIConfig = async (): Promise<any> => {
       newConfig
     );
     log.success(
-      `\x1b[32m✅  ${'\u001b[1m' +
-        'GluestackUIProvider' +
-        '\u001b[22m'} \x1b[0m added successfully!`
+      `\x1b[32m✅  ${
+        '\u001b[1m' + 'GluestackUIProvider' + '\u001b[22m'
+      } \x1b[0m added successfully!`
     );
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
@@ -233,7 +236,7 @@ const updateGluestackUIConfig = async (): Promise<any> => {
 };
 
 const installGluestackUI = async (): Promise<any> => {
-  await autoSetup();
+  return await autoSetup();
   // try {
   //   const componentsRepoType = await getComponentRepoType();
   //   if (componentsRepoType == 'local') {

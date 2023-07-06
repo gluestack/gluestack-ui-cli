@@ -46,9 +46,8 @@ async function main() {
     const askUserToInit = true;
 
     if (command === 'init') {
-      const {
-        gluestackUIConfigPresent: alreadyInitialised,
-      } = await initializer(!askUserToInit, 'init');
+      const { gluestackUIConfigPresent: alreadyInitialised } =
+        await initializer(!askUserToInit, 'init');
       if (alreadyInitialised) {
         log.info(
           `Ready to create amazing designs with ease? Let's start with the simple \x1b[36mBox\x1b[0m component. Check out \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to get started!`
@@ -68,6 +67,7 @@ async function main() {
       }
     } else if (command === 'add') {
       const { gluestackUIInstalled } = await initializer(askUserToInit, 'add');
+
       if (gluestackUIInstalled) {
         if (subCommand === '--all') {
           try {
@@ -133,10 +133,7 @@ async function main() {
         }
       }
     } else {
-      const { gluestackUIInstalled } = await initializer(
-        askUserToInit,
-        'remove'
-      );
+      const { gluestackUIInstalled } = await initializer(askUserToInit, 'init');
       if (gluestackUIInstalled) {
         await componentAdder(subCommand);
         await installDependencies();

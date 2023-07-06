@@ -118,17 +118,16 @@ const addIndexFile = (componentsDirectory: string, level = 0) => {
 
     const exports = files
       .filter(
-        file =>
+        (file) =>
           file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
       )
-      .map(file => {
+      .map((file) => {
         if (level === 0) {
           addIndexFile(`${componentsDirectory}/${file}`, level + 1);
         }
         return `export * from './${file.split('.')[0]}';`;
       })
       .join('\n');
-    console.log(exports);
     fs.writeFileSync(path.join(componentsDirectory, 'index.ts'), exports);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
