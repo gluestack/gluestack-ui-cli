@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "tsc",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint",
     "watch": "tsc --watch"
