@@ -9,6 +9,7 @@
     "cross-platform",
     "cli"
   ],
+  "private": true,
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
   "version": "0.0.2-alpha.4",
   "license": "MIT",
@@ -30,10 +31,6 @@
     "hooks": {
       "pre-commit": "tsdx lint"
     }
-  },
-  "bin": {
-    "create-expo-app-with-gluestack-ui": "dist/index.js",
-    "create-expo-app-with-gluestack-ui@latest": "dist/index.js"
   },
   "prettier": {
     "printWidth": 80,
