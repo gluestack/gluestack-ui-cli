@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-
 const args = process.argv.slice(2);
 
-let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
+let supportedArgs = ['--use-npm', '--help', '-h'];
 import path from 'path';
 import fs from 'fs';
 import {
@@ -18,15 +17,10 @@ import { spawnSync } from 'child_process';
 import { installDependencies, getArgsData } from '@gluestack/cli-utils';
 
 async function main() {
-  let argsInfo = await getArgsData(args);
-
+  let projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'template');
+  let argsInfo = getArgsData(args, supportedArgs);
   let projectName: any = argsInfo?.projectName;
   let installationMethod: any = argsInfo?.installationMethod;
-  let projectPath = path.join(
-    path.resolve(__dirname, '..'),
-    'src',
-    'page-router'
-  );
   if (projectName === '' || projectName == undefined) {
     projectName = await text({
       message: 'What is the name of your application?',
@@ -40,28 +34,6 @@ async function main() {
       cancel('Operation cancelled.');
       process.exit(0);
     }
-  }
-  const useAppRouter = await select({
-    message: 'Would you like to use App Router?',
-    options: [
-      {
-        value: 'yes',
-        label: 'yes',
-        hint: 'Next versions 13.4 and React server components support (recommended)',
-      },
-      {
-        value: 'no',
-        label: 'no',
-        hint: 'Next js page routing',
-      },
-    ],
-  });
-  if (isCancel(useAppRouter)) {
-    cancel('Operation cancelled.');
-    process.exit(0);
-  }
-  if (useAppRouter === 'yes') {
-    projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'app-router');
   }
 
   // copy directory

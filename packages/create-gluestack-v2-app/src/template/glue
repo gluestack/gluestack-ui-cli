@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+
+require('@gluestack-v2/framework-cli')([]);
