@@ -4,6 +4,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "release": "changeset publish",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "create-expo-app-with-gluestack-ui": "npm run dev --workspace create-expo-app-with-gluestack-ui",
     "create-next-app-with-gluestack-ui": "npm run dev --workspace create-next-app-with-gluestack-ui",
