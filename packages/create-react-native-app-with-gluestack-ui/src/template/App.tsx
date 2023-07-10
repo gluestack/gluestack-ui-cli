@@ -1,28 +1,23 @@
-import { GluestackUIProvider } from "./components";
-import { config } from "./gluestack-ui.config";
-import { Box, Text, Image } from "./components";
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ */
 
-const gradientImage = require("./assets/gradient.svg");
-const documentImage = require("./assets/document-data.svg");
-const lightbulbImage = require("./assets/lightbulb-person.svg");
-const rocketImage = require("./assets/rocket.svg");
-export default function App() {
-  return (
-    <GluestackUIProvider config={config.theme}>
-      <Home />
-    </GluestackUIProvider>
-  );
-}
+import React from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  useColorScheme,
+} from 'react-native';
+import {config} from './gluestack-ui.config';
 
-const Home = () => {
-  return (
-    <div>
-      <Container />
-    </div>
-  );
-};
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {Button, GluestackUIProvider, Box, Text, Image} from './components';
 
-const FeatureCard = ({ iconSvg, name, desc }: any) => {
+const FeatureCard = ({iconSvg, name, desc}: any) => {
   return (
     <Box
       flexDirection="column"
@@ -31,8 +26,7 @@ const FeatureCard = ({ iconSvg, name, desc }: any) => {
       flex={1}
       m="$2"
       p="$4"
-      rounded="$md"
-    >
+      rounded="$md">
       <Box alignItems="center" display="flex" flexDirection="row">
         <Image source={iconSvg} alt="document" width={22} height={22} />
         <Text fontSize={22} color="$white" fontWeight="500" ml="$2">
@@ -47,104 +41,134 @@ const FeatureCard = ({ iconSvg, name, desc }: any) => {
 };
 
 const Container = () => {
+  const gradientImage = require('./assets/gradient.svg');
+  const documentImage = require('./assets/document-data.svg');
+  const lightbulbImage = require('./assets/lightbulb-person.svg');
+  const rocketImage = require('./assets/rocket.svg');
   return (
-    <Box flex={1} bg="$black" h="100vh">
-      <Box
-        position="absolute"
-        sx={{
-          "@base": {
-            h: 500,
-            w: 500,
-          },
-          "@lg": {
-            h: 700,
-            w: 700,
-          },
-        }}
-      >
-        <Image source={gradientImage} alt="Gradient" />
-      </Box>
-      <Box
-        flex={1}
-        sx={{
-          "@base": {
-            my: "$16",
-            mx: "$5",
-          },
-          "@lg": {
-            my: "$24",
-            mx: "$32",
-          },
-        }}
-        alignItems="center"
-      >
+    <Box flex={1} bg="$black" h="100%">
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Box
-          bg="#64748B33"
-          py="$2"
-          px="$6"
-          rounded="$full"
-          alignItems="center"
+          position="absolute"
           sx={{
-            "@base": {
-              flexDirection: "column",
+            '@base': {
+              h: 500,
+              w: 500,
             },
-            "@sm": {
-              flexDirection: "row",
+            '@lg': {
+              h: 700,
+              w: 700,
             },
-            "@md": { alignSelf: "flex-start" },
-          }}
-        >
-          <Text color="$white" fontWeight="$normal">
-            Get started by editing
-          </Text>
-          <Text color="$white" fontWeight="$medium" ml="$2">
-            <code>pages/index.tsx</code>
-          </Text>
+          }}>
+          <Image source={gradientImage} alt="Gradient" h="100%" w="100%" />
         </Box>
         <Box
           flex={1}
-          justifyContent="center"
-          alignItems="center"
           sx={{
-            "@base": {
-              h: 20,
-              w: 300,
+            '@base': {
+              my: '$16',
+              mx: '$5',
             },
-            "@lg": {
-              h: 160,
-              w: 400,
+            '@lg': {
+              my: '$24',
+              mx: '$32',
             },
           }}
-        >
-          {/* <Image src="/logo.svg" fill alt="logo" priority /> */}
+          alignItems="center">
+          <Box
+            bg="#64748B33"
+            py="$2"
+            px="$6"
+            rounded="$full"
+            alignItems="center"
+            sx={{
+              '@base': {
+                flexDirection: 'column',
+              },
+              '@sm': {
+                flexDirection: 'row',
+              },
+              '@md': {alignSelf: 'flex-start'},
+            }}>
+            <Text color="$white" fontWeight="$normal">
+              Get started by editing
+            </Text>
+            <Text color="$white" fontWeight="$medium" ml="$2">
+              pages/index.tsx
+            </Text>
+          </Box>
+          <Box
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            sx={{
+              '@base': {
+                h: 20,
+                w: 300,
+              },
+              '@lg': {
+                h: 160,
+                w: 400,
+              },
+            }}>
+            {/* <Image src="/logo.svg" fill alt="logo" priority /> */}
+          </Box>
+          <Box
+            sx={{
+              '@base': {
+                flexDirection: 'column',
+              },
+              '@md': {
+                flexDirection: 'row',
+              },
+            }}>
+            <FeatureCard
+              iconSvg={documentImage}
+              name="Docs"
+              desc="Find in-depth information about gluestack features and API."
+            />
+            <FeatureCard
+              iconSvg={lightbulbImage}
+              name="Learn"
+              desc="Learn about gluestack in an interactive course with quizzes!"
+            />
+            <FeatureCard
+              iconSvg={rocketImage}
+              name="Deploy"
+              desc="Instantly drop your gluestack site to a shareable URL with vercel."
+            />
+          </Box>
         </Box>
-        <Box
-          sx={{
-            "@base": {
-              flexDirection: "column",
-            },
-            "@md": {
-              flexDirection: "row",
-            },
-          }}
-        >
-          <FeatureCard
-            iconSvg={documentImage}
-            name="Docs"
-            desc="Find in-depth information about gluestack features and API."
-          />
-          <FeatureCard
-            iconSvg={lightbulbImage}
-            name="Learn"
-            desc="Learn about gluestack in an interactive course with quizzes!"
-          />
-          <FeatureCard
-            iconSvg={rocketImage}
-            name="Deploy"
-            desc="Instantly drop your gluestack site to a shareable URL with vercel."
-          />
-        </Box>
-      </Box>
+      </ScrollView>
     </Box>
   );
 };
+
+function App(): JSX.Element {
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    // height: '100%',
+  };
+
+  return (
+    <SafeAreaView style={backgroundStyle}>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundStyle.backgroundColor}
+      />
+      <GluestackUIProvider config={config.theme}>
+        <Box
+          style={{
+            backgroundColor: isDarkMode ? Colors.black : Colors.white,
+          }}
+          height="100%">
+          <Container />
+        </Box>
+      </GluestackUIProvider>
+    </SafeAreaView>
+  );
+}
+
+export default App;

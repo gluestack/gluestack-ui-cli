@@ -5,14 +5,15 @@ export default styled(
   Pressable,
   {
     'h': '100%',
-    'bg': '$backgroundLight200',
+    'w': '100%',
+    'bg': '$backgroundLight300',
     'borderRadius': '$lg',
     'overflow': 'hidden',
 
     ':disabled': {},
 
     '_dark': {
-      bg: '$backgroundDark800',
+      bg: '$backgroundDark700',
     },
   },
   {}

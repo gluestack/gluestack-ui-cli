@@ -1,7 +1,5 @@
-import minimist from 'minimist';
-const args = process.argv.slice(2);
+#!/usr/bin/env node
 
-let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
 import path from 'path';
 import fs from 'fs';
 import {
@@ -15,6 +13,9 @@ import {
 import { select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
 
+const args = process.argv.slice(2);
+
+let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
 function installDependencies(projectName: string, installationMethod: string) {
   const projectPath = path.join(process.cwd(), projectName);
   // try {

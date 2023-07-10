@@ -1,5 +1,5 @@
 {
-  "name": "create-react-native-app-with-gluestack-ui",
+  "name": "create-rn-app-with-gluestack-ui",
   "keywords": [
     "react",
     "react-native",
@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.0.2-alpha.4",
+  "version": "0.1.2",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -32,8 +32,7 @@
     }
   },
   "bin": {
-    "create-expo-app-with-gluestack-ui": "dist/index.js",
-    "create-expo-app-with-gluestack-ui@latest": "dist/index.js"
+    "create-react-native-app-with-gluestack-ui": "dist/index.js"
   },
   "prettier": {
     "printWidth": 80,

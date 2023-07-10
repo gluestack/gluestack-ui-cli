@@ -1,32 +1,79 @@
-This is a [Next.js](https://github.com/expo/expo) + [Gluestack-ui](https://ui.gluestack.io/) project template bootstrapped with [`create-expo-app`](https://docs.expo.dev/get-started/create-a-project/).
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-## Getting Started
+# Getting Started
 
-First, run the development server:
+>**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+
+## Step 1: Start the Metro Server
+
+First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+
+To start Metro, run the following command from the _root_ of your React Native project:
 
 ```bash
-# For web
-yarn web
-# For ios
-yarn ios
-# For android
+# using npm
+npm start
+
+# OR using Yarn
+yarn start
+```
+
+## Step 2: Start your Application
+
+Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+
+### For Android
+
+```bash
+# using npm
+npm run android
+
+# OR using Yarn
 yarn android
 ```
 
-You can start editing the page by modifying `App.tsx`. The page auto-updates as you edit the file.
+### For iOS
 
-This project uses [`@gluestack-ui`](https://ui.gluestack.io/docs/overview/introduction) library that provides optionally styled and accessible components. These components are designed for easy integration into applications developed with React and React Native.
+```bash
+# using npm
+npm run ios
 
+# OR using Yarn
+yarn ios
+```
 
-## Learn More
+If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
 
-To learn more about Expo + Gluestack UI template, take a look at the following resources:
+This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
 
-- [Expo Documentation](https://github.com/expo/expo) - learn about Expo features and API.
-- [Gluestack UI Documenatation](https://ui.gluestack.io/docs/overview/introduction) - learn about core concepts and architecture of gluestack-ui.
-- [Gluestack Style Documentaion](https://style.gluestack.io/docs/overview/introduction) - learn about the universal styling library that is used in Gluestack-ui
+## Step 3: Modifying your App
 
-You can check out:
-- [the gluestack-ui GitHub repository](https://github.com/gluestack/gluestack-ui)
-- [the gluestack-style GitHub repository](https://github.com/gluestack/gluestack-style)
-Your feedback and contributions are welcome!
+Now that you have successfully run the app, let's modify it.
+
+1. Open `App.tsx` in your text editor of choice and edit some lines.
+2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+
+   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

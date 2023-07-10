@@ -1,4 +1,5 @@
-import minimist from 'minimist';
+#!/usr/bin/env node
+
 const args = process.argv.slice(2);
 
 let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
