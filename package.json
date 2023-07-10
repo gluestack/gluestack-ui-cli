@@ -25,6 +25,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@changesets/cli": "^2.26.2",
     "@types/minimist": "^1.2.2",
     "minimist": "^1.2.8"
   }
