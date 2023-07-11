@@ -12,10 +12,30 @@ import {
   spinner,
   text,
 } from '@clack/prompts';
+import prettier from 'prettier';
 import { select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
 import { installDependencies, getArgsData } from '@gluestack/cli-utils';
 
+async function updatePackageJson(projectName: any) {
+  let packageJson = JSON.parse(
+    fs.readFileSync(
+      path.join(process.cwd(), projectName, 'package.json'),
+      'utf-8'
+    )
+  );
+  packageJson.name = projectName;
+
+  const finalPackageJson = await prettier.format(JSON.stringify(packageJson), {
+    semi: false,
+    parser: 'json-stringify',
+  });
+  fs.writeFileSync(
+    path.join(process.cwd(), projectName, 'package.json'),
+    // JSON.stringify(packageJson)
+    finalPackageJson
+  );
+}
 async function main() {
   let projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'template');
   let argsInfo = getArgsData(args, supportedArgs);
@@ -45,6 +65,7 @@ async function main() {
       installationMethod == undefined ? 'npm install' : installDependencies
     } \x1b!`
   );
+  updatePackageJson(projectName);
 
   installDependencies(
     projectName,

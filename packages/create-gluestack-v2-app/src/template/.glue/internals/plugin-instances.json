@@ -5,24 +5,5 @@
       "directory": "./develop",
       "container_store": {}
     }
-  ],
-  "@gluestack-v2/glue-plugin-sdk": [
-    {
-      "instance": "sdk",
-      "directory": "./sdk",
-      "container_store": {}
-    }
-  ],
-  "@gluestack-v2/glue-plugin-web": [
-    {
-      "instance": "web",
-      "directory": "./client/web",
-      "container_store": {}
-    },
-    {
-      "instance": "website",
-      "directory": "./client/website",
-      "container_store": {}
-    }
   ]
 }

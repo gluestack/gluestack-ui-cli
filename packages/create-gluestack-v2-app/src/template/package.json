@@ -1,11 +1,10 @@
 {
   "name": "framework-cli",
-  "version": "0.0.1",
-  "description": "Gluestack V2 Framework CLI Project",
+  "version": "0.1.0",
+  "description": "Gluestack V2 App",
   "main": "index",
   "scripts": {
-    "install:all": "npm install --workspaces --if-present",
-    "build:plugins": "npm run build --workspaces --if-present"
+    "install:all": "npm install --workspaces --if-present"
   },
   "repository": {
     "type": "git",
@@ -35,7 +34,6 @@
     "source-map": "^0.7.4"
   },
   "workspaces": [
-    "client/website"
   ],
   "dependencies": {
     "@gluestack-v2/framework-cli": "^0.1.1",
