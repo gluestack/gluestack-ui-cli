@@ -24,6 +24,10 @@ function installDependencies(projectName: string, installationMethod: string) {
   // } catch (error) {
   //   console.error(`Error executing yarn: ${error}`);
   // }
+  process.on('SIGINT', function () {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  });
 
   const s = spinner();
   s.start('⏳ Installing dependencies...');
