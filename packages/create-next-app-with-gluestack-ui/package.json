@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.1",
+  "version": "0.1.9",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -54,6 +54,7 @@
     "@size-limit/preset-small-lib": "^8.2.4",
     "@types/find-package-json": "^1.2.3",
     "@types/fs-extra": "^11.0.1",
+    "@types/minimist": "^1.2.2",
     "@types/node": "^18.16.16",
     "husky": "^8.0.3",
     "jest": "^29.5.0",
