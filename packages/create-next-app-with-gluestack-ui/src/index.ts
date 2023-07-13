@@ -129,12 +129,12 @@ async function main() {
       options: [
         {
           value: 'no',
-          label: 'no',
+          label: 'No',
           hint: 'Next js page routing',
         },
         {
           value: 'yes',
-          label: 'yes',
+          label: 'Yes',
           hint: 'Next versions 13.4 and React server components support (Experimental)',
         },
       ],
