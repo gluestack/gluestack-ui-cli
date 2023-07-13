@@ -22,4 +22,5 @@ jobs:
       - name: Install dependencies (prevent updates to lock file)
         run: yarn install --frozen-lockfile
       - name: Creating Build
+        working-directory: packages/create-next-app-with-gluestack-ui
         run: yarn build
