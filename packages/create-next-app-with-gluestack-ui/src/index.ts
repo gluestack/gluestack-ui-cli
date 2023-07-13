@@ -2,7 +2,7 @@
 import minimist from 'minimist';
 const args = process.argv.slice(2);
 
-let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
+let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm','--app','--page'];
 import path from 'path';
 import fs from 'fs';
 import {
@@ -52,8 +52,13 @@ function installDependencies(projectName: string, installationMethod: string) {
 }
 
 async function main() {
+  process.on('SIGINT', function () {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  });
   let projectName: any = '',
     installationMethod = 'npm install';
+  let useAppRouter;
   if (args.length > 0) {
     if (!(args[0].startsWith('-') || args[0].startsWith('--'))) {
       if (typeof args[0] === 'string') {
@@ -82,6 +87,10 @@ async function main() {
         installationMethod = 'yarn';
       } else if (args[i] === '--use-pnpm') {
         installationMethod = 'pnpm i --lockfile-only';
+      } else if (args[i] === '--app') {
+        useAppRouter = 'yes';
+      } else if (args[i] === '--page') {
+        useAppRouter = 'no';
       }
     } else {
       log.warning(
@@ -113,25 +122,29 @@ async function main() {
       process.exit(0);
     }
   }
-  const useAppRouter = await select({
-    message: 'Would you like to use App Router?',
-    options: [
-      {
-        value: 'no',
-        label: 'no',
-        hint: 'Next js page routing',
-      },
-      {
-        value: 'yes',
-        label: 'yes',
-        hint: 'Next versions 13.4 and React server components support (Experimental)',
-      },
-    ],
-  });
-  if (isCancel(useAppRouter)) {
-    cancel('Operation cancelled.');
-    process.exit(0);
+
+  if (!useAppRouter) {
+    useAppRouter = await select({
+      message: 'Would you like to use App Router?',
+      options: [
+        {
+          value: 'no',
+          label: 'no',
+          hint: 'Next js page routing',
+        },
+        {
+          value: 'yes',
+          label: 'yes',
+          hint: 'Next versions 13.4 and React server components support (Experimental)',
+        },
+      ],
+    });
+    if (isCancel(useAppRouter)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
   }
+  
   if (useAppRouter === 'yes') {
     projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'app-router');
   }
