@@ -113,14 +113,14 @@ async function main() {
     message: 'Would you like to use App Router?',
     options: [
       {
-        value: 'yes',
-        label: 'yes',
-        hint: 'Next versions 13.4 and React server components support (recommended)',
-      },
-      {
         value: 'no',
         label: 'no',
         hint: 'Next js page routing',
+      },
+      {
+        value: 'yes',
+        label: 'yes',
+        hint: 'Next versions 13.4 and React server components support (Experimental)',
       },
     ],
   });
