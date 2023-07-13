@@ -42,7 +42,7 @@ function installDependencies(projectName: string, installationMethod: string) {
         shell: true,
       }
     );
-    s.stop(`\x1b[32mDependencies have been installed successfully.\x1b[0m`);
+    s.stop(`\x1b[32mSuccess! Created ${projectName} at ${projectPath}\x1b[0m`);
   } catch (err) {
     log.error(`\x1b[31mError: ${err}\x1b[0m`);
     log.error('\x1b[31mError installing dependencies:\x1b[0m');
@@ -110,7 +110,7 @@ async function main() {
   );
   if (projectName === '') {
     projectName = await text({
-      message: 'What is the name of your application?',
+      message: 'What is the \x1b[36m name \x1b[36m of your application?',
       placeholder: 'my-app',
       defaultValue: 'my-app',
       // validate(value) {
@@ -125,7 +125,7 @@ async function main() {
 
   if (!useAppRouter) {
     useAppRouter = await select({
-      message: 'Would you like to use App Router?',
+      message: 'Would you like to use \x1b[36mApp Router?\x1b[36m',
       options: [
         {
           value: 'no',
