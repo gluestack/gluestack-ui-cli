@@ -1,17 +1,19 @@
-name: Create Next App with Gluestack UI
+name: Gluestack UI
 
 on:
   push:
     branches:
+      - main
       - development
   pull_request:
     branches:
+      - main
       - development
   schedule:
     - cron: "0 */4 * * *"
 
 jobs:
-  create-next-app-with-gluestack-ui:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,12 +23,12 @@ jobs:
           node-version: "18.x"
       - name: Install dependencies (prevent updates to lock file)
         run: yarn install --frozen-lockfile
-      - name: Building create-next-app-with-gluestack-ui
-        working-directory: packages/create-next-app-with-gluestack-ui
+      - name: Building
+        working-directory: packages/gluestack-ui
         run: yarn build
-      - name: Testing create-next-app-with-gluestack-ui
-        working-directory: packages/create-next-app-with-gluestack-ui
-        run: yarn build
+      - name: Testing
+        working-directory: packages/gluestack-ui
+        run: yarn test
       - name: Notify Success
         if: success()
         env:
@@ -34,7 +36,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: C05HK6WEE56
-          status: SUCCESS
+          status: SUCCESS by @${{ github.actor}}
           color: good
       - name: Notify Failure
         if: failure()
@@ -43,5 +45,5 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: C05HK6WEE56
-          status: FAILED
+          status: FAILED by @${{ github.actor}}
           color: danger
