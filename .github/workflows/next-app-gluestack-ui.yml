@@ -1,0 +1,25 @@
+name: Create Next App with Gluestack UI
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - development
+  schedule:
+    - cron: "0 */4 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js v18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+      - name: Install dependencies (prevent updates to lock file)
+        run: yarn install --frozen-lockfile
+      - name: Creating Build
+        run: yarn build
