@@ -23,7 +23,7 @@ jobs:
           node-version: "18.x"
       - name: Install dependencies (prevent updates to lock file)
         working-directory: packages/gluestack-ui
-        run: yarnfile
+        run: yarn
       - name: Building
         working-directory: packages/gluestack-ui
         run: yarn build
