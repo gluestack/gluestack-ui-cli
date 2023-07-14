@@ -15,6 +15,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      working-directory: packages/utils
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js v18.x
@@ -22,13 +24,13 @@ jobs:
         with:
           node-version: "18.x"
       - name: Install dependencies (prevent updates to lock file)
-        working-directory: packages/utils
+        working-directory: ${{ env.working-directory }}
         run: yarn
       - name: Building
-        working-directory: packages/utils
+        working-directory: ${{ env.working-directory }}
         run: yarn build
       - name: Testing
-        working-directory: packages/utils
+        working-directory: ${{ env.working-directory }}
         run: yarn test
       - name: Notify Success
         if: success()
