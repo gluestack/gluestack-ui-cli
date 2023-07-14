@@ -23,7 +23,7 @@ jobs:
           node-version: "18.x"
       - name: Install dependencies (prevent updates to lock file)
         working-directory: packages/create-next-app-with-gluestack-ui
-        run: yarn
+        run: yarn --frozen-lockfile
       - name: Building
         working-directory: packages/create-next-app-with-gluestack-ui
         run: yarn build

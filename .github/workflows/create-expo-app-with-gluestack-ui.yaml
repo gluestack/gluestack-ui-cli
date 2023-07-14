@@ -1,4 +1,4 @@
-name: Create Gluestack V2 App
+name: Create Expo App with Gluestack UI
 
 on:
   push:
@@ -22,12 +22,13 @@ jobs:
         with:
           node-version: "18.x"
       - name: Install dependencies (prevent updates to lock file)
-        run: yarn install --frozen-lockfile
+        working-directory: packages/create-expo-app-with-gluestack-ui
+        run: yarn --frozen-lockfile
       - name: Building
-        working-directory: packages/create-gluestack-v2-app
+        working-directory: packages/create-expo-app-with-gluestack-ui
         run: yarn build
       - name: Testing
-        working-directory: packages/create-gluestack-v2-app
+        working-directory: packages/create-expo-app-with-gluestack-ui
         run: yarn test
       - name: Notify Success
         if: success()
