@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: "18.x"
       - name: Install dependencies (prevent updates to lock file)
+        working-directory: packages/utils
         run: yarn
       - name: Building
         working-directory: packages/utils
