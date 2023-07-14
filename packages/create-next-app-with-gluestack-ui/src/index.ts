@@ -14,7 +14,6 @@ import {
   text,
 } from '@clack/prompts';
 import { select } from '@clack/prompts';
-import { spawnSync } from 'child_process';
 import { installDependencies, getArgsData } from '@gluestack/cli-utils';
 
 async function main() {
