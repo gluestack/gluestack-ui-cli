@@ -41,10 +41,10 @@ describe('Next.js Command: npx create-next-app-with-gluestack-ui@latest', () => 
       const child = spawn(
         `npx create-next-app-with-gluestack-ui@latest ${APP_NAME} --page`, {
          cwd: nextAppRootDirectory,
-          stdio: 'inherit',
           shell: true,
         }
       );
+
 
       child.stdout.on('data',async function(data) {
         console.log(data.toString());
@@ -115,6 +115,7 @@ describe('Next.js Command: npx create-next-app-with-gluestack-ui@latest', () => 
     appProcess.on('error', function(error) {
       console.log(error);
     });
+
 
     while (!nextServerStarted) {
       await promisify(setTimeout)(1000);
