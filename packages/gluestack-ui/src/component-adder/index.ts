@@ -16,14 +16,7 @@ import {
   getPackageJsonPath,
 } from '../utils';
 
-import {
-  isCancel,
-  cancel,
-  confirm,
-  multiselect,
-  spinner,
-  log,
-} from '@clack/prompts';
+import { isCancel, cancel, confirm, spinner, log } from '@clack/prompts';
 const prompts = require('prompts');
 
 import { addDependencies } from '../installer/utils';
@@ -59,7 +52,6 @@ const copyFolders = async (
 ): Promise<void> => {
   const groupedComponents: Record<string, string[]> = {};
   let specificComponentType: string | undefined;
-  console.log(specificComponent, "  nnnn>>>>>>>>>>>>>> >>>>")
 
   //  Traverse all components
   try {
@@ -92,9 +84,7 @@ const copyFolders = async (
 
         if (sourceComponent.toLowerCase() === specificComponent.toLowerCase()) {
           specificComponentType = componentType;
-
         }
-
       }
     });
   } catch (err) {
@@ -102,8 +92,6 @@ const copyFolders = async (
     return;
   }
   let selectedComponents: any = [];
-
-  console.log(specificComponentType, ">>>>>>>>>>>>>>")
 
   // Ask component type
   if (!specificComponentType) {
@@ -118,8 +106,8 @@ const copyFolders = async (
             return { value: type, title: type };
           }),
           validate: (value: any) => value.length > 0,
-          instructions: false
-        }
+          instructions: false,
+        },
       ]);
 
       selectedComponentType = selectedComponent.value;
@@ -142,9 +130,8 @@ const copyFolders = async (
                 choices: groupedComponents[component].map((type) => {
                   return { title: type, value: type };
                 }),
-                instructions: false
-
-              }
+                instructions: false,
+              },
             ]);
 
             const selectComponentsValue = selectComponents.value;
@@ -244,12 +231,14 @@ const copyFolders = async (
 
         if (!isUpdate) {
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' + originalComponentPath + '\u001b[22m'
+            `\x1b[32m✅  ${
+              '\u001b[1m' + originalComponentPath + '\u001b[22m'
             } \x1b[0m component added successfully!`
           );
         } else {
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' + originalComponentPath + '\u001b[22m'
+            `\x1b[32m✅  ${
+              '\u001b[1m' + originalComponentPath + '\u001b[22m'
             } \x1b[0m component updated successfully!`
           );
         }
@@ -294,28 +283,20 @@ const checkForExistingFolders = async (
         type: 'multiselect',
         name: 'value',
         message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-        options: alreadyExistingComponents.map((component) => ({
-          label: component,
+        choices: alreadyExistingComponents.map((component) => ({
+          title: component,
           value: component,
         })),
-        validate: (value: any) => value.length > 0,
-        instructions: false
-      }
+        instructions: false,
+      },
     ]);
+
     selectedComponents = selectComponentsValue.value;
 
-
-    // selectedComponents = await multiselect({
-    //   message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-    //   options: alreadyExistingComponents.map((component) => ({
-    //     label: component,
-    //     value: component,
-    //   })),
-    // });
-    // if (isCancel(selectedComponents)) {
-    //   cancel('Operation cancelled.');
-    //   process.exit(0);
-    // }
+    if (isCancel(selectedComponents)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
+    }
   }
 
   // Remove repeated components from all components
@@ -381,8 +362,8 @@ const componentAdder = async (
   ) {
     log.error(
       '\x1b[32m' +
-      `The ${requestedComponent} does not exists. Kindly choose from the below list.` +
-      '\x1b[0m'
+        `The ${requestedComponent} does not exists. Kindly choose from the below list.` +
+        '\x1b[0m'
     );
   }
   try {
@@ -401,13 +382,11 @@ const componentAdder = async (
     let requestedComponents: string[] = [];
     let addComponents: string[] = [];
 
-
     if (requestedComponent === '--all') {
       requestedComponents = getAllComponents(sourcePath);
     } else {
       requestedComponents.push(requestedComponent);
     }
-
 
     if (
       !existingComponentsChecked &&
@@ -428,7 +407,6 @@ const componentAdder = async (
         // createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
 
-        console.log(component, addComponents, requestedComponents, 'sldkfjslkdfjsdlkjflskdjf >>>>>')
         await copyFolders(sourcePath, targetPath, component, isUpdate);
         addIndexFile(targetPath);
       })
@@ -477,7 +455,8 @@ const updateConfig = async (
       newConfig
     );
     log.success(
-      `\x1b[32m✅  ${'\u001b[1m' + 'GluestackUIProvider' + '\u001b[22m'
+      `\x1b[32m✅  ${
+        '\u001b[1m' + 'GluestackUIProvider' + '\u001b[22m'
       } \x1b[0m added successfully!`
     );
   } catch (err) {
