@@ -1,0 +1,23 @@
+name: Scheduled Tests
+on:
+  push:
+    branches:
+      - feat/test-cases
+  schedule:
+    - cron: '*/5 * * * *' # Runs every 5 minutes
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          # Insert your test command here
+          # For example:
+          # npm install
+          # npm test
