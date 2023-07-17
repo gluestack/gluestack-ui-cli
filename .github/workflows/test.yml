@@ -1,29 +1,22 @@
-name: Schedule Cron Job with Conditional Execution
+name: Cron Job
+
 on:
-  schedule:
-    - cron: '*/1 * * * *' # Runs the job every 5 minutes
   push:
     branches:
       - feat/test-github-action
 
+  schedule:
+    - cron: '*/1 * * * *'
+
 jobs:
-  build:
+  cron:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Check for new push to demo branch
-        id: check_push
-        run: echo ::set-output name=push::$(if git diff --name-only HEAD^..HEAD | grep -q "demo/"; then echo "true"; else echo "false"; fi)
-
-      - name: Run your cron job here
-        # Add your commands or actions to be executed every 5 minutes unless there's a new push to "demo" branch
+      # Add your desired steps here
+      - name: Your Job Step
         run: |
-          if [[ "${{ steps.check_push.outputs.push }}" == "false" ]]; then
-            echo "Running the cron job every 5 minutes";
-            # Add your commands here, e.g., npm install, build, deploy, etc.
-          else
-            echo "There's a new push to demo branch. Stopping further scheduled runs.";
-          fi
+          echo 1
