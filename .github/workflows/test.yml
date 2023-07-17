@@ -1,42 +1,29 @@
-name: Create Next App with Gluestack UI
-
+name: Schedule Cron Job with Conditional Execution
 on:
+  schedule:
+    - cron: '*/1 * * * *' # Runs the job every 5 minutes
   push:
     branches:
       - feat/test-github-action
-  schedule:
-    - cron: '*/1 * * * *'
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    env:
-      working-directory: packages/create-next-app-with-gluestack-ui
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js v18.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-      - name: Echo Name
-        run: echo "TESTING SCHEDULING"
-      - name: Notify Success
-        if: success()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C05H7DKL3SR
-          # channel_id: C05HK6WEE56
-          status: SUCCESS by @${{ github.actor}}
-          color: good
-      - name: Notify Failure
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C05H7DKL3SR
-          # channel_id: C05HK6WEE56
-          status: FAILED by @${{ github.actor}}
-          color: danger
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for new push to demo branch
+        id: check_push
+        run: echo ::set-output name=push::$(if git diff --name-only HEAD^..HEAD | grep -q "demo/"; then echo "true"; else echo "false"; fi)
+
+      - name: Run your cron job here
+        # Add your commands or actions to be executed every 5 minutes unless there's a new push to "demo" branch
+        run: |
+          if [[ "${{ steps.check_push.outputs.push }}" == "false" ]]; then
+            echo "Running the cron job every 5 minutes";
+            # Add your commands here, e.g., npm install, build, deploy, etc.
+          else
+            echo "There's a new push to demo branch. Stopping further scheduled runs.";
+          fi
