@@ -4,7 +4,7 @@ on:
     branches:
       - feat/test-cases
   schedule:
-    - cron: '*/5 * * * *' # Runs every 5 minutes
+    - cron: '*/1 * * * *' # Runs every 5 minutes
 
 jobs:
   test:
@@ -12,8 +12,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v3
+      - name: Use Node.js v18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
       - name: Run tests
         run: |
           echo "Running tests..."
