@@ -46,7 +46,6 @@
   },
   "author": "mayank-96",
   "dependencies": {
-    "@changesets/cli": "^2.26.2",
     "@clack/prompts": "^0.6.3",
     "@gluestack/cli-utils": "^0.1.1",
     "@types/minimist": "^1.2.2",

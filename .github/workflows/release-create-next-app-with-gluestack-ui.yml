@@ -26,22 +26,23 @@ jobs:
           yarn
           yarn build
 
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: yarn release
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Create Release Pull Request or Publish to npm
+      #   id: changesets
+      #   uses: changesets/action@v1
+      #   with:
+      #     publish: yarn release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Post to a Slack channel
         id: slack
         if: steps.changesets.outputs.published == 'true'
         uses: slackapi/slack-github-action@v1.23.0
         with:
-          channel-id: C05HGN9LFV0
-          slack-message: "A new package was published in ${{ github.event.repository.name }}!\n${{ toJSON(steps.changesets.outputs.publishedPackages) }}"
+          channel-id: C05H3MUMPN3
+          # slack-message: "A new package was published in ${{ github.event.repository.name }}!\n${{ toJSON(steps.changesets.outputs.publishedPackages) }}"
+          slack-message: "A new package was published in ${{ github.event.repository.name }}!
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

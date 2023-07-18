@@ -16,6 +16,7 @@ const options = '--page';
 
 const NEXT_PORT = '3040';
 const nextAppUrl = `http://localhost:${NEXT_PORT}`;
+
 const isProduction = process.argv.includes('--isProduction=true');
 
 describe('Create Next.js app with page router:', () => {
