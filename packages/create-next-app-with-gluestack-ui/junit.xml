@@ -1,15 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="2" failures="1" errors="0" time="5.217">
-  <testsuite name="Create Next.js app with app router:" errors="0" failures="1" skipped="0" timestamp="2023-07-18T06:42:45" time="5.143" tests="2">
-    <testcase classname="Create Next.js app with app router: Create a Next.js app with npx" name="Create Next.js app with app router: Create a Next.js app with npx" time="4.035">
-      <failure>Error: expect(received).toBe(expected) // Object.is equality
-
-Expected: true
-Received: false
-    at Object.toBe (/Users/suraj/Sites/projects/gluestack/gluestack-ui-cli/packages/create-next-app-with-gluestack-ui/__tests__/integration/next-app-router.test.js:33:36)
-    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
-    </testcase>
-    <testcase classname="Create Next.js app with app router: Start and check if Next.js app is running" name="Create Next.js app with app router: Start and check if Next.js app is running" time="0">
-    </testcase>
-  </testsuite>
+<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0.681">
 </testsuites>
