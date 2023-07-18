@@ -9,20 +9,26 @@ function cleanAppDirectory(nextAppRootDirectory, APP_NAME) {
     shell: true,
   });
 }
-function createProject(nextAppRootDirectory, APP_NAME, options) {
+function createProject(
+  nextAppRootDirectory,
+  APP_NAME,
+  options,
+  isProduction = false
+) {
   console.log(`Removing any existing ${APP_NAME} directory...`);
   cleanAppDirectory(nextAppRootDirectory, APP_NAME);
   // Clone the my-next-app Git repository
-  console.log('create app using cli...', nextAppRootDirectory);
+
+  const createrCommand = isProduction
+    ? `npx create-next-app-with-gluestack-ui@latest`
+    : 'yarn dev';
+  console.log('create app using cli with... ', createrCommand);
 
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      `npx create-next-app-with-gluestack-ui@latest ${APP_NAME} ${options}`,
-      {
-        cwd: nextAppRootDirectory,
-        shell: true,
-      }
-    );
+    const child = spawn(`${createrCommand} ${APP_NAME} ${options}`, {
+      cwd: nextAppRootDirectory,
+      shell: true,
+    });
 
     child.stdout.on('data', async function (data) {
       console.log(data.toString());

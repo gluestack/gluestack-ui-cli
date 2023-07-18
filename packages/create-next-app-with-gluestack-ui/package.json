@@ -25,8 +25,9 @@
     "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
+    "test:production": "jest --isProduction=true",
     "test": "jest",
-    "dev": "node dist/index.js"
+    "dev": "yarn build && node dist/index.js"
   },
   "husky": {
     "hooks": {
