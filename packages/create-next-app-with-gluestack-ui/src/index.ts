@@ -1,8 +1,7 @@
 #! /usr/bin/env node
-import minimist from 'minimist';
 const args = process.argv.slice(2);
 
-let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm','--app','--page'];
+let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm', '--app', '--page'];
 import path from 'path';
 import fs from 'fs';
 import {
@@ -144,7 +143,7 @@ async function main() {
       process.exit(0);
     }
   }
-  
+
   if (useAppRouter === 'yes') {
     projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'app-router');
   }
