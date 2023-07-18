@@ -27,7 +27,8 @@
     "prepare": "tsc",
     "test:production": "jest --isProduction=true",
     "test": "jest",
-    "dev": "node dist/index.js"
+    "dev": "node dist/index.js",
+    "release": "changeset publish"
   },
   "husky": {
     "hooks": {
@@ -45,6 +46,7 @@
   },
   "author": "mayank-96",
   "dependencies": {
+    "@changesets/cli": "^2.26.2",
     "@clack/prompts": "^0.6.3",
     "@gluestack/cli-utils": "^0.1.1",
     "@types/minimist": "^1.2.2",

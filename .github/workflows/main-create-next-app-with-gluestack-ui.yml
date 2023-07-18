@@ -1,12 +1,6 @@
-name: Create Next App with Gluestack UI (isProduction)
+name: Create Next App with Gluestack UI (isProduction | @latest)
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   schedule:
     - cron: "0 */4 * * *"
 
