@@ -9,7 +9,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref || github.run_id }}
 
 jobs:
   release:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged
+    # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged
     name: Publish version
     runs-on: ubuntu-latest
     steps:
