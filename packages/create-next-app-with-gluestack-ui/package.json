@@ -27,7 +27,7 @@
     "prepare": "tsc",
     "test:production": "jest --isProduction=true",
     "test": "jest",
-    "dev": "yarn build && node dist/index.js"
+    "dev": "node dist/index.js"
   },
   "husky": {
     "hooks": {

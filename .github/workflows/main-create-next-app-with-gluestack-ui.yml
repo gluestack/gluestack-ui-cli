@@ -1,4 +1,4 @@
-name: Create Next App with Gluestack UI
+name: Create Next App with Gluestack UI (isProduction)
 
 on:
   push:
@@ -24,12 +24,9 @@ jobs:
       - name: Install dependencies (prevent updates to lock file)
         working-directory: ${{ env.working-directory }}
         run: yarn
-      - name: Building
+      - name: Testing Production
         working-directory: ${{ env.working-directory }}
-        run: yarn build
-      - name: Testing
-        working-directory: ${{ env.working-directory }}
-        run: yarn test
+        run: yarn test:production
       - name: Notify Failure
         if: failure()
         env:
