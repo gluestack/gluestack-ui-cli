@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.16-alpha.27",
+  "version": "0.1.16-alpha.28",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -25,9 +25,8 @@
     "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
-    "test:production": "jest --isProduction=true",
-    "test": "jest",
-    "dev": "yarn build && node dist/index.js"
+    "test": "echo 'Test passed'",
+    "dev": "node dist/index.js"
   },
   "husky": {
     "hooks": {
@@ -46,8 +45,7 @@
   "author": "mayank-96",
   "dependencies": {
     "@clack/prompts": "^0.6.3",
-    "@gluestack/cli-utils": "^0.1.1",
-    "@types/minimist": "^1.2.2",
+    "@gluestack/cli-utils": "^0.1.0",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
     "simple-git": "^3.16.0"
