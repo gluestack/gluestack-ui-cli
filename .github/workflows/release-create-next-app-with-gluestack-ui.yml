@@ -42,7 +42,7 @@ jobs:
         with:
           channel-id: C05H3MUMPN3
           # slack-message: "A new package was published in ${{ github.event.repository.name }}!\n${{ toJSON(steps.changesets.outputs.publishedPackages) }}"
-          slack-message: "A new package was published in ${{ github.event.repository.name }}!
+          slack-message: "A new package was published in ${{ github.event.repository.name }}!"
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
