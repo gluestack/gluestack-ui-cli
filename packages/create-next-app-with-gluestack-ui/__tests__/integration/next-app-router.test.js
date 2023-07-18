@@ -21,8 +21,6 @@ const isProduction = process.argv.includes('--isProduction=true');
 
 describe('Create Next.js app with app router:', () => {
   let appProcess;
-  console.log(process.argv, 'hewheheh');
-
   beforeAll(async () => {
     cleanUpPort(nextAppRootDirectory, NEXT_PORT);
   }, 200000);

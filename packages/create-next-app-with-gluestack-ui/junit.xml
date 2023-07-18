@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0.681">
+<testsuites name="jest tests" tests="4" failures="0" errors="0" time="106.606">
+  <testsuite name="Create Next.js app with page router:" errors="0" failures="0" skipped="0" timestamp="2023-07-18T12:22:49" time="96.469" tests="2">
+    <testcase classname="Create Next.js app with page router: Create a Next.js app with npx" name="Create Next.js app with page router: Create a Next.js app with npx" time="53.128">
+    </testcase>
+    <testcase classname="Create Next.js app with page router: Start and check if Next.js app is running" name="Create Next.js app with page router: Start and check if Next.js app is running" time="25.085">
+    </testcase>
+  </testsuite>
+  <testsuite name="Create Next.js app with app router:" errors="0" failures="0" skipped="0" timestamp="2023-07-18T12:22:49" time="106.017" tests="2">
+    <testcase classname="Create Next.js app with app router: Create a Next.js app with npx" name="Create Next.js app with app router: Create a Next.js app with npx" time="53.438">
+    </testcase>
+    <testcase classname="Create Next.js app with app router: Start and check if Next.js app is running" name="Create Next.js app with app router: Start and check if Next.js app is running" time="32.663">
+    </testcase>
+  </testsuite>
 </testsuites>
