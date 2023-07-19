@@ -14,16 +14,18 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+
       - name: Set up Node.js v18.x
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+
       - name: Install dependencies (prevent updates to lock file)
         run: yarn
-      - name: Install dependencies (prevent updates to lock file)
-        run: yarn
-      - name: Log in to npm
-        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+      # - name: Log in to npm
+      #   run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
       - name: Publish to npm
         id: changesets
         uses: changesets/action@v1
@@ -32,6 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.GLUESTACK_ADMIN_NPM_TOKEN }}
+
       - name: Post to a Slack channel
         id: slack
         if: steps.changesets.outputs.published == 'true'
