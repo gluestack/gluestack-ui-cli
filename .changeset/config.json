@@ -7,13 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "next",
-    "create-expo-app-with-gluestack-ui",
-    "create-gluestack-v2-app",
-    "create-rn-app-with-gluestack-ui",
-    "create-ui-library-with-gluestack-ui",
-    "gluestack-ui",
-    "@gluestack/cli-utils"
-  ]
+  "ignore": []
 }
