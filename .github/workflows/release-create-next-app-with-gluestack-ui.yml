@@ -22,8 +22,6 @@ jobs:
         run: yarn
       - name: Install dependencies (prevent updates to lock file)
         run: yarn
-      - name: Building
-        run: yarn build
       - name: Publish to npm
         id: changesets
         uses: changesets/action@v1
