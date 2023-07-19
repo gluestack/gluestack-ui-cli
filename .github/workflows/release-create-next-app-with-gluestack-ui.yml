@@ -26,7 +26,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: yarn release
+          publish: yarn publish --tag latest --new-version 0.1.18
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.GLUESTACK_ADMIN_NPM_TOKEN }}
