@@ -18,6 +18,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+      - name: Install dependencies (prevent updates to lock file)
+        run: yarn
+      - name: Install dependencies (prevent updates to lock file)
+        run: yarn
+      - name: Building
+        run: yarn build
       - name: Publish to npm
         id: changesets
         uses: changesets/action@v1
