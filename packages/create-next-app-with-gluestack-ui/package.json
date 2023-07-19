@@ -27,8 +27,7 @@
     "prepare": "tsc",
     "test": "jest",
     "test:production": "jest --isProduction=true",
-    "dev": "node dist/index.js",
-    "release": "changeset publish"
+    "dev": "node dist/index.js"
   },
   "husky": {
     "hooks": {

@@ -3,12 +3,12 @@ name: Create Gluestack V2 App
 on:
   push:
     branches:
-      - main
-      - development
+      # - main
+      # - development
   pull_request:
     branches:
-      - main
-      - development
+      # - main
+      # - development
 
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
       - name: Use Node.js v18.x
         uses: actions/setup-node@v3
         with:
-          node-version: "18.x"
+          node-version: '18.x'
       - name: Install dependencies (prevent updates to lock file)
         working-directory: ${{ env.working-directory }}
         run: yarn
