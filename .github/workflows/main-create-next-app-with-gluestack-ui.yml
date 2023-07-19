@@ -1,8 +1,8 @@
-name: Create Next App with Gluestack UI (isProduction | @latest)
+name: Create Next App with Gluestack UI (Production | @latest)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: '0 */4 * * *'
 
 jobs:
   test:
@@ -14,7 +14,7 @@ jobs:
       - name: Use Node.js v18.x
         uses: actions/setup-node@v3
         with:
-          node-version: "18.x"
+          node-version: '18.x'
       - name: Install dependencies (prevent updates to lock file)
         working-directory: ${{ env.working-directory }}
         run: yarn
