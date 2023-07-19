@@ -23,16 +23,16 @@ jobs:
       - name: Install dependencies (prevent updates to lock file)
         run: yarn
       - name: Publish to npm
-        id: changesets
-        uses: changesets/action@v1
+        # id: changesets
+        # uses: changesets/action@v1
         with:
-          publish: yarn release
+          publish: yarn publish --tag latest --new-version 0.1.18
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.GLUESTACK_ADMIN_NPM_TOKEN }}
       - name: Post to a Slack channel
         id: slack
-        if: steps.changesets.outputs.published == 'true'
+        # if: steps.changesets.outputs.published == 'true'
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: C05H3MUMPN3
