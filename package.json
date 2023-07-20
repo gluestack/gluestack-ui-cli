@@ -20,9 +20,7 @@
   },
   "name": "ui-cli-monorepo",
   "packageManager": "npm@9.6.5",
-  "workspaces": [
-    "packages/create-next-app-with-gluestack-ui"
-  ],
+  "workspaces": [],
   "dependencies": {
     "@changesets/cli": "^2.26.2"
   }
