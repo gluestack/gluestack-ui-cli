@@ -3,7 +3,6 @@ const fs = require('fs-extra');
 const prompts = require('prompts');
 
 const packagesDir = './packages';
-const promptsDir = 'prompts'; // Directory to store prompts data
 
 async function selectPackage() {
   const packageDirs = await fs.readdir(packagesDir);
@@ -44,15 +43,23 @@ async function getChangelogEntry() {
 }
 
 function updatePackageJsonVersion(newVersion, packageDir) {
-  const packageJsonPath = `${packagesDir}/${packageDir}/package.json`;
+  const packageJsonPath = `${packageDir}/package.json`;
   const packageJson = fs.readJsonSync(packageJsonPath);
   packageJson.version = newVersion;
   fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
 }
 
-function updateChangelog(changelogEntry, packageDir) {
-  const changelogPath = `${packagesDir}/${packageDir}/changelog.MD`;
-  fs.appendFileSync(changelogPath, `\n## ${changelogEntry}\n`);
+function updateChangelog(changelogEntry, packageDir, newVersion) {
+  const changelogPath = `${packageDir}/CHANGELOG.md`;
+
+  // Get the current date in YYYY-MM-DD format
+  const currentDate = new Date().toISOString().split('T')[0];
+
+  // Create the new changelog entry with version and date
+  const newChangelogEntry = `## ${newVersion} (${currentDate})\n- ${changelogEntry}\n\n`;
+
+  // Append the new changelog entry to the existing content
+  fs.appendFileSync(changelogPath, newChangelogEntry);
 }
 
 (async () => {
@@ -91,16 +98,16 @@ function updateChangelog(changelogEntry, packageDir) {
     }
 
     const changelogEntry = await getChangelogEntry();
-    updatePackageJsonVersion(newVersion, selectedPackage);
-    updateChangelog(changelogEntry, selectedPackage);
+    updatePackageJsonVersion(newVersion, packageDir);
+    updateChangelog(changelogEntry, packageDir, newVersion);
 
+    const packageJsonPath = `${packageDir}/package.json`;
+    const changelogPath = `${packageDir}/CHANGELOG.md`;
     execSync(`git add ${packageJsonPath} ${changelogPath}`, {
       stdio: 'inherit',
-      cwd: packageDir,
     });
     execSync(`git commit -m "Bump version to ${newVersion}"`, {
       stdio: 'inherit',
-      cwd: packageDir,
     });
     console.log(
       `Version bumped to ${newVersion} with changelog entry added for package ${selectedPackage}.`
