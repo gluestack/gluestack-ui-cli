@@ -28,6 +28,7 @@ describe('Create Next.js app with page router:', () => {
   it('Create a Next.js app with npx', async () => {
     await createProject(nextAppRootDirectory, APP_NAME, options, isProduction);
     const appPath = path.join(nextAppRootDirectory, APP_NAME);
+
     expect(fs.existsSync(appPath)).toBe(true);
     console.log('✅️  project folder is created');
   }, 200000);
