@@ -1,7 +1,8 @@
 const { spawnSync } = require('child_process');
 const { spawn } = require('child_process');
 const { promisify } = require('util');
-const path = require("path");
+const path = require('path');
+
 function cleanAppDirectory(nextAppRootDirectory, APP_NAME) {
   spawnSync('rm -rf', [APP_NAME], {
     cwd: nextAppRootDirectory,
@@ -9,6 +10,7 @@ function cleanAppDirectory(nextAppRootDirectory, APP_NAME) {
     shell: true,
   });
 }
+
 function createProject(
   nextAppRootDirectory,
   APP_NAME,
@@ -17,12 +19,13 @@ function createProject(
 ) {
   console.log(`Removing any existing ${APP_NAME} directory...`);
   cleanAppDirectory(nextAppRootDirectory, APP_NAME);
-  // Clone the my-next-app Git repository
 
   const createrCommand = isProduction
     ? `npx create-next-app-with-gluestack-ui@latest` + ` ${APP_NAME}`
-    : 'yarn dev ' + path.join("./", path.relative( './', nextAppRootDirectory), APP_NAME);
+    : 'yarn dev ' +
+      path.join('./', path.relative('./', nextAppRootDirectory), APP_NAME);
 
+  console.log('Mayank', createrCommand);
   return new Promise((resolve, reject) => {
     const child = spawn(`${createrCommand} ${options}`, {
       cwd: nextAppRootDirectory,

@@ -42,6 +42,7 @@ describe('Create Next.js app with page router:', () => {
   }, 50000);
 
   afterAll(() => {
+    cleanUpPort(nextAppRootDirectory, NEXT_PORT);
     cleanAppDirectory(nextAppRootDirectory, APP_NAME);
     if (appProcess) {
       appProcess.kill();

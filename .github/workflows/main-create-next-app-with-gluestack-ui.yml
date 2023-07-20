@@ -1,8 +1,16 @@
 name: Create Next App with Gluestack UI (Production | @latest)
 
 on:
-  schedule:
-    - cron: '0 */4 * * *'
+  # schedule:
+  #   - cron: '0 */4 * * *'
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
 
 jobs:
   test:
