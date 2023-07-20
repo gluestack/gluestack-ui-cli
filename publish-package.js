@@ -51,7 +51,7 @@ function isVersionPublished(packageName, version) {
 
 function publishWithAlphaTag(packagePath, version) {
   try {
-    execSync('npm publish --tag alpha', {
+    execSync('yarn && npm publish --tag alpha', {
       stdio: 'inherit',
       cwd: `${packagePath}`,
     });
