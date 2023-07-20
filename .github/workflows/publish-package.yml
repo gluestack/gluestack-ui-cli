@@ -25,12 +25,9 @@ jobs:
 
       - name: Publish to npm
         id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: yarn release
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.GLUESTACK_ADMIN_NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node publish-package
 
       - name: Post to a Slack channel
         id: slack
@@ -38,7 +35,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: C05H3MUMPN3
-          slack-message: "A new package was published in ${{ github.event.repository.name }}!\n${{ toJSON(steps.changesets.outputs.publishedPackages) }}"
+          slack-message: "A new package was published in ${{ steps.changesets.outputs.packageName }}!\n\nVersion: ${{ toJSON(steps.changesets.outputs.packageVersion) }}"
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

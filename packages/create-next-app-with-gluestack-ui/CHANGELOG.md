@@ -1,13 +1,15 @@
-# create-next-app-with-gluestack-ui
+## 0.1.19-alpha.2 (2023-07-20)
+- Added release package script
 
-## 0.1.19
+## 0.1.19-alpha.3 (2023-07-20)
+- Added publish flow
 
-### Patch Changes
+## 0.1.19-alpha.3 (2023-07-20)
+- Testing npm login
 
-- Testing
+## 0.1.19-alpha.4 (2023-07-20)
+- Testing flow
 
-## 0.1.17-alpha.1
+## 0.1.19-alpha.5 (2023-07-20)
+- Testing github action publish flow
 
-### Alpha Changes
-
-- This is a patch test
