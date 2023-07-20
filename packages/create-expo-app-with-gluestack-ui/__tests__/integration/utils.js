@@ -3,33 +3,31 @@ const { spawn } = require('child_process');
 const { promisify } = require('util');
 const path = require('path');
 
-function cleanAppDirectory(nextAppRootDirectory, APP_NAME) {
+function cleanAppDirectory(expoAppRootDirectory, APP_NAME) {
   spawnSync('rm -rf', [APP_NAME], {
-    cwd: nextAppRootDirectory,
+    cwd: expoAppRootDirectory,
     stdio: 'inherit',
     shell: true,
   });
 }
 
 function createProject(
-  nextAppRootDirectory,
+  expoAppRootDirectory,
   APP_NAME,
   isProduction = false
 ) {
   console.log(`Removing any existing ${APP_NAME} directory...`);
-  cleanAppDirectory(nextAppRootDirectory, APP_NAME);
+  cleanAppDirectory(expoAppRootDirectory, APP_NAME);
 
   const createrCommand = isProduction
     ? `npx create-expo-app-with-gluestack-ui@latest` + ` ${APP_NAME}`
     : 'yarn dev ' +
-      path.join('./', path.relative('./', nextAppRootDirectory), APP_NAME);
+      path.join('./', path.relative('./', expoAppRootDirectory), APP_NAME);
 
-
-  console.log(createrCommand, "Mayank")
 
   return new Promise((resolve, reject) => {
     const child = spawn(createrCommand, {
-      cwd: nextAppRootDirectory,
+      cwd: expoAppRootDirectory,
       shell: true,
     });
 
@@ -55,21 +53,21 @@ function createProject(
   });
 }
 
-function startProject(nextAppPath, NEXT_PORT) {
-  let nextServerStarted;
+function startProject(expoAppPath, EXPO_PORT) {
+  let expoServerStarted;
 
   return new Promise(async (resolve, reject) => {
-    const appProcess = spawn(`yarn web --port=${NEXT_PORT}`, {
-      cwd: nextAppPath,
+    const appProcess = spawn(`yarn web --port=${EXPO_PORT}`, {
+      cwd: expoAppPath,
       shell: true,
     });
     await promisify(setTimeout)(10000);
 
     appProcess.stdout.on('data', function (data) {
       console.log(data.toString());
-      const match = data.toString().match(/started server/);
+      const match = data.toString().match(/Starting Webpack on port 19006 in development mode/);
       if (match) {
-        nextServerStarted = true;
+        expoServerStarted = true;
         resolve(appProcess);
       }
     });
@@ -89,24 +87,24 @@ function startProject(nextAppPath, NEXT_PORT) {
       reject();
     });
 
-    while (!nextServerStarted) {
+    while (!expoServerStarted) {
       await promisify(setTimeout)(10000);
       console.log('Waiting for server to start');
     }
   });
 }
 
-function cleanUpPort(nextAppRootDirectory, NEXT_PORT) {
+function cleanUpPort(expoAppRootDirectory, EXPO_PORT) {
   try {
-    // Kill any processes listening on the NEXT_PORT
-    console.log(`Killing processes listening on port ${NEXT_PORT}...`);
-    spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
-      cwd: nextAppRootDirectory,
+    // Kill any processes listening on the EXPO_PORT
+    console.log(`Killing processes listening on port ${EXPO_PORT}...`);
+    spawnSync(`kill -9 $(lsof -t -i:${EXPO_PORT})`, {
+      cwd: expoAppRootDirectory,
       stdio: 'inherit',
       shell: true,
     });
   } catch (error) {
-    console.error('Error occurred during my-next-app setup:');
+    console.error('Error occurred during my-expo-app setup:');
     console.error(error);
   }
 }

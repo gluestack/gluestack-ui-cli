@@ -43,14 +43,14 @@ async function main() {
   });
   log.info(
     ` Using \x1b[33m ${
-      installationMethod == undefined ? 'npm install' : installDependencies
+      installationMethod == undefined ? 'npm install' : installationMethod
     } \x1b!`
   );
 
   installDependencies(
     projectName,
     // @ts-ignore
-    installationMethod == undefined ? 'npm install' : installDependencies
+    installationMethod == undefined ? 'npm install' : installationMethod
   );
 }
 

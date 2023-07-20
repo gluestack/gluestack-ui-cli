@@ -120,7 +120,10 @@ function publishAllPackages() {
   try {
     // const packageDirs = fs.readdirSync(packagesDir);
 
-    const packageDirs = ['create-next-app-with-gluestack-ui'];
+    const packageDirs = [
+      'create-next-app-with-gluestack-ui',
+      'create-expo-app-with-gluestack-ui',
+    ];
 
     for (const packageDir of packageDirs) {
       const packagePath = `${packagesDir}/${packageDir}`;
