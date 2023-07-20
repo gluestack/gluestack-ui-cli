@@ -25,7 +25,8 @@
     "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
-    "test": "echo 'Test passed'",
+    "test": "jest",
+    "test:production": "jest --isProduction=true",
     "dev": "node dist/index.js"
   },
   "husky": {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="1" failures="1" errors="0" time="2.057">
+  <testsuite name="Create Expo app:" errors="0" failures="1" skipped="0" timestamp="2023-07-20T12:25:22" time="1.972" tests="1">
+    <testcase classname="Create Expo app: Start and check if Expo app is running" name="Create Expo app: Start and check if Expo app is running" time="0.022">
+      <failure>Error: connect ECONNREFUSED ::1:19006
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1494:16)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
