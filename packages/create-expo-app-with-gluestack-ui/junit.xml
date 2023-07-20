@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="2" failures="0" errors="0" time="205.488">
+  <testsuite name="Create Expo app:" errors="0" failures="0" skipped="0" timestamp="2023-07-20T13:22:16" time="205.349" tests="2">
+    <testcase classname="Create Expo app: Create a Expo app with npx" name="Create Expo app: Create a Expo app with npx" time="175.398">
+    </testcase>
+    <testcase classname="Create Expo app: Start and check if Expo app is running" name="Create Expo app: Start and check if Expo app is running" time="20.313">
+    </testcase>
+  </testsuite>
+</testsuites>
