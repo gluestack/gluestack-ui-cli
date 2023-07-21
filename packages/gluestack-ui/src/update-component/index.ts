@@ -52,7 +52,10 @@ const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
   return false;
 };
 
-async function updateComponent(component = ''): Promise<void> {
+async function updateComponent(
+  component = '',
+  forceUpdate = false
+): Promise<void> {
   try {
     const componentPath = getConfigComponentPath();
 
@@ -75,12 +78,15 @@ async function updateComponent(component = ''): Promise<void> {
       const source = path.resolve(process.cwd(), componentPath, 'core');
       const requestedComponents = getAllComponents(source);
       for (const component of requestedComponents) {
-        await componentAdder(component, false, true);
+        await componentAdder(component, false, true, forceUpdate);
       }
     } else {
-      const shouldContinue = await confirm({
-        message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new.`,
-      });
+      let shouldContinue: any = true;
+      if (forceUpdate) {
+        shouldContinue = await confirm({
+          message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new.`,
+        });
+      }
 
       if (isCancel(shouldContinue)) {
         cancel('Operation cancelled.');
@@ -95,7 +101,7 @@ async function updateComponent(component = ''): Promise<void> {
 
           return;
         }
-        await componentAdder(component, false, true);
+        await componentAdder(component, false, true, forceUpdate);
       } else {
         log.error(
           `\x1b[33mThe update of component "${component}" has been canceled.\x1b[0m`
