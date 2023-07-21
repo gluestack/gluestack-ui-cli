@@ -36,7 +36,7 @@
   "workspaces": [
   ],
   "dependencies": {
-    "@gluestack-v2/framework-cli": "^0.1.1",
-    "@gluestack-v2/glue-plugin-develop": "^0.1.0"
+    "@gluestack-v2/framework-cli": "^0.1.*",
+    "@gluestack-v2/glue-plugin-develop": "^0.1.*"
   }
 }

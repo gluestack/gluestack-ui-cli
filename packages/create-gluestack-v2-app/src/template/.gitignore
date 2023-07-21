@@ -2,7 +2,7 @@
 # Ignoring glue directories & files except
 # plugin-instance and plugins json files
 #
-.glue/internals/store
+
 .glue/__generated__
 !.glue/internals/plugin-instances.json
 !.glue/internals/plugin.json
@@ -16,15 +16,4 @@ yarn.lock
 build/
 
 # Internal testing files
-server/*
 test.js
-openai
-web
-website
-components
-events
-web
-middlewares
-crons
-database
-graphql
