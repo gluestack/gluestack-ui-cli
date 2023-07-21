@@ -1,8 +1,8 @@
 #! /usr/bin/env node
-
+import minimist from 'minimist';
 const args = process.argv.slice(2);
 
-let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
+let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm','--app','--page'];
 import path from 'path';
 import fs from 'fs';
 import {
@@ -15,18 +15,20 @@ import {
 } from '@clack/prompts';
 import { select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
-// import { installDependencies, getArgsData } from '@gluestack/cli-utils';
-function main() {
-  main2()
-    .then((resolve) => {
-      return resolve;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
+
 function installDependencies(projectName: string, installationMethod: string) {
   const projectPath = path.join(process.cwd(), projectName);
+  // try {
+  //   execSync(`cd ${projectPath} && yarn`);
+  //   console.log('Yarn command executed successfully.');
+  // } catch (error) {
+  //   console.error(`Error executing yarn: ${error}`);
+  // }
+  process.on('SIGINT', function () {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  });
+
   const s = spinner();
   s.start('⏳ Installing dependencies...');
 
@@ -40,7 +42,7 @@ function installDependencies(projectName: string, installationMethod: string) {
         shell: true,
       }
     );
-    s.stop(`\x1b[32mDependencies have been installed successfully.\x1b[0m`);
+    s.stop(`\x1b[32mSuccess! Created ${projectName} at ${projectPath}\x1b[0m`);
   } catch (err) {
     log.error(`\x1b[31mError: ${err}\x1b[0m`);
     log.error('\x1b[31mError installing dependencies:\x1b[0m');
@@ -49,18 +51,20 @@ function installDependencies(projectName: string, installationMethod: string) {
   }
 }
 
-function getArgsData(args: any, customSupportedArgs?: Array<any>) {
-  let projectName: string = '',
+async function main() {
+  process.on('SIGINT', function () {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  });
+  let projectName: any = '',
     installationMethod = 'npm install';
+  let useAppRouter;
   if (args.length > 0) {
     if (!(args[0].startsWith('-') || args[0].startsWith('--'))) {
       if (typeof args[0] === 'string') {
         projectName = args[0];
       }
     }
-  }
-  if (customSupportedArgs) {
-    supportedArgs = customSupportedArgs;
   }
   for (let i = projectName !== '' ? 1 : 0; i < args.length; i++) {
     if (supportedArgs.includes(args[i])) {
@@ -83,9 +87,11 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
         installationMethod = 'yarn';
       } else if (args[i] === '--use-pnpm') {
         installationMethod = 'pnpm i --lockfile-only';
+      } else if (args[i] === '--app') {
+        useAppRouter = 'yes';
+      } else if (args[i] === '--page') {
+        useAppRouter = 'no';
       }
-
-      return { installationMethod, projectName };
     } else {
       log.warning(
         `Unsupported argument: ${args[i]}. For more information run npx create-next-app-with-gluestack-ui --help`
@@ -96,84 +102,60 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
       process.exit(0);
     }
   }
-  return { installationMethod, projectName };
-}
-async function getProjectName() {
-  return await text({
-    message: 'What is the name of your application?',
-    placeholder: 'my-app',
-    defaultValue: 'my-app',
-    // validate(value) {
-    //   if (value.length === 0) return `Value is required!`;
-    // },
-  });
-}
-async function getAppRouter() {
-  return await select({
-    message: 'Would you like to use App Router?',
-    options: [
-      {
-        value: 'yes',
-        label: 'yes',
-        hint: 'Next versions 13.4 and React server components support (recommended)',
-      },
-      {
-        value: 'no',
-        label: 'no',
-        hint: 'Next js page routing',
-      },
-    ],
-  });
-}
 
-async function main2() {
-  try {
-    let argsInfo = getArgsData(args);
-    let projectName: any = argsInfo?.projectName;
-    let installationMethod: any = argsInfo?.installationMethod;
-    let projectPath = path.join(
-      path.resolve(__dirname, '..'),
-      'src',
-      'page-router'
-    );
-    if (projectName === '' || projectName == undefined) {
-      projectName = await getProjectName();
-      if (isCancel(projectName)) {
-        cancel('Operation cancelled.');
-        process.exit(0);
-      }
+  let projectPath = path.join(
+    path.resolve(__dirname, '..'),
+    'src',
+    'page-router'
+  );
+  if (projectName === '') {
+    projectName = await text({
+      message: 'What is the \x1b[36m name \x1b[36m of your application?',
+      placeholder: 'my-app',
+      defaultValue: 'my-app',
+      // validate(value) {
+      //   if (value.length === 0) return `Value is required!`;
+      // },
+    });
+    if (isCancel(projectName)) {
+      cancel('Operation cancelled.');
+      process.exit(0);
     }
-    const useAppRouter = await getAppRouter();
+  }
+
+  if (!useAppRouter) {
+    useAppRouter = await select({
+      message: 'Would you like to use \x1b[36mApp Router?\x1b[36m',
+      options: [
+        {
+          value: 'no',
+          label: 'No',
+          hint: 'Next js page routing',
+        },
+        {
+          value: 'yes',
+          label: 'Yes',
+          hint: 'Next versions 13.4 and React server components support (Experimental)',
+        },
+      ],
+    });
     if (isCancel(useAppRouter)) {
       cancel('Operation cancelled.');
       process.exit(0);
     }
-    if (useAppRouter === 'yes') {
-      projectPath = path.join(
-        path.resolve(__dirname, '..'),
-        'src',
-        'app-router'
-      );
-    }
-
-    // copy directory
-    const data = fs.cpSync(projectPath, path.join(process.cwd(), projectName), {
-      recursive: true,
-    });
-    log.info(
-      ` Using \x1b[33m ${
-        installationMethod == undefined ? 'npm install' : installDependencies
-      } \x1b!`
-    );
-
-    installDependencies(
-      projectName,
-      // @ts-ignore
-      installationMethod == undefined ? 'npm install' : installDependencies
-    );
-  } catch (err) {
-    console.log(err);
   }
+  
+  if (useAppRouter === 'yes') {
+    projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'app-router');
+  }
+
+  // copy directory
+  const data = fs.cpSync(projectPath, path.join(process.cwd(), projectName), {
+    recursive: true,
+  });
+  log.info(` Using \x1b[33m ${installationMethod} \x1b!`);
+
+  installDependencies(projectName, installationMethod);
 }
 
 main();

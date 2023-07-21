@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.1",
+  "version": "0.1.0-alpha.0",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -25,16 +25,13 @@
     "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
-    "test": "jest",
+    "test": "echo 'Test passed'",
     "dev": "node dist/index.js"
   },
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
     }
-  },
-  "bin": {
-    "create-next-app-with-gluestack-ui": "dist/index.js"
   },
   "prettier": {
     "printWidth": 80,

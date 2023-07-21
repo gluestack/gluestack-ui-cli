@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.8-alpha.27",
+  "version": "0.1.14",
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
@@ -38,6 +38,10 @@
   "dependencies": {
     "@clack/prompts": "^0.6.3",
     "@gluestack/cli-utils": "^0.1.1",
+<<<<<<< HEAD
+=======
+    "@types/minimist": "^1.2.2",
+>>>>>>> 488157c374f7a1f0d6cc72f60e594fd9ef3bac90
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
     "simple-git": "^3.16.0"

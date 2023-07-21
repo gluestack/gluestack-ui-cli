@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="2" failures="0" errors="0" time="88.646">
+  <testsuite name="Create Next.js app with app router:" errors="0" failures="0" skipped="0" timestamp="2023-07-14T10:37:09" time="88.573" tests="2">
+    <testcase classname="Create Next.js app with app router: Create a Next.js app with npx" name="Create Next.js app with app router: Create a Next.js app with npx" time="42.371">
+    </testcase>
+    <testcase classname="Create Next.js app with app router: Start and check if Next.js app is running" name="Create Next.js app with app router: Start and check if Next.js app is running" time="28.679">
+    </testcase>
+  </testsuite>
+</testsuites>

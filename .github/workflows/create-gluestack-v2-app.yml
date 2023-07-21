@@ -1,0 +1,52 @@
+name: Create Gluestack V2 App
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+  schedule:
+    - cron: "0 */4 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: packages/create-gluestack-v2-app
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js v18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+      - name: Install dependencies (prevent updates to lock file)
+        working-directory: ${{ env.working-directory }}
+        run: yarn
+      - name: Building
+        working-directory: ${{ env.working-directory }}
+        run: yarn build
+      - name: Testing
+        working-directory: ${{ env.working-directory }}
+        run: yarn test
+      - name: Notify Success
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: C05HK6WEE56
+          status: SUCCESS by @${{ github.actor}}
+          color: good
+      - name: Notify Failure
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: C05HK6WEE56
+          status: FAILED by @${{ github.actor}}
+          color: danger
