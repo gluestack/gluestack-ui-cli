@@ -22,7 +22,6 @@
   },
   "scripts": {
     "start": "tsc --watch",
-    "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
     "test": "jest",

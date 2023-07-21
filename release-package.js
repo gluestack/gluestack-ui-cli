@@ -81,8 +81,17 @@ function updateChangelog(changelogEntry, packageDir, newVersion) {
       const currentVersion = fs.readJsonSync(
         `${packageDir}/package.json`
       ).version;
-      const versionParts = currentVersion.split('.');
-      const [major, minor, patch] = versionParts.map(Number);
+      const versionParts = currentVersion.match(
+        /^(\d+)\.(\d+)\.(\d+)(-alpha\.\d+)?$/
+      );
+
+      if (!versionParts) {
+        throw new Error('Invalid version format.');
+      }
+
+      const major = Number(versionParts[1]);
+      const minor = Number(versionParts[2]);
+      const patch = Number(versionParts[3]);
 
       switch (bumpType) {
         case 'major':
@@ -94,6 +103,8 @@ function updateChangelog(changelogEntry, packageDir, newVersion) {
         case 'patch':
           newVersion = `${major}.${minor}.${patch + 1}`;
           break;
+        default:
+          throw new Error(`Invalid bumpType: ${bumpType}`);
       }
     }
 

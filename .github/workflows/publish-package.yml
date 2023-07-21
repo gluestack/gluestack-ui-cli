@@ -1,4 +1,4 @@
-name: Release create-next-app-with-gluestack-ui
+name: Publish Package
 
 on:
   push:
