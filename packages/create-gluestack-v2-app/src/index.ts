@@ -60,17 +60,13 @@ async function main() {
   const data = fs.cpSync(projectPath, path.join(process.cwd(), projectName), {
     recursive: true,
   });
-  log.info(
-    ` Using \x1b[33m ${
-      installationMethod == undefined ? 'npm install' : installDependencies
-    } \x1b!`
-  );
+  log.info(` Using \x1b[33m npm install \x1b!`);
   updatePackageJson(projectName);
 
   installDependencies(
     projectName,
     // @ts-ignore
-    installationMethod == undefined ? 'npm install' : installDependencies
+    'npm install'
   );
 }
 
