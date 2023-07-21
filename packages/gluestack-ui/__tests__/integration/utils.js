@@ -1,45 +1,38 @@
 const { execSync } = require('child_process');
-
-// Utility function to create an Expo project in the specified path.
-function createExpoProject(projectPath) {
-  try {
-    execSync(`expo init ${projectPath} --npm`);
-    return true;
-  } catch (error) {
-    console.error('Error creating Expo project:', error);
-    return false;
-  }
-}
+const { spawnSync } = require('child_process');
 
 // Utility function to run an Expo project.
-function runExpoProject(projectPath) {
+function runNextProject(projectPath) {
   try {
-    const output = execSync(`cd ${projectPath} && expo start`);
+    const output = execSync(`yarn dev`, {
+      cwd: projectPath,
+      stdio: 'inherit',
+      shell: true,
+    });
     console.log(output.toString());
     return true;
   } catch (error) {
-    console.error('Error running Expo project:', error);
+    console.error('Error running Next project:', error);
     return false;
   }
 }
 
-// Utility function to delete a directory and its contents recursively.
-function deleteDirectory(dirPath) {
-  if (fs.existsSync(dirPath)) {
-    fs.readdirSync(dirPath).forEach((file) => {
-      const currentPath = path.join(dirPath, file);
-      if (fs.lstatSync(currentPath).isDirectory()) {
-        deleteDirectory(currentPath);
-      } else {
-        fs.unlinkSync(currentPath);
-      }
+function cleanUpPort(projectPath, NEXT_PORT) {
+  try {
+    // Kill any processes listening on the NEXT_PORT
+    console.log(`Killing processes listening on port ${NEXT_PORT}...`);
+    spawnSync(`kill -9 $(lsof -t -i:${NEXT_PORT})`, {
+      cwd: projectPath,
+      stdio: 'inherit',
+      shell: true,
     });
-    fs.rmdirSync(dirPath);
+  } catch (error) {
+    console.error('Error occurred during my-next-app setup:');
+    console.error(error);
   }
 }
 
 module.exports = {
-  createExpoProject,
-  runExpoProject,
-  deleteDirectory,
+  runNextProject,
+  cleanUpPort,
 };
