@@ -32,7 +32,6 @@ function installDependencies(projectName: string, installationMethod: string) {
 function getArgsData(args: any, customSupportedArgs?: Array<any>) {
   let projectName: string = '';
   let installationMethod = 'npm install --legacy-peer-deps';
-
   if (args.length > 0) {
     if (!(args[0].startsWith('-') || args[0].startsWith('--'))) {
       if (typeof args[0] === 'string') {

@@ -45,7 +45,7 @@
   "author": "mayank-96",
   "dependencies": {
     "@clack/prompts": "^0.6.3",
-    "@gluestack/cli-utils": "^0.1.1",
+    "@gluestack/cli-utils": "0.1.0-alpha.1",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
     "simple-git": "^3.16.0"
