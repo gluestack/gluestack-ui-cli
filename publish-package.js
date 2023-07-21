@@ -123,6 +123,8 @@ function publishAllPackages() {
     const packageDirs = [
       'create-next-app-with-gluestack-ui',
       'create-expo-app-with-gluestack-ui',
+      'create-react-native-app-with-gluestack-ui',
+      'utils',
     ];
 
     for (const packageDir of packageDirs) {
