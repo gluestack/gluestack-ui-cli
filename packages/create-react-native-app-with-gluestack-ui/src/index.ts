@@ -7,7 +7,7 @@ let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
 import path from 'path';
 import fs from 'fs';
 import { cancel, isCancel, log, text } from '@clack/prompts';
-import { installDependencies, getArgsData } from '@gluestack/cli-utils';
+import { installDependencies, getArgsData } from '../../utils/dist/index';
 
 async function main() {
   let projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'template');
