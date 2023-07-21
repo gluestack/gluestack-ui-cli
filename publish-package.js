@@ -49,7 +49,7 @@ function isVersionPublished(packageName, version) {
   }
 }
 
-function publishWithAlphaTag(packagePath, version) {
+function publishWithAlphaTag(packagePath, version, packageName) {
   try {
     execSync('yarn && npm publish --tag alpha', {
       stdio: 'inherit',
@@ -57,7 +57,7 @@ function publishWithAlphaTag(packagePath, version) {
     });
     console.log('Package published successfully!');
     console.log('::set-output name=published::true'); // Output
-    console.log(`::set-output name=packageName::${packagePath}`); // Output
+    console.log(`::set-output name=packageName::${packageName}`); // Output
     console.log(`::set-output name=packageVersion::${version}`); // Output
   } catch (error) {
     console.error(
@@ -68,7 +68,7 @@ function publishWithAlphaTag(packagePath, version) {
   }
 }
 
-function publishWithLatestTag(packagePath, version) {
+function publishWithLatestTag(packagePath, version, packageName) {
   try {
     execSync('npm publish --tag latest', {
       stdio: 'inherit',
@@ -76,7 +76,7 @@ function publishWithLatestTag(packagePath, version) {
     });
     console.log('Package published successfully!');
     console.log('::set-output name=published::true'); // Output
-    console.log(`::set-output name=packageName::${packagePath}`); // Output
+    console.log(`::set-output name=packageName::${packageName}`); // Output
     console.log(`::set-output name=packageVersion::${version}`); // Output
   } catch (error) {
     console.error(
@@ -107,12 +107,12 @@ function publishPackage(packagePath) {
     console.log(
       `Alpha version detected in ${packageName}. Publishing with "alpha" tag.`
     );
-    publishWithAlphaTag(packagePath, version);
+    publishWithAlphaTag(packagePath, version, packageName);
   } else {
     console.log(
       `Non-alpha version detected in ${packageName}. Publishing with "latest" tag.`
     );
-    publishWithLatestTag(packagePath, version);
+    publishWithLatestTag(packagePath, version, packageName);
   }
 }
 
@@ -123,6 +123,8 @@ function publishAllPackages() {
     const packageDirs = [
       'create-next-app-with-gluestack-ui',
       'create-expo-app-with-gluestack-ui',
+      'create-react-native-app-with-gluestack-ui',
+      'utils',
     ];
 
     for (const packageDir of packageDirs) {

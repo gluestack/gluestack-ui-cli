@@ -1,5 +1,5 @@
 {
-  "name": "create-rn-app-with-gluestack-ui",
+  "name": "create-react-native-app-with-gluestack-ui",
   "keywords": [
     "react",
     "react-native",
@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.2",
+  "version": "0.1.3-alpha.0",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -24,7 +24,9 @@
     "start": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
-    "test": "echo 'Test passed'"
+    "test": "jest",
+    "test:production": "jest --isProduction=true",
+    "dev": "node dist/index.js"
   },
   "husky": {
     "hooks": {
@@ -43,6 +45,7 @@
   "author": "mayank-96",
   "dependencies": {
     "@clack/prompts": "^0.6.3",
+    "@gluestack/cli-utils": "^0.1.1",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
     "simple-git": "^3.16.0"

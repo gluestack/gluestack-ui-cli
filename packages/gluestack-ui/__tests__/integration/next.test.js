@@ -32,22 +32,22 @@ const initGluestack = () => {
       cwd: nextAppPath,
     });
 
-    child.stdout.on('data', function(data) {
+    child.stdout.on('data', function (data) {
       child.stdin.write('\n');
       console.log(data.toString());
     });
 
-    child.on('close', code => {
+    child.on('close', (code) => {
       console.log(`child process close all stdio with code ${code}`);
       resolve();
     });
 
-    child.on('exit', code => {
+    child.on('exit', (code) => {
       console.log(`child process exited with code ${code}`);
       resolve();
     });
 
-    child.on('error', function(error) {
+    child.on('error', function (error) {
       console.log(error);
       reject();
     });
@@ -65,6 +65,7 @@ const devDependencies = [
   'react-native',
   '@types/react-native',
 ];
+
 const nextAppRootDirectory = join(__dirname, '../apps');
 const nextAppPath = join(__dirname, '../apps/my-next-app');
 const homeDir = os.homedir();
@@ -140,7 +141,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const packageJsonData = JSON.parse(
       fs.readFileSync(packageJsonPath, 'utf-8')
     );
-    requiredDependencies.forEach(dependency => {
+    requiredDependencies.forEach((dependency) => {
       expect(packageJsonData.dependencies).toHaveProperty(dependency);
     });
     console.log('✅️  Required dependencies are added to package.json');
@@ -151,7 +152,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const packageJsonData = JSON.parse(
       fs.readFileSync(packageJsonPath, 'utf-8')
     );
-    devDependencies.forEach(dependency => {
+    devDependencies.forEach((dependency) => {
       expect(packageJsonData.devDependencies).toHaveProperty(dependency);
     });
     console.log('✅️  Required devDependencies are added to package.json');
@@ -226,7 +227,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const installedDependencies = JSON.parse(
       fs.readFileSync(packageJsonLockPath, 'utf-8')
     ).dependencies;
-    requiredDependencies.forEach(dependency => {
+    requiredDependencies.forEach((dependency) => {
       expect(installedDependencies.hasOwnProperty(dependency)).toBe(true);
     });
     console.log('✅️  dependencies are installed correctly');
@@ -237,7 +238,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
     const installedDevDependencies = JSON.parse(
       fs.readFileSync(packageJsonLockPath, 'utf-8')
     ).packages[''].devDependencies;
-    devDependencies.forEach(dependency => {
+    devDependencies.forEach((dependency) => {
       expect(installedDevDependencies.hasOwnProperty(dependency)).toBe(true);
     });
     console.log('✅️  dev dependencies are installed correctly');
@@ -249,7 +250,7 @@ describe('Next.js Command: npx gluestack-ui@latest init', () => {
       shell: true,
     });
     await promisify(setTimeout)(1000);
-    appProcess.stdout.on('data', function(data) {
+    appProcess.stdout.on('data', function (data) {
       const match = data.toString().match(/started server/);
       if (match) {
         nextServerStarted = true;
