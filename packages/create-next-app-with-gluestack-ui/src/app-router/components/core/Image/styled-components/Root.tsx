@@ -1,4 +1,4 @@
-import { Image } from 'react-native';
+import Image from 'next/image';
 import { styled } from '../../styled';
 
 export default styled(
@@ -13,27 +13,27 @@ export default styled(
           h: '$6',
         },
 
-        'xs': {
+        xs: {
           w: '$10',
           h: '$10',
         },
 
-        'sm': {
+        sm: {
           w: '$16',
           h: '$16',
         },
 
-        'md': {
+        md: {
           w: '$20',
           h: '$20',
         },
 
-        'lg': {
+        lg: {
           w: '$24',
           h: '$24',
         },
 
-        'xl': {
+        xl: {
           w: '$32',
           h: '$32',
         },
@@ -43,7 +43,7 @@ export default styled(
           h: '$64',
         },
 
-        'full': {
+        full: {
           w: '100%',
           h: '100%',
         },
