@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A fullstack framework.",
-  "version": "0.1.5",
+  "version": "0.1.9",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -45,9 +45,10 @@
   "author": "gluestack",
   "dependencies": {
     "@clack/prompts": "^0.6.3",
-    "@gluestack/cli-utils": "^0.1.0",
+    "@gluestack/cli-utils": "^0.1.1",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
+    "prettier": "^3.0.0",
     "simple-git": "^3.16.0"
   },
   "devDependencies": {
