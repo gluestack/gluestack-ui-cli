@@ -1,0 +1,30 @@
+{
+  "name": "my-next-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@gluestack-style/animation-plugin": "^0.1.7",
+    "@gluestack-style/react": "^0.1.33",
+    "@gluestack-ui/overlay": "^0.1.8",
+    "@gluestack-ui/provider": "^0.1.6",
+    "@gluestack-ui/toast": "^0.1.11",
+    "@gluestack/ui-next-adapter": "^2.1.7",
+    "@types/node": "20.4.2",
+    "@types/react": "18.2.15",
+    "@types/react-dom": "18.2.7",
+    "eslint": "8.45.0",
+    "eslint-config-next": "13.4.11",
+    "next": "13.4.11",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "^0.72.3",
+    "react-native-web": "^0.19.7",
+    "typescript": "5.1.6"
+  }
+}
