@@ -125,6 +125,7 @@ function publishAllPackages() {
       'create-expo-app-with-gluestack-ui',
       'create-react-native-app-with-gluestack-ui',
       'utils',
+      'gluestack-ui',
     ];
 
     for (const packageDir of packageDirs) {

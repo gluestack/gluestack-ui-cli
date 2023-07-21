@@ -54,32 +54,37 @@ const promptVersionManager = async (): Promise<any> => {
   return packageManager;
 };
 
-const installDependencies = async (): Promise<void> => {
-  let versionManager: string | null = detectLockFile();
-  if (!versionManager) {
-    versionManager = await promptVersionManager();
-  } else {
-    const shouldContinue = await confirm({
-      message: `Lockfile detected for ${versionManager}. Continue with ${versionManager} install?`,
-    });
-    if (!shouldContinue) {
-      versionManager = await promptVersionManager();
-    }
-  }
-
+const installDependencies = async (
+  installationMethod: string | undefined
+): Promise<void> => {
   let command;
-  switch (versionManager) {
-    case 'npm':
-      command = 'npm install --legacy-peer-deps';
-      break;
-    case 'yarn':
-      command = 'yarn';
-      break;
-    case 'pnpm':
-      command = 'pnpm i --lockfile-only';
-      break;
-    default:
-      throw new Error('Invalid package manager selected');
+  if (!installationMethod) {
+    let versionManager: string | null = detectLockFile();
+    if (!versionManager) {
+      versionManager = await promptVersionManager();
+    } else {
+      const shouldContinue = await confirm({
+        message: `Lockfile detected for ${versionManager}. Continue with ${versionManager} install?`,
+      });
+      if (!shouldContinue) {
+        versionManager = await promptVersionManager();
+      }
+    }
+    switch (versionManager) {
+      case 'npm':
+        command = 'npm install --legacy-peer-deps';
+        break;
+      case 'yarn':
+        command = 'yarn';
+        break;
+      case 'pnpm':
+        command = 'pnpm i --lockfile-only';
+        break;
+      default:
+        throw new Error('Invalid package manager selected');
+    }
+  } else {
+    command = installationMethod;
   }
 
   const s = spinner();
@@ -118,10 +123,10 @@ const addIndexFile = (componentsDirectory: string, level = 0) => {
 
     const exports = files
       .filter(
-        (file) =>
+        file =>
           file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
       )
-      .map((file) => {
+      .map(file => {
         if (level === 0) {
           addIndexFile(`${componentsDirectory}/${file}`, level + 1);
         }
