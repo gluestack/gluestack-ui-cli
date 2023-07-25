@@ -7,6 +7,6 @@ module.exports = {
   collectCoverageFrom: ['src/**/*.{js,jsx}'],
   reporters: ['default', 'jest-junit'],
 
-  testMatch: ['<rootDir>/__tests__/integration/**/testOrder.js'],
+  testMatch: ['<rootDir>/__tests__/integration/**/order/testOrder.js'],
   forceExit: true,
 };
