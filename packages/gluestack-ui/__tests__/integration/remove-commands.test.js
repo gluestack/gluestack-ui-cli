@@ -60,7 +60,7 @@ describe('Next Project -> Remove', () => {
       // Your test logic here
       console.log(`yarn dev remove ${component}`);
       spawnSync(
-        `node ../../../dist/index.js remove ${component} --use-npm --force-update`,
+        `node ../../../dist/index.js remove ${component} --use-npm --force`,
         {
           cwd: projectPath,
           stdio: 'inherit',

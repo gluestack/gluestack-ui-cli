@@ -60,7 +60,7 @@ describe('Next Project -> Add', () => {
       // Your test logic here
       console.log(`yarn dev add ${component}`);
       spawnSync(
-        `node ../../../dist/index.js add ${component} --use-npm --force-update`,
+        `node ../../../dist/index.js add ${component} --use-npm --force`,
         {
           cwd: projectPath,
           stdio: 'inherit',

@@ -12,13 +12,13 @@ async function main() {
     '--use-npm',
     '--use-yarn',
     '--use-pnpm',
-    '--force-update',
+    '--force',
   ];
   const command = process.argv[2];
   const subCommand = process.argv[3];
   const args = process.argv.splice(4);
   let installationMethod;
-  let forceUpdate;
+  let force;
 
   for (let i = 0; i < args.length; i++) {
     if (supportedArgs.includes(args[i])) {
@@ -28,8 +28,8 @@ async function main() {
         installationMethod = 'yarn';
       } else if (args[i] === '--use-pnpm') {
         installationMethod = 'pnpm i --lockfile-only';
-      } else if (args[i] === '--force-update') {
-        forceUpdate = true;
+      } else if (args[i] === '--force') {
+        force = true;
       }
     } else {
       log.warning(
@@ -101,12 +101,12 @@ async function main() {
       if (gluestackUIInstalled) {
         if (subCommand === '--all') {
           try {
-            await componentAdder('--all', true, false, forceUpdate);
+            await componentAdder('--all', true, false, force);
           } catch (err) {
             log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
           }
         } else {
-          await componentAdder(subCommand, true, false, forceUpdate);
+          await componentAdder(subCommand, true, false, force);
         }
         // await installDependencies(installationMethod);
       }
@@ -118,22 +118,22 @@ async function main() {
       if (gluestackUIInstalled) {
         if (subCommand === '--all') {
           try {
-            if (!forceUpdate) {
+            if (!force) {
               const shouldContinue = await confirm({
                 message:
                   'Are you sure you want to update all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.',
               });
               if (shouldContinue) {
-                await updateComponent('--all', forceUpdate);
+                await updateComponent('--all', force);
               }
             } else {
-              await updateComponent('--all', forceUpdate);
+              await updateComponent('--all', force);
             }
           } catch (err) {
             log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
           }
         } else if (subCommand) {
-          await updateComponent(subCommand, forceUpdate);
+          await updateComponent(subCommand, force);
         } else {
           log.error(
             `\x1b[31mInvalid command, checkout help command by running npx gluestack-ui@latest help\x1b[0m`
@@ -169,7 +169,7 @@ async function main() {
     } else {
       const { gluestackUIInstalled } = await initializer(askUserToInit, 'init');
       if (gluestackUIInstalled) {
-        await componentAdder(subCommand, true, false, forceUpdate);
+        await componentAdder(subCommand, true, false, force);
         // await installDependencies(installationMethod);
       }
     }
