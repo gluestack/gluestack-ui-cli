@@ -48,7 +48,7 @@ const componentArray = [
   'vstack',
 ];
 
-describe('Next Project', () => {
+describe('Next Project -> Add', () => {
   let appProcess;
 
   beforeAll(() => {
