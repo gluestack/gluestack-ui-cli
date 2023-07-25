@@ -60,7 +60,7 @@ const updateIndexFile = async (dirPath: string, componentPath: string) => {
   addIndexFile(targetPath, 1);
 };
 
-async function removeComponent(component = '') {
+async function removeComponent(component = '', force = false) {
   try {
     const componentPath = getConfigComponentPath();
 
@@ -101,16 +101,36 @@ async function removeComponent(component = '') {
       //  Update index file
       await updateIndexFile(dirPath, componentPath);
     } else {
-      const shouldContinue = await confirm({
-        message: `Are you sure you want to remove ${component}?`,
-      });
-
-      if (isCancel(shouldContinue)) {
-        cancel('Operation cancelled.');
-        process.exit(0);
-      }
-
-      if (shouldContinue) {
+      if(!force) {
+        const shouldContinue = await confirm({
+          message: `Are you sure you want to remove ${component}?`,
+        });
+  
+        if (isCancel(shouldContinue)) {
+          cancel('Operation cancelled.');
+          process.exit(0);
+        }
+  
+        if (shouldContinue) {
+          if (fs.existsSync(dirPath)) {
+            fs.rmSync(componentsPath, { recursive: true, force: true });
+            log.success(
+              `\x1b[32m✅  ${'\u001b[1m' +
+                component +
+                '\u001b[22m'} \x1b[0m component removed successfully!`
+            );
+  
+            //  Update index file
+            await updateIndexFile(dirPath, componentPath);
+          } else {
+            log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
+          }
+        } else {
+          log.error(
+            `\x1b[33mThe removal of component "${component}" has been canceled.\x1b[0m`
+          );
+        }
+      } else {
         if (fs.existsSync(dirPath)) {
           fs.rmSync(componentsPath, { recursive: true, force: true });
           log.success(
@@ -124,10 +144,6 @@ async function removeComponent(component = '') {
         } else {
           log.error(`\x1b[33mComponent "${component}" not found.\x1b[0m`);
         }
-      } else {
-        log.error(
-          `\x1b[33mThe removal of component "${component}" has been canceled.\x1b[0m`
-        );
       }
     }
   } catch (err) {

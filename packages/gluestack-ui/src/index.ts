@@ -153,13 +153,13 @@ async function main() {
               message: 'Are you sure you want to remove all components?',
             });
             if (shouldContinue) {
-              await removeComponent('--all');
+              await removeComponent('--all', force);
             }
           } catch (err) {
             log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
           }
         } else if (subCommand) {
-          await removeComponent(subCommand);
+          await removeComponent(subCommand, force);
         } else {
           log.error(
             `\x1b[31mInvalid command, checkout help command by running npx gluestack-ui@latest help\x1b[0m`
