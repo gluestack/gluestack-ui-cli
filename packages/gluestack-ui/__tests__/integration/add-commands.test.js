@@ -10,7 +10,7 @@ const nextAppRootDirectory = path.join(__dirname, '../apps');
 const projectPath = path.join(__dirname, '../apps', APP_NAME);
 
 const NEXT_PORT = '3039';
-const nextAppUrl = `http://localhost:${NEXT_PORT}/`;
+const nextAppUrl = `http://localhost:${NEXT_PORT}`;
 
 const componentArray = [
   'actionsheet',
@@ -76,7 +76,7 @@ describe('Next Project -> Add', () => {
     it('should run the Next project', async () => {
       if (fs.existsSync(projectPath)) {
         appProcess = await startProject(projectPath, NEXT_PORT);
-        const response = await request(nextAppUrl).get('');
+        const response = await request(nextAppUrl).get('/');
         const responseBody = response.text;
         expect(responseBody.includes('Get started by editing')).toBe(true);
       }
