@@ -76,7 +76,7 @@ describe('Next Project -> Add', () => {
     it('should run the Next project', async () => {
       if (fs.existsSync(projectPath)) {
         appProcess = await startProject(projectPath, NEXT_PORT);
-        const response = await request(nextAppUrl).get('/');
+        const response = await request(nextAppUrl).get('');
         const responseBody = response.text;
         expect(responseBody.includes('Get started by editing')).toBe(true);
       }
@@ -84,12 +84,4 @@ describe('Next Project -> Add', () => {
       cleanUpPort(nextAppRootDirectory, NEXT_PORT);
     }, 50000);
   }
-
-  afterAll(() => {
-    // Clean up any resources or files after all tests are finished.
-    cleanUpPort(nextAppRootDirectory, NEXT_PORT);
-    if (appProcess) {
-      appProcess.kill();
-    }
-  });
 });

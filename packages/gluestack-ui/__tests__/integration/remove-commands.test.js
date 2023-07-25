@@ -70,13 +70,13 @@ describe('Next Project -> Remove', () => {
       const componentFolder = convertToCamelCase(component);
       expect(
         fs.existsSync(projectPath + '/components/core/' + componentFolder)
-      ).toBe(true);
+      ).toBe(false);
     });
 
     it('should run the Next project', async () => {
       if (fs.existsSync(projectPath)) {
         appProcess = await startProject(projectPath, NEXT_PORT);
-        const response = await request(nextAppUrl).get('/');
+        const response = await request(nextAppUrl).get('');
         const responseBody = response.text;
         expect(responseBody.includes('Get started by editing')).toBe(true);
       }
