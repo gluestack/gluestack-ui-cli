@@ -58,7 +58,7 @@ describe('Next Project -> Remove', () => {
   });
 
   for (const component of componentArray) {
-    it(`npx gluestack-ui@latest remove ${component}`, () => {
+    it(`npx gluestack-ui@latest remove ${component} --use-npm --force`, () => {
       // Your test logic here
       console.log(`yarn dev remove ${component}`);
       if(isProduction) {

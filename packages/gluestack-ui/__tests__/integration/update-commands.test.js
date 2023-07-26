@@ -58,7 +58,7 @@ describe('Next Project -> Update', () => {
   });
 
   for (const component of componentArray) {
-    it(`npx gluestack-ui@latest update ${component}`, () => {
+    it(`npx gluestack-ui@latest update ${component} --use-npm --force`, () => {
       // Your test logic here
       console.log(`yarn dev update ${component}`);
       if (isProduction){
