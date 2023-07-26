@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import {
   cancel,
+  confirm,
   isCancel,
   log,
   multiselect,
@@ -36,6 +37,53 @@ async function updatePackageJson(projectName: any) {
     finalPackageJson
   );
 }
+
+const enableEslint = async (): Promise<any> => {
+  const enableEslint = await confirm({
+    message: 'Would you like to use ESLint?',
+  });
+  if (isCancel(enableEslint)) {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  }
+  return enableEslint;
+};
+
+function copyFolderSyncWithIgnore(
+  source: string,
+  destination: string,
+  ignoreFiles?: Array<string>
+) {
+  if (!fs.existsSync(destination)) {
+    fs.mkdirSync(destination);
+  }
+  if (!ignoreFiles) ignoreFiles = [];
+
+  const files = fs.readdirSync(source);
+
+  for (const file of files) {
+    if (ignoreFiles.includes(file)) {
+      // Skip files listed in the ignoreFiles array
+      continue;
+    }
+
+    const sourceFilePath = path.join(source, file);
+    const destinationFilePath = path.join(destination, file);
+
+    const stats = fs.statSync(sourceFilePath);
+
+    if (stats.isDirectory()) {
+      copyFolderSyncWithIgnore(
+        sourceFilePath,
+        destinationFilePath,
+        ignoreFiles
+      );
+    } else {
+      fs.copyFileSync(sourceFilePath, destinationFilePath);
+    }
+  }
+}
+
 async function main() {
   let projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'template');
   let argsInfo = getArgsData(args, supportedArgs);
@@ -55,11 +103,12 @@ async function main() {
       process.exit(0);
     }
   }
-
   // copy directory
-  const data = fs.cpSync(projectPath, path.join(process.cwd(), projectName), {
-    recursive: true,
-  });
+  const data = copyFolderSyncWithIgnore(
+    projectPath,
+    path.join(process.cwd(), projectName),
+    []
+  );
   log.info(` Using \x1b[33m npm install \x1b!`);
   updatePackageJson(projectName);
 

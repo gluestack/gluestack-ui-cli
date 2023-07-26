@@ -6,10 +6,6 @@
   "scripts": {
     "install:all": "npm install --workspaces --if-present"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/gluestack-v2/gluestack-frameworks"
-  },
   "keywords": [
     "gluestack",
     "v2",
@@ -27,7 +23,7 @@
   },
   "workspaces": [],
   "dependencies": {
-    "@gluestack-v2/framework-cli": "^0.1.*",
-    "@gluestack-v2/glue-plugin-develop": "^0.1.*"
+    "@gluestack-v2/framework-cli": "latest",
+    "@gluestack-v2/glue-plugin-develop": "latest"
   }
 }
