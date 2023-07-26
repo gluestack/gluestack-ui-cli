@@ -82,7 +82,7 @@ async function updateComponent(
       }
     } else {
       let shouldContinue: any = true;
-      if (forceUpdate) {
+      if (!forceUpdate) {
         shouldContinue = await confirm({
           message: `Are you sure you want to update ${component} ? This will remove all your existing changes and replace them with new.`,
         });
