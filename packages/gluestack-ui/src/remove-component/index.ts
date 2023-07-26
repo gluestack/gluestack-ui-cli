@@ -60,7 +60,7 @@ const updateIndexFile = async (dirPath: string, componentPath: string) => {
   addIndexFile(targetPath, 1);
 };
 
-async function removeComponent(component = '', force = false) {
+async function removeComponent(component = '', forceRemove = false) {
   try {
     const componentPath = getConfigComponentPath();
 
@@ -101,7 +101,7 @@ async function removeComponent(component = '', force = false) {
       //  Update index file
       await updateIndexFile(dirPath, componentPath);
     } else {
-      if(!force) {
+      if(!forceRemove) {
         const shouldContinue = await confirm({
           message: `Are you sure you want to remove ${component}?`,
         });
