@@ -12,6 +12,8 @@ const projectPath = path.join(__dirname, '../apps', APP_NAME);
 const NEXT_PORT = '3039';
 const nextAppUrl = `http://localhost:${NEXT_PORT}`;
 
+const isProduction = process.argv.includes('--isProduction=true');
+
 const componentArray = [
   'actionsheet',
   'alert',
@@ -59,14 +61,25 @@ describe('Next Project -> Update', () => {
     it(`npx gluestack-ui@latest update ${component}`, () => {
       // Your test logic here
       console.log(`yarn dev update ${component}`);
-      spawnSync(
-        `node ../../../dist/index.js update ${component} --use-npm --force`,
-        {
-          cwd: projectPath,
-          stdio: 'inherit',
-          shell: true,
-        }
-      );
+      if (isProduction){
+        spawnSync(
+          `npx gluestack-ui@latest update ${component} --use-npm --force`,
+          {
+            cwd: projectPath,
+            stdio: 'inherit',
+            shell: true,
+          }
+        );
+      } else {
+        spawnSync(
+          `node ../../../dist/index.js update ${component} --use-npm --force`,
+          {
+            cwd: projectPath,
+            stdio: 'inherit',
+            shell: true,
+          }
+        );
+      }
       const componentFolder = convertToCamelCase(component);
       expect(
         fs.existsSync(projectPath + '/components/core/' + componentFolder)
