@@ -97,4 +97,13 @@ describe('Next Project -> Add', () => {
       cleanUpPort(nextAppRootDirectory, NEXT_PORT);
     }, 50000);
   }
+
+  afterAll(() => {
+    // Clean up any resources or files after all tests are finished.
+    cleanUpPort(nextAppRootDirectory, NEXT_PORT);
+    if (appProcess) {
+      appProcess.kill();
+    }
+  });
+
 });
