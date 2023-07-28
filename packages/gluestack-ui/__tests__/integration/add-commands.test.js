@@ -16,38 +16,38 @@ const isProduction = process.argv.includes('--isProduction=true');
 
 const componentArray = [
   'actionsheet',
-  // 'alert',
-  // 'alert-dialog',
-  // 'avatar',
-  // 'badge',
-  // 'box',
-  // 'button',
-  // 'center',
-  // 'checkbox',
-  // 'divider',
-  // 'fab',
-  // 'form-control',
-  // 'heading',
-  // 'hstack',
-  // 'icons',
-  // 'image',
-  // 'input',
-  // 'link',
-  // 'menu',
-  // 'modal',
-  // 'popover',
-  // 'pressable',
-  // 'progress',
-  // 'radio',
-  // 'select',
-  // 'slider',
-  // 'spinner',
-  // 'switch',
-  // 'text',
-  // 'textarea',
-  // 'toast',
-  // 'tooltip',
-  // 'vstack',
+  'alert',
+  'alert-dialog',
+  'avatar',
+  'badge',
+  'box',
+  'button',
+  'center',
+  'checkbox',
+  'divider',
+  'fab',
+  'form-control',
+  'heading',
+  'hstack',
+  'icons',
+  'image',
+  'input',
+  'link',
+  'menu',
+  'modal',
+  'popover',
+  'pressable',
+  'progress',
+  'radio',
+  'select',
+  'slider',
+  'spinner',
+  'switch',
+  'text',
+  'textarea',
+  'toast',
+  'tooltip',
+  'vstack',
 ];
 
 describe('Next Project -> Add', () => {
@@ -61,15 +61,12 @@ describe('Next Project -> Add', () => {
     it(`npx gluestack-ui@latest add ${component}`, () => {
       // Your test logic here
       console.log(`yarn dev add ${component}`);
-      if(isProduction) {
-        spawnSync(
-          `npx gluestack-ui add ${component} --use-npm --force`,
-          {
-            cwd: projectPath,
-            stdio: 'inherit',
-            shell: true,
-          }
-        );
+      if (isProduction) {
+        spawnSync(`npx gluestack-ui add ${component} --use-npm --force`, {
+          cwd: projectPath,
+          stdio: 'inherit',
+          shell: true,
+        });
       } else {
         spawnSync(
           `node ../../../dist/index.js add ${component} --use-npm --force`,
@@ -95,6 +92,9 @@ describe('Next Project -> Add', () => {
       }
 
       cleanUpPort(nextAppRootDirectory, NEXT_PORT);
+      if (appProcess) {
+        appProcess.kill();
+      }
     }, 50000);
   }
 
@@ -105,5 +105,4 @@ describe('Next Project -> Add', () => {
       appProcess.kill();
     }
   });
-
 });

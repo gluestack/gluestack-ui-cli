@@ -16,38 +16,38 @@ const isProduction = process.argv.includes('--isProduction=true');
 
 const componentArray = [
   'actionsheet',
-  // 'alert',
-  // 'alert-dialog',
-  // 'avatar',
-  // 'badge',
-  // 'box',
-  // 'button',
-  // 'center',
-  // 'checkbox',
-  // 'divider',
-  // 'fab',
-  // 'form-control',
-  // 'heading',
-  // 'hstack',
-  // 'icons',
-  // 'image',
-  // 'input',
-  // 'link',
-  // 'menu',
-  // 'modal',
-  // 'popover',
-  // 'pressable',
-  // 'progress',
-  // 'radio',
-  // 'select',
-  // 'slider',
-  // 'spinner',
-  // 'switch',
-  // 'text',
-  // 'textarea',
-  // 'toast',
-  // 'tooltip',
-  // 'vstack',
+  'alert',
+  'alert-dialog',
+  'avatar',
+  'badge',
+  'box',
+  'button',
+  'center',
+  'checkbox',
+  'divider',
+  'fab',
+  'form-control',
+  'heading',
+  'hstack',
+  'icons',
+  'image',
+  'input',
+  'link',
+  'menu',
+  'modal',
+  'popover',
+  'pressable',
+  'progress',
+  'radio',
+  'select',
+  'slider',
+  'spinner',
+  'switch',
+  'text',
+  'textarea',
+  'toast',
+  'tooltip',
+  'vstack',
 ];
 
 describe('Next Project -> Remove', () => {
@@ -61,7 +61,7 @@ describe('Next Project -> Remove', () => {
     it(`npx gluestack-ui@latest remove ${component} --use-npm --force`, () => {
       // Your test logic here
       console.log(`yarn dev remove ${component}`);
-      if(isProduction) {
+      if (isProduction) {
         spawnSync(
           `npx gluestack-ui@latest remove ${component} --use-npm --force`,
           {
@@ -95,6 +95,9 @@ describe('Next Project -> Remove', () => {
       }
 
       cleanUpPort(nextAppRootDirectory, NEXT_PORT);
+      if (appProcess) {
+        appProcess.kill();
+      }
     }, 50000);
   }
 
