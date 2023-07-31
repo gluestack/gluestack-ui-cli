@@ -86,26 +86,27 @@ describe('Next Project -> Remove', () => {
       ).toBe(false);
     });
 
-    it('should run the Next project', async () => {
-      if (fs.existsSync(projectPath)) {
-        appProcess = await startProject(projectPath, NEXT_PORT);
-        const response = await request(nextAppUrl).get('/');
-        const responseBody = response.text;
-        expect(responseBody.includes('Get started by editing')).toBe(true);
-      }
-
-      if (appProcess) {
-        appProcess.kill();
-      }
-      cleanUpPort(nextAppRootDirectory, NEXT_PORT);
-    }, 50000);
   }
 
-  afterAll(() => {
+  it('should run the Next project', async () => {
+    if (fs.existsSync(projectPath)) {
+      appProcess = await startProject(projectPath, NEXT_PORT);
+      const response = await request(nextAppUrl).get('/');
+      const responseBody = response.text;
+      expect(responseBody.includes('Get started by editing')).toBe(true);
+    }
+
     if (appProcess) {
       appProcess.kill();
     }
-    // Clean up any resources or files after all tests are finished.
     cleanUpPort(nextAppRootDirectory, NEXT_PORT);
-  });
+  }, 50000);
+
+  // afterAll(() => {
+  //   if (appProcess) {
+  //     appProcess.kill();
+  //   }
+  //   // Clean up any resources or files after all tests are finished.
+  //   cleanUpPort(nextAppRootDirectory, NEXT_PORT);
+  // });
 });
