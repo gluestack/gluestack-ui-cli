@@ -16,38 +16,38 @@ const isProduction = process.argv.includes('--isProduction=true');
 
 const componentArray = [
   'actionsheet',
-  // 'alert',
-  // 'alert-dialog',
-  // 'avatar',
-  // 'badge',
-  // 'box',
-  // 'button',
-  // 'center',
-  // 'checkbox',
-  // 'divider',
-  // 'fab',
-  // 'form-control',
-  // 'heading',
-  // 'hstack',
-  // 'icons',
-  // 'image',
-  // 'input',
-  // 'link',
-  // 'menu',
-  // 'modal',
-  // 'popover',
-  // 'pressable',
-  // 'progress',
-  // 'radio',
-  // 'select',
-  // 'slider',
-  // 'spinner',
-  // 'switch',
-  // 'text',
-  // 'textarea',
-  // 'toast',
-  // 'tooltip',
-  // 'vstack',
+  'alert',
+  'alert-dialog',
+  'avatar',
+  'badge',
+  'box',
+  'button',
+  'center',
+  'checkbox',
+  'divider',
+  'fab',
+  'form-control',
+  'heading',
+  'hstack',
+  'icons',
+  'image',
+  'input',
+  'link',
+  'menu',
+  'modal',
+  'popover',
+  'pressable',
+  'progress',
+  'radio',
+  'select',
+  'slider',
+  'spinner',
+  'switch',
+  'text',
+  'textarea',
+  'toast',
+  'tooltip',
+  'vstack',
 ];
 
 describe('Next Project -> Update', () => {
@@ -61,7 +61,7 @@ describe('Next Project -> Update', () => {
     it(`npx gluestack-ui@latest update ${component} --use-npm --force`, () => {
       // Your test logic here
       console.log(`yarn dev update ${component}`);
-      if (isProduction){
+      if (isProduction) {
         spawnSync(
           `npx gluestack-ui@latest update ${component} --use-npm --force`,
           {
@@ -95,6 +95,9 @@ describe('Next Project -> Update', () => {
       }
       appProcess.kill('SIGINT');
 
+      if (appProcess) {
+        appProcess.kill();
+      }
       cleanUpPort(nextAppRootDirectory, NEXT_PORT);
     }, 50000);
   }
@@ -106,5 +109,5 @@ describe('Next Project -> Update', () => {
     // Clean up any resources or files after all tests are finished.
     cleanUpPort(nextAppRootDirectory, NEXT_PORT);
   });
-
+  
 });
