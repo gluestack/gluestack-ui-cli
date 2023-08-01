@@ -28,6 +28,6 @@
   "dependencies": {
     "@gluestack-v2/framework-cli": "latest",
     "@gluestack-v2/glue-plugin-develop": "latest",
-    "@gluestack-v2/glue-plugin-web": "^0.1.4"
+    "@gluestack-v2/glue-plugin-web": "latest"
   }
 }
