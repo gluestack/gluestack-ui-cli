@@ -21,10 +21,11 @@
     "node": ">=18"
   },
   "scripts": {
+    "clean-template": "rm -rf src/template/.glue/__generated__ && rm -rf src/template/package-lock.json  && rm -rf src/template/yarn.lock && rm -rf src/template/node_modules/",
     "start": "tsc --watch",
     "watch": "tsc --watch",
-    "build": "tsc",
-    "prepare": "tsc",
+    "build": "yarn clean-template && tsc",
+    "prepare": "yarn clean-template && tsc",
     "test": "echo 'Test passed'",
     "dev": "tsc && node dist/index.js"
   },
