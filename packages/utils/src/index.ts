@@ -12,8 +12,7 @@ function installDependencies(projectName: string, installationMethod: string) {
 
   try {
     spawnSync(
-      `git init && ${installationMethod} && rm .npmignore && touch .gitignore
-    echo "node_modules\n .next" >> .gitignore`,
+      `git init && ${installationMethod} && rm .npmignore`,
       {
         cwd: projectPath,
         stdio: 'inherit',
