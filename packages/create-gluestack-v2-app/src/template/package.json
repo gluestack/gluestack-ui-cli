@@ -1,5 +1,5 @@
 {
-  "name": "framework-cli",
+  "name": "gluestack-app",
   "version": "0.1.0",
   "description": "Gluestack V2 App",
   "main": "glue",
@@ -21,9 +21,13 @@
   "devDependencies": {
     "@types/node": "^18.15.5"
   },
-  "workspaces": [],
+  "workspaces": [
+    "client/web",
+    ".glue/__generated__/packages/**"
+  ],
   "dependencies": {
     "@gluestack-v2/framework-cli": "latest",
-    "@gluestack-v2/glue-plugin-develop": "latest"
+    "@gluestack-v2/glue-plugin-develop": "latest",
+    "@gluestack-v2/glue-plugin-web": "^0.1.4"
   }
 }
