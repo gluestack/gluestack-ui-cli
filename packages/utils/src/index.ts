@@ -10,6 +10,16 @@ function installDependencies(projectName: string, installationMethod: string) {
   const s = spinner();
   s.start('⏳ Installing dependencies...');
 
+  try {spawnSync(`mv gitignore .gitignore`,
+  {
+    cwd: projectPath,
+    stdio: 'inherit',
+    shell: true,
+  });
+  } catch (err) {
+    log.error(`\x1b[31mError: gitignore file not found in template!\x1b[0m`);
+  }
+
   try {
     spawnSync(
       `git init && ${installationMethod} && rm .npmignore`,
@@ -19,6 +29,7 @@ function installDependencies(projectName: string, installationMethod: string) {
         shell: true,
       }
     );
+
     s.stop(`\x1b[32mDependencies have been installed successfully.\x1b[0m`);
   } catch (err) {
     log.error(`\x1b[31mError: ${err}\x1b[0m`);
