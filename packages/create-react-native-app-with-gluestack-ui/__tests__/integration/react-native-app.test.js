@@ -43,7 +43,7 @@ describe('Create React Native app:', () => {
 
   afterAll(() => {
     // cleanUpPort(rnAppRootDirectory, RN_PORT);
-    // cleanAppDirectory(rnAppRootDirectory, APP_NAME);
+    cleanAppDirectory(rnAppRootDirectory, APP_NAME);
     if (appProcess) {
       appProcess.kill();
     }

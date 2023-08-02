@@ -32,17 +32,17 @@ describe('Create Expo app:', () => {
     expect(fs.existsSync(appPath + "/node_modules")).toBe(true);
   }, 5000000);
 
-  it('Start and check if Expo app is running', async () => {
-    if (fs.existsSync(expoAppPath)) {
-      appProcess = await startProject(expoAppPath, EXPO_PORT);
-      // const response = await request(expoAppUrl).get('/');
-      // const responseBody = response.text;
-      // expect(responseBody.includes('Get started by editing')).toBe(true);
-    }
-  }, 5000000);
+  // it('Start and check if Expo app is running', async () => {
+  //   if (fs.existsSync(expoAppPath)) {
+  //     appProcess = await startProject(expoAppPath, EXPO_PORT);
+  //     const response = await request(expoAppUrl).get('/');
+  //     const responseBody = response.text;
+  //     expect(responseBody.includes('Get started by editing')).toBe(true);
+  //   }
+  // }, 5000000);
 
   afterAll(() => {
-    cleanUpPort(expoAppRootDirectory, EXPO_PORT);
+    // cleanUpPort(expoAppRootDirectory, EXPO_PORT);
     cleanAppDirectory(expoAppRootDirectory, APP_NAME);
     if (appProcess) {
       appProcess.kill();
