@@ -46,7 +46,7 @@
   "author": "gluestack",
   "dependencies": {
     "@clack/prompts": "^0.6.3",
-    "@gluestack/cli-utils": "^0.1.6",
+    "@gluestack/cli-utils": "^0.1.7",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
     "prettier": "^3.0.0",

@@ -316,10 +316,10 @@
     picocolors "^1.0.0"
     sisteransi "^1.0.5"
 
-"@gluestack/cli-utils@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@gluestack/cli-utils/-/cli-utils-0.1.3.tgz#66fb38d3ade5d001929315e417feb8e63cff76c2"
-  integrity sha512-GkNoAmjQMGRZ/BB5zVSIsWndQpWzf4AOq1LBX0dNbY9Desmr5DVH4KpzL6gutGgK/oKUGpBfv9CQZhVgwRDfRQ==
+"@gluestack/cli-utils@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@gluestack/cli-utils/-/cli-utils-0.1.6.tgz#da250bcb55998e27913ac66bed658b99dfeed646"
+  integrity sha512-DMN0HcW9FkZz90iFCQJJ+X6aECc6avd9AYNAwmq6CNU2kG+AMF96HLj10XEzipH+rEAxCCkNDehRRFs1dAp2SQ==
   dependencies:
     "@clack/prompts" "^0.6.3"
     find-package-json "^1.2.0"

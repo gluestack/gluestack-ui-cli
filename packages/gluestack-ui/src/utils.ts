@@ -127,10 +127,15 @@ const addIndexFile = (componentsDirectory: string, level = 0) => {
           file !== 'index.js' && file !== 'index.tsx' && file !== 'index.ts'
       )
       .map(file => {
-        if (level === 0) {
-          addIndexFile(`${componentsDirectory}/${file}`, level + 1);
+        const stats = fs.statSync(`${componentsDirectory}/${file}`);
+        if (stats.isDirectory()) {
+          if (level === 0) {
+            addIndexFile(`${componentsDirectory}/${file}`, level + 1);
+          }
+          return `export * from './${file.split('.')[0]}';`;
+        } else {
+          return '';
         }
-        return `export * from './${file.split('.')[0]}';`;
       })
       .join('\n');
     fs.writeFileSync(path.join(componentsDirectory, 'index.ts'), exports);
