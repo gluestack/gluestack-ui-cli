@@ -6,13 +6,14 @@ let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
 import path from 'path';
 import fs from 'fs';
 import { cancel, isCancel, log, text } from '@clack/prompts';
-import { installDependencies, getArgsData } from '@gluestack/cli-utils';
+import { installDependencies, getArgsData } from '../../utils';
 
 async function main() {
   let projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'template');
-  let argsInfo = getArgsData(args, supportedArgs);
+  let argsInfo = getArgsData(args);
+  console.log(argsInfo);
   let projectName: any = argsInfo?.projectName;
-  let installationMethod: any = argsInfo?.installationMethod;
+  let installationMethod: any = argsInfo?.installationMethod || 'npm install';
 
   if (projectName === '' || projectName == undefined) {
     projectName = await text({
