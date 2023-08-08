@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -33,7 +33,7 @@
     }
   },
   "bin": {
-    "gluestack-ui-scripts": "./dist/index.js"
+    "gluestack-ui-scripts": "dist/index.js"
   },
   "prettier": {
     "printWidth": 80,
