@@ -5,6 +5,7 @@ import { initializer } from './installer/initializer';
 import { removeComponent } from './remove-component';
 import { intro, outro, confirm, log } from '@clack/prompts';
 import { installDependencies } from './utils';
+import { ejectComponents } from './eject-components';
 
 async function main() {
   intro(`gluestack-ui`);
@@ -162,6 +163,8 @@ async function main() {
           );
         }
       }
+    } else if (command === 'eject') {
+      await ejectComponents();
     } else {
       const { gluestackUIInstalled } = await initializer(askUserToInit, 'init');
       if (gluestackUIInstalled) {
