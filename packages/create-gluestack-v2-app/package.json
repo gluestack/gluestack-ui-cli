@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A fullstack framework.",
-  "version": "0.1.10",
+  "version": "0.1.33",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -21,12 +21,13 @@
     "node": ">=18"
   },
   "scripts": {
+    "clean-template": "rm -rf src/template/.glue/__generated__ && rm -rf src/template/package-lock.json  && rm -rf src/template/yarn.lock && rm -rf src/template/node_modules/",
     "start": "tsc --watch",
     "watch": "tsc --watch",
-    "build": "tsc",
-    "prepare": "tsc",
+    "build": "yarn clean-template && tsc",
+    "prepare": "yarn clean-template && tsc",
     "test": "echo 'Test passed'",
-    "dev": "node dist/index.js"
+    "dev": "tsc && node dist/index.js"
   },
   "husky": {
     "hooks": {
@@ -45,7 +46,7 @@
   "author": "gluestack",
   "dependencies": {
     "@clack/prompts": "^0.6.3",
-    "@gluestack/cli-utils": "^0.1.1",
+    "@gluestack/cli-utils": "^0.1.7",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
     "prettier": "^3.0.0",

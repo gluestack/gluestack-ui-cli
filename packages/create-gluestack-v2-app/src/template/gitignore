@@ -1,0 +1,19 @@
+#
+# Ignoring glue directories & files except
+# plugin-instance and plugins json files
+#
+
+.glue/__generated__
+# !.glue/internals/plugin-instances.json
+# !.glue/internals/plugin.json
+
+# Ignoring others
+.env
+node_modules
+.next
+package-lock.json
+yarn.lock
+build/
+
+# Internal testing files
+test.js

@@ -27,15 +27,21 @@ function installDependencies(projectName: string, installationMethod: string) {
   s.start('⏳ Installing dependencies...');
 
   try {
-    spawnSync(
-      `git init && ${installationMethod} && touch .gitignore
-    echo "node_modules .next" >> .gitignore`,
-      {
-        cwd: projectPath,
-        stdio: 'inherit',
-        shell: true,
-      }
-    );
+    spawnSync(`mv gitignore .gitignore`, {
+      cwd: projectPath,
+      stdio: 'inherit',
+      shell: true,
+    });
+  } catch (err) {
+    log.error(`\x1b[31mError: gitignore file not found in template!\x1b[0m`);
+  }
+
+  try {
+    spawnSync(`git init && ${installationMethod} && rm .npmignore`, {
+      cwd: projectPath,
+      stdio: 'inherit',
+      shell: true,
+    });
     s.stop(`\x1b[32mSuccess! Created ${projectName} at ${projectPath}\x1b[0m`);
   } catch (err) {
     log.error(`\x1b[31mError: ${err}\x1b[0m`);

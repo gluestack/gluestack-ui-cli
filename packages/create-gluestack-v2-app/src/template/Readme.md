@@ -1,63 +1,43 @@
+# gluestack Project
 
-> Important Notes:
->
-> 1. You'll need node version >= 18 & < 19
-> 2. Please do not use **Yarn** or **PNPM**, we will only use **npm** as a package manager in **Gluestack's v2**
+This is a gluestack project bootstrapped with `create-gluestack-v2-app`.
 
-## Install npm dependencies
+## Getting Started
+
+Before running the development server, you need to install the `bolt` command because gluestack uses [bolt](https://bolt.gluestack.io) to run project. If you haven't installed it yet, run the following command:
+```bash
+npm install -g @gluestack/bolt@latest 
+```
+For more information about `bolt`, refer to the official [bolt documentation](https://bolt.gluestack.io/docs).
+
+
+Once you have installed `bolt`, you can start the development server by running the following command:
 
 ```bash
-# Run this command from your project's root directory
-$ npm run install:all;
+node glue start
 ```
 
-## Access Glue
+Once the development server is up and running, open http://localhost:3000 in your browser to see the result.
+You can begin editing the page by modifying `client/web/pages/index.tsx`. The page will auto-update as you edit the file.
+
+
+## Usage
+
+To install a plugin, use the `node glue add <plugin-package> <instance-name>` command. Replace <plugin-package> with the name of the plugin you want to install.
+For example, to install the `gateway` plugin, run:
 
 ```bash
-# Run this command from your project's root directory
-$ node glue
-#
-# And its output will be something like this:
-#
-Usage: glue [options] [command]
-
-Gluestack V2 Framework CLI
-
-Options:
-  -V, --version                              output the version number
-  -h, --help                                 display help for command
-
-Commands:
-  add|install <plugin-name> <instance-name>  installs a gluestack plugin, use help for more info on subcommands
-  instance:list                              Prints the list of installed plugin instances
-  plugin:list                                Prints the list of available plugins
-  plugin:init                                Initializes the gluestack app as a plugin
-  watch                                      Watches the instances for changes and restarts them
-  help [command]                             display help for command
+node glue add @gluestack-v2/glue-plugin-service-gateway gateway
 ```
 
-## Create Gluestack Project Build
+## Learn More
 
-```bash
-# Goto project's root directory and run the following command
-$ node glue build
-```
+To learn more about gluestack, explore the following resources:
+- **Official Documentation:** Visit the official [gluestack documentation](https://gluestack.io/docs) to learn about its features and API.
+- **GitHub Repository:** You can check out the [gluestack GitHub repository](https://github.com/gluestack-v2/framework-cli) for the latest updates, issues, and contributions. Your feedback and contributions are welcome!
+- **Plugin Documentation:** If you want to use specific plugins and learn more about their configurations and usage, refer to the plugin documentation section in the [gluestack documentation](https://gluestack.io/docs). Here you will find details about each available plugin and how to integrate them into your gluestack project.
 
-## Run Gluestack Project Build
+## Deploy
 
-```bash
-# Goto seal scripts
-$ cd .glue/seal/scripts
-# Install npm dependencies
-$ npm install
-# Create scripts build
-$ npm run build
-# Here's how you can run your web plugin instance in docker
-$ node build/index run:service website --platform docker --ports 3000:9000
-# Here's how you can run your web plugin instance in local
-$ node build/index run:service website --platform local
-```
+For deployment instructions and more details, please refer to our [gluestack deployment documentation](https://gluestack.io).
 
-npm run install:all
-node glue add @gluestack-v2/glue-plugin-develop develop
-node glue add @gluestack-v2/glue-plugin-web web
