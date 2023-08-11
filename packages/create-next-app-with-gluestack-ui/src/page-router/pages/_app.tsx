@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
+import { GluestackUIProvider, config } from "@gluestack-ui/react";
 import type { AppProps } from "next/app";
-import { GluestackUIProvider } from "../components";
-import { config } from "../gluestack-ui.config";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

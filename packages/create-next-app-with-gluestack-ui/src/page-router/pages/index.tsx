@@ -1,8 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import type { NextPage } from "next";
-
-import { Box, Text } from "../components";
+import { Box, Text } from "@gluestack-ui/react";
 
 const Meta = () => {
   return (
@@ -38,7 +37,7 @@ const FeatureCard = ({ iconSvg, name, desc }: any) => {
           {name}
         </Text>
       </Box>
-      <Text color="$textDark400" mt="$2">
+      <Text color="$textDark400" marginTop="$2">
         {desc}
       </Text>
     </Box>
