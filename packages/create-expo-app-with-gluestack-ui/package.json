@@ -10,16 +10,13 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.16",
+  "version": "0.1.16-alpha.0",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
     "dist",
     "src"
   ],
-  "engines": {
-    "node": ">=18"
-  },
   "scripts": {
     "start": "tsc --watch",
     "watch": "tsc --watch",
