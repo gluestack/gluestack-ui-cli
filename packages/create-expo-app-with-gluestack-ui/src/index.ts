@@ -11,7 +11,7 @@ import { installDependencies, getArgsData } from '@gluestack/cli-utils';
 async function main() {
   let projectPath = path.join(path.resolve(__dirname, '..'), 'src', 'template');
   let argsInfo = getArgsData(args);
-  console.log(argsInfo);
+
   let projectName: any = argsInfo?.projectName;
   let installationMethod: any = argsInfo?.installationMethod || 'npm install';
 
