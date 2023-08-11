@@ -14,9 +14,6 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
-  "engines": {
-    "node": ">=18"
-  },
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",

@@ -17,9 +17,6 @@
     "dist",
     "src"
   ],
-  "engines": {
-    "node": ">=18"
-  },
   "scripts": {
     "start": "tsc --watch",
     "watch": "tsc --watch",
