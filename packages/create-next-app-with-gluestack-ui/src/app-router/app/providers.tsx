@@ -1,8 +1,6 @@
-// app/providers.tsx
 "use client";
 
-import { GluestackUIProvider } from "../components";
-import { config } from "../gluestack-ui.config";
+import { GluestackUIProvider, config } from "@gluestack-ui/react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

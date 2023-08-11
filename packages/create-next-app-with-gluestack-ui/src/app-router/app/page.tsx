@@ -1,5 +1,4 @@
-"use client";
-import { Box, Text } from "../components";
+import { Box, Button, ButtonText, HStack, Text } from "@gluestack-ui/react";
 import Image from "next/image";
 
 export default function Home() {
@@ -92,26 +91,32 @@ const Container = () => {
             Get started by editing
           </Text>
           <Text color="$white" fontWeight="$medium" ml="$2">
-            <code>pages/index.tsx</code>
+            <code>pages.tsx</code>
           </Text>
         </Box>
-        <Box
-          flex={1}
-          justifyContent="center"
-          alignItems="center"
-          sx={{
-            "@base": {
-              h: 20,
-              w: 300,
-            },
-            "@lg": {
-              h: 160,
-              w: 400,
-            },
-          }}
-        >
-          <Image src="/logo.svg" fill alt="logo" priority />
-        </Box>
+        <HStack alignItems="center">
+          <Box
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            sx={{
+              "@base": {
+                h: 20,
+                w: 300,
+              },
+              "@lg": {
+                h: 160,
+                w: 400,
+              },
+            }}
+          >
+            <Image src="/logo.svg" fill alt="logo" priority />
+          </Box>
+          <Button>
+            <ButtonText>Learn more -></ButtonText>
+          </Button>
+        </HStack>
+
         <Box
           sx={{
             "@base": {
