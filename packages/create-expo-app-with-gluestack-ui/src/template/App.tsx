@@ -1,4 +1,4 @@
-import { Box, GluestackUIProvider, Text, config } from '@gluestack-ui/react';
+import { Box, GluestackUIProvider, Text, config } from '@gluestack-ui/themed';
 import { ScrollView } from 'react-native';
 import Gradient from './assets/Icons/Gradient';
 import DocumentData from './assets/Icons/DocumentData';

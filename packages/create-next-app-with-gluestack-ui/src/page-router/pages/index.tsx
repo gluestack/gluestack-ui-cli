@@ -1,7 +1,7 @@
-import Head from "next/head";
-import Image from "next/image";
-import type { NextPage } from "next";
-import { Box, Text } from "@gluestack-ui/react";
+import Head from 'next/head';
+import Image from 'next/image';
+import type { NextPage } from 'next';
+import { Box, Text } from '@gluestack-ui/themed';
 
 const Meta = () => {
   return (
@@ -50,11 +50,11 @@ const Container = () => {
       <Box
         position="absolute"
         sx={{
-          "@base": {
+          '@base': {
             h: 500,
             w: 500,
           },
-          "@lg": {
+          '@lg': {
             h: 700,
             w: 700,
           },
@@ -65,13 +65,13 @@ const Container = () => {
       <Box
         flex={1}
         sx={{
-          "@base": {
-            my: "$16",
-            mx: "$5",
+          '@base': {
+            my: '$16',
+            mx: '$5',
           },
-          "@lg": {
-            my: "$24",
-            mx: "$32",
+          '@lg': {
+            my: '$24',
+            mx: '$32',
           },
         }}
         alignItems="center"
@@ -83,13 +83,13 @@ const Container = () => {
           rounded="$full"
           alignItems="center"
           sx={{
-            "@base": {
-              flexDirection: "column",
+            '@base': {
+              flexDirection: 'column',
             },
-            "@sm": {
-              flexDirection: "row",
+            '@sm': {
+              flexDirection: 'row',
             },
-            "@md": { alignSelf: "flex-start" },
+            '@md': { alignSelf: 'flex-start' },
           }}
         >
           <Text color="$white" fontWeight="$normal">
@@ -104,11 +104,11 @@ const Container = () => {
           justifyContent="center"
           alignItems="center"
           sx={{
-            "@base": {
+            '@base': {
               h: 20,
               w: 300,
             },
-            "@lg": {
+            '@lg': {
               h: 160,
               w: 400,
             },
@@ -118,11 +118,11 @@ const Container = () => {
         </Box>
         <Box
           sx={{
-            "@base": {
-              flexDirection: "column",
+            '@base': {
+              flexDirection: 'column',
             },
-            "@md": {
-              flexDirection: "row",
+            '@md': {
+              flexDirection: 'row',
             },
           }}
         >
