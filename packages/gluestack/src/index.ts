@@ -77,7 +77,9 @@ async function main() {
       break;
     case 'react-native-with-gluestack-ui':
       spawnSync(
-        `npx create-expo-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        `npx create-react-native-app-with-gluestack-ui@latest ${args.join(
+          ' '
+        )}`,
         {
           cwd: process.cwd(),
           stdio: 'inherit',
