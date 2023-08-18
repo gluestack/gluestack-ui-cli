@@ -54,27 +54,36 @@ async function main() {
 
   switch (choice) {
     case 'next-with-gluestack-ui':
-      spawnSync(`npx create-next-app-with-gluestack-ui@latest`, {
-        cwd: process.cwd(),
-        stdio: 'inherit',
-        shell: true,
-      });
+      spawnSync(
+        `npx create-next-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
 
       break;
     case 'expo-with-gluestack-ui':
-      spawnSync(`npx create-expo-app-with-gluestack-ui@latest`, {
-        cwd: process.cwd(),
-        stdio: 'inherit',
-        shell: true,
-      });
+      spawnSync(
+        `npx create-expo-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
 
       break;
     case 'react-native-with-gluestack-ui':
-      spawnSync(`npx create-expo-app-with-gluestack-ui@latest`, {
-        cwd: process.cwd(),
-        stdio: 'inherit',
-        shell: true,
-      });
+      spawnSync(
+        `npx create-expo-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
 
       break;
     default:
