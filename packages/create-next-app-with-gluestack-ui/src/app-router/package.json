@@ -18,7 +18,7 @@
     "@expo/next-adapter": "^5.0.2",
     "@gluestack-style/animation-plugin": "latest",
     "@gluestack-style/react": "latest",
-    "@gluestack-ui/react": "latest",
+    "@gluestack-ui/themed": "latest",
     "@gluestack/ui-next-adapter": "latest",
     "@legendapp/motion": "latest",
     "@types/node": "20.3.2",

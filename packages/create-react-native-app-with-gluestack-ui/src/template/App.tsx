@@ -12,10 +12,16 @@ import {
   StatusBar,
   useColorScheme,
 } from 'react-native';
-import {config} from './gluestack-ui.config';
+import {config} from '@gluestack-ui/themed';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {Button, GluestackUIProvider, Box, Text, Image} from './components';
+import {
+  Button,
+  GluestackUIProvider,
+  Box,
+  Text,
+  Image,
+} from '@gluestack-ui/themed';
 
 const FeatureCard = ({iconSvg, name, desc}: any) => {
   return (
