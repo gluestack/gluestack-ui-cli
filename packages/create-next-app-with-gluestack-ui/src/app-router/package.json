@@ -16,9 +16,7 @@
   "dependencies": {
     "@expo/html-elements": "latest",
     "@expo/next-adapter": "^5.0.2",
-    "@gluestack-style/animation-plugin": "latest",
-    "@gluestack-style/react": "latest",
-    "@gluestack-ui/themed": "latest",
+    "@gluestack-ui/themed": "^0.1.9",
     "@gluestack/ui-next-adapter": "latest",
     "@legendapp/motion": "latest",
     "@types/node": "20.3.2",
