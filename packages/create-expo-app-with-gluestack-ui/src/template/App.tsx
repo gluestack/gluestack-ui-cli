@@ -8,7 +8,7 @@ import Logo from './assets/Icons/Logo';
 
 export default function App() {
   return (
-    <GluestackUIProvider config={config.theme}>
+    <GluestackUIProvider>
       <Home />
     </GluestackUIProvider>
   );
