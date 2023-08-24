@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@gluestack-style/animation-plugin": "^0.1.7",
     "@gluestack-ui/themed": "^0.1.9",
     "@gluestack/ui-next-adapter": "^2.1.7",
     "@types/node": "20.4.9",
