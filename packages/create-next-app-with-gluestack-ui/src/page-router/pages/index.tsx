@@ -46,7 +46,13 @@ const FeatureCard = ({ iconSvg, name, desc }: any) => {
 
 const Container = () => {
   return (
-    <Box flex={1} bg="$black" h="100vh">
+    <Box
+      flex={1}
+      bg="$black"
+      sx={{
+        _web: { height: '100vh' },
+      }}
+    >
       <Box
         position="absolute"
         sx={{
