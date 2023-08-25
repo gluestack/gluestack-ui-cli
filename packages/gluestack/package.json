@@ -1,5 +1,5 @@
 {
-  "name": "gluestack",
+  "name": "create-gluestack",
   "keywords": [
     "react",
     "react-native",
@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for working with gluestack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
