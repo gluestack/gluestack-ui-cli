@@ -12,9 +12,9 @@ import {
   StatusBar,
   useColorScheme,
 } from 'react-native';
-import {config} from '@gluestack-ui/themed';
+import { config } from '@gluestack-ui/themed';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import {
   Button,
   GluestackUIProvider,
@@ -23,7 +23,7 @@ import {
   Image,
 } from '@gluestack-ui/themed';
 
-const FeatureCard = ({iconSvg, name, desc}: any) => {
+const FeatureCard = ({ iconSvg, name, desc }: any) => {
   return (
     <Box
       flexDirection="column"
@@ -94,7 +94,7 @@ const Container = () => {
               '@sm': {
                 flexDirection: 'row',
               },
-              '@md': {alignSelf: 'flex-start'},
+              '@md': { alignSelf: 'flex-start' },
             }}>
             <Text color="$white" fontWeight="$normal">
               Get started by editing
