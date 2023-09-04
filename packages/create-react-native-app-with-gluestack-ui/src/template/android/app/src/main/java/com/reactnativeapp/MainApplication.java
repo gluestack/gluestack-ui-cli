@@ -1,4 +1,4 @@
-package com.awesomeproject;
+package com.reactnativeapp;
 import android.content.res.Configuration;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
