@@ -12,16 +12,8 @@ import {
   StatusBar,
   useColorScheme,
 } from 'react-native';
-import {config} from '@gluestack-ui/themed';
-
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {
-  Button,
-  GluestackUIProvider,
-  Box,
-  Text,
-  Image,
-} from '@gluestack-ui/themed';
+import {GluestackUIProvider, Box, Text, Image} from '@gluestack-ui/themed';
 
 const FeatureCard = ({iconSvg, name, desc}: any) => {
   return (
@@ -100,7 +92,7 @@ const Container = () => {
               Get started by editing
             </Text>
             <Text color="$white" fontWeight="$medium" ml="$2">
-              pages/index.tsx
+              App.tsx
             </Text>
           </Box>
           <Box
@@ -164,7 +156,7 @@ function App(): JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <GluestackUIProvider config={config.theme}>
+      <GluestackUIProvider>
         <Box
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
