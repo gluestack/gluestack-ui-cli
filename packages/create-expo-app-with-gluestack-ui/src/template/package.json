@@ -11,12 +11,15 @@
   "dependencies": {
     "@gluestack-style/react": "latest",
     "@gluestack-ui/themed": "latest",
+    "@legendapp/motion": "latest",
+    "@expo/html-elements": "latest",
     "expo": "~48.0.17",
     "expo-status-bar": "~1.6.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.72.3",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "react-native-svg": "13.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

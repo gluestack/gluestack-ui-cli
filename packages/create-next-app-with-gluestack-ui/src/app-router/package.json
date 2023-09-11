@@ -1,7 +1,7 @@
 {
   "name": "next-app-router-app",
   "description": "Next.js app router with gluestack-ui template",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "repository": {
     "type": "git",
