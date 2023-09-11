@@ -9,19 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@gluestack-ui/themed": "^0.1.9",
-    "@gluestack/ui-next-adapter": "^2.1.7",
-    "@types/node": "20.4.9",
-    "@types/react": "18.2.20",
-    "@types/react-dom": "18.2.7",
+    "@gluestack-style/react": "latest",
+    "@gluestack-ui/themed": "latest",
+    "@gluestack/ui-next-adapter": "latest",
     "next": "13.4.13",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native-web": "^0.19.7",
-    "typescript": "5.1.6"
+    "react-native-web": "^0.19.7"
   },
   "devDependencies": {
-    "@types/react-native": "^0.72.2"
+    "@types/react-native": "^0.72.2",
+    "@types/node": "20.4.9",
+    "@types/react": "18.2.20",
+    "@types/react-dom": "18.2.7",
+    "typescript": "5.1.6"
+
   }
   
 }
