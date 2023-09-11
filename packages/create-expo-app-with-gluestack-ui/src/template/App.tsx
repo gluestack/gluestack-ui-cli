@@ -104,7 +104,7 @@ const Container = () => {
               Get started by editing
             </Text>
             <Text color="$white" fontWeight="$medium" ml="$2">
-              pages/index.tsx
+              App.tsx
             </Text>
           </Box>
           <Box justifyContent="center" alignItems="center">
