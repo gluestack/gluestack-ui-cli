@@ -129,14 +129,14 @@ async function main() {
       message: 'Would you like to use \x1b[36mApp Router?\x1b[36m',
       options: [
         {
-          value: 'no',
-          label: 'No',
-          hint: 'Next js page routing',
-        },
-        {
           value: 'yes',
           label: 'Yes',
-          hint: 'Next versions 13.4 and React server components support (Experimental)',
+          hint: 'Next.js versions 13.4 and React server components support',
+        },
+        {
+          value: 'no',
+          label: 'No',
+          hint: 'Next.js page routing',
         },
       ],
     });
