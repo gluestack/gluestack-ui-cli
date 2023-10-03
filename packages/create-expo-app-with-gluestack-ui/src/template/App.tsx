@@ -24,7 +24,11 @@ const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
       flexDirection="column"
       borderWidth={1}
       borderColor="$borderDark700"
-      flex={1}
+      sx={{
+        _web: {
+          flex: 1,
+        },
+      }}
       m="$2"
       p="$4"
       rounded="$md"
