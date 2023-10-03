@@ -1,4 +1,5 @@
-import { Box, GluestackUIProvider, Text, config } from '@gluestack-ui/themed';
+import { config } from '@gluestack-ui/config';
+import { Box, GluestackUIProvider, Text } from '@gluestack-ui/themed';
 import { ScrollView } from 'react-native';
 import Gradient from './assets/Icons/Gradient';
 import DocumentData from './assets/Icons/DocumentData';
@@ -8,7 +9,7 @@ import Logo from './assets/Icons/Logo';
 
 export default function App() {
   return (
-    <GluestackUIProvider>
+    <GluestackUIProvider config={config}>
       <Home />
     </GluestackUIProvider>
   );
