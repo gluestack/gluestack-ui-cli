@@ -3,17 +3,15 @@
 //   throw err;
 // });
 
-import { ejectComponents } from './scripts/eject';
+// import { ejectComponents } from './scripts/eject';
 import process from 'process';
-
+import { ejectTheme } from './scripts/eject-theme';
 const args = process.argv.slice(2);
-const scriptIndex = args.findIndex(x => x === 'eject');
+const scriptIndex = args.findIndex((x) => x === 'eject-theme');
 const script = scriptIndex === -1 ? args[0] : args[scriptIndex];
 async function main() {
-  if (['eject'].includes(script)) {
-    // FIX: Loop through commands
-    const result = await ejectComponents();
-
+  if (['eject-theme'].includes(script)) {
+    const result = await ejectTheme();
     process.exit(1);
   } else {
     console.log('Unknown script "' + script + '".');
