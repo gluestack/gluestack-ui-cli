@@ -29,38 +29,8 @@ To use the gluestack-ui CLI, you can run the following commands:
 
 - **Initialize gluestack-ui -** This command sets up the gluestack-ui library in your project.
 
-```
-    npx gluestack-ui@latest init
-```
-
-- **Initialize and add components -**: This command initializes gluestack-ui and adds the required components to your project.
-
-```
-    npx gluestack-ui@latest
-```
-
-- **Add a component -** Replace `<component-name>` with the name of the component you want to add or with special flag `--all` which will add all the components to your project.
-
-```
-    npx gluestack-ui@latest add <component-name>
-```
-
-- **Update a component -** Replace `<component-name>` with the name of the component you want to update or with special flag `--all` which will update all the components in your project.
-
-```
-    npx gluestack-ui@latest update <component-name>
-```
-
-- **Remove a component -** Replace `<component-name>` with the name of the component you want to remove or with special flag `--all` which will remove all the components from your project.
-
-```
-    npx gluestack-ui@latest update <component-name>
-```
-
-- **Get help -** This command provides help and information about using the gluestack-ui CLI.
-
-```
-    npx gluestack-ui@latest update <component-name>
+```bash
+   npm create gluestack
 ```
 
 ## Contributing
