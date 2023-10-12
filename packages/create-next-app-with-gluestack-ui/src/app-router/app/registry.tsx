@@ -6,7 +6,7 @@ import { StyleRegistry, createStyleRegistry } from 'styled-jsx';
 import { Html, Head, Main, NextScript } from 'next/document';
 // @ts-ignore
 import { AppRegistry } from 'react-native-web';
-import { flush } from '@gluestack-style/react';
+import { flush } from '@gluestack-ui/themed';
 
 export default function StyledJsxRegistry({
   children,

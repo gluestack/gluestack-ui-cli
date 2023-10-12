@@ -1,9 +1,7 @@
-"use client";
-
-import { GluestackUIProvider, config } from "@gluestack-ui/react";
+'use client';
+import { config } from '@gluestack-ui/config';
+import { GluestackUIProvider } from '@gluestack-ui/themed';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <GluestackUIProvider config={config.theme}>{children}</GluestackUIProvider>
-  );
+  return <GluestackUIProvider config={config}>{children}</GluestackUIProvider>;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "create-next-app-with-gluestack-ui",
+  "name": "create-gluestack",
   "keywords": [
     "react",
     "react-native",
@@ -9,8 +9,8 @@
     "cross-platform",
     "cli"
   ],
-  "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.42",
+  "description": "A CLI tool for working with gluestack",
+  "version": "0.1.2",
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",

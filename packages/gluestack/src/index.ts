@@ -15,7 +15,88 @@ import fs from 'fs';
 import { cancel, isCancel, log, spinner, text, select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
 
-function installDependencies(projectName: string, installationMethod: string) {
+async function main() {
+  process.on('SIGINT', function () {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  });
+
+  let choice = await select({
+    message: 'What would you like to \x1b[36mbuild?\x1b[36m',
+    options: [
+      {
+        value: 'next-with-gluestack-ui',
+        label: 'Web app',
+        hint: 'Next.js + gluestack-ui',
+      },
+      {
+        value: 'expo-with-gluestack-ui',
+        label: 'Mobile app',
+        hint: 'Expo + gluestack-ui',
+      },
+      {
+        value: 'react-native-with-gluestack-ui',
+        label: 'Mobile app',
+        hint: 'React Native + gluestack-ui',
+      },
+      {
+        value: 'universal',
+        label: 'Universal app (coming soon)',
+        hint: 'Monorepo with Next.js + Expo + gluestack-ui',
+      } /*
+      {
+        value: 'gluestack-framework-with-gluestack-ui',
+        label: 'Universal app (gluestack framework)',
+        hint: 'gluestack framework',
+      },*/,
+    ],
+  });
+
+  switch (choice) {
+    case 'next-with-gluestack-ui':
+      spawnSync(
+        `npx create-next-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
+
+      break;
+    case 'expo-with-gluestack-ui':
+      spawnSync(
+        `npx create-expo-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
+
+      break;
+    case 'react-native-with-gluestack-ui':
+      spawnSync(
+        `npx create-react-native-app-with-gluestack-ui@latest ${args.join(
+          ' '
+        )}`,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
+
+      break;
+    default:
+      log.info(` That option is coming soon! \x1b[33m Stay tuned!\x1b!`);
+      break;
+  }
+
+  console.log('');
+}
+
+/*function installDependencies(projectName: string, installationMethod: string) {
   const projectPath = path.join(process.cwd(), projectName);
 
   process.on('SIGINT', function () {
@@ -129,14 +210,14 @@ async function main() {
       message: 'Would you like to use \x1b[36mApp Router?\x1b[36m',
       options: [
         {
-          value: 'yes',
-          label: 'Yes',
-          hint: 'Next.js versions 13.4 and React server components support',
-        },
-        {
           value: 'no',
           label: 'No',
-          hint: 'Next.js page routing',
+          hint: 'Next js page routing',
+        },
+        {
+          value: 'yes',
+          label: 'Yes',
+          hint: 'Next versions 13.4 and React server components support (Experimental)',
         },
       ],
     });
@@ -158,5 +239,5 @@ async function main() {
   log.info(` Using \x1b[33m ${installationMethod} \x1b!`);
   installDependencies(projectName, installationMethod);
 }
-
+*/
 main();

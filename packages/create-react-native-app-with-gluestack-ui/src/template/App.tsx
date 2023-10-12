@@ -12,10 +12,9 @@ import {
   StatusBar,
   useColorScheme,
 } from 'react-native';
-import {config} from './gluestack-ui.config';
-
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {Button, GluestackUIProvider, Box, Text, Image} from './components';
+import {config} from '@gluestack-ui/config';
+import {GluestackUIProvider, Box, Text, Image} from '@gluestack-ui/themed';
 
 const FeatureCard = ({iconSvg, name, desc}: any) => {
   return (
@@ -26,7 +25,8 @@ const FeatureCard = ({iconSvg, name, desc}: any) => {
       flex={1}
       m="$2"
       p="$4"
-      rounded="$md">
+      rounded="$md"
+    >
       <Box alignItems="center" display="flex" flexDirection="row">
         <Image source={iconSvg} alt="document" width={22} height={22} />
         <Text fontSize={22} color="$white" fontWeight="500" ml="$2">
@@ -59,7 +59,8 @@ const Container = () => {
               h: 700,
               w: 700,
             },
-          }}>
+          }}
+        >
           <Image source={gradientImage} alt="Gradient" h="100%" w="100%" />
         </Box>
         <Box
@@ -74,7 +75,8 @@ const Container = () => {
               mx: '$32',
             },
           }}
-          alignItems="center">
+          alignItems="center"
+        >
           <Box
             bg="#64748B33"
             py="$2"
@@ -89,12 +91,13 @@ const Container = () => {
                 flexDirection: 'row',
               },
               '@md': {alignSelf: 'flex-start'},
-            }}>
+            }}
+          >
             <Text color="$white" fontWeight="$normal">
               Get started by editing
             </Text>
             <Text color="$white" fontWeight="$medium" ml="$2">
-              pages/index.tsx
+              App.tsx
             </Text>
           </Box>
           <Box
@@ -110,7 +113,8 @@ const Container = () => {
                 h: 160,
                 w: 400,
               },
-            }}>
+            }}
+          >
             {/* <Image src="/logo.svg" fill alt="logo" priority /> */}
           </Box>
           <Box
@@ -121,7 +125,8 @@ const Container = () => {
               '@md': {
                 flexDirection: 'row',
               },
-            }}>
+            }}
+          >
             <FeatureCard
               iconSvg={documentImage}
               name="Docs"
@@ -158,12 +163,13 @@ function App(): JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <GluestackUIProvider config={config.theme}>
+      <GluestackUIProvider config={config}>
         <Box
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}
-          height="100%">
+          height="100%"
+        >
           <Container />
         </Box>
       </GluestackUIProvider>
