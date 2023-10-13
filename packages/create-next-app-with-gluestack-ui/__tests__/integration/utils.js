@@ -66,8 +66,10 @@ function startProject(nextAppPath, NEXT_PORT) {
 
     appProcess.stdout.on('data', function (data) {
       console.log(data.toString());
-      const match = data.toString().match(/started server/);
-      if (match) {
+
+      const match1 = data.toString().match(/started server/);
+      const match2 = data.toString().match(/Ready in/);
+      if (match1 || match2) {
         nextServerStarted = true;
         resolve(appProcess);
       }
