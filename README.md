@@ -6,7 +6,6 @@
 ![Create Gluestack V2 App](https://github.com/gluestack/gluestack-ui-cli/actions/workflows/create-gluestack-v2-app.yml/badge.svg)
 ![Create Next App with GluestackUI](https://github.com/gluestack/gluestack-ui-cli/actions/workflows/create-next-app-with-gluestack-ui.yml/badge.svg)
 ![Create UI Library with GluestackUI](https://github.com/gluestack/gluestack-ui-cli/actions/workflows/create-ui-library-with-gluestack-ui.yml/badge.svg)
-![Create React Native App with GluestackUI](https://github.com/gluestack/gluestack-ui-cli/actions/workflows/create-react-native-app-with-gluestack-ui.yml/badge.svg)
 ![GluestackUI](https://github.com/gluestack/gluestack-ui-cli/actions/workflows/gluestack-ui.yml/badge.svg)
 ![Utils](https://github.com/gluestack/gluestack-ui-cli/actions/workflows/utils.yml/badge.svg)
 
