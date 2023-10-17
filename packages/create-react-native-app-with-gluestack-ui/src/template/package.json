@@ -12,6 +12,7 @@
   "dependencies": {
     "@gluestack-style/react": "latest",
     "@gluestack-ui/themed": "latest",
+    "@gluestack-ui/config": "latest",
     "@legendapp/motion": "latest",
     "@expo/html-elements": "latest",
     "react": "18.2.0",

@@ -17,6 +17,7 @@
     "@expo/html-elements": "latest",
     "@gluestack-style/react": "latest",
     "@gluestack-ui/themed": "latest",
+    "@gluestack-ui/config": "latest",
     "@gluestack/ui-next-adapter": "latest",
     "@legendapp/motion": "latest",
     "next": "^13.5.4",
