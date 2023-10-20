@@ -39,7 +39,7 @@ export const ejectTheme = async () => {
         "'@gluestack-ui/themed'"
       )};                             │
       │   ${chalk.cyan('import { config }')} from ${chalk.magenta(
-        "'./config'"
+        "'./config/gluestack-ui.config'"
       )}; // Relative path to your ejected theme configuration │
       │                                                                                           │
       │   function App() {                                                                        │
