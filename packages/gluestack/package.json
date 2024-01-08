@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for working with gluestack",
-  "version": "1.0.2-alpha.3",
+  "version": "1.0.3",
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.6.3",
-    "@gluestack/cli-utils": "^0.1.6",
+    "@gluestack/cli-utils": "0.1.10",
     "@types/minimist": "^1.2.2",
     "find-package-json": "^1.2.0",
     "fs-extra": "^11.1.1",
