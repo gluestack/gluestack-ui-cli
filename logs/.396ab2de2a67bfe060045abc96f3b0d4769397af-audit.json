@@ -1,0 +1,14 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/.396ab2de2a67bfe060045abc96f3b0d4769397af-audit.json",
+    "files": [
+        {
+            "date": 1704694085164,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-01-08.log",
+            "hash": "a97688b26979b47392c1db6d03412c06"
+        }
+    ]
+}

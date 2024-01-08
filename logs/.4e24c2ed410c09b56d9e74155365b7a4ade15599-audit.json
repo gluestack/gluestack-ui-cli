@@ -1,0 +1,14 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/.4e24c2ed410c09b56d9e74155365b7a4ade15599-audit.json",
+    "files": [
+        {
+            "date": 1704694085162,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-01-08.log",
+            "hash": "cc39aff049cd5b2fd858db62fbfb1a36"
+        }
+    ]
+}

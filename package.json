@@ -6,13 +6,17 @@
     "prompts": "^2.4.2",
     "supertest": "^6.3.3"
   },
+  "workspaces": [
+    "packages/**"
+  ],
   "name": "gluestack-ui-cli",
   "description": "[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)",
   "version": "1.0.0",
   "main": ".eslintrc.js",
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "yarn build --filter=[gluestack-*] --no-cache && yarn build:rest"
   },
   "author": "",
   "license": "ISC"

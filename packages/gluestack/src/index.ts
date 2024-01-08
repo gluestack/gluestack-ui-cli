@@ -26,17 +26,17 @@ async function main() {
     options: [
       {
         value: 'next-with-gluestack-ui',
-        label: 'Web app',
+        label: 'NextJs app',
         hint: 'Next.js + gluestack-ui',
       },
       {
         value: 'expo-with-gluestack-ui',
-        label: 'Mobile app',
+        label: 'Expo app',
         hint: 'Expo + gluestack-ui',
       },
       {
         value: 'react-native-with-gluestack-ui',
-        label: 'Mobile app',
+        label: 'React Native app',
         hint: 'React Native + gluestack-ui',
       },
       {
@@ -51,11 +51,24 @@ async function main() {
       },*/,
     ],
   });
-
+  // console.log(
+  //   path.join(__dirname, '../create-expo-app-with-gluestack-ui', 'dist')
+  // );
+  let installationPackage;
+  const packageManager = process.env.npm_config_user_agent;
+  if (packageManager && packageManager.includes('yarn')) {
+    installationPackage = 'yarn';
+  } else if (packageManager && packageManager.includes('pnpm')) {
+    installationPackage = 'pnpm';
+  } else {
+    installationPackage = 'npm';
+  }
   switch (choice) {
     case 'next-with-gluestack-ui':
       spawnSync(
-        `npx create-next-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        `npx create-next-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+          ' '
+        )}`,
         {
           cwd: process.cwd(),
           stdio: 'inherit',
@@ -66,7 +79,9 @@ async function main() {
       break;
     case 'expo-with-gluestack-ui':
       spawnSync(
-        `npx create-expo-app-with-gluestack-ui@latest ${args.join(' ')}`,
+        `npx create-expo-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+          ' '
+        )} `,
         {
           cwd: process.cwd(),
           stdio: 'inherit',
@@ -77,7 +92,7 @@ async function main() {
       break;
     case 'react-native-with-gluestack-ui':
       spawnSync(
-        `npx create-react-native-app-with-gluestack-ui@latest ${args.join(
+        `npx create-react-native-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
           ' '
         )}`,
         {

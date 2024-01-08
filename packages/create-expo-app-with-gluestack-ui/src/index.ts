@@ -13,8 +13,7 @@ async function main() {
   let argsInfo = getArgsData(args);
 
   let projectName: any = argsInfo?.projectName;
-  let installationMethod: any = argsInfo?.installationMethod || 'npm install';
-
+  let installationMethod: any = argsInfo?.installationMethod;
   if (projectName === '' || projectName == undefined) {
     projectName = await text({
       message: 'What is the name of your application?',

@@ -38,7 +38,8 @@ function installDependencies(projectName: string, installationMethod: string) {
 
 function getArgsData(args: any, customSupportedArgs?: Array<any>) {
   let projectName: string = '';
-  let installationMethod = 'npm install --legacy-peer-deps';
+  let installationMethod = '';
+  // 'npm install --legacy-peer-deps';
   if (args.length > 0) {
     if (!(args[0].startsWith('-') || args[0].startsWith('--'))) {
       if (typeof args[0] === 'string') {
@@ -50,6 +51,7 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
   if (customSupportedArgs) {
     supportedArgs = customSupportedArgs;
   }
+
   for (let i = projectName !== '' ? 1 : 0; i < args.length; i++) {
     if (supportedArgs.includes(args[i])) {
       if (args[i] === '--help' || args[i] === '-h') {
@@ -65,21 +67,20 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
               `
         );
         process.exit(0);
-      } else if (args[i] === '--use-npm') {
+      } else if (args[i] === '--use-npm' || args[i] === 'use-npm') {
         installationMethod = 'npm install --legacy-peer-deps';
-      } else if (args[i] === '--use-yarn') {
+      } else if (args[i] === '--use-yarn' || args[i] === 'use-yarn') {
         installationMethod = 'yarn';
-      } else if (args[i] === '--use-pnpm') {
+      } else if (args[i] === '--use-pnpm' || args[i] === 'use-pnpm') {
         installationMethod = 'pnpm i --lockfile-only';
       }
-      return { installationMethod, projectName };
     } else {
-      log.warning(
-        `Unsupported argument: ${args[i]}. For more information run npx create-next-app-with-gluestack-ui --help`
-      );
       if (!(args[i].startsWith('-') || args[i].startsWith('--'))) {
         log.warning(`Please pass project name as first argument.`);
       }
+      log.warning(
+        `Unsupported argument: ${args[i]}. For more information run npm create gluestack --help`
+      );
       process.exit(0);
     }
   }
