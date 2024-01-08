@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for working with gluestack",
-  "version": "1.0.8-alpha.0",
+  "version": "1.0.8-alpha.1",
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
