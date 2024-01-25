@@ -51,9 +51,7 @@ async function main() {
       },*/,
     ],
   });
-  // console.log(
-  //   path.join(__dirname, '../create-expo-app-with-gluestack-ui', 'dist')
-  // );
+
   let installationPackage;
   const packageManager = process.env.npm_config_user_agent;
   if (packageManager && packageManager.includes('yarn')) {

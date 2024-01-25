@@ -25,7 +25,7 @@ function createProject(
     : 'yarn dev ' +
       path.join('./', path.relative('./', nextAppRootDirectory), APP_NAME);
 
-  console.log('Mayank', createrCommand);
+  // console.log('Mayank', createrCommand);
   return new Promise((resolve, reject) => {
     const child = spawn(`${createrCommand} ${options}`, {
       cwd: nextAppRootDirectory,
