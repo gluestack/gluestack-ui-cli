@@ -6,14 +6,14 @@
     "auditLog": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/.57fe61722dae7e24ed09531d19637487526671ae-audit.json",
     "files": [
         {
-            "date": 1704964712900,
-            "name": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/keplerCliNative-2024-01-11.log",
-            "hash": "af7e214bc33b80265a34e1e35a0f5410"
-        },
-        {
             "date": 1706103734006,
             "name": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/keplerCliNative-2024-01-24.log",
             "hash": "547683d6e03c3be216c4f82a5f3acc47"
+        },
+        {
+            "date": 1706332939520,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/keplerCliNative-2024-01-27.log",
+            "hash": "81cc2845b471abac4af41c468b58f238"
         }
     ]
 }
