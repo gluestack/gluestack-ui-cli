@@ -36,8 +36,8 @@ async function main() {
       },
       {
         value: 'expo-router-v3-with-gluestack-ui',
-        label: 'Expo Router v3 app',
-        hint: 'Expo Router v3 + gluestack-ui',
+        label: 'Expo app (Expo Router v3)',
+        hint: 'Expo + Expo Router v3 + gluestack-ui',
       },
       {
         value: 'react-native-with-gluestack-ui',
