@@ -1,5 +1,5 @@
 {
-  "name": "create-expo-app-with-gluestack-ui",
+  "name": "create-expo-router-v3-app-with-gluestack-ui",
   "keywords": [
     "react",
     "react-native",
@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.40",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [

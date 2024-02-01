@@ -6,14 +6,14 @@
     "auditLog": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/.17952132a7d5bd363cac176542aa304ae41a5d21-audit.json",
     "files": [
         {
-            "date": 1704964712898,
-            "name": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/error-2024-01-11.log",
-            "hash": "c188d3cac2bea6f3445776a65f160d80"
-        },
-        {
             "date": 1706103734001,
             "name": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/error-2024-01-24.log",
             "hash": "ee66447130ad3edbb4630d1040dd7186"
+        },
+        {
+            "date": 1706332939496,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack/gluestack-ui-cli/logs/error-2024-01-27.log",
+            "hash": "b9a73ad6414e9caf51ca019e7d5ddb77"
         }
     ]
 }

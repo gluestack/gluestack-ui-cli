@@ -35,6 +35,11 @@ async function main() {
         hint: 'Expo + gluestack-ui',
       },
       {
+        value: 'expo-router-v3-with-gluestack-ui',
+        label: 'Expo app (Expo Router v3)',
+        hint: 'Expo + Expo Router v3 + gluestack-ui',
+      },
+      {
         value: 'react-native-with-gluestack-ui',
         label: 'React Native app',
         hint: 'React Native + gluestack-ui',
@@ -73,7 +78,6 @@ async function main() {
           shell: true,
         }
       );
-
       break;
     case 'expo-with-gluestack-ui':
       spawnSync(
@@ -86,7 +90,18 @@ async function main() {
           shell: true,
         }
       );
-
+      break;
+    case 'expo-router-v3-with-gluestack-ui':
+      spawnSync(
+        `npx create-expo-router-v3-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+          ' '
+        )} `,
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit',
+          shell: true,
+        }
+      );
       break;
     case 'react-native-with-gluestack-ui':
       spawnSync(
