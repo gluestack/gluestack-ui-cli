@@ -50,31 +50,20 @@ const Container = () => {
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Box
           position="absolute"
-          sx={{
-            '@base': {
-              h: 500,
-              w: 500,
-            },
-            '@lg': {
-              h: 700,
-              w: 700,
-            },
-          }}
+          $base-h={500}
+          $base-w={500}
+          $lg-h={700}
+          $lg-w={700}
         >
           <Image source={gradientImage} alt="Gradient" h="100%" w="100%" />
         </Box>
         <Box
           flex={1}
-          sx={{
-            '@base': {
-              my: '$16',
-              mx: '$5',
-            },
-            '@lg': {
-              my: '$24',
-              mx: '$32',
-            },
-          }}
+          $base-my="$16"
+          $base-mx="$5"
+          $base-h="80%"
+          $lg-my="$24"
+          $lg-mx="$32"
           alignItems="center"
         >
           <Box
@@ -83,15 +72,9 @@ const Container = () => {
             px="$6"
             rounded="$full"
             alignItems="center"
-            sx={{
-              '@base': {
-                flexDirection: 'column',
-              },
-              '@sm': {
-                flexDirection: 'row',
-              },
-              '@md': {alignSelf: 'flex-start'},
-            }}
+            $base-flexDirection="column"
+            $sm-flexDirection="row"
+            $md-alignSelf="flex-start"
           >
             <Text color="$white" fontWeight="$normal">
               Get started by editing
@@ -104,28 +87,15 @@ const Container = () => {
             flex={1}
             justifyContent="center"
             alignItems="center"
-            sx={{
-              '@base': {
-                h: 20,
-                w: 300,
-              },
-              '@lg': {
-                h: 160,
-                w: 400,
-              },
-            }}
+            $base-h={20}
+            $base-w={300}
+            $lg-h={160}
+            $lg-w={400}
           >
             {/* <Image src="/logo.svg" fill alt="logo" priority /> */}
           </Box>
           <Box
-            sx={{
-              '@base': {
-                flexDirection: 'column',
-              },
-              '@md': {
-                flexDirection: 'row',
-              },
-            }}
+            $base-flexDirection="column" $md-flexDirection="row"
           >
             <FeatureCard
               iconSvg={documentImage}
