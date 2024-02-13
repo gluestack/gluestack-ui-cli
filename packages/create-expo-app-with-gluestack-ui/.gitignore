@@ -1,2 +1,4 @@
 node_modules
 dist
+src/template/node_modules
+src/template/.expo
