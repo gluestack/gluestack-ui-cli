@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack-ui to your projects.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
@@ -43,11 +43,15 @@
   },
   "author": "mayank-96",
   "dependencies": {
+    "@babel/generator": "^7.23.6",
+    "@babel/parser": "^7.23.9",
+    "@babel/traverse": "^7.23.9",
     "@clack/prompts": "^0.6.3",
     "@gluestack/ui-project-detector": "^0.1.1",
     "chalk": "^4.1.2",
     "cross-spawn": "^7.0.3",
     "find-package-json": "^1.2.0",
+    "find-yarn-workspace-root": "^2.0.0",
     "fs-extra": "^11.1.0",
     "prettier": "^3.0.1",
     "prompts": "^2.4.2",
