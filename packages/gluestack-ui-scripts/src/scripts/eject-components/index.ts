@@ -10,17 +10,7 @@ const path = require('path');
 const chalk = require('chalk');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
 const rootPath = process.cwd(); // You can customize this if needed
-// const jscodeshift = require('jscodeshift');
-const {
-  parseSync,
-  transformFromAstSync,
-  transformSync,
-} = require('@babel/core');
-const babelPlugin = require('./transform.js');
 const workspaceRoot = findWorkspaceRoot(rootPath);
-const { run: jscodeshift } = require('jscodeshift/src/Runner');
-const jsPath = require('node:path');
-import * as prettier from 'prettier';
 // Define the paths
 import synchronizedPrettier from '@prettier/sync';
 
