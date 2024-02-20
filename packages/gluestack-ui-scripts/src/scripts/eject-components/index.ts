@@ -159,16 +159,19 @@ async function copyFiles(srcPath: any) {
   console.log(
     '\n',
     chalk.bold(
-      chalk.green(
-        `Commit you changes before ejecting, this command with update the imports!!`
+      chalk.red(
+        `${green(`If you have already ejected the theme or components,`)}
+- This will overwrite the existing styles with default one. (It is NOT RECOMMENDED to eject again)
+- If you need to eject the components, then save the changes and copy/paste them manually.`
       )
     )
   );
+
   console.log(
     '\n',
     chalk.bold(
-      chalk.red(
-        `If you have already ejected the theme or components once, it is recommended to not eject again. This will overwrite the existing styles with default one. If you need to eject the components, then save the changes and copy/paste them manually.`
+      chalk.green(
+        `Commit you changes before ejecting, this command with update the imports!!`
       )
     )
   );
