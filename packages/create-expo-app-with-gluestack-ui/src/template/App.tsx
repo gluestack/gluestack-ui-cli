@@ -22,11 +22,7 @@ const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
       flexDirection="column"
       borderWidth={1}
       borderColor="$borderDark700"
-      sx={{
-        _web: {
-          flex: 1,
-        },
-      }}
+      $web-flex={1}
       m="$2"
       p="$4"
       rounded="$md"
@@ -59,32 +55,20 @@ const Container = () => {
       >
         <Box
           position="absolute"
-          sx={{
-            '@base': {
-              h: 500,
-              w: 500,
-            },
-            '@lg': {
-              h: 700,
-              w: 700,
-            },
-          }}
+          $base-h={500}
+          $base-w={500}
+          $lg-h={700}
+          $lg-w={700}
         >
           <Gradient />
         </Box>
         <Box
           height="60%"
-          sx={{
-            '@base': {
-              my: '$16',
-              mx: '$5',
-              height: '80%',
-            },
-            '@lg': {
-              my: '$24',
-              mx: '$32',
-            },
-          }}
+          $base-my="$16"
+          $base-mx="$5"
+          $base-h="80%"
+          $lg-my="$24"
+          $lg-mx="$32"
           justifyContent="space-between"
           alignItems="center"
         >
@@ -95,17 +79,9 @@ const Container = () => {
             rounded="$full"
             alignItems="center"
             marginTop={20}
-            sx={{
-              '@base': {
-                flexDirection: 'column',
-              },
-              '@sm': {
-                flexDirection: 'row',
-              },
-              '@md': {
-                alignSelf: 'flex-start',
-              },
-            }}
+            $base-flexDirection="column"
+            $sm-flexDirection="row"
+            $md-alignSelf="flex-start"
           >
             <Text color="$white" fontWeight="$normal">
               Get started by editing
@@ -117,16 +93,7 @@ const Container = () => {
           <Box justifyContent="center" alignItems="center">
             <Logo />
           </Box>
-          <Box
-            sx={{
-              '@base': {
-                flexDirection: 'column',
-              },
-              '@md': {
-                flexDirection: 'row',
-              },
-            }}
-          >
+          <Box $base-flexDirection="column" $md-flexDirection="row">
             <FeatureCard
               iconSvg={DocumentData}
               name="Docs"
