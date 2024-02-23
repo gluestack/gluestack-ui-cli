@@ -38,10 +38,7 @@ const componentAdder = async ({
         : [requestedComponent];
 
     const updatedComponents =
-      !existingComponentsChecked &&
-      showWarning &&
-      requestedComponent &&
-      !forceUpdate
+      !existingComponentsChecked && showWarning && requestedComponent
         ? await isComponentInConfig(requestedComponents)
         : requestedComponents;
 
@@ -56,6 +53,7 @@ const componentAdder = async ({
         addIndexFile(path.join(currDir, writableComponentsPath));
       })
     );
+    log.success('Installation completed');
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
@@ -65,26 +63,20 @@ const isComponentInConfig = async (components: string[]): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];
   for (const component of components) {
-    const pathToCheck = path.join(
-      gluestackDir,
-      componentsPath,
-      dashToPascal(component)
-    );
+    const pathToCheck = path.join(currDir, writableComponentsPath);
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);
     }
   }
-
   //confirm about the already existing components
-  if (alreadyExistingComponents.length === 1) {
-    const shouldContinue = await confirm({
-      message: `The ${alreadyExistingComponents[0]} component already exists. Be advised that if there are any changes made in the components, proceeding will result in components being replaced as well. Continue installing component?`,
-    });
-    if (isCancel(shouldContinue)) {
-      log.warning('Operation cancelled.');
-      cancel('Operation cancelled.');
-      process.exit(0);
-    }
+  if (
+    alreadyExistingComponents.length === 1 ||
+    alreadyExistingComponents.length > 1
+  ) {
+    const shouldContinue = await confirmOverride(
+      alreadyExistingComponents,
+      alreadyExistingComponents.length
+    );
     componentsToAdd = shouldContinue
       ? components.filter(
           (component) => !alreadyExistingComponents.includes(component)
@@ -150,19 +142,12 @@ const addIndexFile = async (componentsDirectory: string) => {
     );
     // Generate import and export statements for each component directory
     const importStatements = componentDirectories
-      .map(
-        (componentName) =>
-          `import * as ${componentName} from './${componentName}';`
-      )
+      .map((component) => `import * as ${component} from './${component}';`)
       .join('\n');
-    const exportStatements = componentDirectories
-      .map(
-        (componentName) =>
-          `export {${componentName}} from './${componentName}';`
-      )
-      .join('\n');
+
+    const exportStatement = `export { ${componentDirectories.join(', ')} };`;
     // Combine import and export statements
-    const indexContent = `${importStatements}\n${exportStatements}`;
+    const indexContent = `${importStatements}\n${exportStatement}`;
     await fs.writeFile(
       path.join(componentsDirectory, 'index.ts'),
       indexContent
@@ -193,5 +178,21 @@ async function deleteClonedRepository(clonedRepoPath: string) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
   }
 }
+
+const confirmOverride = async (
+  component: string[],
+  existingCount: number
+): Promise<boolean> => {
+  const displayComponent = existingCount === 1 ? component[0] : 'Few';
+  const shouldContinue = await confirm({
+    message: `${displayComponent} component/components already exists. Be advised that if there are any changes made in the components, proceeding will result in components being replaced as well. Continue installing component?`,
+  });
+  if (isCancel(shouldContinue)) {
+    log.warning('Operation cancelled.');
+    cancel('Operation cancelled.');
+    process.exit(0);
+  }
+  return shouldContinue;
+};
 
 export { componentAdder };

@@ -70,7 +70,7 @@ export const add = new Command()
           forceUpdate: options.forceUpdate,
         });
       }
-      //   await installDependencies(installationMethod);
+      await installDependencies(installationMethod);
     } catch (err) {
       handleError(err);
     }
