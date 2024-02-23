@@ -9,8 +9,6 @@ import { installDependencies } from '../utils';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
-  yes: z.boolean(),
-  overwrite: z.boolean(),
   cwd: z.string(),
   all: z.boolean(),
   path: z.string().optional(),
@@ -25,8 +23,6 @@ export const add = new Command()
   .name('add')
   .description('add a component to your project')
   .argument('[...components]', 'the components to add')
-  .option('-y, --yes', 'skip confirmation prompt.', true)
-  .option('-o, --overwrite', 'overwrite existing files.', false)
   .option(
     '-c, --cwd <cwd>',
     'the working directory. defaults to the current directory.',
@@ -53,8 +49,6 @@ export const add = new Command()
         if (options.usePnpm) installationMethod = 'pnpm install';
         if (options.useYarn) installationMethod = 'yarn';
       }
-      console.log('options------->', options, installationMethod);
-
       const cwd = path.resolve(options.cwd);
       if (!existsSync(cwd)) {
         log.error(`The path ${cwd} does not exist. Please try again.`);
@@ -63,14 +57,20 @@ export const add = new Command()
 
       if (options.all) {
         try {
-          await componentAdder('--all', options.forceUpdate);
+          await componentAdder({
+            requestedComponent: '--all',
+            forceUpdate: options.forceUpdate,
+          });
         } catch (err) {
           log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
         }
       } else {
-        await componentAdder(options.components, options.forceUpdate);
+        await componentAdder({
+          requestedComponent: options.components,
+          forceUpdate: options.forceUpdate,
+        });
       }
-      //   await installDependencies('npm install --legacy-peer-deps');
+      //   await installDependencies(installationMethod);
     } catch (err) {
       handleError(err);
     }
