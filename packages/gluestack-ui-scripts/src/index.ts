@@ -34,6 +34,16 @@ async function main() {
     //   outro(`You're all set!`);
     // } else if (ejectType == 'design-system') {
     await ejectComponents();
+    // outro(`You're all set!`);
+    // }
+    process.exit(1);
+  }
+  if (['eject-theme'].includes(script)) {
+    // if (ejectType == 'config') {
+    await ejectTheme();
+    // outro(`You're all set!`);
+    // } else if (ejectType == 'design-system') {
+    // await ejectComponents();
     // }
     process.exit(1);
   } else {

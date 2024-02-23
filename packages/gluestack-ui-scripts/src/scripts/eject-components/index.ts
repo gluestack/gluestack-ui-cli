@@ -20,6 +20,7 @@ const green = chalk.hex('#00FF00');
 
 export const ejectComponents = async () => {
   let srcPath;
+
   // Check if @gluestack-ui/config exists in node_modules
   if (
     fs.existsSync(path.join(rootPath, 'node_modules', '@gluestack-ui/config'))
@@ -101,16 +102,34 @@ async function updateSourceCode(
 
   // Add './' to the relative path
   importPath = `.${path.sep}${importPath}`;
-
+  let localName: any;
   // @ts-ignore
   traverse(ast, {
+    JSXOpeningElement(path) {
+      // @ts-ignore
+      if (path.node.name.name == localName) {
+        path.node.attributes = path.node.attributes.filter((path) => {
+          // @ts-ignore
+          if (path.name.name == 'config') {
+            return false;
+          }
+          return true;
+        });
+      }
+    },
+
     ImportDeclaration(path) {
       if (path.node.source.value === '@gluestack-ui/themed') {
-        if (importAs == 'relative') {
+        path.traverse({
+          ImportSpecifier(path) {
+            // @ts-ignore
+            if (path.node.imported.name == 'GluestackUIProvider') {
+              localName = path.node.local.name;
+            }
+          },
+        });
+        if (!filePath.includes('registry.tsx')) {
           path.node.source.value = importPath;
-        } else {
-          // @ts-ignore
-          path.node.source.value = importAs;
         }
       }
     },
@@ -122,6 +141,30 @@ async function updateSourceCode(
     parser: 'babel',
   });
   fs.writeFileSync(filePath, formattedString);
+}
+
+async function installDependencies() {
+  const srcPath = path.join(
+    rootPath,
+    'node_modules',
+    '@gluestack-ui/config',
+    'package.json'
+  );
+  const rootPackageJson = require(path.join(rootPath, 'package.json'));
+  const packageJson = require(srcPath);
+
+  rootPackageJson.devDependencies = {
+    ...rootPackageJson.devDependencies,
+    ...packageJson.devDependencies,
+    ...{ 'lucide-react-native': 'latest' },
+  };
+
+  fs.writeFileSync(
+    path.join(rootPath, 'package.json'),
+    synchronizedPrettier.format(JSON.stringify(rootPackageJson), {
+      parser: 'json',
+    })
+  );
 }
 
 async function updateImports(
@@ -241,7 +284,16 @@ async function copyFiles(srcPath: any) {
         fs.copySync(srcPath, path.join(rootPath, folderName));
 
         await updateImports(folderName, importPathName);
+
+        await installDependencies();
       }
+      console.log(
+        `${chalk.bold(
+          `${chalk.green(`
+           NOTE: Run npm install/yarn install/pnpm install once before running the project.
+        `)}`
+        )}`
+      );
       const successMessage = chalk.green(
         `✨ Congratulations! Your styled components have been successfully ejected and can now be found in the ${green(
           `'components'`
@@ -268,124 +320,3 @@ async function copyFiles(srcPath: any) {
     `);
   }
 }
-
-const configInstructionsBox = `${chalk.gray(
-  `    ┌───────────────────────────────────────────────────────────────────────────────────────────┐`
-)}
-${chalk.gray(
-  `│   // ${chalk.cyan(
-    'babel.config.js'
-  )}                                                                      │`
-)}
-${chalk.gray(
-  `│   // Relative path to your ejected components                                             │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `const path = require('path')`
-  )};                                                           │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `module.exports = function (api) {`
-  )}                                                       │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    ` api.cache(true)`
-  )}                                                                        │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    ` return {`
-  )}                                                                               │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `    plugins: [`
-  )}                                                                          │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `      [`
-  )}                                                                                 │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `        'module-resolver',`
-  )}                                                              │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `        {`
-  )}                                                                               │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `          alias: {`
-  )}                                                                      │`
-)}
-${chalk.gray(
-  `│   ${chalk.magenta(
-    `            '@gluestack-ui/themed': path.join(`
-  )}                                          │`
-)}
-${chalk.gray(
-  `│   ${chalk.magenta(
-    `              __dirname,`
-  )}                                                                │`
-)}
-${chalk.gray(
-  `│   ${chalk.magenta(
-    `              '../components'`
-  )};                                                          │`
-)}
-${chalk.gray(
-  `│   ${chalk.magenta(
-    `             ),`
-  )}                                                                         │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `          },`
-  )}                                                                            │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `        },`
-  )}                                                                              │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `      ],`
-  )}                                                                                │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `      '@babel/plugin-transform-modules-commonjs',`
-  )}                                       │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `    ],`
-  )}                                                                                  │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `  }`
-  )}                                                                                     │`
-)}
-${chalk.gray(
-  `│   ${chalk.cyan(
-    `}`
-  )}                                                                                       │`
-)}
-${chalk.gray(
-  `│                                                                                           │`
-)}
-${chalk.gray(
-  `│                                                                                           │`
-)}
-${chalk.gray(
-  `└───────────────────────────────────────────────────────────────────────────────────────────┘`
-)}`;
