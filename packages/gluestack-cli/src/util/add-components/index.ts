@@ -61,8 +61,8 @@ const componentAdder = async ({
           path.join(currDir, writableComponentsPath),
           path.join(currDir, writableComponentsPath, 'config.json')
         );
-        // const installMethod = installationMethod;
-        // await installDependencies(installMethod);
+        const installMethod = installationMethod;
+        await installDependencies(installMethod);
         log.success('Installation completed');
       })
       .catch((err) => {
