@@ -6,7 +6,7 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { GluestackUIProvider, Text, Box } from "@gluestack-ui/themed";
 import { config } from "@gluestack-ui/config";
 import { useColorScheme } from "@/components/useColorScheme";
@@ -31,6 +31,7 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const [styleLoaded, setStyleLoaded] = useState(false);
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -42,9 +43,13 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  // useLayoutEffect(() => {
+  //   setStyleLoaded(true);
+  // }, [styleLoaded]);
+
+  // if (!loaded || !styleLoaded) {
+  //   return null;
+  // }
 
   return <RootLayoutNav />;
 }
