@@ -6,9 +6,29 @@
     "auditLog": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/.4e24c2ed410c09b56d9e74155365b7a4ade15599-audit.json",
     "files": [
         {
-            "date": 1704694085162,
-            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-01-08.log",
-            "hash": "cc39aff049cd5b2fd858db62fbfb1a36"
+            "date": 1708336809893,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-02-19.log",
+            "hash": "7e0dc73f864b773cc34d0a5ec2c11724"
+        },
+        {
+            "date": 1708409611336,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-02-20.log",
+            "hash": "f96e36cc79562981c1795a0832e2b39c"
+        },
+        {
+            "date": 1708861308596,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-02-25.log",
+            "hash": "fd39cda4028f83c0096c21c29d5e3cda"
+        },
+        {
+            "date": 1708927133305,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-02-26.log",
+            "hash": "f3f5485d14a8e718494f62373faee129"
+        },
+        {
+            "date": 1709285615628,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/error-2024-03-01.log",
+            "hash": "48f981bd9c236bb7ed95a803c4ce684b"
         }
     ]
 }

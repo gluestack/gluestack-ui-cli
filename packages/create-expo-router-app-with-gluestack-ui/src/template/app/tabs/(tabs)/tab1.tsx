@@ -2,7 +2,6 @@ import EditScreenInfo from "@/components/EditScreenInfo";
 import { Heading, Center, Divider, Text } from "@gluestack-ui/themed";
 
 export default function Tab2() {
-  console.log("SSR HERE >>>>");
   return (
     <Center flex={1}>
       <Heading bold size="2xl">

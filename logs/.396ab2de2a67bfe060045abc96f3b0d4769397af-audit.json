@@ -6,9 +6,29 @@
     "auditLog": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/.396ab2de2a67bfe060045abc96f3b0d4769397af-audit.json",
     "files": [
         {
-            "date": 1704694085164,
-            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-01-08.log",
-            "hash": "a97688b26979b47392c1db6d03412c06"
+            "date": 1708336809897,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-02-19.log",
+            "hash": "972c99c1efa0697da81f78633a37cff4"
+        },
+        {
+            "date": 1708409611341,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-02-20.log",
+            "hash": "bafade2d564ea169d66c1be3e9e53d6d"
+        },
+        {
+            "date": 1708861308619,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-02-25.log",
+            "hash": "3eac89690a7eeb1ee5976ecda7d06eab"
+        },
+        {
+            "date": 1708927133312,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-02-26.log",
+            "hash": "2fc742ec72a5ddc1ce44bcb976c6e59c"
+        },
+        {
+            "date": 1709285615633,
+            "name": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/logs/keplerCliNative-2024-03-01.log",
+            "hash": "2e30c258f752571f26099ff99bcf076f"
         }
     ]
 }

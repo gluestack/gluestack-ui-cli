@@ -6,7 +6,6 @@ import DocumentData from './assets/Icons/DocumentData';
 import LightBulbPerson from './assets/Icons/LightbulbPerson';
 import Rocket from './assets/Icons/Rocket';
 import Logo from './assets/Icons/Logo';
-
 export default function App() {
   return (
     <GluestackUIProvider config={config}>
@@ -14,11 +13,9 @@ export default function App() {
     </GluestackUIProvider>
   );
 }
-
 const Home = () => {
   return <Container />;
 };
-
 const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   return (
     <Box
@@ -45,13 +42,16 @@ const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
     </Box>
   );
 };
-
 const Container = () => {
   return (
     <Box flex={1} backgroundColor="$black">
       <ScrollView
-        style={{ height: '100%' }}
-        contentContainerStyle={{ flexGrow: 1 }}
+        style={{
+          height: '100%',
+        }}
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
       >
         <Box
           position="absolute"
