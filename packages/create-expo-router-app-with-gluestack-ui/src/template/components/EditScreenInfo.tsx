@@ -24,7 +24,7 @@ export default function EditScreenInfo({ path }: { path: string }) {
             fontSize="$sm"
             lineHeight="$sm"
             textAlign="center"
-            fontFamily="monospace"
+            fontFamily="SpaceMono"
           >
             {path}
           </Text>
