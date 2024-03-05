@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-import { ExternalLink } from "./ExternalLink";
-import { Text, Box } from "@gluestack-ui/themed";
+import { ExternalLink } from './ExternalLink';
+import { Text, Box } from '@gluestack-ui/themed';
 
 export default function EditScreenInfo({ path }: { path: string }) {
   return (
@@ -24,7 +24,7 @@ export default function EditScreenInfo({ path }: { path: string }) {
             fontSize="$sm"
             lineHeight="$sm"
             textAlign="center"
-            fontFamily="monospace"
+            fontFamily="SpaceMono"
           >
             {path}
           </Text>
