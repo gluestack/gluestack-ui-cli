@@ -1,23 +1,17 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { log, confirm, spinner } from '@clack/prompts';
 import os from 'os';
-import { cloneRepositoryAtRoot } from '..';
-import { installDependencies } from '../../utils';
-import { createConfig } from '../create-config';
-const { execSync } = require('child_process');
-
-const homeDir = os.homedir();
+import { log, confirm } from '@clack/prompts';
+import { cloneRepositoryAtRoot, getAllComponents } from '..';
+import { generateConfigAndInstallDependencies } from '../create-config';
+import { config } from '../../config';
 const currDir = process.cwd();
-const componentsPath = 'packages/config/src/components';
-const writableComponentsPath = 'components';
-const gluestackDir = path.join(homeDir, '.gluestack', 'cache', 'gluestack-ui');
+const homeDir = os.homedir();
 let existingComponentsChecked: boolean = false;
 
 const componentAdder = async ({
   requestedComponent = '',
   showWarning = true,
-  forceUpdate = false,
   installationMethod = '',
 }) => {
   try {
@@ -44,32 +38,43 @@ const componentAdder = async ({
       !existingComponentsChecked && showWarning && requestedComponent
         ? await isComponentInConfig(requestedComponents)
         : requestedComponents;
-
+    const folderExist = await checkIfDirectoryExists(
+      path.join(currDir, config.writableComponentsPath)
+    );
+    if (!folderExist) updatedComponents.push(config.providerComponent);
     await Promise.all(
       updatedComponents.map(async (component) => {
         const targetPath = path.join(
           currDir,
-          writableComponentsPath,
+          config.writableComponentsPath,
           component
         );
+
         await writeComponent(component, targetPath);
-        addIndexFile(path.join(currDir, writableComponentsPath));
+        addIndexFile(path.join(currDir, config.writableComponentsPath));
       })
     )
       .then(async () => {
-        createConfig(
-          path.join(currDir, writableComponentsPath),
-          path.join(currDir, writableComponentsPath, 'config.json')
+        await generateConfigAndInstallDependencies(
+          path.join(currDir, config.writableComponentsPath),
+          installationMethod
         );
-        const installMethod = installationMethod;
-        await installDependencies(installMethod);
         log.success('Installation completed');
       })
       .catch((err) => {
-        log.error(`\x1b[31mError checkkk: ${(err as Error).message}\x1b[0m`);
+        log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
       });
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+  }
+};
+
+const checkIfDirectoryExists = async (path: string): Promise<boolean> => {
+  try {
+    const stats = await fs.stat(path);
+    return stats.isDirectory();
+  } catch (error) {
+    return false; // Directory does not exist or there was an error accessing it
   }
 };
 
@@ -77,7 +82,11 @@ const isComponentInConfig = async (components: string[]): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];
   for (const component of components) {
-    const pathToCheck = path.join(currDir, writableComponentsPath, component);
+    const pathToCheck = path.join(
+      currDir,
+      config.writableComponentsPath,
+      component
+    );
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);
     }
@@ -115,33 +124,12 @@ const processTerminate = (message: string) => {
   log.error(message);
   process.exit(1);
 };
-const getAllComponents = (): string[] => {
-  const componentList = fs
-    .readdirSync(path.join(gluestackDir, componentsPath))
-    .filter(
-      (file) =>
-        !['.tsx', '.ts', '.jsx', '.js'].includes(
-          path.extname(file).toLowerCase()
-        )
-    );
-  return componentList;
-};
 
 const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
   const componentList = getAllComponents();
-  if (
-    componentList.includes(component) ||
-    componentList.includes(dashToPascal(component))
-  )
+  if (componentList.includes(component) || componentList.includes(component))
     return true;
   else return false;
-};
-
-const dashToPascal = (str: string): string => {
-  return str
-    .toLowerCase()
-    .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
-    .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
 };
 
 const writeComponent = async (component: string, targetPath: string) => {
@@ -149,8 +137,15 @@ const writeComponent = async (component: string, targetPath: string) => {
     // Ensure the destination folder exists or create it
     await fs.ensureDir(targetPath);
     await fs.copy(
-      path.join(gluestackDir, componentsPath, component),
-      targetPath,
+      path.join(
+        homeDir,
+        config.gluestackDir,
+        config.componentsPath,
+        component,
+        'index.tsx'
+      ),
+      path.join(targetPath, 'index.tsx'),
+
       {
         overwrite: true,
       }
@@ -181,28 +176,6 @@ const addIndexFile = async (componentsDirectory: string) => {
   }
 };
 
-const cloneRepository = async (repoUrl: string, destinationPath: string) => {
-  try {
-    const s = spinner();
-    s.start('Cloning repository...');
-    await execSync(`git clone ${repoUrl} ${destinationPath}`);
-    s.stop('Repository cloned successfully.');
-  } catch (error) {
-    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
-  }
-};
-
-async function deleteClonedRepository(clonedRepoPath: string) {
-  try {
-    const s = spinner();
-    s.start('Cleaning up...');
-    await execSync(`rm -rf ${clonedRepoPath}`);
-    s.stop('Clean up complete.');
-  } catch (error) {
-    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
-  }
-}
-
 const confirmOverride = async (
   component: string[],
   existingCount: number
@@ -214,4 +187,4 @@ const confirmOverride = async (
   return shouldContinue;
 };
 
-export { componentAdder };
+export { componentAdder, getAllComponents };

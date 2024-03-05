@@ -5,7 +5,6 @@ import path from 'path';
 import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
 import { componentAdder } from '../util/add-components';
-import { installDependencies } from '../utils';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -41,7 +40,6 @@ export const add = new Command()
         components: components ?? '',
         ...opts,
       });
-      console.log('options', options);
       let installationMethod;
       if (options.useNpm || options.useYarn || options.usePnpm) {
         if (options.useNpm) installationMethod = 'npm';
@@ -57,7 +55,6 @@ export const add = new Command()
         try {
           await componentAdder({
             requestedComponent: '--all',
-            forceUpdate: options.forceUpdate,
             installationMethod: installationMethod,
           });
         } catch (err) {
@@ -65,8 +62,7 @@ export const add = new Command()
         }
       } else {
         await componentAdder({
-          requestedComponent: options.components,
-          forceUpdate: options.forceUpdate,
+          requestedComponent: options.components?.toLowerCase(),
           installationMethod: installationMethod,
         });
       }
