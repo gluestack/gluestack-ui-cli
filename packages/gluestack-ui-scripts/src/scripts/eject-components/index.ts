@@ -25,6 +25,8 @@ export const ejectComponents = async () => {
   if (
     fs.existsSync(path.join(rootPath, 'node_modules', '@gluestack-ui/config'))
   ) {
+    console.log('hello');
+
     srcPath = path.join(
       rootPath,
       'node_modules',
@@ -38,6 +40,8 @@ export const ejectComponents = async () => {
       path.join(workspaceRoot, 'node_modules', '@gluestack-ui/config')
     )
   ) {
+    console.log('hello 2');
+
     srcPath = path.join(
       workspaceRoot,
       'node_modules',
@@ -45,8 +49,10 @@ export const ejectComponents = async () => {
       'src',
       'components'
     );
-    copyFiles(srcPath);
+    await copyFiles(srcPath);
   } else {
+    console.log('hello 3');
+
     console.error(
       chalk.red.bold('❌ Error:'),
       "The '@gluestack-ui/themed' package was not found in node_modules. Please run",
