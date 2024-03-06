@@ -20,13 +20,18 @@
     "test": "jest",
     "test:production": "jest --isProduction=true",
     "prepare": "tsc",
-    "dev": "node dist/index.js"
+    "dev": "node dist/index.js",
+    "generate-template": "node scripts/index.js"
   },
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
     }
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "prettier": {
     "printWidth": 80,
     "semi": true,
