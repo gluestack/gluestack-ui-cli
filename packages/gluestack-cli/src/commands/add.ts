@@ -10,9 +10,7 @@ const addOptionsSchema = z.object({
   components: z.string().optional(),
   cwd: z.string(),
   all: z.boolean(),
-  path: z.string().optional(),
   forceUpdate: z.boolean(),
-  askUserToInit: z.boolean(),
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
@@ -28,9 +26,7 @@ export const add = new Command()
     process.cwd()
   )
   .option('--all, --all', 'add all available components', false)
-  .option('-p, --path <path>', 'the path to add the component to.')
   .option('-f, --force-update', 'force update the component.', false)
-  .option('--ask-user-to-init', 'ask user to init the project', true)
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
@@ -40,6 +36,15 @@ export const add = new Command()
         components: components ?? '',
         ...opts,
       });
+      if (
+        options.all === false &&
+        (options.components === '' || options.components === undefined)
+      ) {
+        log.error(
+          '\x1b[31mInvalid arguement, please provide the component name you want to add or --all.\x1b[0m'
+        );
+        process.exit(0);
+      }
       let installationMethod;
       if (options.useNpm || options.useYarn || options.usePnpm) {
         if (options.useNpm) installationMethod = 'npm';

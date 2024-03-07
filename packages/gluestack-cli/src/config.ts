@@ -1,12 +1,16 @@
 const config = {
   repoUrl: 'https://github.com/gluestack/gluestack-ui.git',
   branchName: 'patch',
+  tagName: '',
   writableComponentsPath: 'components',
+  style: '',
+  gluestackStyleRootPath: 'themed',
+  nativeWindRootPath: 'nativewind',
   providerComponent: 'gluestack-ui-provider',
-  componentsPath: 'example/storybook-nativewind/src/core-components/themed',
+  componentsResourcePath: 'example/storybook-nativewind/src/core-components',
   gluestackDir: '.gluestack/cache/gluestack-ui',
-  configResourcepath:
-    '.gluestack/cache/gluestack-ui/example/storybook-nativewind/src/core-components/themed/gluestack-ui-provider/config.ts',
+  configResourcePath: 'gluestack-ui-provider/config.ts',
+  configFilePath: 'components/gluestack-ui.config.ts',
 };
 
 export { config };

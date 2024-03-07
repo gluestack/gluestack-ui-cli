@@ -1,22 +1,52 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import {
-  generateSpecificFile,
-  installPackages,
-  replaceRelativeImportInFile,
-} from '.';
-import { log } from '@clack/prompts';
+import { installPackages, replaceRelativeImportInFile } from '.';
+import { cancel, isCancel, log, select, text } from '@clack/prompts';
 import { config } from '../config';
 
 const currDir = process.cwd();
 const homeDir = os.homedir();
+
 let installDependencies: string[] = [];
-const congifPath = path.join(
-  process.cwd(),
-  'components',
-  'gluestack-ui.config.ts'
-);
+// let config.configFilePath = 'components/gluestack-ui.config.ts';
+let configFileName = config.configFilePath.split('/').pop() as string;
+
+async function addUIConfigFile() {
+  try {
+    const configResource = path.join(
+      homeDir,
+      config.gluestackDir,
+      config.componentsResourcePath,
+      config.style,
+      config.configResourcePath
+    );
+    // Check if file exists at targetPath
+    const exists = fs.existsSync(path.join(currDir, config.configFilePath));
+    if (exists) {
+      return;
+    } else {
+      // File does not exist, proceed with copying
+      fs.copyFileSync(
+        configResource,
+        path.join(currDir, config.configFilePath)
+      );
+      await getConfigDependencies(path.join(currDir, config.configFilePath));
+      const oldImportPath: string = './config';
+      const newImportPath: string = `../${configFileName.slice(
+        0,
+        configFileName.lastIndexOf('.')
+      )}`;
+      await replaceRelativeImportInFile(
+        path.join(currDir, 'components', config.providerComponent, 'index.tsx'),
+        oldImportPath,
+        newImportPath
+      );
+    }
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+  }
+}
 
 async function configCleanup(directoryPath: string) {
   try {
@@ -136,6 +166,81 @@ async function getConfigDependencies(filePath: string) {
   });
 }
 
+async function promptComponentStyle() {
+  const selectedStyle = await select({
+    message:
+      'No component style selected. Please select a component style to use:',
+    options: [
+      { value: config.nativeWindRootPath, label: 'NativeWind' },
+      { value: config.gluestackStyleRootPath, label: 'gluestack-style' },
+    ],
+  });
+  if (isCancel(selectedStyle)) {
+    cancel('Operation cancelled.');
+    process.exit(0);
+  }
+  return selectedStyle;
+}
+
+async function getExistingComponentStyle() {
+  if (fs.existsSync(path.join(currDir, config.configFilePath))) {
+    const fileContent: string = fs.readFileSync(
+      path.join(currDir, config.configFilePath),
+      'utf8'
+    );
+    // Define a regular expression pattern to match import statements
+    const importPattern: RegExp = new RegExp(
+      `import {\\s*\\w+\\s*} from ['"]nativewind['"]`,
+      'g'
+    );
+    if (importPattern.test(fileContent)) {
+      config.style = config.nativeWindRootPath;
+      return config.nativeWindRootPath;
+    } else {
+      config.style = config.gluestackStyleRootPath;
+      return config.gluestackStyleRootPath;
+    }
+  }
+}
+
+async function getComponentStyle() {
+  // Read the contents of the file
+  try {
+    if (
+      fs.existsSync(path.join(currDir, config.writableComponentsPath)) &&
+      fs.existsSync(path.join(currDir, config.configFilePath))
+    )
+      getExistingComponentStyle();
+    if (
+      fs.existsSync(path.join(currDir, config.writableComponentsPath)) &&
+      !fs.existsSync(path.join(currDir, config.configFilePath))
+    ) {
+      const userInput = await text({
+        message: `No file found as ${configFileName} in components folder, Enter path to your config file in your project, if exist:`,
+        validate(value) {
+          if (value.length === 0) return `please enter a valid path`;
+        },
+      });
+      config.configFilePath = userInput.toString();
+      configFileName = config.configFilePath.split('/').pop() as string;
+      if (fs.existsSync(path.join(currDir, config.configFilePath)))
+        getExistingComponentStyle();
+      else {
+        log.error(`\x1b[31mInvalid config path provided\x1b[0m`);
+        process.exit(1);
+      }
+    }
+    if (!fs.existsSync(path.join(currDir, config.writableComponentsPath))) {
+      const componentStyle = await promptComponentStyle();
+      if (typeof componentStyle === 'string') {
+        config.style = componentStyle;
+      }
+    }
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+  }
+}
+
 // Main function to start generating config files
 async function generateConfigAndInstallDependencies(
   rootDir: string,
@@ -155,15 +260,7 @@ async function generateConfigAndInstallDependencies(
       generateConfig(rootDir, component);
     }
   });
-  await generateSpecificFile(
-    path.join(homeDir, config.configResourcepath),
-    congifPath,
-    'gluestack-ui.config.ts'
-  );
-
-  await getConfigDependencies(
-    path.join(currDir, 'components', 'gluestack-ui.config.ts')
-  );
+  await addUIConfigFile();
 
   if (fs.existsSync(path.join(rootDir, config.providerComponent))) {
     fs.writeFileSync(
@@ -171,14 +268,8 @@ async function generateConfigAndInstallDependencies(
       JSON.stringify({ installDependencies }, null, 2)
     );
   }
-  const oldImportPath: string = './config';
-  const newImportPath: string = '../gluestack-ui.config';
-  await replaceRelativeImportInFile(
-    path.join(currDir, 'components', config.providerComponent, 'index.tsx'),
-    oldImportPath,
-    newImportPath
-  );
+
   await fetchAndInstallPackages(installationMethod);
 }
 
-export { generateConfigAndInstallDependencies };
+export { generateConfigAndInstallDependencies, getComponentStyle };

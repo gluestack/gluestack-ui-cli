@@ -3,7 +3,10 @@ import path from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
 import { cloneRepositoryAtRoot, getAllComponents } from '..';
-import { generateConfigAndInstallDependencies } from '../create-config';
+import {
+  generateConfigAndInstallDependencies,
+  getComponentStyle,
+} from '../create-config';
 import { config } from '../../config';
 const currDir = process.cwd();
 const homeDir = os.homedir();
@@ -16,15 +19,14 @@ const componentAdder = async ({
 }) => {
   try {
     await cloneRepositoryAtRoot();
+    await getComponentStyle();
     if (
       requestedComponent &&
       requestedComponent !== '--all' &&
       !(await checkIfComponentIsValid(requestedComponent))
     ) {
       log.error(
-        '\x1b[32m' +
-          `The ${requestedComponent} does not exist. Kindly choose from the below list.` +
-          '\x1b[0m'
+        `\x1b[31mThe ${requestedComponent} does not exist. Kindly choose a valid component name.\x1b[0m `
       );
       return;
     }
@@ -140,7 +142,8 @@ const writeComponent = async (component: string, targetPath: string) => {
       path.join(
         homeDir,
         config.gluestackDir,
-        config.componentsPath,
+        config.componentsResourcePath,
+        config.style,
         component,
         'index.tsx'
       ),

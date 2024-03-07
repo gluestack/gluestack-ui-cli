@@ -11,7 +11,7 @@ import {
   select,
 } from '@clack/prompts';
 import finder from 'find-package-json';
-import simpleGit, { SimpleGit } from 'simple-git';
+import simpleGit from 'simple-git';
 import { execSync, spawnSync } from 'child_process';
 import { config } from '../config';
 
@@ -29,7 +29,14 @@ const projectRootPath: string = path.dirname(rootPackageJsonPath);
 
 const getAllComponents = (): string[] => {
   const componentList = fs
-    .readdirSync(path.join(homeDir, config.gluestackDir, config.componentsPath))
+    .readdirSync(
+      path.join(
+        homeDir,
+        config.gluestackDir,
+        config.componentsResourcePath,
+        config.style
+      )
+    )
     .filter(
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js'].includes(
@@ -38,13 +45,6 @@ const getAllComponents = (): string[] => {
     );
   return componentList;
 };
-
-// const dashToPascal = (str: string): string => {
-//   return str
-//     .toLowerCase()
-//     .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
-//     .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
-// };
 
 const cloneRepositoryAtRoot = async () => {
   const clonedRepoExists = await checkIfFolderExists(
@@ -73,11 +73,16 @@ const cloneComponentRepo = async (
   s.start('⏳ Cloning repository...');
 
   try {
-    await git.clone(gitURL, targetPath, ['--branch', config.branchName]);
+    await git.clone(gitURL, targetPath, [
+      '--depth=1',
+      '--branch',
+      config.branchName,
+    ]);
     s.stop('\x1b[32m' + 'Cloning successful.' + '\x1b[0m');
   } catch (err) {
     s.stop('\x1b[31m' + 'Cloning failed' + '\x1b[0m');
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+    process.exit(1);
   }
 };
 
@@ -109,53 +114,6 @@ const tryGitPull = async (targetPath: string): Promise<void> => {
     await git.pull('origin', config.branchName);
   } else log.error('\x1b[31m' + 'Target path does not exist' + '\x1b[0m');
 };
-
-async function getLatestReleaseBranch() {
-  try {
-    const git: SimpleGit = simpleGit(path.join(homeDir, config.gluestackDir));
-    await git.fetch(['--all']);
-    const { all: remoteBranches } = await git.branch(['-r']);
-    // Filter out release branches
-    const releaseBranches = remoteBranches.filter((branch) =>
-      /^origin\/release\/\d+\.\d+\.\d+$/.test(branch)
-    );
-    let latestReleaseBranch: string | null = null;
-    let latestVersion: string | null = null;
-    // Find the latest release branch
-    releaseBranches.forEach((branch) => {
-      const versionMatch = branch.match(/release\/(\d+\.\d+\.\d+)$/);
-      if (versionMatch) {
-        const version = versionMatch[1]; // Extracting the version from the capturing group
-        if (!latestVersion || compareVersions(version, latestVersion) > 0) {
-          latestVersion = version;
-          latestReleaseBranch = branch;
-        }
-      }
-    });
-    return latestReleaseBranch;
-  } catch (error) {
-    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
-    return null;
-  }
-}
-
-function compareVersions(version1: string, version2: string): number {
-  const parts1 = version1.split('.').map(Number);
-  const parts2 = version2.split('.').map(Number);
-
-  for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-    const part1 = parts1[i] || 0;
-    const part2 = parts2[i] || 0;
-
-    if (part1 > part2) {
-      return 1;
-    } else if (part1 < part2) {
-      return -1;
-    }
-  }
-
-  return 0; // Versions are equal
-}
 
 const checkIfFolderExists = async (path: string): Promise<boolean> => {
   try {
