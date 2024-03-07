@@ -1,0 +1,107 @@
+const { spawn } = require('child_process');
+const fs = require('fs-extra');
+const path = require('path');
+const templateData = require('./config');
+
+const ejectCommand = templateData.ejectCommand;
+
+// Check if the directory exists
+async function execPromise(templateName, targetPath, targetName, changesPathRel, createCommand, createCommandArgs, guiInstallCommand, promptsList = [], eject = false, dotFiles = []) {
+
+  const dirPath = path.join(__dirname, targetPath);
+  const installPath = path.join(dirPath, targetName);
+  const changesPath = path.join(__dirname, changesPathRel);
+  
+  console.log('Creating new template for', templateName);
+
+  // Create the directory if it does not exist
+  fs.ensureDirSync(dirPath);
+
+  if (fs.existsSync(installPath)) {
+    console.log(templateName, 'folder already exists.\nCleaning ...\n');
+    fs.removeSync(installPath);
+  }
+
+  console.log('Installing...\n');
+
+  // Create the command to eject the template
+  const ejectCommandCLI = eject ? '&& ' + ejectCommand : '';
+
+  // Run the command
+  const runCommand = `cd ${dirPath} && ${createCommand} ${targetName} ${createCommandArgs} && cd ${targetName} && ${guiInstallCommand} ${ejectCommandCLI}`;
+  console.log(runCommand);
+  const createCommandCLI = spawn(runCommand, { shell: true, stdio: 'pipe' });
+
+  createCommandCLI.stdin.setEncoding('utf-8');
+
+  createCommandCLI.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+    if (data.includes('need to install')) {
+    createCommandCLI.stdin.write('\n');
+    }
+    if(promptsList.length > 0) {
+      for(promptObj of promptsList) {
+        if(data.includes(promptObj.prompt)) {
+          createCommandCLI.stdin.write(promptObj.userInput);
+        }
+      }
+    }
+  });
+
+  // createCommandCLI.stderr.on('data', (data) => {
+  //   console.error(`stderr: ${data}`);
+  // });
+
+  createCommandCLI.on('close', () => {
+      console.log('Basic Template created successfully\n');
+      console.log('Applying Patch...');
+      replaceFiles(installPath, changesPath, dotFiles);
+      console.log(templateName, 'template created successfully');
+  });
+};
+
+const replaceFiles = (installPath, changesPath, dotFiles) => {
+  const filesAndFolders = fs.readdirSync(changesPath);
+  
+  filesAndFolders.forEach(fileOrFolder => {
+    const srcPath = path.join(changesPath, fileOrFolder);
+    const destPath = path.join(installPath, fileOrFolder);
+    fs.copySync(srcPath, destPath, { overwrite: true });
+  });
+  for(const dotFile of dotFiles) {
+    // Define the old and new file paths
+    const oldFilePath = path.join(installPath, dotFile);
+    const newFilePath = path.join(installPath, dotFile.replace('.', ''));
+  
+    // Rename the file
+    fs.renameSync(oldFilePath, newFilePath);
+  }
+};
+
+async function runner() {
+  let templateList = process.argv.filter(item => !(item.includes('--') || item.includes('/')));
+  if(templateList.length === 0) {
+    templateList = Object.keys(templateData.template);
+  }
+
+  for(template of templateList) {
+    if(templateData.template?.[template]) {
+
+      const createCommand = templateData.template[template].createCommand;
+      const createCommandArgs = templateData.template[template].createCommandArgs;
+      const guiInstallCommand = templateData.template[template]['install-deps'];
+      const targetPath = templateData.template[template].targetPath;
+      const targetName = templateData.template[template].targetName;
+      const patchPath = templateData.template[template].patchPath;
+      const promptsList = templateData.template[template]?.promptsList;
+      const eject = templateData.template[template]?.eject;
+      const dotFiles = templateData.template[template]?.dotFiles;
+
+      await execPromise(template, targetPath, targetName, patchPath, createCommand, createCommandArgs, guiInstallCommand, promptsList, eject, dotFiles);
+    } else {
+      console.log('Error :', template, 'not found in the template list. Exiting...\n\n');
+    }
+  }
+}
+
+runner();

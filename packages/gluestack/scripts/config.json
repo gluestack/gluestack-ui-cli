@@ -1,0 +1,106 @@
+{
+  "ejectCommand": "npx gluestack-ui-scripts@latest eject-theme",
+  "template":{
+    "next-page-gui": {
+      "targetPath": "../templates",
+      "targetName": "next-page-router-with-gluestack-style",
+      "patchPath": "../template-patch/next-page-router/gluestack-ui",
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ],
+      "dotFiles": [".gitignore"]
+    },
+    "next-page-gui-ejected": {
+      "targetPath": "../templates",
+      "targetName": "next-page-router-with-gluestack-style-ejected",
+      "patchPath": "../template-patch/next-page-router/gluestack-ui-ejected",
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "eject": true,
+      "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ],
+      "dotFiles": [".gitignore"]
+    },
+    "next-app-gui": {
+      "targetPath": "../templates",
+      "targetName": "next-app-router-with-gluestack-style",
+      "patchPath": "../template-patch/next-app-router/gluestack-ui",
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ],
+      "dotFiles": [".gitignore"]
+    },
+    "next-app-gui-ejected": {
+      "targetPath": "../templates",
+      "targetName": "next-app-router-with-gluestack-style-ejected",
+      "patchPath": "../template-patch/next-app-router/gluestack-ui-ejected",
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "eject": true,
+      "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ],
+      "dotFiles": [".gitignore"]
+    },
+    "expo-gui": {
+      "targetPath": "../templates",
+      "targetName": "expo-with-gluestack-style",
+      "patchPath": "../template-patch/expo/gluestack-ui",
+      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommandArgs": "-t expo-template-blank-typescript",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@14.1.0 @gluestack-ui/config",
+      "dotFiles": [".gitignore"]
+    },
+    "expo-gui-ejected": {
+      "targetPath": "../templates",
+      "targetName": "expo-with-gluestack-style-ejected",
+      "patchPath": "../template-patch/expo/gluestack-ui-ejected",
+      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommandArgs": "-t expo-template-blank-typescript",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@14.1.0 @gluestack-ui/config",
+      "eject": true,
+      "dotFiles": [".gitignore"]
+    },
+    "expo-router-gui": {
+      "targetPath": "../templates",
+      "targetName": "expo-router-with-gluestack-style",
+      "patchPath": "../template-patch/expo-router-v3/gluestack-ui",
+      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommandArgs": "-t tabs@50",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@14.1.0 @gluestack-ui/config",
+      "dotFiles": [".gitignore"]
+    },
+    "expo-router-gui-ejected": {
+      "targetPath": "../templates",
+      "targetName": "expo-router-with-gluestack-style-ejected",
+      "patchPath": "../template-patch/expo-router-v3/gluestack-ui-ejected",
+      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommandArgs": "-t tabs@50",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@14.1.0 @gluestack-ui/config",
+      "eject": true,
+      "dotFiles": [".gitignore"]
+    },
+    "react-native-gui": {
+      "targetPath": "../templates",
+      "targetName": "reactNativeGui",
+      "patchPath": "../template-patch/react-native/gluestack-ui",
+      "createCommand": "npx react-native@latest init",
+      "createCommandArgs": "",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@13.4.0 @gluestack-ui/config",
+      "promptsList": [ { "prompt": "install CocoaPods", "userInput": "y"} ],
+      "dotFiles": [".gitignore"]
+    },
+    "react-native-gui-ejected": {
+      "targetPath": "../templates",
+      "targetName": "reactNativeGuiEjected",
+      "patchPath": "../template-patch/react-native/gluestack-ui-ejected",
+      "createCommand": "npx react-native@latest init",
+      "createCommandArgs": "",
+      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@13.4.0 @gluestack-ui/config",
+      "eject": true,
+      "promptsList": [ { "prompt": "install CocoaPods", "userInput": "y"} ],
+      "dotFiles": [".gitignore"]
+    }
+  }
+}
