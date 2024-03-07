@@ -7,7 +7,7 @@
       "patchPath": "../template-patch/next-page-router/gluestack-ui",
       "createCommand": "npx create-next-app@14.1.2",
       "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@13.4.0 @gluestack-ui/config@latest",
       "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ]
     },
     "next-page-gui-ejected": {
@@ -16,7 +16,7 @@
       "patchPath": "../template-patch/next-page-router/gluestack-ui-ejected",
       "createCommand": "npx create-next-app@14.1.2",
       "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@13.4.0 @gluestack-ui/config@latest",
       "eject": true,
       "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ]
     },
@@ -26,7 +26,7 @@
       "patchPath": "../template-patch/next-app-router/gluestack-ui",
       "createCommand": "npx create-next-app@14.1.2",
       "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@13.4.0 @gluestack-ui/config@latest",
       "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ]
     },
     "next-app-gui-ejected": {
@@ -35,7 +35,7 @@
       "patchPath": "../template-patch/next-app-router/gluestack-ui-ejected",
       "createCommand": "npx create-next-app@14.1.2",
       "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@13.4.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@13.4.0 @gluestack-ui/config@latest",
       "eject": true,
       "promptsList": [ { "prompt": "import alias", "userInput": "\n"} ]
     },
@@ -45,7 +45,7 @@
       "patchPath": "../template-patch/expo/gluestack-ui",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t expo-template-blank-typescript",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@14.1.0 @gluestack-ui/config"
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@14.1.0 @gluestack-ui/config@latest"
     },
     "expo-gui-ejected": {
       "targetPath": "../../../apps/templates",
@@ -53,7 +53,7 @@
       "patchPath": "../template-patch/expo/gluestack-ui-ejected",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t expo-template-blank-typescript",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react @gluestack/ui-next-adapter react-native-web react-native-svg@14.1.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@14.1.0 @gluestack-ui/config@latest",
       "eject": true
     },
     "expo-router-gui": {
@@ -62,7 +62,7 @@
       "patchPath": "../template-patch/expo-router-v3/gluestack-ui",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t tabs@50",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@14.1.0 @gluestack-ui/config"
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@14.1.0 @gluestack-ui/config@latest"
     },
     "expo-router-gui-ejected": {
       "targetPath": "../../../apps/templates",
@@ -70,7 +70,7 @@
       "patchPath": "../template-patch/expo-router-v3/gluestack-ui-ejected",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t tabs@50",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@14.1.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@14.1.0 @gluestack-ui/config@latest",
       "eject": true
     },
     "react-native-gui": {
@@ -79,7 +79,7 @@
       "patchPath": "../template-patch/react-native/gluestack-ui",
       "createCommand": "npx react-native@latest init",
       "createCommandArgs": "",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@13.4.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@13.4.0 @gluestack-ui/config@latest",
       "promptsList": [ { "prompt": "install CocoaPods", "userInput": "y"} ]
     },
     "react-native-gui-ejected": {
@@ -88,7 +88,7 @@
       "patchPath": "../template-patch/react-native/gluestack-ui-ejected",
       "createCommand": "npx react-native@latest init",
       "createCommandArgs": "",
-      "install-deps": "npm i @gluestack-ui/themed @gluestack-style/react react-native-svg@13.4.0 @gluestack-ui/config",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@13.4.0 @gluestack-ui/config@latest",
       "eject": true,
       "promptsList": [ { "prompt": "install CocoaPods", "userInput": "y"} ]
     }
