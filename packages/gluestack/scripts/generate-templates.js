@@ -68,14 +68,6 @@ const replaceFiles = (installPath, changesPath, dotFiles) => {
     const destPath = path.join(installPath, fileOrFolder);
     fs.copySync(srcPath, destPath, { overwrite: true });
   });
-  for(const dotFile of dotFiles) {
-    // Define the old and new file paths
-    const oldFilePath = path.join(installPath, dotFile);
-    const newFilePath = path.join(installPath, dotFile.replace('.', ''));
-  
-    // Rename the file
-    fs.renameSync(oldFilePath, newFilePath);
-  }
 };
 
 async function runner() {
