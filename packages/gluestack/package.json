@@ -1,5 +1,5 @@
 {
-  "name": "create-gluestack",
+  "name": "test-size-gsui",
   "keywords": [
     "react",
     "react-native",
@@ -10,10 +10,12 @@
     "cli"
   ],
   "description": "A CLI tool for working with gluestack",
-  "version": "1.0.13",
+  "version": "1.0.13-alpha0",
   "license": "MIT",
   "main": "./dist/index.js",
-  "bin": "./dist/index.js",
+  "bin": {
+    "create-gluestack": "dist/index.js"
+  },
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
@@ -53,5 +55,14 @@
     "jest-junit": "^15.0.0",
     "supertest": "^6.3.3",
     "typescript": "^5.0.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gluestack/gluestack-ui-cli.git"
+  },
+  "author": "akash gautam",
+  "bugs": {
+    "url": "https://github.com/gluestack/gluestack-ui-cli/issues"
+  },
+  "homepage": "https://github.com/gluestack/gluestack-ui-cli#readme"
 }
