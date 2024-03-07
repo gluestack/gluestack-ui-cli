@@ -21,7 +21,8 @@
     "test:production": "jest --isProduction=true",
     "prepare": "tsc",
     "dev": "node dist/index.js",
-    "generate-template": "node scripts/index.js"
+    "generate-template": "node scripts/generate-templates.js",
+    "update-npmignore": "node scripts/update-npmignore.js"
   },
   "husky": {
     "hooks": {
