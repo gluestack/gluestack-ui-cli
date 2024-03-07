@@ -29,13 +29,13 @@ async function execPromise(templateName, targetPath, targetName, changesPathRel,
 
   // Run the command
   const runCommand = `cd ${dirPath} && ${createCommand} ${targetName} ${createCommandArgs} && cd ${targetName} && ${guiInstallCommand} ${ejectCommandCLI}`;
-  console.log(runCommand);
+  // console.log(runCommand);
   const createCommandCLI = spawn(runCommand, { shell: true, stdio: 'pipe' });
 
   createCommandCLI.stdin.setEncoding('utf-8');
 
   createCommandCLI.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
+    // console.log(`stdout: ${data}`);
     if (data.includes('need to install')) {
     createCommandCLI.stdin.write('\n');
     }
