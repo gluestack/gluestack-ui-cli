@@ -53,10 +53,10 @@ async function execPromise(templateName, targetPath, targetName, changesPathRel,
   // });
 
   createCommandCLI.on('close', () => {
-      console.log('Basic Template created successfully\n');
+      console.log('Basic Template created successfully');
       console.log('Applying Patch...');
       replaceFiles(installPath, changesPath, dotFiles);
-      console.log(templateName, 'template created successfully');
+      console.log(templateName, 'template created successfully\n');
   });
 };
 
