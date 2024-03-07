@@ -1,0 +1,43 @@
+{
+  "gitRepo": "https://github.com/gluestack/gluestack-ui-cli",
+  "parentPath": "apps/templates",
+  "options":{
+    "expo": {
+      "options":{
+        "expo-router-v3-app": {
+          "themed-library": "expo-router-with-gluestack-style-ejected",
+          "with-gluestack-style": "expo-router-with-gluestack-style",
+          "with-nativewind": ""
+        },
+        "expo-app": {
+          "themed-library": "expo-with-gluestack-style-ejected",
+          "with-gluestack-style": "expo-with-gluestack-style",
+          "with-nativewind": ""
+        }
+      }
+    },
+    "next": {
+      "options": {
+        "next-app-router": {
+          "themed-library": "next-app-router-with-gluestack-style-ejected",
+          "with-gluestack-style": "next-app-router-with-gluestack-style",
+          "with-nativewind": ""
+        },
+        "next-page-router": {
+          "themed-library": "next-page-router-with-gluestack-style-ejected",
+          "with-gluestack-style": "next-page-router-with-gluestack-style",
+          "with-nativewind": ""
+        }
+      }
+    },
+    "react-native": {
+      "options": {
+        "react-native-app": {
+          "themed-library": "reactNativeWithGluestackStyleEjected",
+          "with-gluestack-style": "reactNativeWithGluestackStyle",
+          "with-nativewind": ""
+        }
+      }
+    }
+  }
+}

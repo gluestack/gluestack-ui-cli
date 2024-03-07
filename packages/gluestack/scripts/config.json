@@ -75,7 +75,7 @@
     },
     "react-native-gui": {
       "targetPath": "../../../apps/templates",
-      "targetName": "reactNativeGui",
+      "targetName": "reactNativeWithGluestackStyle",
       "patchPath": "../template-patch/react-native/gluestack-ui",
       "createCommand": "npx react-native@latest init",
       "createCommandArgs": "",
@@ -84,7 +84,7 @@
     },
     "react-native-gui-ejected": {
       "targetPath": "../../../apps/templates",
-      "targetName": "reactNativeGuiEjected",
+      "targetName": "reactNativeWithGluestackStyleEjected",
       "patchPath": "../template-patch/react-native/gluestack-ui-ejected",
       "createCommand": "npx react-native@latest init",
       "createCommandArgs": "",
