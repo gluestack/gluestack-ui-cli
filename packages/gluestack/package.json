@@ -29,7 +29,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "template-map"
   ],
   "prettier": {
     "printWidth": 80,
