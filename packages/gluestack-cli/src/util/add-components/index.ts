@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
-import { cloneRepositoryAtRoot, getAllComponents } from '..';
+import { addIndexFile, cloneRepositoryAtRoot, getAllComponents } from '..';
 import {
   generateConfigAndInstallDependencies,
   getComponentStyle,
@@ -40,10 +40,6 @@ const componentAdder = async ({
       !existingComponentsChecked && showWarning && requestedComponent
         ? await isComponentInConfig(requestedComponents)
         : requestedComponents;
-    const folderExist = await checkIfDirectoryExists(
-      path.join(currDir, config.writableComponentsPath)
-    );
-    if (!folderExist) updatedComponents.push(config.providerComponent);
     await Promise.all(
       updatedComponents.map(async (component) => {
         const targetPath = path.join(
@@ -57,10 +53,10 @@ const componentAdder = async ({
       })
     )
       .then(async () => {
-        await generateConfigAndInstallDependencies(
-          path.join(currDir, config.writableComponentsPath),
-          installationMethod
-        );
+        await generateConfigAndInstallDependencies({
+          rootDir: path.join(currDir, config.writableComponentsPath),
+          installationMethod: installationMethod,
+        });
         log.success('Installation completed');
       })
       .catch((err) => {
@@ -144,10 +140,9 @@ const writeComponent = async (component: string, targetPath: string) => {
         config.gluestackDir,
         config.componentsResourcePath,
         config.style,
-        component,
-        'index.tsx'
+        component
       ),
-      path.join(targetPath, 'index.tsx'),
+      path.join(targetPath),
 
       {
         overwrite: true,
@@ -155,27 +150,6 @@ const writeComponent = async (component: string, targetPath: string) => {
     );
   } catch (error) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
-  }
-};
-
-const addIndexFile = async (componentsDirectory: string) => {
-  try {
-    const directories = await fs.readdir(componentsDirectory);
-    const componentDirectories = directories.filter((item) =>
-      fs.statSync(path.join(componentsDirectory, item)).isDirectory()
-    );
-    // Generate import and export statements for each component directory
-    const exportStatements = componentDirectories
-      .map((component) => `export * from './${component}';`)
-      .join('\n');
-
-    const indexContent = `${exportStatements}\n`;
-    await fs.writeFile(
-      path.join(componentsDirectory, 'index.ts'),
-      indexContent
-    );
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 

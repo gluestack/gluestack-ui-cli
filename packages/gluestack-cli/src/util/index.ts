@@ -41,7 +41,7 @@ const getAllComponents = (): string[] => {
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js'].includes(
           path.extname(file).toLowerCase()
-        )
+        ) && file !== config.providerComponent
     );
   return componentList;
 };
@@ -170,7 +170,16 @@ const addDependencies = async (dependenciesToAdd: string[]): Promise<void> => {
     packageJson.dependencies = packageJson.dependencies || {};
     // Add each dependency in the provided format
     dependenciesToAdd.forEach((packageName) => {
-      packageJson.dependencies[packageName] = 'latest';
+      if (packageJson.dependencies[packageName]) {
+        return;
+      } else {
+        if (config.packageVersions[packageName]) {
+          packageJson.dependencies[packageName] =
+            config.packageVersions[packageName];
+        } else if (!packageJson.dependencies[packageName]) {
+          packageJson.dependencies[packageName] = 'latest';
+        }
+      }
     });
     // Write the updated package.json file
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
@@ -184,7 +193,6 @@ const installPackages = async (
   dependencies: string[]
 ): Promise<void> => {
   let command;
-  let installCommand;
   if (!installationMethod) {
     let versionManager: string | null = detectLockFile();
     if (!versionManager) {
@@ -193,15 +201,13 @@ const installPackages = async (
     switch (versionManager) {
       case 'npm':
         command = `npm install --legacy-peer-deps `;
-        installCommand = 'npm i';
         break;
       case 'yarn':
         command = `yarn `;
-        installCommand = 'yarn';
+
         break;
       case 'pnpm':
         command = `pnpm i --lockfile-only `;
-        installCommand = 'pnpm i';
         break;
       default:
         throw new Error('Invalid package manager selected');
@@ -210,15 +216,12 @@ const installPackages = async (
     switch (installationMethod) {
       case 'npm':
         command = `npm install --legacy-peer-deps`;
-        installCommand = 'npm i';
         break;
       case 'yarn':
         command = `yarn `;
-        installCommand = 'yarn';
         break;
       case 'pnpm':
         command = `pnpm i --lockfile-only`;
-        installCommand = 'pnpm i';
         break;
       default:
         throw new Error('Invalid package manager selected');
@@ -235,9 +238,6 @@ const installPackages = async (
       stdio: 'inherit',
       shell: true,
     });
-    execSync(installCommand, {
-      stdio: 'inherit',
-    });
     s.stop(`\x1b[32mDependencies have been installed successfully.\x1b[0m`);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
@@ -247,22 +247,26 @@ const installPackages = async (
   }
 };
 
-async function replaceRelativeImportInFile(
-  filePath: string,
-  oldImportPath: string,
-  newImportPath: string
-) {
+const addIndexFile = async (componentsDirectory: string) => {
   try {
-    let fileContent: string = fs.readFileSync(filePath, 'utf8');
-    const modifiedContent: string = fileContent.replace(
-      new RegExp(`import {.*} from ['"]${oldImportPath}['"];`, 'g'),
-      `import { config } from '${newImportPath}';`
+    const directories = await fs.readdir(componentsDirectory);
+    const componentDirectories = directories.filter((item) =>
+      fs.statSync(path.join(componentsDirectory, item)).isDirectory()
     );
-    fs.writeFileSync(filePath, modifiedContent, 'utf8');
+    // Generate import and export statements for each component directory
+    const exportStatements = componentDirectories
+      .map((component) => `export * from './${component}';`)
+      .join('\n');
+
+    const indexContent = `${exportStatements}\n`;
+    await fs.writeFile(
+      path.join(componentsDirectory, 'index.ts'),
+      indexContent
+    );
   } catch (err) {
-    log.error(`Error replacing import statement: ${err}`);
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
-}
+};
 
 // Function to copy file with checks
 const generateSpecificFile = async (
@@ -293,12 +297,27 @@ const generateSpecificFile = async (
   }
 };
 
+async function replaceRelativeImportInFile(
+  filePath: string,
+  oldImportPath: string,
+  newImportPath: string
+) {
+  try {
+    let fileContent: string = fs.readFileSync(filePath, 'utf8');
+    const modifiedContent: string = fileContent.replace(
+      new RegExp(`import {.*} from ['"]${oldImportPath}['"];`, 'g'),
+      `import { config } from '${newImportPath}';`
+    );
+    fs.writeFileSync(filePath, modifiedContent, 'utf8');
+  } catch (err) {
+    log.error(`Error replacing import statement: ${err}`);
+  }
+}
+
 export {
   cloneRepositoryAtRoot,
-  pullComponentRepo,
   checkIfFolderExists,
   getAllComponents,
-  generateSpecificFile,
   installPackages,
-  replaceRelativeImportInFile,
+  addIndexFile,
 };
