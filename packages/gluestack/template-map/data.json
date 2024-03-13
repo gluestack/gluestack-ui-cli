@@ -1,0 +1,118 @@
+{
+  "gitRepo": "https://github.com/gluestack/gluestack-ui-cli",
+  "parentPath": "apps/templates",
+  "options": {
+    "frameworkOptions": {
+      "expo-router-v3": {
+        "hint": "",
+        "label": "expo app with expo router v3",
+        "options": {
+          "with-themed-library": {
+            "value": "expo-router-with-gluestack-style-ejected",
+            "hint": "",
+            "label": "themed library"
+          },
+          "with-gluestack-style": {
+            "value": "expo-router-with-gluestack-style",
+            "hint": "",
+            "label": "themed library bundled"
+          },
+          "with-nativewind": {
+            "value": "expo-router-with-nativewind",
+            "hint": "",
+            "label": "nativewind v4 styling"
+          }
+        }
+      },
+      "expo": {
+        "hint": "",
+        "label": "expo app",
+        "options": {
+          "with-themed-library": {
+            "value": "expo-with-gluestack-style-ejected",
+            "hint": "",
+            "label": "themed library"
+          },
+          "with-gluestack-style": {
+            "value": "expo-with-gluestack-style",
+            "hint": "",
+            "label": "themed library bundled"
+          },
+          "with-nativewind": {
+            "value": "expo-router-with-nativewind",
+            "hint": "",
+            "label": "nativewind v4 styling"
+          }
+        }
+      },
+      "next-app-router": {
+        "hint": "",
+        "label": "next app with app router",
+        "options": {
+          "with-themed-library": {
+            "value": "next-app-router-with-gluestack-style-ejected",
+            "hint": "",
+            "label": "Themed Library"
+          },
+          "with-gluestack-style": {
+            "value": "next-app-router-with-gluestack-style",
+            "hint": "",
+            "label": "themed library bundled"
+          },
+          "with-nativewind": {
+            "value": "expo-router-with-nativewind",
+            "hint": "",
+            "label": "nativewind v4 styling"
+          }
+        }
+      },
+      "next-page-router": {
+        "hint": "",
+        "label": "next app with page router",
+        "options": {
+          "with-themed-library": {
+            "value": "next-page-router-with-gluestack-style-ejected",
+            "hint": "",
+            "label": "Themed Library"
+          },
+          "with-gluestack-style": {
+            "value": "next-page-router-with-gluestack-style",
+            "hint": "",
+            "label": "themed library bundled"
+          },
+          "with-nativewind": {
+            "value": "expo-router-with-nativewind",
+            "hint": "",
+            "label": "nativewind v4 styling"
+          }
+        }
+      },
+      "react-native": {
+        "hint": "",
+        "label": "react-native app",
+        "options": {
+          "with-themed-library": {
+            "value": "reactNativeWithGluestackStyleEjected",
+            "hint": "",
+            "label": "themed Library"
+          },
+          "with-gluestack-style": {
+            "value": "reactNativeWithGluestackStyle",
+            "hint": "",
+            "label": "themed library bundled"
+          },
+          "with-nativewind": {
+            "value": "expo-router-with-nativewind",
+            "hint": "",
+            "label": "nativewind v4 styling"
+          }
+        }
+      }
+    },
+    "styleOptions": {
+      "with-themed-library": "themed Library with styling ejected",
+      "with-gluestack-style": "themed library bundled",
+      "with-nativewind": "nativewind v4 styling ejected"
+    }
+  }
+}
