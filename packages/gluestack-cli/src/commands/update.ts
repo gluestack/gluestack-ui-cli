@@ -4,9 +4,8 @@ import { handleError } from '../util/handle-error';
 import path from 'path';
 import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
-import { componentAdder } from '../util/add-components';
 
-const addOptionsSchema = z.object({
+const updateOptionsSchema = z.object({
   components: z.string().optional(),
   cwd: z.string(),
   all: z.boolean(),
@@ -16,16 +15,16 @@ const addOptionsSchema = z.object({
   usePnpm: z.boolean(),
 });
 
-export const add = new Command()
+export const update = new Command()
   .name('add')
-  .description('add a component to your project')
-  .argument('[...components]', 'the components to add')
+  .description('update component in your project')
+  .argument('[...components]', 'the components to update')
   .option(
     '-c, --cwd <cwd>',
     'the working directory. defaults to the current directory.',
     process.cwd()
   )
-  .option('--all, --all', 'add all available components', false)
+  .option('--all, --all', 'update all available components', false)
   .option('-f, --force-update', 'force update the component.', false)
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
@@ -34,11 +33,11 @@ export const add = new Command()
     try {
       if (command.args.length > 1) {
         log.error(
-          '\x1b[31mOnly one component can be provided at a time, please provide the component name you want to add or --all.\x1b[0m'
+          '\x1b[31mOnly one component can be provided at a time, please provide the component name you want to update or --all.\x1b[0m'
         );
         process.exit(1);
       }
-      const options = addOptionsSchema.parse({
+      const options = updateOptionsSchema.parse({
         components: components ?? '',
         ...opts,
       });
@@ -64,18 +63,12 @@ export const add = new Command()
       }
       if (options.all) {
         try {
-          await componentAdder({
-            requestedComponent: '--all',
-            installationMethod: installationMethod,
-          });
+          console.log('update all components');
         } catch (err) {
           log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
         }
       } else {
-        await componentAdder({
-          requestedComponent: options.components?.toLowerCase(),
-          installationMethod: installationMethod,
-        });
+        console.log('update single component');
       }
     } catch (err) {
       handleError(err);
