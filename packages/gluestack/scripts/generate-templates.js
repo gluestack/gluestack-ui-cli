@@ -70,6 +70,7 @@ const replaceFiles = (installPath, changesPath, dotFiles) => {
   });
 };
 
+// --template template-name
 async function runner() {
   let templateList = process.argv.filter(item => !(item.includes('--') || item.includes('/')));
   if(templateList.length === 0) {

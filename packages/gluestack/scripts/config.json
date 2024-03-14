@@ -45,7 +45,7 @@
       "patchPath": "../template-patch/expo/gluestack-ui",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t expo-template-blank-typescript",
-      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@14.1.0 @gluestack-ui/config@latest"
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@14.1.0 @gluestack-ui/config@latest react-dom"
     },
     "expo-gui-ejected": {
       "targetPath": "../../../apps/templates",
@@ -53,7 +53,7 @@
       "patchPath": "../template-patch/expo/gluestack-ui-ejected",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t expo-template-blank-typescript",
-      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@14.1.0 @gluestack-ui/config@latest",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest @gluestack/ui-next-adapter@latest react-native-web@latest react-native-svg@14.1.0 @gluestack-ui/config@latest react-dom",
       "eject": true
     },
     "expo-router-gui": {
@@ -62,7 +62,7 @@
       "patchPath": "../template-patch/expo-router-v3/gluestack-ui",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t tabs@50",
-      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@14.1.0 @gluestack-ui/config@latest"
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@14.1.0 @gluestack-ui/config@latest react-dom"
     },
     "expo-router-gui-ejected": {
       "targetPath": "../../../apps/templates",
@@ -70,7 +70,7 @@
       "patchPath": "../template-patch/expo-router-v3/gluestack-ui-ejected",
       "createCommand": "npx create-expo-app@2.1.1",
       "createCommandArgs": "-t tabs@50",
-      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@14.1.0 @gluestack-ui/config@latest",
+      "install-deps": "yarn add @gluestack-ui/themed@latest @gluestack-style/react@latest react-native-svg@14.1.0 @gluestack-ui/config@latest react-dom",
       "eject": true
     },
     "react-native-gui": {
