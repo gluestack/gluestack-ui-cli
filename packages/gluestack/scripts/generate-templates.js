@@ -4,9 +4,10 @@ const path = require('path');
 const templateData = require('./config');
 
 const ejectCommand = templateData.ejectCommand;
+const expoWebDepsCommand = templateData.expoWebDepsCommand;
 
 // Check if the directory exists
-async function execPromise(templateName, targetPath, targetName, changesPathRel, createCommand, createCommandArgs, guiInstallCommand, promptsList = [], eject = false, dotFiles = []) {
+async function execPromise(templateName, targetPath, targetName, changesPathRel, createCommand, createCommandArgs, guiInstallCommand, promptsList = [], eject = false, dotFiles = [], expoWeb = false) {
 
   const dirPath = path.join(__dirname, targetPath);
   const installPath = path.join(dirPath, targetName);
@@ -27,8 +28,11 @@ async function execPromise(templateName, targetPath, targetName, changesPathRel,
   // Create the command to eject the template
   const ejectCommandCLI = eject ? '&& ' + ejectCommand : '';
 
+  // Create the command to install deps for using expo web
+  const expoWebDepsInstallCommand = expoWeb ? '&& ' + expoWebDepsCommand : '';
+
   // Run the command
-  const runCommand = `cd ${dirPath} && ${createCommand} ${targetName} ${createCommandArgs} && cd ${targetName} && ${guiInstallCommand} ${ejectCommandCLI}`;
+  const runCommand = `cd ${dirPath} && ${createCommand} ${targetName} ${createCommandArgs} && cd ${targetName} && ${guiInstallCommand} ${expoWebDepsInstallCommand} ${ejectCommandCLI}`;
   // console.log(runCommand);
   const createCommandCLI = spawn(runCommand, { shell: true, stdio: 'pipe' });
 
@@ -82,15 +86,16 @@ async function runner() {
 
       const createCommand = templateData.template[template].createCommand;
       const createCommandArgs = templateData.template[template].createCommandArgs;
-      const guiInstallCommand = templateData.template[template]['install-deps'];
+      const guiInstallCommand = templateData.template[template].installDeps;
       const targetPath = templateData.template[template].targetPath;
       const targetName = templateData.template[template].targetName;
       const patchPath = templateData.template[template].patchPath;
       const promptsList = templateData.template[template]?.promptsList;
       const eject = templateData.template[template]?.eject;
       const dotFiles = templateData.template[template]?.dotFiles;
+      const expoWeb = templateData.template[template]?.expoWeb;
 
-      await execPromise(template, targetPath, targetName, patchPath, createCommand, createCommandArgs, guiInstallCommand, promptsList, eject, dotFiles);
+      await execPromise(template, targetPath, targetName, patchPath, createCommand, createCommandArgs, guiInstallCommand, promptsList, eject, dotFiles, expoWeb);
     } else {
       console.log('Error :', template, 'not found in the template list. Exiting...\n\n');
     }
