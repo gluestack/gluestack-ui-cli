@@ -39,7 +39,7 @@
             "label": "themed library bundled"
           },
           "with-nativewind": {
-            "value": "expo-router-with-nativewind",
+            "value": "expo-with-nativewind",
             "hint": "",
             "label": "nativewind v4 styling"
           }
@@ -60,7 +60,7 @@
             "label": "themed library bundled"
           },
           "with-nativewind": {
-            "value": "expo-router-with-nativewind",
+            "value": "next-app-router-with-nativewind",
             "hint": "",
             "label": "nativewind v4 styling"
           }
@@ -81,7 +81,7 @@
             "label": "themed library bundled"
           },
           "with-nativewind": {
-            "value": "expo-router-with-nativewind",
+            "value": "next-page-router-with-nativewind",
             "hint": "",
             "label": "nativewind v4 styling"
           }
@@ -102,7 +102,7 @@
             "label": "themed library bundled"
           },
           "with-nativewind": {
-            "value": "expo-router-with-nativewind",
+            "value": "reactNativeWithNativewind",
             "hint": "",
             "label": "nativewind v4 styling"
           }
