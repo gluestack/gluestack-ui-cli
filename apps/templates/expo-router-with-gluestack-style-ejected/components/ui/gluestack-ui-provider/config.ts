@@ -1,9 +1,8 @@
 import { AnimationResolver } from '@gluestack-style/animation-resolver';
 import { MotionAnimationDriver } from '@gluestack-style/legend-motion-animation-driver';
-import { createConfig, createComponents } from '@gluestack-style/react';
-import * as componentsTheme from './theme';
+import { createConfig } from '@gluestack-style/react';
 
-export const gluestackUIConfig = createConfig({
+export const config = createConfig({
   aliases: {
     bg: 'backgroundColor',
     bgColor: 'backgroundColor',
@@ -422,7 +421,7 @@ export const gluestackUIConfig = createConfig({
       black: '#000000',
     },
     space: {
-      'px': '1px',
+      px: '1px',
       '0': 0,
       '0.5': 2,
       '1': 4,
@@ -467,7 +466,7 @@ export const gluestackUIConfig = createConfig({
       '3/6': '50%',
       '4/6': '66.666%',
       '5/6': '83.333%',
-      'full': '100%',
+      full: '100%',
     },
     borderWidths: {
       '0': 0,
@@ -477,15 +476,15 @@ export const gluestackUIConfig = createConfig({
       '8': 8,
     },
     radii: {
-      'none': 0,
-      'xs': 2,
-      'sm': 4,
-      'md': 6,
-      'lg': 8,
-      'xl': 12,
+      none: 0,
+      xs: 2,
+      sm: 4,
+      md: 6,
+      lg: 8,
+      xl: 12,
       '2xl': 16,
       '3xl': 24,
-      'full': 9999,
+      full: 9999,
     },
     breakpoints: {
       base: 0,
@@ -503,20 +502,20 @@ export const gluestackUIConfig = createConfig({
       xl: '@media screen and (min-width: 1280px)',
     },
     letterSpacings: {
-      'xs': -0.4,
-      'sm': -0.2,
-      'md': 0,
-      'lg': 0.2,
-      'xl': 0.4,
+      xs: -0.4,
+      sm: -0.2,
+      md: 0,
+      lg: 0.2,
+      xl: 0.4,
       '2xl': 1.6,
     },
     lineHeights: {
       '2xs': 16,
-      'xs': 18,
-      'sm': 20,
-      'md': 22,
-      'lg': 24,
-      'xl': 28,
+      xs: 18,
+      sm: 20,
+      md: 22,
+      lg: 24,
+      xl: 28,
       '2xl': 32,
       '3xl': 40,
       '4xl': 48,
@@ -543,11 +542,11 @@ export const gluestackUIConfig = createConfig({
     },
     fontSizes: {
       '2xs': 10,
-      'xs': 12,
-      'sm': 14,
-      'md': 16,
-      'lg': 18,
-      'xl': 20,
+      xs: 12,
+      sm: 14,
+      md: 16,
+      lg: 18,
+      xl: 20,
       '2xl': 24,
       '3xl': 30,
       '4xl': 36,
@@ -575,11 +574,152 @@ export const gluestackUIConfig = createConfig({
       100: 1,
     },
   } as const,
+  themes: {
+    dark: {
+      colors: {
+        primary0: '#828282',
+        primary50: '#949494',
+        primary100: '#9E9E9E',
+        primary200: '#B3B3B3',
+        primary300: '#C7C7C7',
+        primary400: '#E6E6E6',
+        primary500: '#F0F0F0',
+        primary600: '#FAFAFA',
+        primary700: '#FCFCFC',
+        primary800: '#FDFDFD',
+        primary900: '#FDFCFC',
+        primary950: '#FDFCFC',
+
+        secondary0: '#0B0C0C',
+        secondary50: '#181717',
+        secondary100: '#272626',
+        secondary200: '#3F4040',
+        secondary300: '#515252',
+        secondary400: '#5E5F5F',
+        secondary500: '#727373',
+        secondary600: '#AFB0B0',
+        secondary700: '#DBDBDB',
+        secondary800: '#E7E8E8',
+        secondary900: '#F1F2F2',
+        secondary950: '#FEFFFF',
+
+        tertiary0: '#543112',
+        tertiary50: '#6C3D13',
+        tertiary100: '#824917',
+        tertiary200: '#B4621A',
+        tertiary300: '#D7751F',
+        tertiary400: '#E78128',
+        tertiary500: '#FB9D4B',
+        tertiary600: '#FDB474',
+        tertiary700: '#FED1AA',
+        tertiary800: '#FFE9D5',
+        tertiary900: '#FFF2E5',
+        tertiary950: '#FFFAF5',
+
+        text0: '#171717',
+        text50: '#262627',
+        text100: '#404040',
+        text200: '#525252',
+        text300: '#737373',
+        text400: '#8C8C8C',
+        text500: '#A3A3A3',
+        text600: '#D4D4D4',
+        text700: '#DBDBDC',
+        text800: '#E5E5E5',
+        text900: '#F5F5F5',
+        text950: '#FEFEFF',
+
+        background0: '#121212',
+        background50: '#272625',
+        background100: '#414040',
+        background200: '#535252',
+        background300: '#747474',
+        background400: '#8E8E8E',
+        background500: '#A2A3A3',
+        background600: '#D5D4D4',
+        background700: '#DCDBDB',
+        background800: '#F2F1F1',
+        background900: '#F6F6F6',
+        background950: '#252526',
+
+        border0: '#1A1717',
+        border50: '#272624',
+        border100: '#414141',
+        border200: '#535252',
+        border300: '#737474',
+        border400: '#8C8D8D',
+        border500: '#A5A3A3',
+        border600: '#D3D3D3',
+        border700: '#DDDCDB',
+        border800: '#E6E6E6',
+        border900: '#F3F3F3',
+        border950: '#FDFEFE',
+
+        success0: '#1B3224',
+        success50: '#14532D',
+        success100: '#166534',
+        success200: '#206F3E',
+        success300: '#2A7948',
+        success400: '#348352',
+        success500: '#489766',
+        success600: '#66B584',
+        success700: '#84D3A2',
+        success800: '#A2F1C0',
+        success900: '#CAFFE8',
+        success950: '#E4FFF4',
+
+        error0: '#531313',
+        error50: '#7F1D1D',
+        error100: '#991B1B',
+        error200: '#B91C1C',
+        error300: '#DC2626',
+        error400: '#E63535',
+        error500: '#EF4444',
+        error600: '#F87171',
+        error700: '#E63534',
+        error800: '#FECACA',
+        error900: '#FEE2E2',
+        error950: '#FEE9E9',
+
+        warning0: '#542D12',
+        warning50: '#6C3813',
+        warning100: '#824417',
+        warning200: '#B45A1A',
+        warning300: '#D76C1F',
+        warning400: '#E77828',
+        warning500: '#FB954B',
+        warning600: '#FDAD74',
+        warning700: '#FECDAA',
+        warning800: '#FFE7D5',
+        warning900: '#FFF9F5',
+        warning950: '#FFFDFB',
+
+        info0: '#032638',
+        info50: '#05405D',
+        info100: '#075A83',
+        info200: '#0973A8',
+        info300: '#0B8DCD',
+        info400: '#0DA6F2',
+        info500: '#32B4F4',
+        info600: '#57C2F6',
+        info700: '#7CCFF8',
+        info800: '#A2DDFA',
+        info900: '#C7EBFC',
+        info950: '#ECF8FE',
+
+        backgroundError: '#422B2B',
+        backgroundWarning: '#412F23',
+        backgroundSuccess: '#1C2B21',
+        backgroundMuted: '#252526',
+        backgroundInfo: '#1A282E',
+      },
+    },
+  },
   globalStyle: {
     variants: {
       hardShadow: {
         '1': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: -2,
             height: 2,
@@ -589,7 +729,7 @@ export const gluestackUIConfig = createConfig({
           elevation: 10,
         },
         '2': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: 3,
@@ -599,7 +739,7 @@ export const gluestackUIConfig = createConfig({
           elevation: 10,
         },
         '3': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 2,
             height: 2,
@@ -609,7 +749,7 @@ export const gluestackUIConfig = createConfig({
           elevation: 10,
         },
         '4': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: -3,
@@ -621,7 +761,7 @@ export const gluestackUIConfig = createConfig({
         // this 5th version is only for toast shadow
         // temporary
         '5': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: 3,
@@ -633,7 +773,7 @@ export const gluestackUIConfig = createConfig({
       },
       softShadow: {
         '1': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: 0,
@@ -641,13 +781,13 @@ export const gluestackUIConfig = createConfig({
           shadowRadius: 10,
           shadowOpacity: 0.1,
           _android: {
-            shadowColor: '$backgroundLight500',
+            shadowColor: '$background500',
             elevation: 5,
             shadowOpacity: 0.05,
           },
         },
         '2': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: 0,
@@ -656,13 +796,13 @@ export const gluestackUIConfig = createConfig({
           elevation: 3,
           shadowOpacity: 0.1,
           _android: {
-            shadowColor: '$backgroundLight500',
+            shadowColor: '$background500',
             elevation: 10,
             shadowOpacity: 0.1,
           },
         },
         '3': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: 0,
@@ -671,13 +811,13 @@ export const gluestackUIConfig = createConfig({
           shadowOpacity: 0.1,
           elevation: 4,
           _android: {
-            shadowColor: '$backgroundLight500',
+            shadowColor: '$background500',
             elevation: 15,
             shadowOpacity: 0.15,
           },
         },
         '4': {
-          shadowColor: '$backgroundLight900',
+          shadowColor: '$background900',
           shadowOffset: {
             width: 0,
             height: 0,
@@ -686,7 +826,7 @@ export const gluestackUIConfig = createConfig({
           shadowOpacity: 0.1,
           elevation: 10,
           _android: {
-            shadowColor: '$backgroundLight500',
+            shadowColor: '$background500',
             elevation: 20,
             shadowOpacity: 0.2,
           },
@@ -697,25 +837,8 @@ export const gluestackUIConfig = createConfig({
   plugins: [new AnimationResolver(MotionAnimationDriver)],
 });
 
-type Config = typeof gluestackUIConfig; // Assuming `config` is defined elsewhere
+type Config = typeof config;
 
-type Components = typeof componentsConfig;
-
-export const componentsConfig = createComponents(componentsTheme);
-
-export type { UIConfig, UIComponents } from '@gluestack-ui/themed';
-
-export interface IConfig {}
-export interface IComponents {}
-
-declare module '@gluestack-ui/themed' {
-  interface UIConfig extends Omit<Config, keyof IConfig>, IConfig {}
-  interface UIComponents
-    extends Omit<Components, keyof IComponents>,
-      IComponents {}
+declare module '@gluestack-style/react' {
+  interface ICustomConfig extends Config {}
 }
-
-export const config = {
-  ...gluestackUIConfig,
-  components: componentsConfig,
-};
