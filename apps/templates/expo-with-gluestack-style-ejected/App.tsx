@@ -1,12 +1,12 @@
-import { ScrollView } from 'react-native';
-import Gradient from './assets/Icons/Gradient';
-import DocumentData from './assets/Icons/DocumentData';
-import LightBulbPerson from './assets/Icons/LightbulbPerson';
-import Rocket from './assets/Icons/Rocket';
-import Logo from './assets/Icons/Logo';
-import { Box } from '@/components/ui/box';
-import { Text } from '@/components/ui/text';
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { ScrollView } from "react-native";
+import Gradient from "./assets/Icons/Gradient";
+import DocumentData from "./assets/Icons/DocumentData";
+import LightBulbPerson from "./assets/Icons/LightbulbPerson";
+import Rocket from "./assets/Icons/Rocket";
+import Logo from "./assets/Icons/Logo";
+import { Box } from "@/components/ui/box";
+import { Text } from "@/components/ui/text";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 
 export default function App() {
   return (
@@ -50,7 +50,7 @@ const Container = () => {
   return (
     <Box flex={1} backgroundColor="$black">
       <ScrollView
-        style={{ height: '100%' }}
+        style={{ height: "100%" }}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <Box
