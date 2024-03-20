@@ -3,15 +3,9 @@ import DocumentData from "@/assets/Icons/DocumentData";
 import LightBulbPerson from "@/assets/Icons/LightbulbPerson";
 import Rocket from "@/assets/Icons/Rocket";
 import Logo from "@/assets/Icons/Logo";
-import { Box, ScrollView, Text } from "@gluestack-ui/themed";
+import { Box, HStack, ScrollView, Text } from "@gluestack-ui/themed";
 
-export default function TabOneScreen() {
-  return <Home />;
-}
-
-const Home = () => {
-  return <Container />;
-};
+import { Link } from "expo-router";
 
 const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   return (
@@ -19,11 +13,7 @@ const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
       flexDirection="column"
       borderWidth={1}
       borderColor="$borderDark700"
-      sx={{
-        _web: {
-          flex: 1,
-        },
-      }}
+      $web-flex={1}
       m="$2"
       p="$4"
       rounded="$md"
@@ -43,7 +33,7 @@ const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   );
 };
 
-const Container = () => {
+export default function Home() {
   return (
     <Box flex={1} backgroundColor="$black">
       <ScrollView
@@ -52,72 +42,74 @@ const Container = () => {
       >
         <Box
           position="absolute"
-          sx={{
-            "@base": {
-              h: 500,
-              w: 500,
-            },
-            "@lg": {
-              h: 500,
-              w: 500,
-            },
-          }}
+          $base-h={500}
+          $base-w={500}
+          $lg-h={500}
+          $lg-w={500}
         >
           <Gradient />
         </Box>
+
         <Box
           height="60%"
-          sx={{
-            "@base": {
-              my: "$16",
-              mx: "$5",
-              height: "80%",
-            },
-            "@lg": {
-              my: "$24",
-              mx: "$32",
-            },
-          }}
+          $base-my="$16"
+          $base-mx="$5"
+          $base-height="80%"
+          $lg-my="$24"
+          $lg-mx="$5"
           justifyContent="space-between"
-          alignItems="center"
         >
-          <Box
-            bg="#64748B33"
-            py="$2"
-            px="$6"
-            rounded="$full"
-            alignItems="center"
-            marginTop={20}
-            sx={{
-              "@base": {
-                flexDirection: "column",
-              },
-              "@sm": {
-                flexDirection: "row",
-              },
-              "@md": { alignSelf: "flex-start" },
-            }}
+          <HStack
+            $md-justifyContent="space-between"
+            $base-alignItems="center"
+            $md-alignItems="stretch"
+            $base-flexDirection="column"
+            $md-flexDirection="row"
+            $base-gap={20}
+            $md-gap={0}
           >
-            <Text color="$white" fontWeight="$normal">
-              Get started by editing
-            </Text>
-            <Text color="$white" fontWeight="$medium" ml="$2">
-              App.tsx
-            </Text>
-          </Box>
+            <Box
+              bg="#64748B33"
+              py="$2"
+              px="$6"
+              rounded="$full"
+              alignItems="center"
+              marginTop={20}
+              $base-flexDirection="column"
+              $sm-flexDirection="row"
+              $md-flexDirection="flex-start"
+            >
+              <Text color="$white" fontWeight="$normal">
+                Get started by editing
+              </Text>
+              <Text color="$white" fontWeight="$medium" ml="$2">
+                app/index.tsx
+              </Text>
+            </Box>
+            <Link href="/tabs/">
+              <Box
+                bg="#64748B33"
+                rounded="$full"
+                alignItems="center"
+                py="$2"
+                px="$6"
+                marginTop="$5"
+                $base-flexDirection="column"
+                $sm-flexDirection="row"
+                $md-flexDirection="flex-end"
+              >
+                <Text color="$white" fontWeight="$normal">
+                  Explore Tab Navigation
+                </Text>
+              </Box>
+            </Link>
+          </HStack>
+
           <Box justifyContent="center" alignItems="center">
             <Logo />
           </Box>
-          <Box
-            sx={{
-              "@base": {
-                flexDirection: "column",
-              },
-              "@md": {
-                flexDirection: "row",
-              },
-            }}
-          >
+
+          <Box $base-flexDirection="column" $md-flexDirection="row">
             <FeatureCard
               iconSvg={DocumentData}
               name="Docs"
@@ -138,4 +130,4 @@ const Container = () => {
       </ScrollView>
     </Box>
   );
-};
+}
