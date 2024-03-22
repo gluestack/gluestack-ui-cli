@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useRef, useState } from 'react';
-import { useServerInsertedHTML } from 'next/navigation';
-import { StyleRegistry, createStyleRegistry } from 'styled-jsx';
-import { Html, Head, Main, NextScript } from 'next/document';
+import React, { useRef, useState } from "react";
+import { useServerInsertedHTML } from "next/navigation";
+import { StyleRegistry, createStyleRegistry } from "styled-jsx";
+import { Main } from "next/document";
 // @ts-ignore
-import { AppRegistry } from 'react-native-web';
-import { flush } from '@gluestack-ui/themed';
+import { AppRegistry } from "react-native-web";
+import { flush } from "@gluestack-ui/themed";
 
 export default function StyledJsxRegistry({
   children,
@@ -19,8 +19,8 @@ export default function StyledJsxRegistry({
   const isServerInserted = useRef(false);
 
   useServerInsertedHTML(() => {
-    AppRegistry.registerComponent('Main', () => Main);
-    const { getStyleElement } = AppRegistry.getApplication('Main');
+    AppRegistry.registerComponent("Main", () => Main);
+    const { getStyleElement } = AppRegistry.getApplication("Main");
     if (!isServerInserted.current) {
       isServerInserted.current = true;
       const styles = [getStyleElement(), jsxStyleRegistry.styles(), ...flush()];
