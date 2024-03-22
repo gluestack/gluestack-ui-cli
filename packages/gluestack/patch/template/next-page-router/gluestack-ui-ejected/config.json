@@ -1,0 +1,6 @@
+{
+  "dependencies": [
+    "@gluestack/ui-next-adapter@latest",
+    "react-native-web@latest"
+  ]
+}

@@ -1,11 +1,10 @@
-import '@/styles/globals.css';
-import { config } from '../config/gluestack-ui.config';
-import { GluestackUIProvider } from '@gluestack-ui/themed';
-import type { AppProps } from 'next/app';
+import "@/styles/globals.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <GluestackUIProvider config={config}>
+    <GluestackUIProvider>
       <Component {...pageProps} />
     </GluestackUIProvider>
   );
