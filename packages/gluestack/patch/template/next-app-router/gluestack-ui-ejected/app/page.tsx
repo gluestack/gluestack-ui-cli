@@ -1,4 +1,5 @@
-import { Box, Text } from '@gluestack-ui/themed';
+import { Box } from '@/components/ui/box';
+import { Text } from '@/components/ui/text';
 import Image from 'next/image';
 
 export default function Home() {
@@ -90,7 +91,7 @@ const Container = () => {
           <Text color="$white" fontWeight="$normal">
             Get started by editing
           </Text>
-          <Text color="$white" fontWeight="$medium" ml="$2">
+          <Text color="$white" fontWeight="$medium" ml="$1">
             <code>app/page.tsx</code>
           </Text>
         </Box>
