@@ -90,8 +90,8 @@ const Container = () => {
           <Text color="$white" fontWeight="$normal">
             Get started by editing
           </Text>
-          <Text color="$white" fontWeight="$medium" ml="$2">
-            <code>pages.tsx</code>
+          <Text color="$white" fontWeight="$medium" ml="$1">
+            <code>app/page.tsx</code>
           </Text>
         </Box>
         <Box
