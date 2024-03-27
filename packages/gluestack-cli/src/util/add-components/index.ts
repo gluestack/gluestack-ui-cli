@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
-import { addIndexFile, cloneRepositoryAtRoot, getAllComponents } from '..';
+import { cloneRepositoryAtRoot, getAllComponents } from '..';
 import {
   generateConfigAndInstallDependencies,
   getComponentStyle,
@@ -49,15 +49,15 @@ const componentAdder = async ({
         );
 
         await writeComponent(component, targetPath);
-        addIndexFile(path.join(currDir, config.writableComponentsPath));
+        // addIndexFile(path.join(currDir, config.writableComponentsPath));
       })
     )
       .then(async () => {
         await generateConfigAndInstallDependencies({
-          rootDir: path.join(currDir, config.writableComponentsPath),
+          componentsDir: path.join(currDir, config.writableComponentsPath),
           installationMethod: installationMethod,
         });
-        log.success('Installation completed');
+        log.success(`\x1b[32mInstallation completed\x1b[0m`);
       })
       .catch((err) => {
         log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);

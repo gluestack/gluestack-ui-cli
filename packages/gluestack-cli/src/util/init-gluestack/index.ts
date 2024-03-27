@@ -4,7 +4,12 @@ import {
 } from '../create-config';
 import { config } from '../../config';
 import os from 'os';
-import { addIndexFile, checkIfFolderExists, cloneRepositoryAtRoot } from '..';
+import {
+  checkIfFolderExists,
+  checkProjectType,
+  cloneRepositoryAtRoot,
+  getAdditionalDependencies,
+} from '..';
 import fs from 'fs-extra';
 import path from 'path';
 import { log } from '@clack/prompts';
@@ -44,23 +49,28 @@ const InitializeGlueStack = async ({
     if (typeof componentStyle === 'string') {
       config.style = componentStyle;
     }
+    const projectType = await checkProjectType();
     await addProvider();
 
     if (config.style === config.nativeWindRootPath) {
       await generateConfigAndInstallDependencies({
-        rootDir: path.join(currDir, config.writableComponentsPath),
+        componentsDir: path.join(currDir, config.writableComponentsPath),
         installationMethod: installationMethod,
         optionalPackages: config.nativeWindDependencies,
       });
       await nativeWindInit();
     } else {
+      const additionalDependencies = await getAdditionalDependencies(
+        projectType
+      );
       await generateConfigAndInstallDependencies({
-        rootDir: path.join(currDir, config.writableComponentsPath),
+        componentsDir: path.join(currDir, config.writableComponentsPath),
         installationMethod: installationMethod,
+        optionalPackages: additionalDependencies,
       });
     }
   } catch (err) {
-    log.error(`\x1b[31mError: gitignore file not found in template!\x1b[0m`);
+    log.error(`\x1b[31mError occured in init. (${err as Error})\x1b[0m`);
   }
 };
 
@@ -87,9 +97,13 @@ async function addProvider() {
         config.providerComponent
       )
     );
-    addIndexFile(path.join(currDir, config.writableComponentsPath));
+    // addIndexFile(path.join(currDir, config.writableComponentsPath));
   } catch (err) {
-    log.error(`\x1b[31mError: gitignore file not found in template!\x1b[0m`);
+    log.error(
+      `\x1b[31mError occured while adding the provider. (${
+        err as Error
+      })\x1b[0m`
+    );
   }
 }
 
@@ -104,7 +118,7 @@ async function nativeWindInit() {
     );
     await updateTSConfigPaths();
   } catch (err) {
-    log.error(`\x1b[31mError: gitignore file not found in template!\x1b[0m`);
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
 
@@ -135,11 +149,11 @@ async function updateTSConfigPaths(): Promise<void> {
     if (!tsConfig.compilerOptions.paths) {
       // Case 1: Paths do not exist, add new paths
       tsConfig.compilerOptions.paths = {
-        '@/*': ['./src/*'],
+        '@/*': ['./*'],
       };
     } else {
       // Case 2 & 3: Paths exist, update them without undoing previous values
-      tsConfig.compilerOptions.paths['@/*'] = ['./src/*'];
+      tsConfig.compilerOptions.paths['@/*'] = ['./*'];
     }
 
     await writeFileAsync(
@@ -148,7 +162,11 @@ async function updateTSConfigPaths(): Promise<void> {
       'utf8'
     );
   } catch (err) {
-    log.error(`\x1b[31mError: gitignore file not found in template!\x1b[0m`);
+    log.error(
+      `\x1b[31mError occured while installing dependencies (${
+        err as Error
+      })\x1b[0m`
+    );
   }
 }
 

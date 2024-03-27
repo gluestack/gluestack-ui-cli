@@ -69,19 +69,21 @@ async function generateConfig(rootDir: string, currentComponent: string) {
 }
 
 // Function to fetch and install packages from config.json files
-async function fetchAndInstallPackages(installationMethod: string) {
-  const componentsDir = path.join(currDir, 'components');
+async function fetchAndInstallPackages(
+  dir: string,
+  installationMethod: string
+) {
   let allPackages: string[] = [];
 
   // Read all directories in the components directory
   const componentDirectories = fs
-    .readdirSync(componentsDir, { withFileTypes: true })
+    .readdirSync(dir, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 
   // Iterate over each component directory
   componentDirectories.forEach((componentName) => {
-    const configPath = path.join(componentsDir, componentName, 'config.json');
+    const configPath = path.join(dir, componentName, 'config.json');
 
     try {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -97,9 +99,14 @@ async function fetchAndInstallPackages(installationMethod: string) {
       );
     }
   });
-
-  await installPackages(installationMethod, allPackages);
-  await configCleanup(path.join(currDir, 'components'));
+  try {
+    await installPackages(installationMethod, allPackages);
+    await configCleanup(dir);
+  } catch (err) {
+    log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
+    await configCleanup(dir);
+    process.exit(1);
+  }
 }
 
 //function to remove config.json files from components
@@ -215,41 +222,35 @@ async function getComponentStyle() {
 
 // Main function to start generating config files
 async function generateConfigAndInstallDependencies({
-  rootDir,
+  componentsDir,
   installationMethod,
   optionalPackages,
 }: {
-  rootDir: string;
+  componentsDir: string;
   installationMethod: string;
   optionalPackages?: string[];
 }) {
   if (optionalPackages) {
     installDependencies = optionalPackages;
   }
-  const allComponents = await fs.readdirSync(
-    path.join(currDir, config.writableComponentsPath)
-  );
+  const allComponents = await fs.readdirSync(componentsDir);
   allComponents.forEach((component) => {
-    const componentPath = path.join(
-      currDir,
-      config.writableComponentsPath,
-      component
-    );
+    const componentPath = path.join(componentsDir, component);
     const stats = fs.statSync(componentPath);
     if (stats.isDirectory()) {
-      generateConfig(rootDir, component);
+      generateConfig(componentsDir, component);
     }
   });
   await getUIConfigDependencies(path.join(currDir, config.UIconfigPath));
 
-  if (fs.existsSync(path.join(rootDir, config.providerComponent))) {
+  if (fs.existsSync(path.join(componentsDir, config.providerComponent))) {
     fs.writeFileSync(
-      path.join(rootDir, config.providerComponent, 'config.json'),
+      path.join(componentsDir, config.providerComponent, 'config.json'),
       JSON.stringify({ installDependencies }, null, 2)
     );
   }
 
-  await fetchAndInstallPackages(installationMethod);
+  await fetchAndInstallPackages(componentsDir, installationMethod);
 }
 
 export {

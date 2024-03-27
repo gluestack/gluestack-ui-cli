@@ -53,6 +53,7 @@ const cloneRepositoryAtRoot = async () => {
   if (clonedRepoExists) {
     log.step('Repository already cloned.');
     await pullComponentRepo(path.join(homeDir, config.gluestackDir));
+    // await checkVersion(path.join(homeDir, config.gluestackDir), config.tagName);
   } else {
     const s = spinner();
     s.start('Cloning repository...');
@@ -86,6 +87,32 @@ const cloneComponentRepo = async (
   }
 };
 
+const checkVersion = async (
+  repoPath: string,
+  tagVersion: string
+): Promise<void> => {
+  const git = simpleGit(repoPath);
+  try {
+    const tags = await git.tags();
+    const match = tags.all.includes(tagVersion);
+
+    if (!match) {
+      const ifConfirm = await confirm({
+        message: `\x1b[34mAn update is available, Do you want to update to the latest version?\x1b[0m`,
+      });
+      if (ifConfirm) {
+        fs.removeSync(repoPath);
+        await cloneComponentRepo(repoPath, config.repoUrl);
+      } else {
+        log.info(`Update skipped, using the current version...`);
+        return;
+      }
+    }
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+  }
+};
+
 const pullComponentRepo = async (targetpath: string): Promise<void> => {
   const s = spinner();
   s.start('⏳ Pulling latest changes...');
@@ -94,7 +121,7 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
   while (!success && retry < 3) {
     try {
       await wait(1000);
-      await tryGitPull(targetpath);
+      // await tryGitPull(targetpath);
       success = true;
     } catch (err) {
       log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
@@ -105,7 +132,7 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
     }
   }
   if (!success) s.stop('\x1b[31m' + 'Pulling failed!' + '\x1b[0m');
-  else s.stop('\x1b[32m' + 'Git pull successful.' + '\x1b[0m');
+  else s.stop('Git pull successful.');
 };
 
 const tryGitPull = async (targetPath: string): Promise<void> => {
@@ -173,9 +200,9 @@ const addDependencies = async (dependenciesToAdd: string[]): Promise<void> => {
       if (packageJson.dependencies[packageName]) {
         return;
       } else {
-        if (config.packageVersions[packageName]) {
+        if (config.GlobalAdditionalDependencies[packageName]) {
           packageJson.dependencies[packageName] =
-            config.packageVersions[packageName];
+            config.GlobalAdditionalDependencies[packageName];
         } else if (!packageJson.dependencies[packageName]) {
           packageJson.dependencies[packageName] = 'latest';
         }
@@ -238,7 +265,7 @@ const installPackages = async (
       stdio: 'inherit',
       shell: true,
     });
-    s.stop(`\x1b[32mDependencies have been installed successfully.\x1b[0m`);
+    s.stop(`Dependencies have been installed successfully.`);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
     log.error('\x1b[31mError installing dependencies:\x1b[0m');
@@ -267,6 +294,56 @@ const addIndexFile = async (componentsDirectory: string) => {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
+
+//function to check tpe of project
+async function checkProjectType() {
+  const packageJsonPath = path.join(currDir, 'package.json');
+
+  try {
+    const packageJson = await fs.readJSONSync(packageJsonPath);
+
+    if (packageJson.dependencies && packageJson.dependencies.next) {
+      return 'nextjs';
+    }
+
+    if (
+      packageJson.dependencies &&
+      packageJson.dependencies.expo &&
+      packageJson.dependencies['react-native'] &&
+      !packageJson.dependencies.next
+    )
+      return 'expo';
+
+    if (
+      packageJson.dependencies &&
+      packageJson.dependencies['react-native'] &&
+      !packageJson.dependencies.expo
+    )
+      return 'react-native-cli';
+
+    log.error(
+      `\x1b[31mUnable to detect project type as Next JS, Expo or React Native CLI\x1b[0m`
+    );
+  } catch (error) {
+    log.error(
+      `\x1b[31mUnable to detect project type as Next JS, Expo or React Native CLI\x1b[0m`
+    );
+    process.exit(1);
+  }
+}
+
+//function to return additional dependencies based on project type
+async function getAdditionalDependencies(projectType: string | undefined) {
+  try {
+    if ('nextjs' === projectType) return config.GluestackNextJsDependencies;
+    else if ('expo' === projectType) return config.GluestackExpoDependencies;
+    else if ('react-native-cli' === projectType)
+      return config.GluestackNativeCLIDependencies;
+    else throw new Error('Error reading package.json');
+  } catch (error) {
+    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
+  }
+}
 
 // Function to copy file with checks
 const generateSpecificFile = async (
@@ -320,4 +397,6 @@ export {
   getAllComponents,
   installPackages,
   addIndexFile,
+  getAdditionalDependencies,
+  checkProjectType,
 };
