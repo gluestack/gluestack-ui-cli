@@ -295,36 +295,61 @@ const addIndexFile = async (componentsDirectory: string) => {
   }
 };
 
-//function to check tpe of project
-async function checkProjectType() {
-  const packageJsonPath = path.join(currDir, 'package.json');
-
+//function to detect type of project
+async function detectProjectType(directoryPath: string) {
   try {
+    // Check for files or directories unique to Next.js, Expo, or React Native CLI projects
+    const nextjsFiles: string[] = ['next.config.js', 'next.config.mjs'];
+    const expoFiles: string[] = ['app.json'];
+    const reactNativeFiles: string[] = ['ios', 'android'];
+    // Path to package.json file
+    const packageJsonPath = path.join(currDir, 'package.json');
+
+    // Check for presence of Next.js files/directories
+    const isNextJs: boolean = await Promise.all(
+      nextjsFiles.map((file) => fs.pathExists(`${directoryPath}/${file}`))
+    ).then((results) => results.some(Boolean));
+
+    // Check for presence of Expo files/directories
+    const isExpo: boolean = await Promise.all(
+      expoFiles.map((file) => fs.pathExists(`${directoryPath}/${file}`))
+    ).then((results) => results.every(Boolean));
+
+    // Check for presence of React Native CLI files/directories
+    const isReactNative: boolean = await Promise.all(
+      reactNativeFiles.map((file) => fs.pathExists(`${directoryPath}/${file}`))
+    ).then((results) => results.every(Boolean));
+
     const packageJson = await fs.readJSONSync(packageJsonPath);
 
-    if (packageJson.dependencies && packageJson.dependencies.next) {
-      return 'nextjs';
-    }
-
-    if (
+    // Determine the project type based on the presence of specific files/directories
+    if (isNextJs && packageJson.dependencies && packageJson.dependencies.next) {
+      log.info(`Detected as Next JS project...`);
+      return config.nextJsProject;
+    } else if (
+      isExpo &&
       packageJson.dependencies &&
       packageJson.dependencies.expo &&
       packageJson.dependencies['react-native'] &&
-      !packageJson.dependencies.next
-    )
-      return 'expo';
-
-    if (
+      !packageJson.dependencies.next &&
+      !isReactNative
+    ) {
+      log.info(`Detected as Expo project...`);
+      return config.expoProject;
+    } else if (
+      isReactNative &&
       packageJson.dependencies &&
       packageJson.dependencies['react-native'] &&
       !packageJson.dependencies.expo
-    )
-      return 'react-native-cli';
-
+    ) {
+      log.info(`Detected as React Native CLI project...`);
+      return config.reactNativeCLIProject;
+    }
     log.error(
       `\x1b[31mUnable to detect project type as Next JS, Expo or React Native CLI\x1b[0m`
     );
-  } catch (error) {
+    process.exit(1);
+  } catch (err) {
     log.error(
       `\x1b[31mUnable to detect project type as Next JS, Expo or React Native CLI\x1b[0m`
     );
@@ -333,13 +358,35 @@ async function checkProjectType() {
 }
 
 //function to return additional dependencies based on project type
-async function getAdditionalDependencies(projectType: string | undefined) {
+async function getAdditionalDependencies(
+  projectType: string | undefined,
+  style: string
+) {
   try {
-    if ('nextjs' === projectType) return config.GluestackNextJsDependencies;
-    else if ('expo' === projectType) return config.GluestackExpoDependencies;
-    else if ('react-native-cli' === projectType)
-      return config.GluestackNativeCLIDependencies;
-    else throw new Error('Error reading package.json');
+    if (style === config.gluestackStyleRootPath) {
+      switch (projectType) {
+        case config.nextJsProject:
+          return config.GluestackNextJsDependencies;
+        case config.expoProject:
+          return config.GluestackExpoDependencies;
+        case config.reactNativeCLIProject:
+          return config.GluestackReactNativeCLIDependencies;
+        default:
+          throw new Error('Error reading package.json');
+      }
+    }
+    if (style === config.nativeWindRootPath) {
+      switch (projectType) {
+        case config.nextJsProject:
+          return config.NativeWindNextJsDependencies;
+        case config.expoProject:
+          return config.NativeWindExpoDependencies;
+        case config.reactNativeCLIProject:
+          return config.NativeWindReactNativeCLIDependencies;
+        default:
+          throw new Error('Error reading package.json');
+      }
+    } else throw new Error('Error reading package.json');
   } catch (error) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
   }
@@ -398,5 +445,5 @@ export {
   installPackages,
   addIndexFile,
   getAdditionalDependencies,
-  checkProjectType,
+  detectProjectType,
 };

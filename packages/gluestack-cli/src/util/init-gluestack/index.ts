@@ -6,7 +6,7 @@ import { config } from '../../config';
 import os from 'os';
 import {
   checkIfFolderExists,
-  checkProjectType,
+  detectProjectType,
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
 } from '..';
@@ -15,12 +15,13 @@ import path from 'path';
 import { log } from '@clack/prompts';
 import { promisify } from 'util';
 
-const currDir = process.cwd();
-const homeDir = os.homedir();
+const _currDir = process.cwd();
+const _homeDir = os.homedir();
 
 interface TSConfig {
   compilerOptions?: {
     paths?: Record<string, string[]>;
+    jsxImportSource?: string;
   };
 }
 
@@ -34,7 +35,7 @@ const InitializeGlueStack = async ({
 
     const initializeStatus = await checkIfFolderExists(
       path.join(
-        currDir,
+        _currDir,
         config.writableComponentsPath,
         config.providerComponent
       )
@@ -49,25 +50,24 @@ const InitializeGlueStack = async ({
     if (typeof componentStyle === 'string') {
       config.style = componentStyle;
     }
-    const projectType = await checkProjectType();
+    const projectType = await detectProjectType(_currDir);
+    // add provider component
     await addProvider();
-
+    // get additional dependencies based on the project type and component style
+    const additionalDependencies = await getAdditionalDependencies(
+      projectType,
+      config.style
+    );
+    await generateConfigAndInstallDependencies({
+      componentsDir: path.join(_currDir, config.writableComponentsPath),
+      installationMethod: installationMethod,
+      optionalPackages: additionalDependencies,
+    });
     if (config.style === config.nativeWindRootPath) {
-      await generateConfigAndInstallDependencies({
-        componentsDir: path.join(currDir, config.writableComponentsPath),
-        installationMethod: installationMethod,
-        optionalPackages: config.nativeWindDependencies,
-      });
-      await nativeWindInit();
+      //code for nativewind setup
+      await nativeWindInit(projectType);
     } else {
-      const additionalDependencies = await getAdditionalDependencies(
-        projectType
-      );
-      await generateConfigAndInstallDependencies({
-        componentsDir: path.join(currDir, config.writableComponentsPath),
-        installationMethod: installationMethod,
-        optionalPackages: additionalDependencies,
-      });
+      //code for gluestack-style setup
     }
   } catch (err) {
     log.error(`\x1b[31mError occured in init. (${err as Error})\x1b[0m`);
@@ -78,26 +78,26 @@ async function addProvider() {
   try {
     await fs.ensureDir(
       path.join(
-        currDir,
+        _currDir,
         config.writableComponentsPath,
         config.providerComponent
       )
     );
     await fs.copy(
       path.join(
-        homeDir,
+        _homeDir,
         config.gluestackDir,
         config.componentsResourcePath,
         config.style,
         config.providerComponent
       ),
       path.join(
-        currDir,
+        _currDir,
         config.writableComponentsPath,
         config.providerComponent
       )
     );
-    // addIndexFile(path.join(currDir, config.writableComponentsPath));
+    // addIndexFile(path.join(_currDir, config.writableComponentsPath));
   } catch (err) {
     log.error(
       `\x1b[31mError occured while adding the provider. (${
@@ -107,16 +107,25 @@ async function addProvider() {
   }
 }
 
-async function nativeWindInit() {
+async function nativeWindInit(projectType: string) {
   try {
+    if (projectType === config.nextJsProject) {
+      await initNatiwindInNextJs();
+    }
+    if (projectType === config.expoProject) {
+      await initNatiwindInExpo();
+    }
+    if (projectType === config.reactNativeCLIProject) {
+      await initNatiwindInReactNativeCLI();
+    }
     await fs.ensureFile(
-      path.join(homeDir, config.gluestackDir, config.tailwindConfigRootPath)
+      path.join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath)
     );
     await fs.copy(
-      path.join(homeDir, config.gluestackDir, config.tailwindConfigRootPath),
-      path.join(currDir, 'tailwind.config.js')
+      path.join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath),
+      path.join(_currDir, 'tailwind.config.js')
     );
-    await updateTSConfigPaths();
+    await updateTSConfigPaths(projectType);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -125,25 +134,28 @@ async function nativeWindInit() {
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
-async function updateTSConfigPaths(): Promise<void> {
+async function updateTSConfigPaths(projectType: string): Promise<void> {
   try {
     const tsConfigPath = 'tsconfig.json'; // Path to your tsconfig.json file
     let tsConfig: TSConfig = {};
-    if (fs.existsSync(path.join(currDir, tsConfigPath))) {
+    if (fs.existsSync(path.join(_currDir, tsConfigPath))) {
       const rawData = await readFileAsync(
-        path.join(currDir, tsConfigPath),
+        path.join(_currDir, tsConfigPath),
         'utf8'
       );
       tsConfig = JSON.parse(rawData);
     } else {
-      await fs.ensureFile(path.join(currDir, tsConfigPath));
+      await fs.ensureFile(path.join(_currDir, tsConfigPath));
       tsConfig = {
         compilerOptions: {},
       };
     }
-
     if (!tsConfig.compilerOptions) {
       tsConfig.compilerOptions = {};
+    }
+    // Add jsxImportSource for Next.js projects
+    if (projectType === config.nextJsProject) {
+      tsConfig.compilerOptions.jsxImportSource = 'nativewind';
     }
 
     if (!tsConfig.compilerOptions.paths) {
@@ -169,5 +181,16 @@ async function updateTSConfigPaths(): Promise<void> {
     );
   }
 }
+
+async function initNatiwindInNextJs() {
+  try {
+  } catch (err) {
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+  }
+}
+
+async function initNatiwindInExpo() {}
+
+async function initNatiwindInReactNativeCLI() {}
 
 export { InitializeGlueStack };
