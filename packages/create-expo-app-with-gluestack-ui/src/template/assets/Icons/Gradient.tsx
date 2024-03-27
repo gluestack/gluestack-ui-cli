@@ -1,6 +1,5 @@
 import React from "react";
 import { Svg, G, Ellipse, Defs, RadialGradient, Stop } from "react-native-svg";
-
 const SvgComponent = () => {
   return (
     <Svg width="965" height="1078" viewBox="0 0 965 1078" fill="none">
@@ -51,5 +50,4 @@ const SvgComponent = () => {
     </Svg>
   );
 };
-
 export default SvgComponent;
