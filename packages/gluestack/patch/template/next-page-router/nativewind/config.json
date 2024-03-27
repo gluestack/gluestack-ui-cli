@@ -1,0 +1,7 @@
+{
+  "dependencies": [
+    "@gluestack/ui-next-adapter@latest",
+    "react-native-web@latest",
+    "nativewind@^4.0.36"
+  ]
+}
