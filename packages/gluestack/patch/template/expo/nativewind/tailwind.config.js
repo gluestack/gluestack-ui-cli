@@ -1,10 +1,8 @@
-// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+
 module.exports = {
   darkMode: 'class',
-  content: [
-    './*',
-    './src/components/**/**/*.{html,js,jsx,ts,tsx}',
-  ],
+  content: ['./App.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
@@ -119,6 +117,9 @@ module.exports = {
           800: 'var(--color-typography-800)',
           900: 'var(--color-typography-900)',
           950: 'var(--color-typography-950)',
+          white: '#FFFFFF',
+          gray: '#D4D4D4',
+          black: '#181718',
         },
         outline: {
           0: 'var(--color-outline-0)',
@@ -151,9 +152,11 @@ module.exports = {
           warning: 'var(--color-background-warning)',
           muted: 'var(--color-background-muted)',
           success: 'var(--color-background-success)',
+          light: '#FBFBFB',
+          dark: '#181719',
         },
       },
-     fontFamily: {
+      fontFamily: {
         heading: undefined,
         body: undefined,
         mono: undefined,
