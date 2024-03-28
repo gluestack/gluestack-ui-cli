@@ -11,7 +11,7 @@ async function execPromise(
   createCommand,
   createCommandArgs = '',
   promptsList = [],
-  postCreate = ''
+  postCreate = []
 ) {
   const dirPath = join(__dirname, targetPath);
   const installPath = join(dirPath, targetName);
@@ -22,7 +22,7 @@ async function execPromise(
   await ensureDir(dirPath);
 
   if (await pathExists(installPath)) {
-    console.log(templateName, 'folder already exists.\nCleaning ...');
+    console.log(templateName, 'folder already exists.\nCleaning...');
     await remove(installPath);
   }
 
@@ -60,27 +60,18 @@ async function execPromise(
   createCommandCLI.on('close', async () => {
     // install dependancies and apply patches
     console.log('Basic Template created successfully');
-    console.log('Applying Patch...');
-    await installPatch(patchPath, installPath);
     // is post create command exists, run it
-    if (postCreate) {
+    if (postCreate && postCreate.length > 0) {
       console.log('Running postCreate script...');
-      await spawnSync(postCreate, {
+      const postCreateCLI = postCreate.join(' && ');
+      spawnSync(postCreateCLI, {
         cwd: installPath,
         shell: true,
         stdio: 'pipe',
       });
-      // postCreateCLI.stdin.setEncoding('utf-8');
-      // postCreateCLI.stdout.on('data', (data) => {
-      //   console.log(`stdout: ${data}`);
-      // });
-      // postCreateCLI.stderr.on('data', (data) => {
-      //   console.error(`stderr: ${data}`);
-      // });
-      // postCreateCLI.on('close', (code) => {
-      //   console.log(`postCreate script exited with code ${code}`);
-      // });
     }
+    console.log('Applying Patch...');
+    await installPatch(patchPath, installPath);
     console.log(templateName, 'template created successfully\n');
   });
 }
@@ -91,7 +82,7 @@ async function installPatch(patchPath, installPath) {
     const patchConfig = require(join(patchDir, 'config.json'));
     if (patchConfig.dependencies.length > 0) {
       const dependencies = patchConfig.dependencies.join(' ');
-      await spawnSync(`yarn add ${dependencies}`, {
+      spawnSync(`yarn add ${dependencies}`, {
         cwd: installPath,
         shell: true,
         stdio: 'pipe',

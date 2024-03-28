@@ -1,15 +1,79 @@
 #! /usr/bin/env node
+const { execSync } = require('child_process');
 const args = process.argv.slice(2);
+console.log('args', args);
+import templatesMap from '../template-map/data.js';
 
-let supportedArgs = [
-  '--use-npm',
-  '--use-yarn',
-  '--help',
-  '-h',
-  '--use-pnpm',
-  '--app',
-  '--page',
-];
+// const optionsType = Object.keys(options).map((key) => {
+//   return {
+//     value: key,
+//     hint: options[key].hint,
+//     label: options[key].label,
+//   };
+// });
+
+// const supportedFrameworkArgs = Object.keys(options).map((key) => '--' + key);
+
+// const supportedStyleArgs = Object.keys(styleOptions).map((key) => '--' + key);
+
+// const supportedPackagemanagers = ['npm', 'yarn', 'pnpm', 'bun'];
+// const supportedPackagemanagerArgs = supportedPackagemanagers.map(
+//   (manager) => '--use-' + manager
+// );
+
+// const supportedDocumentationArgs = ['--help', '-h'];
+
+// let supportedArgs = [
+//   // frameworks
+//   ...supportedFrameworkArgs,
+//   // style options
+//   ...supportedStyleArgs,
+//   // package manager
+//   ...supportedPackagemanagerArgs,
+//   // documentation
+//   ...supportedDocumentationArgs,
+// ];
+
+let selectedFramework = '';
+let selectedRouter = '';
+let selectedStyle = '';
+let selectedPackageManager = '';
+let projName = '';
+
+// if (args.length > 0) {
+//   if (args.some((arg) => supportedDocumentationArgs.includes(arg))) {
+//     // trigger help commmand and exit.
+//     displayHelp();
+//     process.exit(0);
+//   }
+//   args.forEach((arg) => {
+//     if (supportedFrameworkArgs.includes(arg)) {
+//       selectedFramework = arg.slice(2);
+//     } else if (supportedStyleArgs.includes(arg)) {
+//       selectedStyle = arg.slice(2);
+//     } else if (supportedPackagemanagerArgs.includes(arg)) {
+//       selectedPackageManager = arg.slice(6);
+//     }
+//   });
+// }
+
+function displayHelp() {
+  // console.log('Usage: create-gluestack [project-name] [options]');
+  // console.log('Options:');
+  // // framework options
+  // Object.keys(options).forEach((option) => {
+  //   console.log(`  --${option.padEnd(23)} ${options[option].label}`);
+  // });
+  // // styling options
+  // Object.keys(styleOptions).forEach((option) => {
+  //   console.log(`  --${option.padEnd(23)} ${styleOptions[option]}`);
+  // });
+  // // help options
+  // supportedDocumentationArgs.forEach((option) => {
+  //   console.log(`  ${option.padEnd(25)} show help`);
+  // });
+}
+
 import path from 'path';
 import fs from 'fs';
 import { cancel, isCancel, log, spinner, text, select } from '@clack/prompts';
@@ -18,110 +82,164 @@ import { spawnSync } from 'child_process';
 async function main() {
   process.on('SIGINT', function () {
     cancel('Operation cancelled.');
-    process.exit(0);
+    process.exit(1);
   });
-
-  let choice = await select({
-    message: 'What would you like to \x1b[36mbuild?\x1b[36m',
-    options: [
-      {
-        value: 'next-with-gluestack-ui',
-        label: 'NextJs app',
-        hint: 'Next.js + gluestack-ui',
-      },
-      {
-        value: 'expo-with-gluestack-ui',
-        label: 'Expo app',
-        hint: 'Expo + gluestack-ui',
-      },
-      {
-        value: 'expo-router-v3-with-gluestack-ui',
-        label: 'Expo app (Expo Router v3)',
-        hint: 'Expo + Expo Router v3 + gluestack-ui',
-      },
-      {
-        value: 'react-native-with-gluestack-ui',
-        label: 'React Native app',
-        hint: 'React Native + gluestack-ui',
-      },
-      {
-        value: 'universal',
-        label: 'Universal app (coming soon)',
-        hint: 'Monorepo with Next.js + Expo + gluestack-ui',
-      } /*
-      {
-        value: 'gluestack-framework-with-gluestack-ui',
-        label: 'Universal app (gluestack framework)',
-        hint: 'gluestack framework',
-      },*/,
-    ],
-  });
-
-  let installationPackage;
-  const packageManager = process.env.npm_config_user_agent;
-  if (packageManager && packageManager.includes('yarn')) {
-    installationPackage = 'yarn';
-  } else if (packageManager && packageManager.includes('pnpm')) {
-    installationPackage = 'pnpm';
-  } else {
-    installationPackage = 'npm';
-  }
-  switch (choice) {
-    case 'next-with-gluestack-ui':
-      spawnSync(
-        `npx create-next-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
-          ' '
-        )}`,
-        {
-          cwd: process.cwd(),
-          stdio: 'inherit',
-          shell: true,
-        }
-      );
-      break;
-    case 'expo-with-gluestack-ui':
-      spawnSync(
-        `npx create-expo-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
-          ' '
-        )} `,
-        {
-          cwd: process.cwd(),
-          stdio: 'inherit',
-          shell: true,
-        }
-      );
-      break;
-    case 'expo-router-v3-with-gluestack-ui':
-      spawnSync(
-        `npx create-expo-router-v3-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
-          ' '
-        )} `,
-        {
-          cwd: process.cwd(),
-          stdio: 'inherit',
-          shell: true,
-        }
-      );
-      break;
-    case 'react-native-with-gluestack-ui':
-      spawnSync(
-        `npx create-react-native-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
-          ' '
-        )}`,
-        {
-          cwd: process.cwd(),
-          stdio: 'inherit',
-          shell: true,
-        }
-      );
-
-      break;
-    default:
-      log.info(` That option is coming soon! \x1b[33m Stay tuned!\x1b!`);
-      break;
+  let templateName = '';
+  const { options } = templatesMap;
+  if (selectedFramework === '') {
+    const { question, options: optionsType } = options.framework.default;
+    // @ts-ignore
+    selectedFramework = await select({
+      message: question,
+      options: [...optionsType],
+    });
+    templateName = selectedFramework;
+    if (selectedFramework !== 'react-native') {
+      const { question, options: optionsType } =
+        // @ts-ignore
+        options.framework.Route[selectedFramework];
+      // @ts-ignore
+      selectedRouter = await select({
+        message: question,
+        options: [...optionsType],
+      });
+      templateName = selectedRouter;
+    }
   }
 
-  console.log('');
+  if (projName === '') {
+    // @ts-ignore
+    projName = await text({
+      message: 'Enter the name of your project: ',
+      placeholder: 'my-app',
+      defaultValue: 'my-app',
+    });
+  }
+
+  if (selectedStyle === '') {
+    const { question, options: optionsType } = options.style.default;
+    // @ts-ignore
+    selectedStyle = await select({
+      message: question,
+      options: [...optionsType],
+    });
+    templateName = `${templateName}-${selectedStyle}`;
+  }
+
+  if (selectedPackageManager === '') {
+    const userPackageManager = process.env.npm_config_user_agent;
+    if (userPackageManager && userPackageManager.includes('bun')) {
+      selectedPackageManager = 'bun';
+    } else if (userPackageManager && userPackageManager.includes('pnpm')) {
+      selectedPackageManager = 'pnpm';
+    } else if (userPackageManager && userPackageManager.includes('yarn')) {
+      selectedPackageManager = 'yarn';
+    } else {
+      selectedPackageManager = 'npm';
+    }
+  }
+
+  const templateDir = templatesMap.map[templateName];
+
+  // @ts-ignore
+  await cloneProject(projName, templateDir);
+
+  await installDependencies(projName, selectedPackageManager);
+  console.log('done ...');
+}
+
+async function cloneProject(projectName: string, templateName: string) {
+  const { gitRepo, tag } = templatesMap;
+  const dirPath = path.join(process.cwd(), projectName);
+  console.log('Cloning Project...');
+  execSync(`mkdir ${projectName}`);
+  execSync('git init', { cwd: dirPath });
+  execSync(`git remote add origin ${gitRepo}`, { cwd: dirPath });
+  execSync('git config core.sparseCheckout true', { cwd: dirPath });
+  execSync(`echo "apps/template/${templateName}" > .git/info/sparse-checkout`, {
+    cwd: dirPath,
+  });
+  execSync(`git pull origin ${tag}`, { cwd: dirPath });
+  execSync(`mv apps/template/${templateName}/* ./`, { cwd: dirPath });
+  execSync('rm -rf apps', { cwd: dirPath });
+  execSync('rm -rf .git', { cwd: dirPath });
+  execSync('git init', { cwd: dirPath });
+  console.log('Project Cloned!');
+}
+
+async function installDependencies(
+  projectName: string,
+  selectedPackageManager: string
+) {
+  console.log('Installing Dependencies...');
+  execSync(`${selectedPackageManager} install`, {
+    cwd: path.join(process.cwd(), projectName),
+  });
+  console.log('Dependancies Installed!');
+}
+
+{
+  // console.log(
+  //   'Installing',
+  //   selectedFramework.replace(/-/g, ' '),
+  //   'app',
+  //   selectedStyle.replace(/-/g, ' '),
+  //   'with package manager',
+  //   selectedPackageManager,
+  //   '...'
+  // );
+  // switch (choice) {
+  //   case 'next-with-gluestack-ui':
+  //     spawnSync(
+  //       `npx create-next-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+  //         ' '
+  //       )}`,
+  //       {
+  //         cwd: process.cwd(),
+  //         stdio: 'inherit',
+  //         shell: true,
+  //       }
+  //     );
+  //     break;
+  //   case 'expo-with-gluestack-ui':
+  //     spawnSync(
+  //       `npx create-expo-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+  //         ' '
+  //       )} `,
+  //       {
+  //         cwd: process.cwd(),
+  //         stdio: 'inherit',
+  //         shell: true,
+  //       }
+  //     );
+  //     break;
+  //   case 'expo-router-v3-with-gluestack-ui':
+  //     spawnSync(
+  //       `npx create-expo-router-v3-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+  //         ' '
+  //       )} `,
+  //       {
+  //         cwd: process.cwd(),
+  //         stdio: 'inherit',
+  //         shell: true,
+  //       }
+  //     );
+  //     break;
+  //   case 'react-native-with-gluestack-ui':
+  //     spawnSync(
+  //       `npx create-react-native-app-with-gluestack-ui@latest --use-${installationPackage} ${args.join(
+  //         ' '
+  //       )}`,
+  //       {
+  //         cwd: process.cwd(),
+  //         stdio: 'inherit',
+  //         shell: true,
+  //       }
+  //     );
+  //     break;
+  //   default:
+  //     log.info(` That option is coming soon! \x1b[33m Stay tuned!\x1b!`);
+  //     break;
 }
 
 /*function installDependencies(projectName: string, installationMethod: string) {
