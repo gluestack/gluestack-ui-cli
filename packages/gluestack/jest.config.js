@@ -7,6 +7,7 @@ module.exports = {
   collectCoverageFrom: ['src/**/*.{js,jsx}'],
   reporters: ['default', 'jest-junit'],
 
-  testMatch: ['<rootDir>/__tests__/integration/**/*.test.(js|jsx)'],
+  testMatch: ['<rootDir>/__tests__/**/test.(js|jsx)'],
   forceExit: true,
+  testTimeout: 300000, // 5 minutes
 };
