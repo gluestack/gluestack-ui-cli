@@ -32,6 +32,12 @@ To use the gluestack-ui CLI, you can run the following commands:
    npm create gluestack
 ```
 
+## Created By GeekyAnts
+
+GeekyAnts is a team of React Native experts who love open-source and solving developer problems. We’ve been working on React Native since 2015 and have designed and built React Native apps for almost 200+ clients across the globe. Our clients include startups to big enterprises! Need help with your React Native app?
+
+[Contact Us](https://geekyants.com/?utm_source=gluestack-ui-home&utm_medium=home-page&utm_campaign=meet-the-creators)
+
 ## Contributing
 
 Contributions are welcome! If you would like to contribute to this project, please follow these steps:
