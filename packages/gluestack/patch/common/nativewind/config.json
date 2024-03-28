@@ -2,6 +2,7 @@
   "dependencies": [
     "@gluestack-ui/nativewind-utils",
     "@gluestack-ui/overlay",
-    "@gluestack-ui/toast"
+    "@gluestack-ui/toast",
+    "&& npx pod-install"
   ]
 }
