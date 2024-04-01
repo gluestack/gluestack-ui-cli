@@ -5,6 +5,7 @@
     "nativewind@^4.0.36",
     "@gluestack-ui/nativewind-utils",
     "@gluestack-ui/overlay",
-    "@gluestack-ui/toast"
+    "@gluestack-ui/toast",
+    "react-native-svg@^14.1.0"
   ]
 }

@@ -23,7 +23,7 @@ const Home = () => {
 
 const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   return (
-    <Box className="flex-column border border-w-1 border-outline-700 flex-1 m-2 p-4 rounded">
+    <Box className="md:flex-1 flex-column border border-w-1 border-outline-700 m-2 p-4 rounded">
       <Box className="items-center flex flex-row">
         <Text>
           <IconSvg />
@@ -53,7 +53,7 @@ const Container = () => {
               Get started by editing
             </Text>
             <Text className="text-typography-white font-medium ml-2">
-              <code>./App.tsx</code>
+              ./App.tsx
             </Text>
           </Box>
           <Box className="flex-1 justify-center items-center h-[20px] w-[300px] lg:h-[160px] lg:w-[400px]">

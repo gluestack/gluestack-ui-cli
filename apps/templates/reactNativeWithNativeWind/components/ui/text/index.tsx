@@ -1,46 +1,46 @@
-import React from "react";
-import { tva } from "@gluestack-ui/nativewind-utils/tva";
+import React from 'react';
+import {tva} from '@gluestack-ui/nativewind-utils/tva';
 
-import type { VariantProps } from "@gluestack-ui/nativewind-utils";
-import { Text as RNText } from "react-native";
+import type {VariantProps} from '@gluestack-ui/nativewind-utils';
+import {Text as RNText} from 'react-native';
 
 const textStyle = tva({
-  base: "text-typography-700 font-normal font-body",
+  base: 'text-typography-700 font-normal font-body',
 
   variants: {
     isTruncated: {
-      true: "web:truncate",
+      true: 'web:truncate',
     },
     bold: {
-      true: "font-bold",
+      true: 'font-bold',
     },
     underline: {
-      true: "underline",
+      true: 'underline',
     },
     strikeThrough: {
-      true: "line-through",
+      true: 'line-through',
     },
     size: {
-      "2xs": "text-2xs",
-      xs: "text-xs",
-      sm: "text-sm",
-      md: "text-base",
-      lg: "text-lg",
-      xl: "text-xl",
-      "2xl": "text-2xl",
-      "3xl": "text-3xl",
-      "4xl": "text-4xl",
-      "5xl": "text-5xl",
-      "6xl": "text-6xl",
+      '2xs': 'text-2xs',
+      xs: 'text-xs',
+      sm: 'text-sm',
+      md: 'text-base',
+      lg: 'text-lg',
+      xl: 'text-xl',
+      '2xl': 'text-2xl',
+      '3xl': 'text-3xl',
+      '4xl': 'text-4xl',
+      '5xl': 'text-5xl',
+      '6xl': 'text-6xl',
     },
     sub: {
-      true: "text-xs",
+      true: 'text-xs',
     },
     italic: {
-      true: "italic",
+      true: 'italic',
     },
     highlight: {
-      true: "bg-yellow-500",
+      true: 'bg-yellow-500',
     },
   },
 });
@@ -56,13 +56,13 @@ const Text = React.forwardRef(
       bold,
       underline,
       strikeThrough,
-      size = "md",
+      size = 'md',
       sub,
       italic,
       highlight,
       ...props
-    }: { className?: string } & ITextProps,
-    ref?: any
+    }: {className?: string} & ITextProps,
+    ref?: any,
   ) => {
     return (
       <RNText
@@ -81,9 +81,9 @@ const Text = React.forwardRef(
         ref={ref}
       />
     );
-  }
+  },
 );
 
-Text.displayName = "Text";
+Text.displayName = 'Text';
 
-export { Text };
+export {Text};

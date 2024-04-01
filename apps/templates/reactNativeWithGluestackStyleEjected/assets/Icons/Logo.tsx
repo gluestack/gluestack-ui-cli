@@ -1,5 +1,5 @@
 import React from 'react';
-import { Svg, Path, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
+import {Svg, Path, Rect, Defs, LinearGradient, Stop} from 'react-native-svg';
 
 const YourSvgComponent = () => {
   return (
@@ -38,10 +38,9 @@ const YourSvgComponent = () => {
           y1="1.40527"
           x2="31.1111"
           y2="30.6386"
-          gradientUnits="userSpaceOnUse"
-        >
-          <Stop stop-color="#4AA9FF" />
-          <Stop offset="1" stop-color="#004282" />
+          gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#4AA9FF" />
+          <Stop offset="1" stopColor="#004282" />
         </LinearGradient>
       </Defs>
     </Svg>
