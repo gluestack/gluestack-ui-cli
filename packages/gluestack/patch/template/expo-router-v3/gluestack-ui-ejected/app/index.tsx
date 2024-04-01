@@ -1,14 +1,14 @@
-import Gradient from "@/assets/Icons/Gradient";
-import DocumentData from "@/assets/Icons/DocumentData";
-import LightBulbPerson from "@/assets/Icons/LightbulbPerson";
-import Rocket from "@/assets/Icons/Rocket";
-import Logo from "@/assets/Icons/Logo";
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
-import { ScrollView } from "@/components/ui/scrollview";
-import { Text } from "@/components/ui/text";
+import Gradient from '@/assets/Icons/Gradient';
+import DocumentData from '@/assets/Icons/DocumentData';
+import LightBulbPerson from '@/assets/Icons/LightbulbPerson';
+import Rocket from '@/assets/Icons/Rocket';
+import Logo from '@/assets/Icons/Logo';
+import { Box } from '@/components/ui/box';
+import { HStack } from '@/components/ui/hstack';
+import { ScrollView } from 'react-native';
+import { Text } from '@/components/ui/text';
 
-import { Link } from "expo-router";
+import { Link } from 'expo-router';
 
 const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   return (
@@ -40,7 +40,7 @@ export default function Home() {
   return (
     <Box flex={1} backgroundColor="$black">
       <ScrollView
-        style={{ height: "100%" }}
+        style={{ height: '100%' }}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <Box
