@@ -7,10 +7,9 @@ import {
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useColorScheme } from "@/components/useColorScheme";
 import { Slot } from "expo-router";
-
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 
 export {
   // Catch any errors thrown by the Layout component.

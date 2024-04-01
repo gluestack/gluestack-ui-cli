@@ -3,9 +3,9 @@ import DocumentData from "@/assets/Icons/DocumentData";
 import LightBulbPerson from "@/assets/Icons/LightbulbPerson";
 import Rocket from "@/assets/Icons/Rocket";
 import Logo from "@/assets/Icons/Logo";
-import { ScrollView } from "react-native";
-import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
+import { HStack } from "@/components/ui/hstack";
+import { ScrollView } from "@/components/ui/scrollview";
 import { Text } from "@/components/ui/text";
 
 import { Link } from "expo-router";
@@ -62,15 +62,7 @@ export default function Home() {
           $lg-mx="$5"
           justifyContent="space-between"
         >
-          <HStack
-            $md-justifyContent="space-between"
-            $base-alignItems="center"
-            $md-alignItems="stretch"
-            $base-flexDirection="column"
-            $md-flexDirection="row"
-            $base-gap={20}
-            $md-gap={0}
-          >
+          <HStack justifyContent="space-between" marginHorizontal="$10">
             <Box
               bg="#64748B33"
               py="$2"
@@ -98,7 +90,7 @@ export default function Home() {
                 px="$6"
                 marginTop="$5"
                 $base-flexDirection="column"
-                $sm-flexDirection="row"
+                $sm-flexDirection="ro"
                 $md-flexDirection="flex-end"
               >
                 <Text color="$white" fontWeight="$normal">
