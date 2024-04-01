@@ -98,8 +98,7 @@
         "npx expo install react-native-web react-dom @expo/metro-runtime",
         "npx tailwindcss init",
         "npx expo customize metro.config.js"
-      ],
-      "expoWeb": true
+      ]
     },
     "expo-router-gui": {
       "targetPath": "../../../apps/templates",
@@ -122,6 +121,21 @@
       "createCommandArgs": "-t tabs@50",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime"
+      ]
+    },
+    "expo-router-nativewind": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-router-with-nativewind",
+      "patchPath": [
+        "../patch/template/expo-router-v3/nativewind",
+        "../patch/common/nativewind/"
+      ],
+      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommandArgs": "-t tabs@50",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime",
+        "npx tailwindcss init",
+        "npx expo customize metro.config.js"
       ]
     },
     "react-native-gui": {
