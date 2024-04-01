@@ -1,7 +1,7 @@
 module.exports = {
   gitRepo: 'https://github.com/gluestack/gluestack-ui-cli.git',
   parentPath: 'apps/templates',
-  tag: 'main',
+  tag: 'generate/script',
   options: {
     framework: {
       default: {
