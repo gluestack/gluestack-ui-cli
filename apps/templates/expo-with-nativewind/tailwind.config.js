@@ -152,6 +152,7 @@ module.exports = {
           warning: "var(--color-background-warning)",
           muted: "var(--color-background-muted)",
           success: "var(--color-background-success)",
+          template: "var(--color-background-template)",
           light: "#FBFBFB",
           dark: "#181719",
         },

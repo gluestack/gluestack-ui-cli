@@ -39,11 +39,7 @@ const Container = () => {
         <Image src="/gradient.svg" alt="Gradient" fill priority />
       </Box>
       <Box className="flex flex-1 items-center my-16 mx-5 lg:my-24 lg:mx-32">
-        <Box
-          className="py-2 px-6 rounded-full items-center flex-column
-          sm:flex-row md:self-start 
-          "
-        >
+        <Box className="py-2 px-6 rounded-full items-center flex-column sm:flex-row md:self-start">
           <Text className="text-typography-white font-normal">
             Get started by editing
           </Text>
