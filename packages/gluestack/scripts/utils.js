@@ -72,6 +72,7 @@ async function execPromise(
     }
     console.log('Applying Patch...');
     await installPatch(patchPath, installPath);
+    await dotFiles(installPath);
     console.log(templateName, 'template created successfully\n');
   });
 }
@@ -104,6 +105,14 @@ async function replaceFiles(installPath, changesPath) {
     const destPath = join(installPath, fileOrFolder);
     await copy(srcPath, destPath, { overwrite: true });
   }
+}
+
+async function dotFiles(installPath) {
+  spawnSync('cp .gitignore gitignore', {
+    cwd: installPath,
+    shell: true,
+    stdio: 'pipe',
+  });
 }
 
 module.exports = { execPromise };
