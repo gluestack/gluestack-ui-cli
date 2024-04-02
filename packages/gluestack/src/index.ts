@@ -48,7 +48,7 @@ if (args.length > 0) {
     displayHelp(options);
   }
 
-  if (!args[0].includes('-')) {
+  if (!args[0].startsWith('-')) {
     projName = args[0];
     args.shift();
   }
@@ -71,8 +71,8 @@ async function main() {
     cancel('Operation cancelled.');
     process.exit(0);
   });
-  let templateName = '';
-  if (selectedFramework === '') {
+  let templateName = selectedFramework;
+  if (templateName === '') {
     const { question, options: optionsType } = options.framework.default;
     // @ts-ignore
     selectedFramework = await select({
@@ -109,8 +109,8 @@ async function main() {
       message: question,
       options: [...optionsType],
     });
-    templateName = `${templateName}-${selectedStyle}`;
   }
+  templateName = `${templateName}-${selectedStyle}`;
 
   if (selectedPackageManager === '') {
     const userPackageManager = process.env.npm_config_user_agent;
