@@ -4,7 +4,7 @@ import { installPackages } from '.';
 import { cancel, isCancel, log, select, text } from '@clack/prompts';
 import { config } from '../config';
 
-const currDir = process.cwd();
+const _currDir = process.cwd();
 let installDependencies: string[] = [];
 
 // Function to parse imports from a TypeScript file
@@ -101,10 +101,10 @@ async function fetchAndInstallPackages(
   });
   try {
     await installPackages(installationMethod, allPackages);
-    await configCleanup(dir);
+    // await configCleanup(dir);
   } catch (err) {
     log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
-    await configCleanup(dir);
+    // await configCleanup(dir);
     process.exit(1);
   }
 }
@@ -162,9 +162,9 @@ async function promptComponentStyle() {
 
 // Function to get existing component style
 async function getExistingComponentStyle() {
-  if (fs.existsSync(path.join(currDir, config.UIconfigPath))) {
+  if (fs.existsSync(path.join(_currDir, config.UIconfigPath))) {
     const fileContent: string = fs.readFileSync(
-      path.join(currDir, config.UIconfigPath),
+      path.join(_currDir, config.UIconfigPath),
       'utf8'
     );
     // Define a regular expression pattern to match import statements
@@ -186,13 +186,13 @@ async function getComponentStyle() {
   // Read the contents of the file
   try {
     if (
-      fs.existsSync(path.join(currDir, config.writableComponentsPath)) &&
-      fs.existsSync(path.join(currDir, config.UIconfigPath))
+      fs.existsSync(path.join(_currDir, config.writableComponentsPath)) &&
+      fs.existsSync(path.join(_currDir, config.UIconfigPath))
     )
       getExistingComponentStyle();
     if (
-      fs.existsSync(path.join(currDir, config.writableComponentsPath)) &&
-      !fs.existsSync(path.join(currDir, config.UIconfigPath))
+      fs.existsSync(path.join(_currDir, config.writableComponentsPath)) &&
+      !fs.existsSync(path.join(_currDir, config.UIconfigPath))
     ) {
       const userInput = await text({
         message: `No file found as ${config.configFileName} in components folder, Enter path to your config file in your project, if exist:`,
@@ -202,16 +202,16 @@ async function getComponentStyle() {
       });
       config.UIconfigPath = userInput.toString();
       config.configFileName = config.UIconfigPath.split('/').pop() as string;
-      if (fs.existsSync(path.join(currDir, config.UIconfigPath)))
+      if (fs.existsSync(path.join(_currDir, config.UIconfigPath)))
         getExistingComponentStyle();
       else {
         log.error(`\x1b[31mInvalid config path provided\x1b[0m`);
         process.exit(1);
       }
     }
-    if (!fs.existsSync(path.join(currDir, config.writableComponentsPath))) {
+    if (!fs.existsSync(path.join(_currDir, config.writableComponentsPath))) {
       log.warning(
-        `\x1b[33mGluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
+        `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
       );
       process.exit(1);
     }
@@ -241,7 +241,7 @@ async function generateConfigAndInstallDependencies({
       generateConfig(componentsDir, component);
     }
   });
-  await getUIConfigDependencies(path.join(currDir, config.UIconfigPath));
+  await getUIConfigDependencies(path.join(_currDir, config.UIconfigPath));
 
   if (fs.existsSync(path.join(componentsDir, config.providerComponent))) {
     fs.writeFileSync(

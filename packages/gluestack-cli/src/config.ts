@@ -17,7 +17,7 @@ const config = {
   configFileName: 'config.ts',
   nativewindUtilPattern: '@gluestack-ui/nativewind-utils/',
   gluestackUIPattern: '@gluestack-ui/',
-  templatesDir: '../../templates',
+  templatesDir: '../../../template',
   GluestackNextJsDependencies: [
     'react-native-web',
     '@gluestack/ui-next-adapter',
@@ -50,7 +50,7 @@ const config = {
     'tailwindcss',
     '@gluestack-ui/nativewind-utils',
   ],
-  GlobalAdditionalDependencies: {
+  DependencyVersion: {
     'react-native-svg': '13.4.0',
     nativewind: '^4.0.36',
   } as Record<string, string>,

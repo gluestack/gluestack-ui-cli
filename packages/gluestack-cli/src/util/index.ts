@@ -1,5 +1,5 @@
 import os from 'os';
-import path from 'path';
+import { join, dirname, extname } from 'path';
 import util from 'util';
 import fs from 'fs-extra';
 import {
@@ -12,7 +12,7 @@ import {
 } from '@clack/prompts';
 import finder from 'find-package-json';
 import simpleGit from 'simple-git';
-import { execSync, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { config } from '../config';
 
 const stat = util.promisify(fs.stat);
@@ -25,12 +25,12 @@ const getPackageJsonPath = (): string => {
 };
 
 const rootPackageJsonPath = getPackageJsonPath();
-const projectRootPath: string = path.dirname(rootPackageJsonPath);
+const projectRootPath: string = dirname(rootPackageJsonPath);
 
 const getAllComponents = (): string[] => {
   const componentList = fs
     .readdirSync(
-      path.join(
+      join(
         homeDir,
         config.gluestackDir,
         config.componentsResourcePath,
@@ -39,29 +39,34 @@ const getAllComponents = (): string[] => {
     )
     .filter(
       (file) =>
-        !['.tsx', '.ts', '.jsx', '.js'].includes(
-          path.extname(file).toLowerCase()
-        ) && file !== config.providerComponent
+        !['.tsx', '.ts', '.jsx', '.js'].includes(extname(file).toLowerCase()) &&
+        file !== config.providerComponent
     );
   return componentList;
 };
 
-const cloneRepositoryAtRoot = async () => {
-  const clonedRepoExists = await checkIfFolderExists(
-    path.join(homeDir, config.gluestackDir)
-  );
-  if (clonedRepoExists) {
-    log.step('Repository already cloned.');
-    await pullComponentRepo(path.join(homeDir, config.gluestackDir));
-    // await checkVersion(path.join(homeDir, config.gluestackDir), config.tagName);
-  } else {
-    const s = spinner();
-    s.start('Cloning repository...');
-    await cloneComponentRepo(
-      path.join(homeDir, config.gluestackDir),
-      config.repoUrl
-    );
-    s.stop('Repository cloned successfully.');
+const cloneRepositoryAtRoot = async (rootPath: string) => {
+  try {
+    const clonedRepoExists = await checkIfFolderExists(rootPath);
+    if (clonedRepoExists) {
+      const git = simpleGit(rootPath);
+      const currBranch = await git.branchLocal();
+      if (currBranch.current !== config.branchName) {
+        fs.removeSync(rootPath);
+        await cloneComponentRepo(rootPath, config.repoUrl);
+      }
+      if (currBranch.current === config.branchName) {
+        log.step('Repository already cloned.');
+        await pullComponentRepo(join(homeDir, config.gluestackDir));
+      }
+    } else {
+      const s = spinner();
+      s.start('Cloning repository...');
+      await cloneComponentRepo(rootPath, config.repoUrl);
+      s.stop('Repository cloned successfully.');
+    }
+  } catch (err) {
+    log.error(`\x1b[31m Cloning failed, ${(err as Error).message}\x1b[0m`);
   }
 };
 
@@ -72,7 +77,6 @@ const cloneComponentRepo = async (
   const git = simpleGit();
   const s = spinner();
   s.start('⏳ Cloning repository...');
-
   try {
     await git.clone(gitURL, targetPath, [
       '--depth=1',
@@ -121,7 +125,7 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
   while (!success && retry < 3) {
     try {
       await wait(1000);
-      // await tryGitPull(targetpath);
+      await tryGitPull(targetpath);
       success = true;
     } catch (err) {
       log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
@@ -157,9 +161,9 @@ const wait = (msec: number): Promise<void> =>
   });
 
 const detectLockFile = (): string | null => {
-  const packageLockPath = path.join(projectRootPath, 'package-lock.json');
-  const yarnLockPath = path.join(projectRootPath, 'yarn.lock');
-  const pnpmLockPath = path.join(projectRootPath, 'pnpm-lock.yaml');
+  const packageLockPath = join(projectRootPath, 'package-lock.json');
+  const yarnLockPath = join(projectRootPath, 'yarn.lock');
+  const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
 
   if (fs.existsSync(packageLockPath)) {
     return 'npm';
@@ -200,9 +204,9 @@ const addDependencies = async (dependenciesToAdd: string[]): Promise<void> => {
       if (packageJson.dependencies[packageName]) {
         return;
       } else {
-        if (config.GlobalAdditionalDependencies[packageName]) {
+        if (config.DependencyVersion[packageName]) {
           packageJson.dependencies[packageName] =
-            config.GlobalAdditionalDependencies[packageName];
+            config.DependencyVersion[packageName];
         } else if (!packageJson.dependencies[packageName]) {
           packageJson.dependencies[packageName] = 'latest';
         }
@@ -278,7 +282,7 @@ const addIndexFile = async (componentsDirectory: string) => {
   try {
     const directories = await fs.readdir(componentsDirectory);
     const componentDirectories = directories.filter((item) =>
-      fs.statSync(path.join(componentsDirectory, item)).isDirectory()
+      fs.statSync(join(componentsDirectory, item)).isDirectory()
     );
     // Generate import and export statements for each component directory
     const exportStatements = componentDirectories
@@ -286,10 +290,7 @@ const addIndexFile = async (componentsDirectory: string) => {
       .join('\n');
 
     const indexContent = `${exportStatements}\n`;
-    await fs.writeFile(
-      path.join(componentsDirectory, 'index.ts'),
-      indexContent
-    );
+    await fs.writeFile(join(componentsDirectory, 'index.ts'), indexContent);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
@@ -302,8 +303,7 @@ async function detectProjectType(directoryPath: string) {
     const nextjsFiles: string[] = ['next.config.js', 'next.config.mjs'];
     const expoFiles: string[] = ['app.json'];
     const reactNativeFiles: string[] = ['ios', 'android'];
-    // Path to package.json file
-    const packageJsonPath = path.join(currDir, 'package.json');
+    const packageJsonPath = join(currDir, 'package.json');
 
     // Check for presence of Next.js files/directories
     const isNextJs: boolean = await Promise.all(
@@ -324,37 +324,73 @@ async function detectProjectType(directoryPath: string) {
 
     // Determine the project type based on the presence of specific files/directories
     if (isNextJs && packageJson.dependencies && packageJson.dependencies.next) {
-      log.info(`Detected as Next JS project...`);
-      return config.nextJsProject;
+      const userConfirm = await getConfirmation(
+        'Detected as Next JS project, continue? (yes/no): '
+      );
+      if (userConfirm) return config.nextJsProject;
     } else if (
       isExpo &&
       packageJson.dependencies &&
       packageJson.dependencies.expo &&
       packageJson.dependencies['react-native'] &&
       !packageJson.dependencies.next &&
+      !isNextJs &&
       !isReactNative
     ) {
-      log.info(`Detected as Expo project...`);
-      return config.expoProject;
+      const userConfirm = await getConfirmation(
+        'Detected as Expo project, continue? (yes/no): '
+      );
+      if (userConfirm) return config.expoProject;
     } else if (
       isReactNative &&
       packageJson.dependencies &&
       packageJson.dependencies['react-native'] &&
       !packageJson.dependencies.expo
     ) {
-      log.info(`Detected as React Native CLI project...`);
-      return config.reactNativeCLIProject;
+      const userConfirm = await getConfirmation(
+        'Detected as React Native CLI project, continue? (yes/no): '
+      );
+      if (userConfirm) return config.reactNativeCLIProject;
     }
-    log.error(
-      `\x1b[31mUnable to detect project type as Next JS, Expo or React Native CLI\x1b[0m`
-    );
-    process.exit(1);
+    const frameworkInput = await getFrameworkInput();
+    return frameworkInput;
   } catch (err) {
-    log.error(
-      `\x1b[31mUnable to detect project type as Next JS, Expo or React Native CLI\x1b[0m`
-    );
+    log.error(`\x1b[31m${err as Error}\x1b[0m`);
     process.exit(1);
   }
+}
+
+async function getConfirmation(message: string): Promise<boolean> {
+  const confirmInput = await confirm({
+    message: message,
+  });
+  if (isCancel(confirmInput)) {
+    cancel('Operation cancelled.');
+    process.exit(1);
+  }
+  return confirmInput;
+}
+
+async function getFrameworkInput(): Promise<string> {
+  const frameworkInput = await select({
+    message: 'Please select the framework you are using:',
+    options: [
+      {
+        value: config.nextJsProject,
+        label: 'Next Js',
+      },
+      { value: config.expoProject, label: 'Expo' },
+      {
+        value: config.reactNativeCLIProject,
+        label: 'React Native CLI',
+      },
+    ],
+  });
+  if (isCancel(frameworkInput)) {
+    cancel('Operation cancelled.');
+    process.exit(1);
+  }
+  return frameworkInput as string;
 }
 
 //function to return additional dependencies based on project type
@@ -420,23 +456,6 @@ const generateSpecificFile = async (
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
-
-async function replaceRelativeImportInFile(
-  filePath: string,
-  oldImportPath: string,
-  newImportPath: string
-) {
-  try {
-    let fileContent: string = fs.readFileSync(filePath, 'utf8');
-    const modifiedContent: string = fileContent.replace(
-      new RegExp(`import {.*} from ['"]${oldImportPath}['"];`, 'g'),
-      `import { config } from '${newImportPath}';`
-    );
-    fs.writeFileSync(filePath, modifiedContent, 'utf8');
-  } catch (err) {
-    log.error(`Error replacing import statement: ${err}`);
-  }
-}
 
 export {
   cloneRepositoryAtRoot,
