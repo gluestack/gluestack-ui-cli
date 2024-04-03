@@ -9,9 +9,9 @@ import { flush } from "@gluestack-style/react";
 // The contents of this function only run in Node.js environments and
 // do not have access to the DOM or browser APIs.
 export default function Root({ children }: { children: React.ReactNode }) {
-  React.useLayoutEffect(() => {
-    console.log("SSR HERE, html");
-  });
+  // React.useLayoutEffect(() => {
+  //   console.log("SSR HERE, html");
+  // });
   return (
     <html lang="en">
       <head>
