@@ -31,7 +31,6 @@ const InitializeGlueStack = async ({
   installationMethod: string | undefined;
 }) => {
   try {
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const initializeStatus = await checkIfFolderExists(
       join(_currDir, config.writableComponentsPath, config.providerComponent)
     );
@@ -41,12 +40,14 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
+    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+
+    const projectType = await detectProjectType(_currDir);
     const componentStyle = await promptComponentStyle();
     if (typeof componentStyle === 'string') {
       config.style = componentStyle;
     }
-    const projectType = await detectProjectType(_currDir);
-    // add provider component
+    // add gluestack provider component
     await addProvider();
     // get additional dependencies based on the project type and component style
     const additionalDependencies = await getAdditionalDependencies(
@@ -59,8 +60,7 @@ const InitializeGlueStack = async ({
       optionalPackages: additionalDependencies,
     });
     if (config.style === config.nativeWindRootPath) {
-      //code for nativewind setup
-      // await nativeWindInit(projectType);
+      await nativeWindInit(projectType);
     } else {
       //code for gluestack-style setup
     }
@@ -142,7 +142,7 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
       };
     } else {
       // Case 2 & 3: Paths exist, update them without undoing previous values
-      tsConfig.compilerOptions.paths['@/*'] = ['./*'];
+      tsConfig.compilerOptions.paths['@/*'].push('./*');
     }
 
     await writeFileAsync(
@@ -241,7 +241,7 @@ async function initNatiwindInNextJs() {
       config.nextJsProject
     );
     const filesAndFolders = fs.readdirSync(resourcePath);
-    // add next.config.js and postcss.config.js
+    // add next.config.js, postcss.config.js and nativewind-env.d.ts
     for (const file of filesAndFolders) {
       await fs.copy(join(resourcePath, file), join(_currDir, file), {
         overwrite: true,
@@ -260,7 +260,7 @@ async function initNatiwindInExpo() {
       config.expoProject
     );
     const filesAndFolders = fs.readdirSync(resourcePath);
-    // add babel.config.js and metro.config.js
+    // add babel.config.js, metro.config.js (SDK 50) and nativewind-env.d.ts
     for (const file of filesAndFolders) {
       await fs.copy(join(resourcePath, file), join(_currDir, file), {
         overwrite: true,
@@ -269,8 +269,6 @@ async function initNatiwindInExpo() {
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
-  // update babel.config.js (SDK 50)
-  // add or update metro.config.js
   // add nativewind-env.d.ts
 }
 

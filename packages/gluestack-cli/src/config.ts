@@ -52,7 +52,8 @@ const config = {
   ],
   DependencyVersion: {
     'react-native-svg': '13.4.0',
-    nativewind: '^4.0.36',
+    nativewind: '4.0.36',
+    tailwindcss: '3.4.3',
   } as Record<string, string>,
 };
 

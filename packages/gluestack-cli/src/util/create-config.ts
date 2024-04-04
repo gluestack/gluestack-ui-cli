@@ -101,10 +101,10 @@ async function fetchAndInstallPackages(
   });
   try {
     await installPackages(installationMethod, allPackages);
-    // await configCleanup(dir);
+    await configCleanup(dir);
   } catch (err) {
     log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
-    // await configCleanup(dir);
+    await configCleanup(dir);
     process.exit(1);
   }
 }
@@ -112,15 +112,12 @@ async function fetchAndInstallPackages(
 //function to remove config.json files from components
 async function configCleanup(directoryPath: string) {
   try {
-    // Read all files in the directory
     const entries = fs.readdirSync(directoryPath, { withFileTypes: true });
-    // Filter out directories from the list of entries
     const directories = entries.filter((entry) => entry.isDirectory());
     // Iterate over each directory
     directories.forEach((directory) => {
       const componentPath = path.join(directoryPath, directory.name);
       const configPath = path.join(componentPath, 'config.json');
-
       if (fs.existsSync(configPath)) {
         fs.unlinkSync(configPath);
       }
