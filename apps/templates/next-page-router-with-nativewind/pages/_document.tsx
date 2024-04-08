@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Html, Head, Main, NextScript } from "next/document";
+// @ts-ignore
 import { AppRegistry } from "react-native-web";
 import { flush } from "@gluestack-ui/nativewind-utils/flush";
 
