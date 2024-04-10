@@ -66,15 +66,6 @@ const componentAdder = async ({
   }
 };
 
-const checkIfDirectoryExists = async (path: string): Promise<boolean> => {
-  try {
-    const stats = await fs.stat(path);
-    return stats.isDirectory();
-  } catch (error) {
-    return false; // Directory does not exist or there was an error accessing it
-  }
-};
-
 const isComponentInConfig = async (components: string[]): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];

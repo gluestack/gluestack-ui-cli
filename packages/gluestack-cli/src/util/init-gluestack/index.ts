@@ -12,11 +12,15 @@ import {
 } from '..';
 import fs from 'fs-extra';
 import { join } from 'path';
-import { log } from '@clack/prompts';
+import { cancel, isCancel, log, confirm } from '@clack/prompts';
 import { promisify } from 'util';
+import { execSync } from 'child_process';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
+
+const readFileAsync = promisify(fs.readFile);
+const writeFileAsync = promisify(fs.writeFile);
 
 interface TSConfig {
   compilerOptions?: {
@@ -61,6 +65,7 @@ const InitializeGlueStack = async ({
     });
     if (config.style === config.nativeWindRootPath) {
       await nativeWindInit(projectType);
+      log.success(`\x1b[32mInstallation completed\x1b[0m`);
     } else {
       //code for gluestack-style setup
     }
@@ -96,6 +101,7 @@ async function addProvider() {
 
 async function nativeWindInit(projectType: string) {
   try {
+    await commonInitialization(projectType);
     if (projectType === config.nextJsProject) {
       await initNatiwindInNextJs();
     }
@@ -105,14 +111,10 @@ async function nativeWindInit(projectType: string) {
     if (projectType === config.reactNativeCLIProject) {
       await initNatiwindInReactNativeCLI();
     }
-    await commonInitialization(projectType);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
-
-const readFileAsync = promisify(fs.readFile);
-const writeFileAsync = promisify(fs.writeFile);
 
 async function updateTSConfigPaths(projectType: string): Promise<void> {
   try {
@@ -142,7 +144,11 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
       };
     } else {
       // Case 2 & 3: Paths exist, update them without undoing previous values
-      tsConfig.compilerOptions.paths['@/*'].push('./*');
+      const paths = tsConfig.compilerOptions.paths['@/*'];
+      if (!paths.includes('./*')) {
+        // If './*' is not included, add it
+        paths.push('./*');
+      }
     }
 
     await writeFileAsync(
@@ -158,16 +164,17 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
     );
   }
 }
-//refactor this
-async function generateGlobalCSS(existingPath?: string): Promise<void> {
+
+async function generateGlobalCSS(): Promise<void> {
   try {
-    if (existingPath) {
-      const fileContent = fs.readFileSync(
-        join(__dirname, config.templatesDir, 'common/global.css')
+    if (fs.existsSync(join(_currDir, 'global.css'))) {
+      const globalCSSContent = await fs.readFile(
+        join(__dirname, config.templatesDir, 'common/global.css'),
+        'utf8'
       );
       await fs.appendFile(
-        join(existingPath),
-        fileContent.toString(), // Convert buffer to string
+        join(_currDir, 'global.css'),
+        globalCSSContent.toString(), // Convert buffer to string
         'utf8'
       );
     } else {
@@ -184,41 +191,23 @@ async function generateGlobalCSS(existingPath?: string): Promise<void> {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
-//refactor this
-async function updateGlobalCSS(projectRoot: string) {
-  let fileExist = false;
-  fs.readdir(projectRoot, (err, files) => {
-    if (err) {
-      console.error('Error reading directory:', err);
-      return;
-    }
-    files.forEach((file) => {
-      if (file === 'node_modules' || file.startsWith('.')) {
-        return;
-      }
-      const filePath = join(projectRoot, file);
-      fs.stat(filePath, async (err, stats) => {
-        if (err) {
-          console.error('Error getting file stats:', err);
-          return;
-        }
-        if (stats.isDirectory()) {
-          updateGlobalCSS(filePath);
-        } else if (file === 'global.css' || file === 'globals.css') {
-          await generateGlobalCSS(filePath);
-          fileExist = true;
-          return fileExist;
-        }
-      });
-    });
-    return fileExist;
-  });
-}
 
 async function commonInitialization(projectType: string) {
   try {
-    // await updateGlobalCSS(_currDir);
-    // copy tailwind.config.js to the root of the project
+    const resourcePath = join(__dirname, config.templatesDir, projectType);
+    const filesAndFolders = fs.readdirSync(resourcePath);
+    const confirmation = await overrideWarning(filesAndFolders);
+    if (confirmation === true) {
+      for (const file of filesAndFolders) {
+        await fs.copy(join(resourcePath, file), join(_currDir, file), {
+          overwrite: true,
+        });
+      }
+    } else {
+      log.message(
+        'Skipping override. Please refer docs for making changes manually...'
+      );
+    }
     await fs.ensureFile(
       join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath)
     );
@@ -228,6 +217,7 @@ async function commonInitialization(projectType: string) {
     );
     await updateTSConfigPaths(projectType);
     // add or update global.css (check throughout the project for global.css and update it or create it)
+    await generateGlobalCSS();
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -235,18 +225,6 @@ async function commonInitialization(projectType: string) {
 
 async function initNatiwindInNextJs() {
   try {
-    const resourcePath = join(
-      __dirname,
-      config.templatesDir,
-      config.nextJsProject
-    );
-    const filesAndFolders = fs.readdirSync(resourcePath);
-    // add next.config.js, postcss.config.js and nativewind-env.d.ts
-    for (const file of filesAndFolders) {
-      await fs.copy(join(resourcePath, file), join(_currDir, file), {
-        overwrite: true,
-      });
-    }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -254,29 +232,49 @@ async function initNatiwindInNextJs() {
 
 async function initNatiwindInExpo() {
   try {
-    const resourcePath = join(
-      __dirname,
-      config.templatesDir,
-      config.expoProject
-    );
-    const filesAndFolders = fs.readdirSync(resourcePath);
-    // add babel.config.js, metro.config.js (SDK 50) and nativewind-env.d.ts
-    for (const file of filesAndFolders) {
-      await fs.copy(join(resourcePath, file), join(_currDir, file), {
-        overwrite: true,
-      });
-    }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
-  // add nativewind-env.d.ts
 }
 
 async function initNatiwindInReactNativeCLI() {
-  // update babel.config.js by adding 'nativewind/babel' to the presets array
-  // run npx pod install
-  // add metro.config.js
-  // add nativewind-env.d.ts
+  try {
+    execSync('npx pod-install', { stdio: 'inherit' });
+  } catch (err) {
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+  }
 }
+
+async function overrideWarning(files: string[]) {
+  const confirmInput = await confirm({
+    message: `\x1b[33mWARNING: Overriding Files
+
+    The command you've run is attempting to override certain files in your project, if already exist. Here's what's happening:
+    
+   ${files.map((file) => `File - [${file}]`).join('\n')}
+    
+    Proceed with caution. Make sure to backup any important files before proceeding.
+    \x1b[0m`,
+  });
+  if (isCancel(confirmInput)) {
+    cancel('Skipping override. Please refer docs for manual installation.');
+  }
+  return confirmInput;
+}
+
+// function renameFileWithOldExtension(filePath: string): void {
+//   const fileExtension = extname(filePath);
+//   const fileNameWithoutExtension = basename(filePath, fileExtension);
+//   const directoryPath = dirname(filePath);
+//   const newFileName = `${fileNameWithoutExtension}_old${fileExtension}`;
+//   const newFilePath = join(directoryPath, newFileName);
+//   fs.rename(filePath, newFilePath, (err) => {
+//     if (err) {
+//       console.error('Error renaming file:', err);
+//     } else {
+//       console.log('File renamed successfully.');
+//     }
+//   });
+// }
 
 export { InitializeGlueStack };

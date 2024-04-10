@@ -146,8 +146,8 @@ async function promptComponentStyle() {
   const selectedStyle = await select({
     message: 'Which style would you like to use in your project:',
     options: [
-      { value: config.gluestackStyleRootPath, label: 'gluestack-style' },
       { value: config.nativeWindRootPath, label: 'NativeWind' },
+      { value: config.gluestackStyleRootPath, label: 'gluestack-style' },
     ],
   });
   if (isCancel(selectedStyle)) {
@@ -180,7 +180,6 @@ async function getExistingComponentStyle() {
 }
 
 async function getComponentStyle() {
-  // Read the contents of the file
   try {
     if (
       fs.existsSync(path.join(_currDir, config.writableComponentsPath)) &&
