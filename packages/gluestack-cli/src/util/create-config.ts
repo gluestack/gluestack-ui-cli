@@ -101,6 +101,8 @@ async function fetchAndInstallPackages(
   });
   try {
     await installPackages(installationMethod, allPackages);
+    if (config.style === config.nativeWindRootPath) {
+    }
     await configCleanup(dir);
   } catch (err) {
     log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);

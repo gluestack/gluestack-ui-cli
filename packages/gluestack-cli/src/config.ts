@@ -18,6 +18,7 @@ const config = {
   nativewindUtilPattern: '@gluestack-ui/nativewind-utils/',
   gluestackUIPattern: '@gluestack-ui/',
   templatesDir: '../../../template',
+  codeModesDir: '../../../template/template-codemods',
   GluestackNextJsDependencies: [
     'react-native-web',
     '@gluestack/ui-next-adapter',
@@ -37,23 +38,27 @@ const config = {
     'react-native-web',
     '@gluestack-ui/nativewind-utils',
     '@gluestack/ui-next-adapter',
+    'jscodeshift',
   ],
   NativeWindExpoDependencies: [
     'nativewind',
     'react-native-reanimated',
     'tailwindcss',
     '@gluestack-ui/nativewind-utils',
+    'jscodeshift',
   ],
   NativeWindReactNativeCLIDependencies: [
     'nativewind',
     'react-native-reanimated',
     'tailwindcss',
     '@gluestack-ui/nativewind-utils',
+    'jscodeshift',
   ],
   DependencyVersion: {
     'react-native-svg': '13.4.0',
     nativewind: '4.0.36',
     tailwindcss: '3.4.3',
+    jscodeshift: '0.15.2',
   } as Record<string, string>,
 };
 

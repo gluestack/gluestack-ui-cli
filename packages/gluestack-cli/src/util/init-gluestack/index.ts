@@ -205,32 +205,62 @@ async function generateGlobalCSS(): Promise<void> {
 
 async function commonInitialization(projectType: string) {
   try {
-    await fs.ensureFile(
-      join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath)
+    const resourcePath = join(__dirname, config.templatesDir, projectType);
+    const filesAndFolders = fs.readdirSync(resourcePath);
+    for (const file of filesAndFolders) {
+      await fs.copy(join(resourcePath, file), join(_currDir, file), {
+        overwrite: true,
+      });
+    }
+    const tailwindConfigRootPath = join(
+      _homeDir,
+      config.gluestackDir,
+      config.tailwindConfigRootPath
     );
-    await fs.copy(
-      join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath),
-      join(_currDir, 'tailwind.config.js')
-    );
+    const tailwindConfigPath = join(_currDir, 'tailwind.config.js');
+
+    if (existsSync(tailwindConfigPath)) {
+      const confirm = await overrideWarning(['tailwind.config.js']);
+      if (confirm === false) {
+        log.info(
+          'Skipping override. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation \x1b[0m'
+        );
+      } else {
+        await addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
+      }
+    } else {
+      await addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
+    }
+
     await updateTSConfigPaths(projectType);
     // add or update global.css (check throughout the project for global.css and update it or create it)
     await generateGlobalCSS();
-    // Codemod to update tailwind.config.js usage
-    const { entryPath, componentsPath } = getEntryPathAndComponentsPath();
-    const newPaths = entryPath.concat(componentsPath);
-    const allNewPaths = JSON.stringify(newPaths);
-    const tailwindConfigPath = join(_currDir, 'tailwind.config.js');
-    const transformerPath = join(
-      __dirname,
-      '../../../template/template-codemods/tailwind-config-transform.ts'
-    );
-    exec(
-      `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}'`
-    );
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
+
+const addtailwindConfigFile = async (
+  resourcePath: string,
+  targetPath: string
+) => {
+  try {
+    await fs.copy(resourcePath, targetPath);
+    // Codemod to update tailwind.config.js usage
+    const { entryPath, componentsPath } = getEntryPathAndComponentsPath();
+    const newPaths = entryPath.concat(componentsPath);
+    const allNewPaths = JSON.stringify(newPaths);
+    const transformerPath = join(
+      __dirname,
+      `${config.codeModesDir}/tailwind-config-transform.ts`
+    );
+    exec(
+      `npx jscodeshift -t ${transformerPath}  ${targetPath} --paths='${allNewPaths}'`
+    );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+  }
+};
 
 async function initNatiwindInNextJs() {
   try {
@@ -238,7 +268,7 @@ async function initNatiwindInNextJs() {
     const nextConfigPath = join(_currDir, 'next.config.mjs');
     const nextTransformerPath = join(
       __dirname,
-      '../../../template/template-codemods/nextjs/next-config-transform.ts'
+      `${config.codeModesDir}/${config.nextJsProject}/next-config-transform.ts`
     );
     exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
   } catch (err) {
@@ -252,21 +282,21 @@ async function initNatiwindInExpo() {
     const babelConfigPath = join(_currDir, 'babel.config.js');
     const BabeltransformerPath = join(
       __dirname,
-      '../../../template/template-codemods/expo/babel-config-transform.ts'
+      `${config.codeModesDir}/${config.expoProject}/babel-config-transform.ts`
     );
     //metro-config-transform
     if (existsSync(join(_currDir, 'metro.config.js'))) {
       const metroConfigPath = join(_currDir, 'metro.config.js');
       const metroTransformerPath = join(
         __dirname,
-        '../../../template/template-codemods/expo/metro-config-transform.ts'
+        `${config.codeModesDir}/${config.expoProject}/metro-config-transform.ts`
       );
       exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
       exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
     } else {
       await fs.ensureFile(join(_currDir, 'metro.config.js'));
       copy(
-        join(__dirname, '../../../template/expo/metro.config.js'),
+        join(__dirname, `${config.templatesDir}/common/metro.config-expo.js`),
         join(_currDir, 'metro.config.js')
       );
       exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
@@ -282,14 +312,15 @@ async function initNatiwindInReactNativeCLI() {
     await ensureFile(join(_currDir, 'metro.config.js'));
 
     const babelConfigPath = join(_currDir, 'babel.config.js');
+    const metroConfigPath = join(_currDir, 'metro.config.js');
+
     const BabelTransformerPath = join(
       __dirname,
-      '../../../template/template-codemods/react-native-cli/babel-config-transform.ts'
+      `${config.codeModesDir}/${config.reactNativeCLIProject}/babel-config-transform.ts`
     );
-    const metroConfigPath = join(_currDir, 'metro.config.js');
     const metroTransformerPath = join(
       __dirname,
-      '../../../template/template-codemods/react-native-cli/metro-config-transform.ts'
+      `${config.codeModesDir}/${config.reactNativeCLIProject}/metro-config-transform.ts`
     );
     exec(`npx jscodeshift -t ${BabelTransformerPath}  ${babelConfigPath}`);
     exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
