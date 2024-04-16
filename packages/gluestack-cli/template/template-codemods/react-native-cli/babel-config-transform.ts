@@ -22,9 +22,14 @@ const transform: Transform = (file, api) => {
       });
 
       if (presetsProperty.length > 0) {
-        // If presets property exists, add the new preset to its value array
+        // If presets property exists, add the new preset to its value array if it doesn't already exist
         const presetsArray = presetsProperty.get('value');
-        presetsArray.value.elements.push(j.stringLiteral('nativewind/babel'));
+        const presets = presetsArray.value.elements.map(
+          (element) => element.value
+        );
+        if (!presets.includes('nativewind/babel')) {
+          presetsArray.value.elements.push(j.stringLiteral('nativewind/babel'));
+        }
       } else {
         // If presets property doesn't exist, create it and add the presets array
         moduleExports

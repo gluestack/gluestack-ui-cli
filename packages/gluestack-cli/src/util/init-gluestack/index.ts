@@ -5,16 +5,17 @@ import {
 import { config } from '../../config';
 import os from 'os';
 import {
-  checkIfFolderExists,
+  checkIfFileExists,
   detectProjectType,
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
 } from '..';
-import fs from 'fs-extra';
+import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import { join } from 'path';
 import { cancel, isCancel, log, confirm } from '@clack/prompts';
 import { promisify } from 'util';
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import { getEntryPathAndComponentsPath } from '../get-entry-paths';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -35,8 +36,13 @@ const InitializeGlueStack = async ({
   installationMethod: string | undefined;
 }) => {
   try {
-    const initializeStatus = await checkIfFolderExists(
-      join(_currDir, config.writableComponentsPath, config.providerComponent)
+    const initializeStatus = await checkIfFileExists(
+      join(
+        _currDir,
+        config.writableComponentsPath,
+        config.providerComponent,
+        'index.tsx'
+      )
     );
     if (initializeStatus) {
       log.info(
@@ -45,7 +51,6 @@ const InitializeGlueStack = async ({
       process.exit(1);
     }
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-
     const projectType = await detectProjectType(_currDir);
     const componentStyle = await promptComponentStyle();
     if (typeof componentStyle === 'string') {
@@ -89,7 +94,6 @@ async function addProvider() {
       ),
       join(_currDir, config.writableComponentsPath, config.providerComponent)
     );
-    // addIndexFile(join(_currDir, config.writableComponentsPath));
   } catch (err) {
     log.error(
       `\x1b[31mError occured while adding the provider. (${
@@ -116,6 +120,7 @@ async function nativeWindInit(projectType: string) {
   }
 }
 
+//refactor this
 async function updateTSConfigPaths(projectType: string): Promise<void> {
   try {
     const tsConfigPath = 'tsconfig.json'; // Path to your tsconfig.json file
@@ -167,16 +172,22 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
 
 async function generateGlobalCSS(): Promise<void> {
   try {
-    if (fs.existsSync(join(_currDir, 'global.css'))) {
-      const globalCSSContent = await fs.readFile(
-        join(__dirname, config.templatesDir, 'common/global.css'),
-        'utf8'
-      );
-      await fs.appendFile(
-        join(_currDir, 'global.css'),
-        globalCSSContent.toString(), // Convert buffer to string
-        'utf8'
-      );
+    const globalCSSPath = join(_currDir, 'global.css');
+    const globalCSSContent = await fs.readFile(
+      join(__dirname, config.templatesDir, 'common/global.css'),
+      'utf8'
+    );
+    if (fs.existsSync(globalCSSPath)) {
+      const existingContent = await fs.readFile(globalCSSPath, 'utf8');
+      if (existingContent.includes(globalCSSContent)) {
+        return;
+      } else {
+        await fs.appendFile(
+          globalCSSPath,
+          globalCSSContent.toString(), // Convert buffer to string
+          'utf8'
+        );
+      }
     } else {
       await fs.ensureFile(join(_currDir, 'global.css'));
       await fs.copy(
@@ -194,20 +205,6 @@ async function generateGlobalCSS(): Promise<void> {
 
 async function commonInitialization(projectType: string) {
   try {
-    const resourcePath = join(__dirname, config.templatesDir, projectType);
-    const filesAndFolders = fs.readdirSync(resourcePath);
-    const confirmation = await overrideWarning(filesAndFolders);
-    if (confirmation === true) {
-      for (const file of filesAndFolders) {
-        await fs.copy(join(resourcePath, file), join(_currDir, file), {
-          overwrite: true,
-        });
-      }
-    } else {
-      log.message(
-        'Skipping override. Please refer docs for making changes manually...'
-      );
-    }
     await fs.ensureFile(
       join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath)
     );
@@ -218,6 +215,18 @@ async function commonInitialization(projectType: string) {
     await updateTSConfigPaths(projectType);
     // add or update global.css (check throughout the project for global.css and update it or create it)
     await generateGlobalCSS();
+    // Codemod to update tailwind.config.js usage
+    const { entryPath, componentsPath } = getEntryPathAndComponentsPath();
+    const newPaths = entryPath.concat(componentsPath);
+    const allNewPaths = JSON.stringify(newPaths);
+    const tailwindConfigPath = join(_currDir, 'tailwind.config.js');
+    const transformerPath = join(
+      __dirname,
+      '../../../template/template-codemods/tailwind-config-transform.ts'
+    );
+    exec(
+      `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}'`
+    );
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -225,6 +234,13 @@ async function commonInitialization(projectType: string) {
 
 async function initNatiwindInNextJs() {
   try {
+    await ensureFile(join(_currDir, 'next.config.mjs'));
+    const nextConfigPath = join(_currDir, 'next.config.mjs');
+    const nextTransformerPath = join(
+      __dirname,
+      '../../../template/template-codemods/nextjs/next-config-transform.ts'
+    );
+    exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -232,6 +248,29 @@ async function initNatiwindInNextJs() {
 
 async function initNatiwindInExpo() {
   try {
+    await ensureFile(join(_currDir, 'babel.config.js'));
+    const babelConfigPath = join(_currDir, 'babel.config.js');
+    const BabeltransformerPath = join(
+      __dirname,
+      '../../../template/template-codemods/expo/babel-config-transform.ts'
+    );
+    //metro-config-transform
+    if (existsSync(join(_currDir, 'metro.config.js'))) {
+      const metroConfigPath = join(_currDir, 'metro.config.js');
+      const metroTransformerPath = join(
+        __dirname,
+        '../../../template/template-codemods/expo/metro-config-transform.ts'
+      );
+      exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
+      exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
+    } else {
+      await fs.ensureFile(join(_currDir, 'metro.config.js'));
+      copy(
+        join(__dirname, '../../../template/expo/metro.config.js'),
+        join(_currDir, 'metro.config.js')
+      );
+      exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
+    }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -239,7 +278,22 @@ async function initNatiwindInExpo() {
 
 async function initNatiwindInReactNativeCLI() {
   try {
-    execSync('npx pod-install', { stdio: 'inherit' });
+    await ensureFile(join(_currDir, 'babel.config.js'));
+    await ensureFile(join(_currDir, 'metro.config.js'));
+
+    const babelConfigPath = join(_currDir, 'babel.config.js');
+    const BabelTransformerPath = join(
+      __dirname,
+      '../../../template/template-codemods/react-native-cli/babel-config-transform.ts'
+    );
+    const metroConfigPath = join(_currDir, 'metro.config.js');
+    const metroTransformerPath = join(
+      __dirname,
+      '../../../template/template-codemods/react-native-cli/metro-config-transform.ts'
+    );
+    exec(`npx jscodeshift -t ${BabelTransformerPath}  ${babelConfigPath}`);
+    exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
+    // execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -261,20 +315,5 @@ async function overrideWarning(files: string[]) {
   }
   return confirmInput;
 }
-
-// function renameFileWithOldExtension(filePath: string): void {
-//   const fileExtension = extname(filePath);
-//   const fileNameWithoutExtension = basename(filePath, fileExtension);
-//   const directoryPath = dirname(filePath);
-//   const newFileName = `${fileNameWithoutExtension}_old${fileExtension}`;
-//   const newFilePath = join(directoryPath, newFileName);
-//   fs.rename(filePath, newFilePath, (err) => {
-//     if (err) {
-//       console.error('Error renaming file:', err);
-//     } else {
-//       console.log('File renamed successfully.');
-//     }
-//   });
-// }
 
 export { InitializeGlueStack };

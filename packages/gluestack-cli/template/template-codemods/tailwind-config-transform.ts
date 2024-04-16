@@ -21,27 +21,20 @@ const transform: Transform = (file, api, options) => {
         type: 'ObjectExpression',
       },
     });
-
-    // Check if tailwind.config.js has been found
     if (!tailwindConfig.length) {
       return file.source; // No changes, return original content
     }
-
     // Find the 'content' property
     const contentProperty = tailwindConfig.find(j.Property, {
       key: { name: 'content' },
     });
-
-    // If 'content' property is found, update its value
     if (contentProperty.length) {
-      const contentValueNode = contentProperty.get(0).value.value;
-      const newPaths = options.newPaths || [];
-      const newContentValue = contentValueNode.elements.concat(
-        newPaths.map(j.literal)
+      const contentValueNode = contentProperty.get('value');
+      const newPaths = options.paths || [];
+      contentValueNode.value.elements = newPaths.map((path) =>
+        j.stringLiteral(path)
       );
-      contentProperty.get(0).value.value = newContentValue;
     }
-
     return root.toSource();
   } catch (err) {
     console.log(`\x1b[31mError: ${err as Error}\x1b[0m`);

@@ -155,6 +155,15 @@ const checkIfFolderExists = async (path: string): Promise<boolean> => {
   }
 };
 
+const checkIfFileExists = async (path: string): Promise<boolean> => {
+  try {
+    const stats = await stat(path);
+    return stats.isFile();
+  } catch (error) {
+    return false;
+  }
+};
+
 const wait = (msec: number): Promise<void> =>
   new Promise<void>((resolve, _) => {
     setTimeout(resolve, msec);
@@ -460,6 +469,7 @@ const generateSpecificFile = async (
 export {
   cloneRepositoryAtRoot,
   checkIfFolderExists,
+  checkIfFileExists,
   getAllComponents,
   installPackages,
   addIndexFile,
