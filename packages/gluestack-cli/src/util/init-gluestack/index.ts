@@ -5,17 +5,18 @@ import {
 import { config } from '../../config';
 import os from 'os';
 import {
-  checkIfFileExists,
   detectProjectType,
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
+  checkIfFolderExists,
 } from '..';
 import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import { join } from 'path';
-import { cancel, isCancel, log, confirm } from '@clack/prompts';
+import { log, confirm } from '@clack/prompts';
 import { promisify } from 'util';
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import { getEntryPathAndComponentsPath } from '../get-entry-paths';
+import { createBox } from '../../utils';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -36,13 +37,8 @@ const InitializeGlueStack = async ({
   installationMethod: string | undefined;
 }) => {
   try {
-    const initializeStatus = await checkIfFileExists(
-      join(
-        _currDir,
-        config.writableComponentsPath,
-        config.providerComponent,
-        'index.tsx'
-      )
+    const initializeStatus = await checkIfFolderExists(
+      join(_currDir, config.writableComponentsPath, config.providerComponent)
     );
     if (initializeStatus) {
       log.info(
@@ -70,6 +66,15 @@ const InitializeGlueStack = async ({
     });
     if (config.style === config.nativeWindRootPath) {
       await nativeWindInit(projectType);
+      console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui in your project entry file:
+      
+      1. Wrap your app with GluestackUIProvider.
+      2. Import global.css\x1b[0m`);
+      console.log(`\n\x1b[34mExample:\x1b[0m`);
+      createBox(config.demoCode);
+      log.step(
+        'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
+      );
       log.success(`\x1b[32mInstallation completed\x1b[0m`);
     } else {
       //code for gluestack-style setup
@@ -105,15 +110,18 @@ async function addProvider() {
 
 async function nativeWindInit(projectType: string) {
   try {
-    await commonInitialization(projectType);
-    if (projectType === config.nextJsProject) {
-      await initNatiwindInNextJs();
-    }
-    if (projectType === config.expoProject) {
-      await initNatiwindInExpo();
-    }
-    if (projectType === config.reactNativeCLIProject) {
-      await initNatiwindInReactNativeCLI();
+    const confirmInput = await overrideWarning(filesToOverride(projectType));
+    if (confirmInput === true) {
+      await commonInitialization(projectType);
+      if (projectType === config.nextJsProject) {
+        await initNatiwindInNextJs();
+      }
+      if (projectType === config.expoProject) {
+        await initNatiwindInExpo();
+      }
+      if (projectType === config.reactNativeCLIProject) {
+        await initNatiwindInReactNativeCLI();
+      }
     }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
@@ -218,20 +226,7 @@ async function commonInitialization(projectType: string) {
       config.tailwindConfigRootPath
     );
     const tailwindConfigPath = join(_currDir, 'tailwind.config.js');
-
-    if (existsSync(tailwindConfigPath)) {
-      const confirm = await overrideWarning(['tailwind.config.js']);
-      if (confirm === false) {
-        log.info(
-          'Skipping override. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation \x1b[0m'
-        );
-      } else {
-        await addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
-      }
-    } else {
-      await addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
-    }
-
+    addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
     await updateTSConfigPaths(projectType);
     // add or update global.css (check throughout the project for global.css and update it or create it)
     await generateGlobalCSS();
@@ -324,11 +319,39 @@ async function initNatiwindInReactNativeCLI() {
     );
     exec(`npx jscodeshift -t ${BabelTransformerPath}  ${babelConfigPath}`);
     exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
-    // execSync('npx pod-install', { stdio: 'inherit' });
+    execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
+const filesToOverride = (projectType: string) => {
+  switch (projectType) {
+    case config.nextJsProject:
+      return [
+        'next.config.mjs',
+        'tailwind.config.js',
+        'global.css',
+        'tsconfig.json',
+      ];
+    case config.expoProject:
+      return [
+        'babel.config.js',
+        'metro.config.js',
+        'tailwind.config.js',
+        'global.css',
+        'tsconfig.json',
+      ];
+    case config.reactNativeCLIProject:
+      return [
+        'babel.config.js',
+        'metro.config.js',
+        'global.css',
+        'tsconfig.json',
+      ];
+    default:
+      return [];
+  }
+};
 
 async function overrideWarning(files: string[]) {
   const confirmInput = await confirm({
@@ -338,11 +361,13 @@ async function overrideWarning(files: string[]) {
     
    ${files.map((file) => `File - [${file}]`).join('\n')}
     
-    Proceed with caution. Make sure to backup any important files before proceeding.
+    Proceed with caution. Make sure to commit your changes before proceeding.
     \x1b[0m`,
   });
-  if (isCancel(confirmInput)) {
-    cancel('Skipping override. Please refer docs for manual installation.');
+  if (confirmInput === false) {
+    log.info(
+      'Skipping the step. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation\x1b[0m'
+    );
   }
   return confirmInput;
 }

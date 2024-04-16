@@ -155,6 +155,28 @@ const dashToPascal = (str: string): string => {
     .replace(/(^|-)([a-z])/g, (_, _group1, group2) => group2.toUpperCase());
 };
 
+// Function to create a box with borders
+function createBox(content: string) {
+  const contentLines = content.split('\n');
+  const longestLine = contentLines.reduce(
+    (acc, line) => Math.max(acc, line.length),
+    0
+  );
+  const width = longestLine + 4; // Width of the box
+  const horizontalLine = '\x1b[32m-\x1b[0m'.repeat(width);
+  const emptyLine = `\x1b[32m| ${' '.repeat(longestLine)} |\x1b[0m`;
+
+  console.log(horizontalLine);
+  console.log(emptyLine);
+  // Print content with borders
+  contentLines.forEach((line) => {
+    const paddedLine = line.padEnd(longestLine, ' ');
+    console.log(`\x1b[32m| ${paddedLine} |\x1b[0m`);
+  });
+  console.log(emptyLine);
+  console.log(horizontalLine);
+}
+
 export {
   getConfigComponentPath,
   installDependencies,
@@ -162,4 +184,5 @@ export {
   pascalToDash,
   dashToPascal,
   getPackageJsonPath,
+  createBox,
 };

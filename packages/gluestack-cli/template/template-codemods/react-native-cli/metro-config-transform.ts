@@ -4,12 +4,37 @@ const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
-    // Add the withNativeWind import if it doesn't already exist
-    const withNativeWindImport = `const {withNativeWind} = require('nativewind/metro');`;
-    root.get().node.program.body.unshift(withNativeWindImport);
+    // Check if withNativeWind import already exists
+    const withNativeWindImportExists =
+      root.find(j.VariableDeclaration, {
+        declarations: [
+          {
+            type: 'VariableDeclarator',
+            id: {
+              type: 'ObjectPattern',
+              properties: [
+                {
+                  type: 'Property',
+                  key: { name: 'withNativeWind' },
+                },
+              ],
+            },
+            init: {
+              type: 'CallExpression',
+              callee: { name: 'require' },
+              arguments: [{ type: 'Literal', value: 'nativewind/metro' }],
+            },
+          },
+        ],
+      }).length > 0;
 
-    // Find the existing config variable declaration
-    const configVariableDeclaration = root.find(j.VariableDeclaration, {
+    if (!withNativeWindImportExists) {
+      const withNativeWindImport = `const {withNativeWind} = require('nativewind/metro');`;
+      root.get().node.program.body.unshift(withNativeWindImport);
+    }
+
+    // Check if config variable and mergeConfig already exist
+    let configVariableDeclaration = root.find(j.VariableDeclaration, {
       declarations: [
         {
           id: { name: 'config' },
@@ -17,10 +42,9 @@ const transform: Transform = (file, api, options) => {
         },
       ],
     });
+    let mergeConfigCallExists = false;
 
-    // update it with mergeConfig
     if (configVariableDeclaration.length) {
-      // Find the mergeConfig call expression
       const configValue = configVariableDeclaration.get(
         'declarations',
         0,
@@ -40,8 +64,9 @@ const transform: Transform = (file, api, options) => {
         mergeConfigCall.get('arguments', 1).replace(configValue);
       }
     }
-    // find module.exports assignments
-    const mergeConfigCall = root
+
+    // Check if mergeConfig with withNativeWind already exists
+    let mergeConfigCall = root
       .find(j.AssignmentExpression, {
         left: {
           type: 'MemberExpression',
@@ -63,8 +88,18 @@ const transform: Transform = (file, api, options) => {
         },
       });
 
-    // update it with withNativeWind
+    let withNativeWindCallExists = false;
+
     if (mergeConfigCall.length) {
+      withNativeWindCallExists =
+        mergeConfigCall.find(j.CallExpression, {
+          callee: {
+            name: 'withNativeWind',
+          },
+        }).length > 0;
+    }
+
+    if (!withNativeWindCallExists) {
       mergeConfigCall.replaceWith((nodePath) => {
         let mergeConfigNode = nodePath.node;
         const withNativeWindCall = j.callExpression(
@@ -84,6 +119,7 @@ const transform: Transform = (file, api, options) => {
         return mergeConfigNode;
       });
     }
+
     return root.toSource();
   } catch (err) {
     console.log(`\x1b[31mError: ${err as Error}\x1b[0m`);

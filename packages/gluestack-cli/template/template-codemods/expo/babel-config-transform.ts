@@ -38,37 +38,94 @@ const transform: Transform = (file: FileInfo, api: API) => {
           }
         });
 
-        if (presetsProperty) {
-          // Presets property already exists, append to it
-          if (presetsProperty.value.type === 'ArrayExpression') {
-            const presetsArray = presetsProperty.value;
-
-            const nativewindPreset = j.objectExpression([
-              j.objectProperty(
-                j.identifier('jsxImportSource'),
-                j.stringLiteral('nativewind')
-              ),
-            ]);
-            presetsArray.elements.push(nativewindPreset);
-            presetsArray.elements.push(j.stringLiteral('nativewind/babel'));
-          }
-        } else {
+        if (!presetsProperty) {
           // Presets property doesn't exist, create it
           returnObject.properties.push(
             j.objectProperty(
               j.identifier('presets'),
               j.arrayExpression([
-                j.stringLiteral('babel-preset-expo'),
-                j.objectExpression([
-                  j.objectProperty(
-                    j.identifier('jsxImportSource'),
-                    j.stringLiteral('nativewind')
-                  ),
+                j.arrayExpression([
+                  j.stringLiteral('babel-preset-expo'),
+                  j.objectExpression([
+                    j.objectProperty(
+                      j.identifier('jsxImportSource'),
+                      j.stringLiteral('nativewind')
+                    ),
+                  ]),
                 ]),
                 j.stringLiteral('nativewind/babel'),
               ])
             )
           );
+        } else {
+          // Check if nativewind presets already exist
+          const presetsArray = presetsProperty.value as any;
+
+          const nativewindPresetExists =
+            presetsArray &&
+            presetsArray.elements.some((element: any) => {
+              if (
+                element.type === 'ArrayExpression' &&
+                element.elements.length >= 2
+              ) {
+                const [presetNameNode, configNode] = element.elements;
+                const presetName = presetNameNode.value;
+                const config =
+                  configNode.type === 'ObjectExpression'
+                    ? configNode.properties
+                    : [];
+
+                return (
+                  presetName === 'babel-preset-expo' &&
+                  config.some(
+                    (prop: any) =>
+                      prop.key.type === 'Identifier' &&
+                      prop.key.name === 'jsxImportSource' &&
+                      prop.value.value === 'nativewind'
+                  )
+                );
+              }
+              return false;
+            });
+          if (!nativewindPresetExists) {
+            // Presets property already exists, append to it
+            if (presetsProperty.value.type === 'ArrayExpression') {
+              const subArr: any[] = [];
+
+              // Extract existing properties in presets array
+              presetsProperty.value.elements.forEach((element: any) => {
+                if (
+                  element.type === 'ArrayExpression' &&
+                  Array.isArray(element.elements) && // Ensure elements is an array
+                  element.elements.length >= 1
+                ) {
+                  subArr.push(element);
+                }
+              });
+
+              // Append { jsxImportSource } to subArr
+              subArr.push(
+                j.arrayExpression([
+                  j.stringLiteral('babel-preset-expo'),
+                  j.objectExpression([
+                    j.objectProperty(
+                      j.identifier('jsxImportSource'),
+                      j.stringLiteral('nativewind')
+                    ),
+                  ]),
+                ])
+              );
+
+              // Create a new array to assign to presets and add 'nativewind/babel'
+              const newPresetsArray = j.arrayExpression([
+                ...subArr,
+                j.stringLiteral('nativewind/babel'),
+              ]);
+
+              // Update presetsProperty value
+              presetsProperty.value = newPresetsArray;
+            }
+          }
         }
       }
     });

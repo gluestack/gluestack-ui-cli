@@ -146,7 +146,7 @@ async function getUIConfigDependencies(filePath: string) {
 // Function to prompt user to select a component style
 async function promptComponentStyle() {
   const selectedStyle = await select({
-    message: 'Which style would you like to use in your project:',
+    message: 'Which style-engine would you like to use in your project?',
     options: [
       { value: config.nativeWindRootPath, label: 'NativeWind' },
       { value: config.gluestackStyleRootPath, label: 'gluestack-style' },
