@@ -1,33 +1,72 @@
 import { Transform } from 'jscodeshift';
 
-const transform: Transform = (fileInfo, api) => {
+const transform: Transform = (file, api) => {
   try {
-    const j = api.jscodeshift;
-    const root = j(fileInfo.source);
-    if (root.find(j.JSXElement).length > 0) {
-      // Import statement for GUIProvider
-      const guiProviderImport = j.importDeclaration(
-        [j.importSpecifier(j.identifier('GluestackUIProvider'))],
-        j.literal(`@/components/ui/GluestackUIProvider`)
-      );
-      // Insert import statement at the beginning of the file
-      root.get().node.program.body.unshift(guiProviderImport);
+    const j = api.jscodeshift.withParser('tsx');
+    const root = j(file.source);
+    // ------------------------------------------------------------------------------
+    // add a string literal to the file doesn't have to be inside any jsx element
+    // root
+    //   .get()
+    //   .node.program.body.push(
+    //     j.expressionStatement(j.stringLiteral('Hello, World!'))
+    //   );
+    // ------------------------------------------------------------------------------
 
-      // Find JSX elements in the file
-      const jsxElements = root.findJSXElements('*');
-      // Wrap each JSX element with <GUIProvider>
-      jsxElements.forEach((element) => {
-        const guiProviderWrapper = j.jsxElement(
-          j.jsxOpeningElement(j.jsxIdentifier('GUIProvider'), []),
-          j.jsxClosingElement(j.jsxIdentifier('GUIProvider')),
-          [element.node]
+    // Find all JSXElements being returned
+    const jsxElements = root.find(j.ReturnStatement).filter((path) => {
+      return !!path.value.argument && path.value.argument.type === 'JSXElement';
+    });
+
+    // Find the exported default JSXElement
+    const exportedDefaultJSXElements = root
+      .find(j.ExportDefaultDeclaration)
+      .find(j.JSXElement);
+
+    // Find the exported default JSXElement in the form `export default <JSXElement>`
+    const exportedDefaultJSXElementsWithJSX = root
+      .find(j.ExportDefaultDeclaration)
+      .filter((path) => {
+        const declaration = path.node.declaration;
+        return j.JSXElement.check(declaration);
+      })
+      .find(j.JSXElement);
+
+    const exportedDefaultJSXElement =
+      exportedDefaultJSXElements.length > 0
+        ? exportedDefaultJSXElements
+        : exportedDefaultJSXElementsWithJSX;
+
+    // If there are any JSXElements being returned and exported as default, log them
+    if (jsxElements.length > 0 && exportedDefaultJSXElement.length > 0) {
+      console.log(
+        'JSX Element being returned and exported as default:',
+        exportedDefaultJSXElement.get().value
+      );
+      root
+        .get()
+        .node.program.body.push(
+          j.expressionStatement(
+            j.stringLiteral(
+              `JSX Element being returned and exported as default`
+            )
+          )
         );
-        // Replace the JSX element with the wrapped <GUIProvider>
-        j(element).replaceWith(guiProviderWrapper);
-      });
-      // Write the modified content back to the file
-      //   fs.writeFileSync(fileInfo.path, root.toSource(), 'utf-8');
+    } else {
+      console.log(
+        'No JSX Element being returned or exported as default found.'
+      );
+      root
+        .get()
+        .node.program.body.push(
+          j.expressionStatement(
+            j.stringLiteral(
+              `No JSX Element being returned or exported as default found.`
+            )
+          )
+        );
     }
+
     return root.toSource();
   } catch (err) {
     console.log(`\x1b[31mError: ${err as Error}\x1b[0m`);
