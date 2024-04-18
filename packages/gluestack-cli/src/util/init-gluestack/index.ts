@@ -48,10 +48,14 @@ const InitializeGlueStack = async ({
     }
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const projectType = await detectProjectType(_currDir);
-    const componentStyle = await promptComponentStyle();
-    if (typeof componentStyle === 'string') {
-      config.style = componentStyle;
-    }
+
+    // const componentStyle = await promptComponentStyle();
+    // if (typeof componentStyle === 'string') {
+    //   config.style = componentStyle;
+    // }
+
+    //defaulting to nativeWind
+    config.style = config.nativeWindRootPath;
     // add gluestack provider component
     await addProvider();
     // get additional dependencies based on the project type and component style
@@ -67,7 +71,6 @@ const InitializeGlueStack = async ({
     if (config.style === config.nativeWindRootPath) {
       await nativeWindInit(projectType);
       console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui in your project entry file:
-      
       1. Wrap your app with GluestackUIProvider.
       2. Import global.css\x1b[0m`);
       console.log(`\n\x1b[34mExample:\x1b[0m`);

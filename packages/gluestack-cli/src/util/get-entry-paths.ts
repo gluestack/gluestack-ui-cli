@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config';
-import { run as jscodeshift } from 'jscodeshift/src/Runner';
 
 const rootPath: string = process.cwd();
 const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
@@ -40,45 +39,37 @@ function getEntryPathAndComponentsPath(): {
   }
   return { entryPath, componentsPath };
 }
+export interface ProjectConfig {
+  entryFilePaths: string[];
+}
 
-// Function to find entry files
-function findEntryFiles(basePath: string): string[] {
-  const entryFiles: string[] = [];
+const projectConfig: { [key: string]: ProjectConfig } = {
+  expo: {
+    entryFilePaths: ['App.js', 'src/App.js'], // Example of multiple possible paths
+  },
+  nextjs: {
+    entryFilePaths: ['pages/_app.js', 'pages/index.js', 'src/pages/_app.tsx'],
+  },
+  'react-native-cli': {
+    entryFilePaths: ['index.jsx', 'App.tsx'],
+  },
+};
 
-  // Check if the given path exists
-  if (fs.existsSync(basePath)) {
-    // Check files in the given path
-    fs.readdirSync(basePath).forEach(async (file) => {
-      const filePath = path.join(basePath, file);
-      const isDirectory = fs.statSync(filePath).isDirectory();
-      if (file === 'node_modules' || file === '.git' || file === 'build') {
-        return;
+function fetchEntryFile(
+  projectType: string,
+  projectPath: string
+): string | null {
+  const config: ProjectConfig | undefined = projectConfig[projectType];
+
+  if (config && config.entryFilePaths) {
+    for (const entryFilePath of config.entryFilePaths) {
+      const fullPath = path.join(projectPath, entryFilePath);
+      if (fs.existsSync(fullPath)) {
+        return fullPath;
       }
-
-      // If it's a directory, recursively search inside
-      if (isDirectory) {
-        entryFiles.push(...findEntryFiles(filePath));
-      } else {
-        // Check if the file has one of the specified extensions
-        const extension = path.extname(file);
-        if (fileExtensions.includes(extension)) {
-          // Check if the file's name matches any of the possible index files
-          const fileName = path.basename(file, extension);
-          if (possibleIndexFiles.includes(fileName)) {
-            // Read the file content and check if it returns a JSX element
-            const transformPath = path.join(
-              __dirname,
-              '../../template/template-codemods/add-provider-transform.ts'
-            );
-            let arr = [];
-            arr.push(filePath);
-            const res = await jscodeshift(transformPath, arr, {});
-          }
-        }
-      }
-    });
+    }
   }
 
-  return entryFiles;
+  return null;
 }
-export { getEntryPathAndComponentsPath };
+export { getEntryPathAndComponentsPath, fetchEntryFile };
