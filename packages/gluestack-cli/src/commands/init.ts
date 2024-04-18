@@ -1,16 +1,18 @@
 import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
-import path from 'path';
+import path, { join } from 'path';
 import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
 import { InitializeGlueStack } from '../util/init-gluestack';
+import { config } from '../config';
 
 const initOptionsSchema = z.object({
   cwd: z.string(),
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
+  componentsPath: z.string(),
 });
 
 export const init = new Command()
@@ -24,6 +26,11 @@ export const init = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
+  .option(
+    '--components-path <componentsPath>',
+    'path to the components directory. defaults to components/ui',
+    'components/ui'
+  )
   .action(async (opts) => {
     try {
       const options = initOptionsSchema.parse({ ...opts });
@@ -38,6 +45,18 @@ export const init = new Command()
         log.error(`The path ${cwd} does not exist. Please try again.`);
         process.exit(1);
       }
+      // Check if the string starts with "/" or "."
+      if (
+        options.componentsPath.startsWith('/') ||
+        options.componentsPath.startsWith('.')
+      ) {
+        options.componentsPath = options.componentsPath.replace(/^[\./]+/, '');
+      }
+      config.writableComponentsPath = options.componentsPath;
+      config.UIconfigPath = join(
+        options.componentsPath,
+        'gluestack-ui-provider/config.ts'
+      );
       InitializeGlueStack({
         installationMethod,
       });

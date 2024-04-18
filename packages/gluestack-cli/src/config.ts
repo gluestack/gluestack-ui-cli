@@ -8,7 +8,7 @@ const config = {
   nextJsProject: 'nextjs',
   reactNativeCLIProject: 'react-native-cli',
   tailwindConfigRootPath: 'example/storybook-nativewind/tailwind.config.js',
-  UIconfigPath: 'components/ui/gluestack-ui-provider/config.ts',
+  UIconfigPath: 'gluestack-ui-provider/config.ts',
   writableComponentsPath: 'components/ui',
   branchName: 'patch',
   tagName: '@gluestack-ui/storybook@0.1.0',

@@ -1,7 +1,4 @@
-import {
-  generateConfigAndInstallDependencies,
-  promptComponentStyle,
-} from '../create-config';
+import { generateConfigAndInstallDependencies } from '../create-config';
 import { config } from '../../config';
 import os from 'os';
 import {
@@ -48,12 +45,6 @@ const InitializeGlueStack = async ({
     }
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const projectType = await detectProjectType(_currDir);
-
-    // const componentStyle = await promptComponentStyle();
-    // if (typeof componentStyle === 'string') {
-    //   config.style = componentStyle;
-    // }
-
     //defaulting to nativeWind
     config.style = config.nativeWindRootPath;
     // add gluestack provider component

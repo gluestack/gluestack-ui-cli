@@ -32,11 +32,9 @@ async function generateConfig(rootDir: string, currentComponent: string) {
   const componentConfig = {
     installDependencies: [] as string[],
   };
-
-  const componentImports = parseImports(
-    path.join(rootDir, currentComponent, 'index.tsx')
-  );
-
+  const componentIndexPath = path.join(rootDir, currentComponent, 'index.tsx');
+  if (!fs.existsSync(componentIndexPath)) return;
+  const componentImports = parseImports(componentIndexPath);
   componentImports.forEach((importedPackage) => {
     if (
       importedPackage.startsWith(config.gluestackUIPattern) &&
@@ -86,7 +84,21 @@ async function fetchAndInstallPackages(
     const configPath = path.join(dir, componentName, 'config.json');
 
     try {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (!fs.existsSync(configPath)) {
+        return;
+      }
+      let config;
+      const fileContent = fs.readFileSync(configPath, 'utf8');
+      if (fileContent.trim() !== '') {
+        try {
+          config = JSON.parse(fileContent);
+        } catch (err) {
+          // Handle the error, such as setting a default configuration or logging it
+          return;
+        }
+      } else {
+        return;
+      }
       const { installDependencies } = config;
 
       // Add installDependencies to allPackages array

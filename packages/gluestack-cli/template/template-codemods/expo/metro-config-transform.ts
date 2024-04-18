@@ -4,8 +4,29 @@ const transform: Transform = (file, api) => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
-    const withNativeWindImport = `const {withNativeWind} = require('nativewind/metro');`;
-    root.get().node.program.body.unshift(withNativeWindImport);
+    // Check if withNativeWind import already exists
+    const withNativeWindImportExists =
+      root.find(j.VariableDeclarator, {
+        id: {
+          type: 'ObjectPattern',
+          properties: [
+            {
+              type: 'Property',
+              key: { name: 'withNativeWind' },
+            },
+          ],
+        },
+        init: {
+          type: 'CallExpression',
+          callee: { name: 'require' },
+          arguments: [{ type: 'Literal', value: 'nativewind/metro' }],
+        },
+      }).length > 0;
+
+    if (!withNativeWindImportExists) {
+      const withNativeWindImport = `const {withNativeWind} = require('nativewind/metro');`;
+      root.get().node.program.body.unshift(withNativeWindImport);
+    }
 
     // Find the assignment to config variable
     const configAssignment = root.find(j.AssignmentExpression, {
