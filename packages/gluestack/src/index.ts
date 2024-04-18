@@ -160,9 +160,6 @@ async function cloneProject(projectName: string, templateName: string) {
   execSync('rm -rf apps', { cwd: dirPath });
   execSync('rm -rf .git', { cwd: dirPath });
   execSync('mv gitignore .gitignore', { cwd: dirPath });
-  execSync('git init', { cwd: dirPath });
-  execSync('git add .', { cwd: dirPath });
-  execSync('git commit -m "init"', { cwd: dirPath });
 }
 
 async function installDependencies(
