@@ -1,10 +1,12 @@
 import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
-import path from 'path';
+import path, { join } from 'path';
 import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
 import { componentAdder } from '../util/add-components';
+import { config } from '../config';
+import { isValidPath } from '../util';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -14,6 +16,7 @@ const addOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
+  componentsPath: z.string(),
 });
 
 export const add = new Command()
@@ -30,6 +33,11 @@ export const add = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
+  .option(
+    '--components-path <componentsPath>',
+    'path to the components directory. defaults to components/ui',
+    'components/ui'
+  )
   .action(async (components, opts, command) => {
     try {
       if (command.args.length > 1) {
@@ -51,6 +59,18 @@ export const add = new Command()
         );
         process.exit(0);
       }
+      if (!isValidPath(options.componentsPath)) {
+        log.error(
+          `\x1b[31mInvalid path "${options.componentsPath}". Please provide a valid path for installing components.\x1b[0m`
+        );
+        process.exit(1);
+      }
+
+      config.writableComponentsPath = options.componentsPath;
+      config.UIconfigPath = join(
+        options.componentsPath,
+        'gluestack-ui-provider/config.ts'
+      );
       let installationMethod;
       if (options.useNpm || options.useYarn || options.usePnpm) {
         if (options.useNpm) installationMethod = 'npm';

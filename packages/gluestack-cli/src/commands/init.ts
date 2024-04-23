@@ -6,6 +6,7 @@ import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
 import { InitializeGlueStack } from '../util/init-gluestack';
 import { config } from '../config';
+import { isValidPath } from '../util';
 
 const initOptionsSchema = z.object({
   cwd: z.string(),
@@ -46,12 +47,13 @@ export const init = new Command()
         process.exit(1);
       }
       // Check if the string starts with "/" or "."
-      if (
-        options.componentsPath.startsWith('/') ||
-        options.componentsPath.startsWith('.')
-      ) {
-        options.componentsPath = options.componentsPath.replace(/^[\./]+/, '');
+      if (!isValidPath(options.componentsPath)) {
+        log.error(
+          `\x1b[31mInvalid path "${options.componentsPath}". Please provide a valid path for installing components.\x1b[0m`
+        );
+        process.exit(1);
       }
+
       config.writableComponentsPath = options.componentsPath;
       config.UIconfigPath = join(
         options.componentsPath,

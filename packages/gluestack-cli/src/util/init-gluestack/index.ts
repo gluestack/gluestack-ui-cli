@@ -59,20 +59,18 @@ const InitializeGlueStack = async ({
       installationMethod: installationMethod,
       optionalPackages: additionalDependencies,
     });
-    if (config.style === config.nativeWindRootPath) {
+    if (config.style === config.nativeWindRootPath && projectType !== 'other') {
       await nativeWindInit(projectType);
-      console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui in your project entry file:
+    }
+    console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui in your project entry file:
       1. Wrap your app with GluestackUIProvider.
       2. Import global.css\x1b[0m`);
-      console.log(`\n\x1b[34mExample:\x1b[0m`);
-      createBox(config.demoCode);
-      log.step(
-        'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
-      );
-      log.success(`\x1b[32mInstallation completed\x1b[0m`);
-    } else {
-      //code for gluestack-style setup
-    }
+    console.log(`\n\x1b[34mExample:\x1b[0m`);
+    createBox(config.demoCode);
+    log.step(
+      'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
+    );
+    log.success(`\x1b[32mInstallation completed\x1b[0m`);
   } catch (err) {
     log.error(`\x1b[31mError occured in init. (${err as Error})\x1b[0m`);
   }
@@ -107,14 +105,18 @@ async function nativeWindInit(projectType: string) {
     const confirmInput = await overrideWarning(filesToOverride(projectType));
     if (confirmInput === true) {
       await commonInitialization(projectType);
-      if (projectType === config.nextJsProject) {
-        await initNatiwindInNextJs();
-      }
-      if (projectType === config.expoProject) {
-        await initNatiwindInExpo();
-      }
-      if (projectType === config.reactNativeCLIProject) {
-        await initNatiwindInReactNativeCLI();
+      switch (projectType) {
+        case config.nextJsProject:
+          await initNatiwindInNextJs();
+          break;
+        case config.expoProject:
+          await initNatiwindInExpo();
+          break;
+        case config.reactNativeCLIProject:
+          await initNatiwindInReactNativeCLI();
+          break;
+        default:
+          break;
       }
     }
   } catch (err) {
@@ -253,13 +255,14 @@ const addtailwindConfigFile = async (
 
 async function initNatiwindInNextJs() {
   try {
-    await ensureFile(join(_currDir, 'next.config.mjs'));
-    const nextConfigPath = join(_currDir, 'next.config.mjs');
-    const nextTransformerPath = join(
-      __dirname,
-      `${config.codeModesDir}/${config.nextJsProject}/next-config-transform.ts`
-    );
-    exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
+    if (existsSync(join(_currDir, 'next.config.mjs'))) {
+      const nextConfigPath = join(_currDir, 'next.config.mjs');
+      const nextTransformerPath = join(
+        __dirname,
+        `${config.codeModesDir}/${config.nextJsProject}/next-config-transform.ts`
+      );
+      exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
+    }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
