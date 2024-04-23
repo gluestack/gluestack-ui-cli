@@ -20,12 +20,11 @@ const green = chalk.hex('#00FF00');
 
 export const ejectComponents = async () => {
   let srcPath;
-
   // Check if @gluestack-ui/config exists in node_modules
   if (
     fs.existsSync(path.join(rootPath, 'node_modules', '@gluestack-ui/config'))
   ) {
-    console.log('hello');
+    // console.log('hello');
 
     srcPath = path.join(
       rootPath,
@@ -40,7 +39,7 @@ export const ejectComponents = async () => {
       path.join(workspaceRoot, 'node_modules', '@gluestack-ui/config')
     )
   ) {
-    console.log('hello 2');
+    // console.log('hello 2');
 
     srcPath = path.join(
       workspaceRoot,
@@ -51,7 +50,7 @@ export const ejectComponents = async () => {
     );
     await copyFiles(srcPath);
   } else {
-    console.log('hello 3');
+    // console.log('hello 3');
 
     console.error(
       chalk.red.bold('❌ Error:'),
