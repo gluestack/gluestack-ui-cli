@@ -10,7 +10,7 @@
     "cli"
   ],
   "description": "A CLI tool for easily adding components from gluestack to your projects.",
-  "version": "0.6.3-alpha.1",
+  "version": "0.6.3-alpha.2",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
