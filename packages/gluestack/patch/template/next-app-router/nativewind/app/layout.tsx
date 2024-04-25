@@ -1,10 +1,8 @@
-"use client";
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,

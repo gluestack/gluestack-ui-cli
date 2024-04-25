@@ -1,5 +1,3 @@
-"use client";
-
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import Image from "next/image";
