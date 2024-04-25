@@ -479,6 +479,20 @@ function isValidPath(path: string): boolean {
   return pathRegex.test(path);
 }
 
+const checkWritablePath = async (path: string): Promise<boolean> => {
+  const confirmPath = await getConfirmation(
+    `Continue writing components in the above path? (yes/no):\n \x1b[34m${join(
+      currDir,
+      path
+    )}\x1b[0m\nIf the path is incorrect, please provide the path from the root of the project `
+  );
+  if (confirmPath) {
+    return true;
+  } else {
+    process.exit(1);
+  }
+};
+
 export {
   cloneRepositoryAtRoot,
   checkIfFolderExists,
@@ -489,4 +503,5 @@ export {
   getAdditionalDependencies,
   detectProjectType,
   isValidPath,
+  checkWritablePath,
 };

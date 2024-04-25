@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
 import { componentAdder } from '../util/add-components';
 import { config } from '../config';
-import { isValidPath } from '../util';
+import { checkWritablePath, isValidPath } from '../util';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -65,6 +65,7 @@ export const add = new Command()
         );
         process.exit(1);
       }
+      await checkWritablePath(options.componentsPath);
 
       config.writableComponentsPath = options.componentsPath;
       config.UIconfigPath = join(
