@@ -65,6 +65,7 @@ if (args.length > 0) {
     }
   });
 }
+selectedStyle = 'nw';
 
 async function main() {
   process.on('SIGINT', function () {

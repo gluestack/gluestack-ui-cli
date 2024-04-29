@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@gluestack-ui/nativewind-utils": "^1.0.3",
+    "@gluestack-ui/nativewind-utils": "latest",
     "@gluestack-ui/overlay": "^0.1.14",
     "@gluestack-ui/toast": "^1.0.4",
     "nativewind": "^4.0.36",
