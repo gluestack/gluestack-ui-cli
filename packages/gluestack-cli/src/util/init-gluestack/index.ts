@@ -6,6 +6,7 @@ import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
   checkIfFolderExists,
+  renameIfExists,
 } from '..';
 import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import { join } from 'path';
@@ -255,6 +256,7 @@ const addtailwindConfigFile = async (
 
 async function initNatiwindInNextJs() {
   try {
+    renameIfExists(join(_currDir, 'tailwind.config.ts'));
     if (existsSync(join(_currDir, 'next.config.mjs'))) {
       const nextConfigPath = join(_currDir, 'next.config.mjs');
       const nextTransformerPath = join(

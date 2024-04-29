@@ -1,5 +1,5 @@
 import os from 'os';
-import { join, dirname, extname } from 'path';
+import { join, dirname, extname, parse } from 'path';
 import util from 'util';
 import fs from 'fs-extra';
 import {
@@ -493,6 +493,22 @@ const checkWritablePath = async (path: string): Promise<boolean> => {
   }
 };
 
+function renameIfExists(filePath: string): void {
+  // Check if the file exists
+  const exists = fs.existsSync(filePath);
+  // File exists, rename it
+  if (!exists) return;
+  const { dir, name, ext } = parse(filePath);
+  const oldFileName = `${name}_old${ext}`;
+  const newPath = join(dir, oldFileName);
+
+  fs.rename(filePath, newPath, (err) => {
+    if (err) {
+      return;
+    }
+  });
+}
+
 export {
   cloneRepositoryAtRoot,
   checkIfFolderExists,
@@ -504,4 +520,5 @@ export {
   detectProjectType,
   isValidPath,
   checkWritablePath,
+  renameIfExists,
 };
