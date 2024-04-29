@@ -53,7 +53,10 @@ export const init = new Command()
         );
         process.exit(1);
       }
-      await checkWritablePath(options.componentsPath);
+
+      if (options.componentsPath !== config.writableComponentsPath) {
+        await checkWritablePath(options.componentsPath);
+      }
 
       config.writableComponentsPath = options.componentsPath;
       config.UIconfigPath = join(

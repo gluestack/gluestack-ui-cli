@@ -337,7 +337,7 @@ async function detectProjectType(directoryPath: string) {
         packageJson.dependencies.next
       ) {
         const userConfirm = await getConfirmation(
-          'Detected as Next JS project, continue? (yes/no): '
+          'Detected a Next JS project, continue?'
         );
         if (userConfirm) return config.nextJsProject;
       } else if (
@@ -350,7 +350,7 @@ async function detectProjectType(directoryPath: string) {
         !isReactNative
       ) {
         const userConfirm = await getConfirmation(
-          'Detected as Expo project, continue? (yes/no): '
+          'Detected a Expo project, continue?'
         );
         if (userConfirm) return config.expoProject;
       } else if (
@@ -360,7 +360,7 @@ async function detectProjectType(directoryPath: string) {
         !packageJson.dependencies.expo
       ) {
         const userConfirm = await getConfirmation(
-          'Detected as React Native CLI project, continue? (yes/no): '
+          'Detected a React Native CLI project, continue?'
         );
         if (userConfirm) return config.reactNativeCLIProject;
       }
@@ -481,10 +481,10 @@ function isValidPath(path: string): boolean {
 
 const checkWritablePath = async (path: string): Promise<boolean> => {
   const confirmPath = await getConfirmation(
-    `Continue writing components in the above path? (yes/no):\n \x1b[34m${join(
+    `Continue writing components in the above path? :\x1b[34m${join(
       currDir,
       path
-    )}\x1b[0m\nIf the path is incorrect, please provide the path from the root of the project `
+    )}\x1b[0m\n[If the path is incorrect, please provide the path from the root of the project] `
   );
   if (confirmPath) {
     return true;

@@ -60,17 +60,6 @@ const config = {
     tailwindcss: '3.4.3',
     jscodeshift: '0.15.2',
   } as Record<string, string>,
-  demoCode: `// ...imports of the app
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import "@/global.css";
-      
-export default function App() {
-  return (
-    <GluestackUIProvider>
-     {/* Your code */}
-    </GluestackUIProvider>
-  );
-}`,
 };
 
 export { config };

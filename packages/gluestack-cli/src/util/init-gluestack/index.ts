@@ -13,7 +13,6 @@ import { log, confirm } from '@clack/prompts';
 import { promisify } from 'util';
 import { exec, execSync } from 'child_process';
 import { getEntryPathAndComponentsPath } from '../get-entry-paths';
-import { createBox } from '../../utils';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -43,6 +42,7 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
+    console.log('\nInit gluestack-ui...\n');
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const projectType = await detectProjectType(_currDir);
     //defaulting to nativeWind
@@ -66,7 +66,7 @@ const InitializeGlueStack = async ({
       1. Wrap your app with GluestackUIProvider.
       2. Import global.css\x1b[0m`);
     console.log(`\n\x1b[34mExample:\x1b[0m`);
-    createBox(config.demoCode);
+    consoleDemoCode();
     log.step(
       'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
     );
@@ -350,15 +350,34 @@ const filesToOverride = (projectType: string) => {
   }
 };
 
-async function overrideWarning(files: string[]) {
-  const confirmInput = await confirm({
-    message: `\x1b[33mWARNING: Overriding Files
+function statementLength(statement: string) {
+  return statement.length;
+}
 
-    The command you've run is attempting to override certain files in your project, if already exist. Here's what's happening:
-    
-   ${files.map((file) => `File - [${file}]`).join('\n')}
-    
-    Proceed with caution. Make sure to commit your changes before proceeding.
+async function overrideWarning(files: string[]) {
+  const boxLength = 90;
+  console.log(`\x1b[33m
+  ┌${'─'.repeat(boxLength)}┐
+  │                                                                                          │
+  │ WARNING: Overriding Files                                                                │
+  │                                                                                          │
+  │  The command you've run is attempting to override certain files in your project,         │
+  │  if already exist. Here's what's happening:                                              │
+  │                                                                                          │
+${files
+  .map(
+    (file) =>
+      `  │  File - ${
+        '[' + file + ']'.padEnd(boxLength - statementLength(file) - 12)
+      }  │`
+  )
+  .join('\n')}  
+  │                                                                                          │
+  └${'─'.repeat(boxLength)}┘
+  \x1b[0m`);
+
+  const confirmInput = await confirm({
+    message: `\x1b[33mProceed with caution. Make sure to commit your changes before proceeding. Continue?
     \x1b[0m`,
   });
   if (confirmInput === false) {
@@ -367,6 +386,28 @@ async function overrideWarning(files: string[]) {
     );
   }
   return confirmInput;
+}
+
+// Function to create a box with borders
+function consoleDemoCode() {
+  const message = `\x1b[32m
+    ┌───────────────────────────────────────────────────────────────────────────────────────────┐
+    │                                                                                           │
+    │ // ...other imports                                                                       │
+    │ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";              │
+    │ import "@/global.css";                                                                    │
+    │                                                                                           │
+    │ export default function App() {                                                           │
+    │  return (                                                                                 │
+    │     <GluestackUIProvider>                                                                 │
+    │     {/* Your code */}                                                                     │
+    │    </GluestackUIProvider>                                                                 │
+    │   );                                                                                      │
+    │ }                                                                                         │
+    │                                                                                           │
+    └───────────────────────────────────────────────────────────────────────────────────────────┘
+    \x1b[0m`;
+  console.log(message);
 }
 
 export { InitializeGlueStack };

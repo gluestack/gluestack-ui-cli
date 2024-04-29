@@ -18,6 +18,7 @@ const componentAdder = async ({
   installationMethod = '',
 }) => {
   try {
+    console.log('\nAdd component...\n');
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     await getComponentStyle();
     if (
@@ -150,9 +151,9 @@ const confirmOverride = async (
   const displayComponent = existingCount === 1 ? component[0] : 'Few';
   const components = existingCount === 1 ? 'component' : 'components';
   const shouldContinue = await confirm({
-    message: `\x1b[33m${
+    message: `\x1b[33mWARNING: ${
       displayComponent[0].toUpperCase() + displayComponent.slice(1)
-    } ${components} already exists. Be advised that if there are any changes made in the components, proceeding will result in components being replaced as well. Continue installing component?\x1b[0m`,
+    } ${components} already exists. Continuing with the installation may result in component replacement if changes are made. Please commit your changes before proceeding with the installation. Continue?\x1b[0m`,
   });
 
   return shouldContinue;
