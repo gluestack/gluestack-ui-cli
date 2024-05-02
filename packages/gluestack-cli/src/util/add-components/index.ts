@@ -2,11 +2,8 @@ import fs from 'fs-extra';
 import { join } from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
-import { cloneRepositoryAtRoot, getAllComponents } from '..';
-import {
-  generateConfigAndInstallDependencies,
-  getComponentStyle,
-} from '../create-config';
+import { addDependencies, cloneRepositoryAtRoot, getAllComponents } from '..';
+import { getComponentStyle } from '../create-config';
 import { config } from '../../config';
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -18,7 +15,7 @@ const componentAdder = async ({
   installationMethod = '',
 }) => {
   try {
-    console.log('\nAdd component...\n');
+    console.log('\nAdding component...\n');
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     await getComponentStyle();
     if (
@@ -53,10 +50,7 @@ const componentAdder = async ({
       })
     )
       .then(async () => {
-        await generateConfigAndInstallDependencies({
-          componentsDir: join(_currDir, config.writableComponentsPath),
-          installationMethod: installationMethod,
-        });
+        await addDependencies(installationMethod, updatedComponents);
         log.success(`\x1b[32mInstallation completed\x1b[0m`);
       })
       .catch((err) => {

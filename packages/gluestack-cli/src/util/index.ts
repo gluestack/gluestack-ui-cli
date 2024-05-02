@@ -14,6 +14,7 @@ import finder from 'find-package-json';
 import simpleGit from 'simple-git';
 import { spawnSync } from 'child_process';
 import { config } from '../config';
+import { dependenciesConfig, projectBasedDependencies } from '../dependencies';
 
 const stat = util.promisify(fs.stat);
 const homeDir = os.homedir();
@@ -26,6 +27,21 @@ const getPackageJsonPath = (): string => {
 
 const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = dirname(rootPackageJsonPath);
+
+interface Dependencies {
+  [key: string]: string;
+}
+
+interface Component {
+  dependencies: Dependencies;
+  devDependencies?: Dependencies;
+}
+
+type Components = {
+  [key: string]: Component;
+};
+
+type Input = string | string[];
 
 const getAllComponents = (): string[] => {
   const componentList = fs
@@ -202,35 +218,90 @@ const promptVersionManager = async (): Promise<any> => {
   return packageManager;
 };
 
-const addDependencies = async (dependenciesToAdd: string[]): Promise<void> => {
-  const packageJsonPath = rootPackageJsonPath;
+const addDependencies = async (
+  installationMethod: string | undefined,
+  inputComponent: string[] | string,
+  additionalDependencies?: Dependencies | undefined
+): Promise<void> => {
   try {
-    // Read in the existing package.json file
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    packageJson.dependencies = packageJson.dependencies || {};
-    // Add each dependency in the provided format
-    dependenciesToAdd.forEach((packageName) => {
-      if (packageJson.dependencies[packageName]) {
-        return;
-      } else {
-        if (config.DependencyVersion[packageName]) {
-          packageJson.dependencies[packageName] =
-            config.DependencyVersion[packageName];
-        } else if (!packageJson.dependencies[packageName]) {
-          packageJson.dependencies[packageName] = 'latest';
-        }
-      }
-    });
-    // Write the updated package.json file
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    await updatePackageJson(inputComponent, additionalDependencies);
+    await installPackages(installationMethod);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
 };
 
+async function updatePackageJson(
+  input: Input,
+  additionalDependencies?: Dependencies
+): Promise<void> {
+  // Read the existing package.json file
+  let packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+  // Object containing dependencies and devDependencies to be updated
+  let dependenciesToUpdate: {
+    dependencies: Dependencies;
+    devDependencies?: Dependencies;
+  } = { dependencies: {}, devDependencies: {} };
+
+  if (additionalDependencies) {
+    dependenciesToUpdate.dependencies = {
+      ...dependenciesToUpdate.dependencies,
+      ...additionalDependencies,
+    };
+  }
+  if (typeof input === 'string' && input === '--all') {
+    for (const component in dependenciesConfig) {
+      dependenciesToUpdate.dependencies = {
+        ...dependenciesToUpdate.dependencies,
+        ...dependenciesConfig[component].dependencies,
+      };
+      if (dependenciesConfig[component].devDependencies) {
+        dependenciesToUpdate.devDependencies = {
+          ...dependenciesToUpdate.devDependencies,
+          ...dependenciesConfig[component].devDependencies,
+        };
+      }
+    }
+  } else if (Array.isArray(input)) {
+    // If input is an array of component names, update corresponding dependencies
+    input.forEach((component) => {
+      if (dependenciesConfig[component]) {
+        dependenciesToUpdate.dependencies = {
+          ...dependenciesToUpdate.dependencies,
+          ...dependenciesConfig[component].dependencies,
+        };
+        if (dependenciesConfig[component].devDependencies) {
+          dependenciesToUpdate.devDependencies = {
+            ...dependenciesToUpdate.devDependencies,
+            ...dependenciesConfig[component].devDependencies,
+          };
+        }
+      } else {
+        return;
+      }
+    });
+  }
+
+  // Update package.json with the new dependencies
+  packageJson = {
+    ...packageJson,
+    dependencies: {
+      ...packageJson.dependencies,
+      ...dependenciesToUpdate.dependencies,
+    },
+    devDependencies: {
+      ...packageJson.devDependencies,
+      ...dependenciesToUpdate.devDependencies,
+    },
+  };
+
+  // Write the updated package.json file
+  fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
+}
+
 const installPackages = async (
-  installationMethod: string | undefined,
-  dependencies: string[]
+  installationMethod: string | undefined
 ): Promise<void> => {
   let command;
   if (!installationMethod) {
@@ -272,7 +343,6 @@ const installPackages = async (
   s.start('⏳ Installing dependencies...');
 
   try {
-    await addDependencies(dependencies);
     spawnSync(command, {
       cwd: projectRootPath,
       stdio: 'inherit',
@@ -416,30 +486,11 @@ async function getAdditionalDependencies(
   style: string
 ) {
   try {
-    if (style === config.gluestackStyleRootPath) {
-      switch (projectType) {
-        case config.nextJsProject:
-          return config.GluestackNextJsDependencies;
-        case config.expoProject:
-          return config.GluestackExpoDependencies;
-        case config.reactNativeCLIProject:
-          return config.GluestackReactNativeCLIDependencies;
-        default:
-          return;
-      }
-    }
     if (style === config.nativeWindRootPath) {
-      switch (projectType) {
-        case config.nextJsProject:
-          return config.NativeWindNextJsDependencies;
-        case config.expoProject:
-          return config.NativeWindExpoDependencies;
-        case config.reactNativeCLIProject:
-          return config.NativeWindReactNativeCLIDependencies;
-        default:
-          return;
-      }
-    } else throw new Error('Error reading package.json');
+      if (projectType && projectType !== 'other') {
+        return projectBasedDependencies[projectType].dependencies;
+      } else return;
+    }
   } catch (error) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
   }
@@ -521,4 +572,5 @@ export {
   isValidPath,
   checkWritablePath,
   renameIfExists,
+  addDependencies,
 };

@@ -1,4 +1,3 @@
-import { generateConfigAndInstallDependencies } from '../create-config';
 import { config } from '../../config';
 import os from 'os';
 import {
@@ -7,6 +6,7 @@ import {
   getAdditionalDependencies,
   checkIfFolderExists,
   renameIfExists,
+  addDependencies,
 } from '..';
 import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import { join } from 'path';
@@ -46,8 +46,6 @@ const InitializeGlueStack = async ({
     console.log('\nInit gluestack-ui...\n');
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const projectType = await detectProjectType(_currDir);
-    //defaulting to nativeWind
-    config.style = config.nativeWindRootPath;
     // add gluestack provider component
     await addProvider();
     // get additional dependencies based on the project type and component style
@@ -55,17 +53,19 @@ const InitializeGlueStack = async ({
       projectType,
       config.style
     );
-    await generateConfigAndInstallDependencies({
-      componentsDir: join(_currDir, config.writableComponentsPath),
-      installationMethod: installationMethod,
-      optionalPackages: additionalDependencies,
-    });
+    const inputComponent = [config.providerComponent];
+    await addDependencies(
+      installationMethod,
+      inputComponent,
+      additionalDependencies
+    );
+
     if (config.style === config.nativeWindRootPath && projectType !== 'other') {
       await nativeWindInit(projectType);
     }
     console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui in your project entry file:
-      1. Wrap your app with GluestackUIProvider.
-      2. Import global.css\x1b[0m`);
+    1. Wrap your app with GluestackUIProvider.
+    2. Import global.css\x1b[0m`);
     console.log(`\n\x1b[34mExample:\x1b[0m`);
     consoleDemoCode();
     log.step(
@@ -393,21 +393,21 @@ ${files
 // Function to create a box with borders
 function consoleDemoCode() {
   const message = `\x1b[32m
-    ┌───────────────────────────────────────────────────────────────────────────────────────────┐
-    │                                                                                           │
-    │ // ...other imports                                                                       │
-    │ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";              │
-    │ import "@/global.css";                                                                    │
-    │                                                                                           │
-    │ export default function App() {                                                           │
-    │  return (                                                                                 │
-    │     <GluestackUIProvider>                                                                 │
-    │     {/* Your code */}                                                                     │
-    │    </GluestackUIProvider>                                                                 │
-    │   );                                                                                      │
-    │ }                                                                                         │
-    │                                                                                           │
-    └───────────────────────────────────────────────────────────────────────────────────────────┘
+  ┌───────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                           │
+  │ // ...other imports                                                                       │
+  │ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";              │
+  │ import "@/global.css";                                                                    │
+  │                                                                                           │
+  │ export default function App() {                                                           │
+  │  return (                                                                                 │
+  │     <GluestackUIProvider>                                                                 │
+  │     {/* Your code */}                                                                     │
+  │    </GluestackUIProvider>                                                                 │
+  │   );                                                                                      │
+  │ }                                                                                         │
+  │                                                                                           │
+  └───────────────────────────────────────────────────────────────────────────────────────────┘
     \x1b[0m`;
   console.log(message);
 }
