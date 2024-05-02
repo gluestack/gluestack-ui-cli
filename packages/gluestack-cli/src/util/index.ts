@@ -236,7 +236,8 @@ async function updatePackageJson(
   additionalDependencies?: Dependencies
 ): Promise<void> {
   // Read the existing package.json file
-  let packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const packageJsonPath = rootPackageJsonPath;
+  let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   // Object containing dependencies and devDependencies to be updated
   let dependenciesToUpdate: {
@@ -297,7 +298,7 @@ async function updatePackageJson(
   };
 
   // Write the updated package.json file
-  fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 }
 
 const installPackages = async (
