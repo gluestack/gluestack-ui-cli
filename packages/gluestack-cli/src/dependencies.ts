@@ -21,13 +21,11 @@ const projectBasedDependencies: Dependency = {
   },
   expo: {
     dependencies: {
-      nativewind: '4.0.36',
       'react-native-reanimated': 'latest',
     },
   },
   'react-native-cli': {
     dependencies: {
-      nativewind: '4.0.36',
       'react-native-reanimated': 'latest',
     },
   },
@@ -36,6 +34,7 @@ const dependenciesConfig: Dependencies = {
   'gluestack-ui-provider': {
     dependencies: {
       tailwindcss: '3.4.3',
+      nativewind: '4.0.36',
       '@gluestack-ui/overlay': 'latest',
       '@gluestack-ui/toast': 'latest',
       '@gluestack-ui/nativewind-utils': 'latest',

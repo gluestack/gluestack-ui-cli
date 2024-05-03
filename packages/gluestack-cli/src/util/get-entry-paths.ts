@@ -55,21 +55,4 @@ const projectConfig: { [key: string]: ProjectConfig } = {
   },
 };
 
-function fetchEntryFile(
-  projectType: string,
-  projectPath: string
-): string | null {
-  const config: ProjectConfig | undefined = projectConfig[projectType];
-
-  if (config && config.entryFilePaths) {
-    for (const entryFilePath of config.entryFilePaths) {
-      const fullPath = path.join(projectPath, entryFilePath);
-      if (fs.existsSync(fullPath)) {
-        return fullPath;
-      }
-    }
-  }
-
-  return null;
-}
-export { getEntryPathAndComponentsPath, fetchEntryFile };
+export { getEntryPathAndComponentsPath };

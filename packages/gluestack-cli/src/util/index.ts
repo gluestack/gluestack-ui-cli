@@ -200,6 +200,27 @@ const detectLockFile = (): string | null => {
     return null;
   }
 };
+function findLockFileType(): string | null {
+  let currentDir = currDir;
+  while (true) {
+    const packageLockPath = join(currentDir, 'package-lock.json');
+    const yarnLockPath = join(currentDir, 'yarn.lock');
+    const pnpmLockPath = join(currentDir, 'pnpm-lock.yaml');
+
+    if (fs.existsSync(packageLockPath)) {
+      return 'npm';
+    } else if (fs.existsSync(yarnLockPath)) {
+      return 'yarn';
+    } else if (fs.existsSync(pnpmLockPath)) {
+      return 'pnpm';
+    } else if (currentDir === dirname(currentDir)) {
+      // Reached root directory
+      return null;
+    } else {
+      currentDir = dirname(currentDir);
+    }
+  }
+}
 
 const promptVersionManager = async (): Promise<any> => {
   const packageManager = await select({
@@ -306,7 +327,7 @@ const installPackages = async (
 ): Promise<void> => {
   let command;
   if (!installationMethod) {
-    let versionManager: string | null = detectLockFile();
+    let versionManager: string | null = findLockFileType();
     if (!versionManager) {
       versionManager = await promptVersionManager();
     }
