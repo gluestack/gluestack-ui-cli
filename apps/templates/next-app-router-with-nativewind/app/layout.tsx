@@ -12,7 +12,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className} style={{ display: "flex" }}>
+      <body className={inter.className}>
         <StyledJsxRegistry>
           <GluestackUIProvider mode="light">{children}</GluestackUIProvider>
         </StyledJsxRegistry>
