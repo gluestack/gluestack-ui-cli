@@ -257,8 +257,14 @@ const addtailwindConfigFile = async (
 async function initNatiwindInNextJs() {
   try {
     renameIfExists(join(_currDir, 'tailwind.config.ts'));
-    if (existsSync(join(_currDir, 'next.config.mjs'))) {
-      const nextConfigPath = join(_currDir, 'next.config.mjs');
+    if (
+      existsSync(join(_currDir, 'next.config.mjs')) ||
+      existsSync(join(_currDir, 'next.config.js'))
+    ) {
+      const fileName = existsSync(join(_currDir, 'next.config.mjs'))
+        ? 'next.config.mjs'
+        : 'next.config.js';
+      const nextConfigPath = join(_currDir, fileName);
       const nextTransformerPath = join(
         __dirname,
         `${config.codeModesDir}/${config.nextJsProject}/next-config-transform.ts`
@@ -327,7 +333,7 @@ const filesToOverride = (projectType: string) => {
   switch (projectType) {
     case config.nextJsProject:
       return [
-        'next.config.mjs',
+        'next.config(.mjs/.js)',
         'tailwind.config.js',
         'global.css',
         'tsconfig.json',
