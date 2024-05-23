@@ -72,9 +72,8 @@ async function main() {
     const askUserToInit = true;
 
     if (command === 'init') {
-      const {
-        gluestackUIConfigPresent: alreadyInitialised,
-      } = await initializer(!askUserToInit, 'init');
+      const { gluestackUIConfigPresent: alreadyInitialised } =
+        await initializer(!askUserToInit, 'init');
       if (alreadyInitialised) {
         log.info(
           `Ready to create amazing designs with ease? Let's start with the simple \x1b[36mBox\x1b[0m component. Check out \x1b[36mhttps://ui.gluestack.io/docs/components/layout/box\x1b[0m to get started!`
