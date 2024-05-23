@@ -362,7 +362,7 @@ const installPackages = async (
   }
 
   const s = spinner();
-  s.start('⏳ Installing dependencies...');
+  s.start('⏳ Installing dependencies. This might take a couple of minutes...');
 
   try {
     spawnSync(command, {

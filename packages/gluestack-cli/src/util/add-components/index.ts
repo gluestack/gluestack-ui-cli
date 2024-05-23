@@ -15,7 +15,7 @@ const componentAdder = async ({
   installationMethod = '',
 }) => {
   try {
-    console.log('\nAdding component...\n');
+    console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     await getComponentStyle();
     if (
@@ -51,7 +51,9 @@ const componentAdder = async ({
     )
       .then(async () => {
         await addDependencies(installationMethod, updatedComponents);
-        log.success(`\x1b[32mInstallation completed\x1b[0m`);
+        log.success(
+          `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m component into project`
+        );
       })
       .catch((err) => {
         log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);

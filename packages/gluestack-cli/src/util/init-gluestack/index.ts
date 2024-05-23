@@ -39,11 +39,11 @@ const InitializeGlueStack = async ({
     );
     if (initializeStatus) {
       log.info(
-        `\x1b[33mgluestack is already initialized in the project, use 'npx gluestack-ui help' command to continue\x1b[0m`
+        `\x1b[33mgluestack-ui is already initialized in the project, use 'npx gluestack-ui help' command to continue\x1b[0m`
       );
       process.exit(1);
     }
-    console.log('\nInit gluestack-ui...\n');
+    console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const projectType = await detectProjectType(_currDir);
     // add gluestack provider component
@@ -63,15 +63,17 @@ const InitializeGlueStack = async ({
     if (config.style === config.nativeWindRootPath && projectType !== 'other') {
       await nativeWindInit(projectType);
     }
-    console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui in your project entry file:
+    console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui v2 in your project entry file:
     1. Wrap your app with GluestackUIProvider.
     2. Import global.css\x1b[0m`);
-    console.log(`\n\x1b[34mExample:\x1b[0m`);
+    // console.log(`\n\x1b[34mExample:\x1b[0m`);
     consoleDemoCode();
     log.step(
       'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
     );
-    log.success(`\x1b[32mInstallation completed\x1b[0m`);
+    log.success(
+      `\x1b[32mDone!\x1b[0m Initialized \x1b[1mgluestack-ui v2\x1b[0m in the project`
+    );
   } catch (err) {
     log.error(`\x1b[31mError occured in init. (${err as Error})\x1b[0m`);
   }
@@ -257,19 +259,25 @@ const addtailwindConfigFile = async (
 async function initNatiwindInNextJs() {
   try {
     renameIfExists(join(_currDir, 'tailwind.config.ts'));
-    if (
-      existsSync(join(_currDir, 'next.config.mjs')) ||
-      existsSync(join(_currDir, 'next.config.js'))
-    ) {
-      const fileName = existsSync(join(_currDir, 'next.config.mjs'))
-        ? 'next.config.mjs'
-        : 'next.config.js';
-      const nextConfigPath = join(_currDir, fileName);
-      const nextTransformerPath = join(
+    let nextTransformerPath = '';
+    let nextConfigPath = '';
+
+    if (existsSync(join(_currDir, 'next.config.mjs'))) {
+      nextConfigPath = join(_currDir, 'next.config.mjs');
+      nextTransformerPath = join(
         __dirname,
-        `${config.codeModesDir}/${config.nextJsProject}/next-config-transform.ts`
+        `${config.codeModesDir}/${config.nextJsProject}/next-config-mjs-transform.ts`
       );
-      exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
+    } else if (existsSync(join(_currDir, 'next.config.js'))) {
+      nextConfigPath = join(_currDir, 'next.config.js');
+      nextTransformerPath = join(
+        __dirname,
+        `${config.codeModesDir}/${config.nextJsProject}/next-config-js-transform.ts`
+      );
+    }
+
+    if (nextTransformerPath && nextConfigPath) {
+      execSync(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
     }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
@@ -278,15 +286,17 @@ async function initNatiwindInNextJs() {
 
 async function initNatiwindInExpo() {
   try {
-    await ensureFile(join(_currDir, 'babel.config.js'));
     const babelConfigPath = join(_currDir, 'babel.config.js');
+    const metroConfigPath = join(_currDir, 'metro.config.js');
+
+    await ensureFile(babelConfigPath);
+
     const BabeltransformerPath = join(
       __dirname,
       `${config.codeModesDir}/${config.expoProject}/babel-config-transform.ts`
     );
     //metro-config-transform
-    if (existsSync(join(_currDir, 'metro.config.js'))) {
-      const metroConfigPath = join(_currDir, 'metro.config.js');
+    if (existsSync(metroConfigPath)) {
       const metroTransformerPath = join(
         __dirname,
         `${config.codeModesDir}/${config.expoProject}/metro-config-transform.ts`
@@ -294,10 +304,10 @@ async function initNatiwindInExpo() {
       exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
       exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
     } else {
-      await fs.ensureFile(join(_currDir, 'metro.config.js'));
+      await fs.ensureFile(metroConfigPath);
       copy(
         join(__dirname, `${config.templatesDir}/common/metro.config-expo.js`),
-        join(_currDir, 'metro.config.js')
+        metroConfigPath
       );
       exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
     }
@@ -308,11 +318,11 @@ async function initNatiwindInExpo() {
 
 async function initNatiwindInReactNativeCLI() {
   try {
-    await ensureFile(join(_currDir, 'babel.config.js'));
-    await ensureFile(join(_currDir, 'metro.config.js'));
-
     const babelConfigPath = join(_currDir, 'babel.config.js');
     const metroConfigPath = join(_currDir, 'metro.config.js');
+
+    await ensureFile(babelConfigPath);
+    await ensureFile(metroConfigPath);
 
     const BabelTransformerPath = join(
       __dirname,
@@ -329,6 +339,7 @@ async function initNatiwindInReactNativeCLI() {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
+
 const filesToOverride = (projectType: string) => {
   switch (projectType) {
     case config.nextJsProject:
@@ -375,8 +386,8 @@ async function overrideWarning(files: string[]) {
 ${files
   .map(
     (file) =>
-      `  │  File - ${
-        '[' + file + ']'.padEnd(boxLength - statementLength(file) - 12)
+      `  │  - ${
+        '[' + file + ']'.padEnd(boxLength - statementLength(file) - 7)
       }  │`
   )
   .join('\n')}  
