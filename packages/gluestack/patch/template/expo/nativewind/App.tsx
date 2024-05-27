@@ -23,7 +23,10 @@ const Home = () => {
 
 const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   return (
-    <Box className="flex-column border border-w-1 border-outline-700 flex-1 m-2 p-4 rounded">
+    <Box
+      className="flex-column border border-w-1 border-outline-700 md:flex-1 m-2 p-4 rounded"
+      key={name}
+    >
       <Box className="items-center flex flex-row">
         <Text>
           <IconSvg />

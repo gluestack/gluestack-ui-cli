@@ -66,7 +66,7 @@
       "targetPath": "../../../apps/templates",
       "targetName": "expo-with-gluestack-style",
       "patchPath": ["../patch/template/expo/gluestack-ui"],
-      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommand": "npx create-expo-app@latest",
       "createCommandArgs": "-t expo-template-blank-typescript",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime"
@@ -79,7 +79,7 @@
         "../patch/template/expo/gluestack-ui-ejected",
         "../patch/common/themed/"
       ],
-      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommand": "npx create-expo-app@latest",
       "createCommandArgs": "-t expo-template-blank-typescript",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime"
@@ -92,7 +92,7 @@
         "../patch/template/expo/nativewind",
         "../patch/common/nativewind/"
       ],
-      "createCommand": "npx create-expo-app@2.1.1",
+      "createCommand": "npx create-expo-app@latest",
       "createCommandArgs": "-t expo-template-blank-typescript",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime",
@@ -104,8 +104,8 @@
       "targetPath": "../../../apps/templates",
       "targetName": "expo-router-with-gluestack-style",
       "patchPath": ["../patch/template/expo-router-v3/gluestack-ui"],
-      "createCommand": "npx create-expo-app@2.1.1",
-      "createCommandArgs": "-t tabs@50",
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t tabs@51",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime"
       ]
@@ -117,8 +117,8 @@
         "../patch/template/expo-router-v3/gluestack-ui-ejected",
         "../patch/common/themed/"
       ],
-      "createCommand": "npx create-expo-app@2.1.1",
-      "createCommandArgs": "-t tabs@50",
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t tabs@51",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime"
       ]
@@ -130,8 +130,8 @@
         "../patch/template/expo-router-v3/nativewind",
         "../patch/common/nativewind/"
       ],
-      "createCommand": "npx create-expo-app@2.1.1",
-      "createCommandArgs": "-t tabs@50",
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t tabs@51",
       "postCreate": [
         "npx expo install react-native-web react-dom @expo/metro-runtime",
         "npx tailwindcss init",
