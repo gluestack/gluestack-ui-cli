@@ -1,6 +1,6 @@
 {
   "name": "@gluestack-ui/eject-universal",
-  "version": "1.0.10",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
