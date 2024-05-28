@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "@gluestack/ui-next-adapter@latest",
+    "react-native-web@latest",
+    "nativewind@^4.0.36",
+    "@gluestack-ui/nativewind-utils@latest",
+    "@gluestack-ui/overlay",
+    "@gluestack-ui/toast"
+  ]
+}

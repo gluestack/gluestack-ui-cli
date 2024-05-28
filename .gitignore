@@ -35,3 +35,7 @@ yarn-error.log*
 # vercel
 .vercel
 package-lock.json
+
+# templates
+apps/templates/*/yarn.lock
+apps/templates/*/package-lock.json

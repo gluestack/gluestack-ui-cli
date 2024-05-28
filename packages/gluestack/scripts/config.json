@@ -1,0 +1,170 @@
+{
+  "template": {
+    "next-page-gui": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "next-page-router-with-gluestack-style",
+      "patchPath": ["../patch/template/next-page-router/gluestack-ui"],
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
+      "promptsList": [{ "prompt": "import alias", "userInput": "\n" }]
+    },
+    "next-page-gui-ejected": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "next-page-router-with-gluestack-style-ejected",
+      "patchPath": [
+        "../patch/template/next-page-router/gluestack-ui-ejected",
+        "../patch/common/themed/"
+      ],
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
+      "promptsList": [{ "prompt": "import alias", "userInput": "\n" }]
+    },
+    "next-page-nativewind": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "next-page-router-with-nativewind",
+      "patchPath": [
+        "../patch/template/next-page-router/nativewind",
+        "../patch/common/nativewind/"
+      ],
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --no-app --no-eslint --no-tailwind --no-src-dir",
+      "postCreate": [
+        "npm install -D tailwindcss postcss autoprefixer",
+        "npx tailwindcss init -p"
+      ],
+      "promptsList": [{ "prompt": "import alias", "userInput": "\n" }]
+    },
+    "next-app-gui": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "next-app-router-with-gluestack-style",
+      "patchPath": ["../patch/template/next-app-router/gluestack-ui"],
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
+      "promptsList": [{ "prompt": "import alias", "userInput": "\n" }]
+    },
+    "next-app-gui-ejected": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "next-app-router-with-gluestack-style-ejected",
+      "patchPath": ["../patch/template/next-app-router/gluestack-ui-ejected"],
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
+      "promptsList": [{ "prompt": "import alias", "userInput": "\n" }]
+    },
+    "next-app-nativewind": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "next-app-router-with-nativewind",
+      "patchPath": ["../patch/template/next-app-router/nativewind"],
+      "createCommand": "npx create-next-app@14.1.2",
+      "createCommandArgs": "--ts --app --no-eslint --no-tailwind --no-src-dir",
+      "postCreate": [
+        "npm install -D tailwindcss postcss autoprefixer",
+        "npx tailwindcss init -p"
+      ],
+      "promptsList": [{ "prompt": "import alias", "userInput": "\n" }]
+    },
+    "expo-gui": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-with-gluestack-style",
+      "patchPath": ["../patch/template/expo/gluestack-ui"],
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t expo-template-blank-typescript",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime"
+      ]
+    },
+    "expo-gui-ejected": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-with-gluestack-style-ejected",
+      "patchPath": [
+        "../patch/template/expo/gluestack-ui-ejected",
+        "../patch/common/themed/"
+      ],
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t expo-template-blank-typescript",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime"
+      ]
+    },
+    "expo-nativewind": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-with-nativewind",
+      "patchPath": [
+        "../patch/template/expo/nativewind",
+        "../patch/common/nativewind/"
+      ],
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t expo-template-blank-typescript",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime",
+        "npx tailwindcss init",
+        "npx expo customize metro.config.js"
+      ]
+    },
+    "expo-router-gui": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-router-with-gluestack-style",
+      "patchPath": ["../patch/template/expo-router-v3/gluestack-ui"],
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t tabs@51",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime"
+      ]
+    },
+    "expo-router-gui-ejected": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-router-with-gluestack-style-ejected",
+      "patchPath": [
+        "../patch/template/expo-router-v3/gluestack-ui-ejected",
+        "../patch/common/themed/"
+      ],
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t tabs@51",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime"
+      ]
+    },
+    "expo-router-nativewind": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "expo-router-with-nativewind",
+      "patchPath": [
+        "../patch/template/expo-router-v3/nativewind",
+        "../patch/common/nativewind/"
+      ],
+      "createCommand": "npx create-expo-app@latest",
+      "createCommandArgs": "-t tabs@51",
+      "postCreate": [
+        "npx expo install react-native-web react-dom @expo/metro-runtime",
+        "npx tailwindcss init",
+        "npx expo customize metro.config.js"
+      ]
+    },
+    "react-native-gui": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "reactNativeWithGluestackStyle",
+      "patchPath": ["../patch/template/react-native/gluestack-ui"],
+      "createCommand": "npx react-native init",
+      "promptsList": [{ "prompt": "install CocoaPods", "userInput": "y" }]
+    },
+    "react-native-gui-ejected": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "reactNativeWithGluestackStyleEjected",
+      "patchPath": [
+        "../patch/template/react-native/gluestack-ui-ejected",
+        "../patch/common/themed"
+      ],
+      "createCommand": "npx react-native init",
+      "promptsList": [{ "prompt": "install CocoaPods", "userInput": "y" }]
+    },
+    "react-native-nativewind": {
+      "targetPath": "../../../apps/templates",
+      "targetName": "reactNativeWithNativeWind",
+      "patchPath": [
+        "../patch/template/react-native/nativewind",
+        "../patch/common/nativewind/"
+      ],
+      "createCommand": "npx react-native init",
+      "postCreate": ["npx tailwindcss init"],
+      "promptsList": [{ "prompt": "install CocoaPods", "userInput": "y" }]
+    }
+  }
+}

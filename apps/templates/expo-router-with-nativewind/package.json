@@ -1,0 +1,53 @@
+{
+  "name": "expo-router-with-nativewind",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "jest --watchAll",
+    "postinstall": "patch-package"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "dependencies": {
+    "@expo/html-elements": "^0.10.1",
+    "@expo/metro-runtime": "~3.2.1",
+    "@expo/vector-icons": "^14.0.0",
+    "@gluestack-ui/divider": "^0.1.8",
+    "@gluestack-ui/nativewind-utils": "^1.0.20",
+    "@gluestack-ui/overlay": "^0.1.14",
+    "@gluestack-ui/toast": "^1.0.4",
+    "@react-navigation/native": "^6.0.2",
+    "expo": "~51.0.8",
+    "expo-font": "~12.0.5",
+    "expo-linking": "~6.3.1",
+    "expo-router": "~3.5.14",
+    "expo-splash-screen": "~0.27.4",
+    "expo-status-bar": "~1.12.1",
+    "expo-system-ui": "~3.0.4",
+    "expo-web-browser": "~13.0.3",
+    "nativewind": "^4.0.36",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.74.1",
+    "react-native-reanimated": "^3.11.0",
+    "react-native-safe-area-context": "4.10.1",
+    "react-native-screens": "3.31.1",
+    "react-native-svg": "14.1.0",
+    "react-native-web": "~0.19.10",
+    "tailwindcss": "^3.4.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@types/react": "~18.2.45",
+    "jest": "^29.2.1",
+    "jest-expo": "~51.0.2",
+    "react-test-renderer": "18.2.0",
+    "typescript": "~5.3.3"
+  },
+  "private": true
+}

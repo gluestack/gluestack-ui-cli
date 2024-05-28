@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    "@gluestack-ui/themed@latest",
+    "@gluestack-style/react@latest",
+    "react-native-svg@14.1.0",
+    "@gluestack-ui/config@latest"
+  ]
+}
