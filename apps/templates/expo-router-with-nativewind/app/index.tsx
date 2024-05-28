@@ -1,10 +1,10 @@
+import React from "react";
 import Gradient from "@/assets/Icons/Gradient";
 import DocumentData from "@/assets/Icons/DocumentData";
 import LightBulbPerson from "@/assets/Icons/LightbulbPerson";
 import Rocket from "@/assets/Icons/Rocket";
 import Logo from "@/assets/Icons/Logo";
 import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
 import { ScrollView } from "react-native";
 import { Text } from "@/components/ui/text";
 
@@ -12,7 +12,10 @@ import { Link } from "expo-router";
 
 const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
   return (
-    <Box className="flex-column border border-w-1 border-outline-700 md:flex-1 m-2 p-4 rounded">
+    <Box
+      className="flex-column border border-w-1 border-outline-700 md:flex-1 m-2 p-4 rounded"
+      key={name}
+    >
       <Box className="items-center flex flex-row">
         <Text>
           <IconSvg />
