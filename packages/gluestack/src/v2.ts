@@ -6,7 +6,7 @@ import { displayHelp } from './help';
 import templatesMap from './data.js';
 const { gitRepo, tag, options } = templatesMap;
 
-const args = process.argv.slice(2);
+const args = process.argv;
 
 const supportedFrameworkArgs = [
   '--expo',
@@ -173,5 +173,3 @@ async function installDependencies(
   });
   console.log('Dependancies Installed!');
 }
-
-// main();
