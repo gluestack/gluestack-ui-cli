@@ -4,8 +4,6 @@
 import { cancel, log, select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
 
-const args = process.argv.slice(2);
-
 // let supportedArgs = [
 //   '--use-npm',
 //   '--use-yarn',
@@ -16,7 +14,7 @@ const args = process.argv.slice(2);
 //   '--page',
 // ];
 
-export async function main() {
+export async function main(args: string[]) {
   process.on('SIGINT', function () {
     cancel('Operation cancelled.');
     process.exit(0);

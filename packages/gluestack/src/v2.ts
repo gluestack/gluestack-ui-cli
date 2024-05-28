@@ -6,68 +6,66 @@ import { displayHelp } from './help';
 import templatesMap from './data.js';
 const { gitRepo, tag, options } = templatesMap;
 
-const args = process.argv;
+export async function main(args: string[]) {
+  const supportedFrameworkArgs = [
+    '--expo',
+    '--expo-router',
+    '--next-app-router',
+    '--next-page-router',
+    '--react-native',
+  ];
 
-const supportedFrameworkArgs = [
-  '--expo',
-  '--expo-router',
-  '--next-app-router',
-  '--next-page-router',
-  '--react-native',
-];
+  const supportedStyleArgs = ['--gs', '--nw'];
 
-const supportedStyleArgs = ['--gs', '--nw'];
+  const supportedPackagemanagers = ['npm', 'yarn', 'pnpm', 'bun'];
+  const supportedPackagemanagerArgs = supportedPackagemanagers.map(
+    (manager) => '--use-' + manager
+  );
 
-const supportedPackagemanagers = ['npm', 'yarn', 'pnpm', 'bun'];
-const supportedPackagemanagerArgs = supportedPackagemanagers.map(
-  (manager) => '--use-' + manager
-);
+  const supportedDocumentationArgs = ['--help', '-h'];
 
-const supportedDocumentationArgs = ['--help', '-h'];
+  // let supportedArgs = [
+  //   // frameworks
+  //   ...supportedFrameworkArgs,
+  //   // style options
+  //   ...supportedStyleArgs,
+  //   // package manager
+  //   ...supportedPackagemanagerArgs,
+  //   // documentation
+  //   ...supportedDocumentationArgs,
+  // ];
 
-// let supportedArgs = [
-//   // frameworks
-//   ...supportedFrameworkArgs,
-//   // style options
-//   ...supportedStyleArgs,
-//   // package manager
-//   ...supportedPackagemanagerArgs,
-//   // documentation
-//   ...supportedDocumentationArgs,
-// ];
+  let selectedFramework = '';
+  let selectedRouter = '';
+  let selectedStyle = '';
+  let selectedPackageManager = '';
+  let projName = '';
 
-let selectedFramework = '';
-let selectedRouter = '';
-let selectedStyle = '';
-let selectedPackageManager = '';
-let projName = '';
-
-if (args.length > 0) {
-  if (args.some((arg) => supportedDocumentationArgs.includes(arg))) {
-    // trigger help commmand and exit.
-    displayHelp(options);
-  }
-
-  if (!args[0].startsWith('-')) {
-    projName = args[0];
-    args.shift();
-  }
-  args.forEach((arg) => {
-    if (supportedFrameworkArgs.includes(arg)) {
-      selectedFramework = arg.slice(2);
-    } else if (supportedStyleArgs.includes(arg)) {
-      selectedStyle = arg.slice(2);
-    } else if (supportedPackagemanagerArgs.includes(arg)) {
-      selectedPackageManager = arg.slice(6);
-    } else {
-      console.log(`Unsupported argument: ${arg}\n`);
+  if (args.length > 0) {
+    if (args.some((arg) => supportedDocumentationArgs.includes(arg))) {
+      // trigger help commmand and exit.
       displayHelp(options);
     }
-  });
-}
-selectedStyle = 'nw';
 
-export async function main() {
+    if (!args[0].startsWith('-')) {
+      projName = args[0];
+      args.shift();
+    }
+    args.forEach((arg) => {
+      if (supportedFrameworkArgs.includes(arg)) {
+        selectedFramework = arg.slice(2);
+      } else if (supportedStyleArgs.includes(arg)) {
+        selectedStyle = arg.slice(2);
+      } else if (supportedPackagemanagerArgs.includes(arg)) {
+        selectedPackageManager = arg.slice(6);
+      } else {
+        console.log(`Unsupported argument: ${arg}\n`);
+        displayHelp(options);
+      }
+    });
+  }
+  selectedStyle = 'nw';
+
   process.on('SIGINT', function () {
     cancel('Operation cancelled.');
     process.exit(0);
