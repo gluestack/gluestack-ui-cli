@@ -1,6 +1,6 @@
 {
-  "name": "@gluestack-ui/eject-universal",
-  "version": "0.0.2",
+  "name": "@gluestack-ui/universal-cli",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
     "nodemon": "^3.1.0"
   },
   "bin": {
-    "eject-universal": "dist/index.js"
+    "universal-cli": "dist/index.js"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
