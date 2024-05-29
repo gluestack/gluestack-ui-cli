@@ -1,4 +1,4 @@
-import { join, resolve } from "path";
+import { resolve } from "path";
 import { copyDirectoryFromSourceToTarget } from "./utils";
 import { writeFile, copy } from "fs-extra";
 
@@ -149,6 +149,42 @@ export class EjectScript {
     }
   }
 
+  async updateTailwindConfig(projectName: string) {
+    try {
+      // Update tailwind.config.js
+      const tailwindConfigPath = resolve(
+        currDir,
+        `../${projectName}/tailwind.config.js`
+      );
+
+      let tailwindConfig = require(tailwindConfigPath);
+
+      if (!tailwindConfig) {
+        console.log("No tailwind.config.js found in source directory!");
+        return;
+      }
+
+      tailwindConfig.content.push(
+        "./components/**/*.{js,jsx,ts,tsx}",
+        "./screens/**/*.{js,jsx,ts,tsx}"
+      );
+
+      tailwindConfig.content = tailwindConfig.content.filter(
+        (item: string) =>
+          item !== "../../packages/components/**/*.{js,jsx,ts,tsx}" &&
+          item !== "../../packages/screens/**/*.{js,jsx,ts,tsx}"
+      );
+
+      await writeFile(
+        tailwindConfigPath,
+        `/** @type {import('tailwindcss').Config} */
+        module.exports = ${JSON.stringify(tailwindConfig, null, 2)}`
+      );
+    } catch (err) {
+      console.error("Error while updating tailwind.config.js", err);
+    }
+  }
+
   async eject(projectName: string) {
     try {
       console.log("Running eject script...");
@@ -162,6 +198,10 @@ export class EjectScript {
       console.log("Updating tsconfig.json...");
       await this.updateTsConfig(projectName);
       console.log("tsconfig.json updated successfully!");
+
+      console.log("Updating tailwind.config.js...");
+      await this.updateTailwindConfig(projectName);
+      console.log("tailwind.config.js updated successfully!");
     } catch (err) {
       console.error("Error while running eject script", err);
     }

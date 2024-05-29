@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { EjectScript } from "./script";
+import { EjectScript } from "./eject/script";
 import { existsSync } from "fs-extra";
 import { join } from "path";
 import process from "process";
-export type { EjectConfig as Config } from "./script";
+export type { EjectConfig as Config } from "./eject/script";
 
 async function main() {
   try {
