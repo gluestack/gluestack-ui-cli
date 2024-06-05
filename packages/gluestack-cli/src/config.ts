@@ -7,7 +7,7 @@ const config = {
   expoProject: 'expo',
   nextJsProject: 'nextjs',
   reactNativeCLIProject: 'react-native-cli',
-  tailwindConfigRootPath: 'example/storybook-nativewind/tailwind.config.js',
+  tailwindConfigRootPath: 'example/storybook-nativewind/src/tailwind.config.js',
   UIconfigPath: 'gluestack-ui-provider/config.ts',
   writableComponentsPath: 'components/ui',
   branchName: 'patch',
