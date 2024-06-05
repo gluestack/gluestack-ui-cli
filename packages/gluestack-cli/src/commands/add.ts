@@ -1,40 +1,31 @@
 import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
-import path, { join } from 'path';
-import { existsSync } from 'fs';
 import { log } from '@clack/prompts';
 import { componentAdder } from '../util/add-components';
 import { config } from '../config';
-import { checkWritablePath, isValidPath } from '../util';
+import { checkWritablePath, isValidPath, projectRootPath } from '../util';
+import { checkIfProviderExists } from '../util/config-helpers';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
-  cwd: z.string(),
   all: z.boolean(),
-  forceUpdate: z.boolean(),
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
-  componentsPath: z.string(),
+  path: z.string(),
 });
 
 export const add = new Command()
   .name('add')
   .description('add a component to your project')
   .argument('[...components]', 'the components to add')
-  .option(
-    '-c, --cwd <cwd>',
-    'the working directory. defaults to the current directory.',
-    process.cwd()
-  )
   .option('--all, --all', 'add all available components', false)
-  .option('-f, --force-update', 'force update the component.', false)
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
   .option(
-    '--components-path <componentsPath>',
+    '--path <path>',
     'path to the components directory. defaults to components/ui',
     'components/ui'
   )
@@ -59,30 +50,32 @@ export const add = new Command()
         );
         process.exit(0);
       }
-      if (!isValidPath(options.componentsPath)) {
+      if (!isValidPath(options.path)) {
         log.error(
-          `\x1b[31mInvalid path "${options.componentsPath}". Please provide a valid path for installing components.\x1b[0m`
+          `\x1b[31mInvalid path "${options.path}". Please provide a valid path for installing components.\x1b[0m`
         );
         process.exit(1);
       }
-      if (options.componentsPath !== config.writableComponentsPath) {
-        await checkWritablePath(options.componentsPath);
+
+      if (options.path !== config.writableComponentsPath) {
+        await checkWritablePath(options.path);
+        config.writableComponentsPath = options.path;
       }
-      config.writableComponentsPath = options.componentsPath;
-      config.UIconfigPath = join(
-        options.componentsPath,
-        'gluestack-ui-provider/config.ts'
+      const initialized = await checkIfProviderExists(
+        projectRootPath,
+        config.UIconfigPath
       );
+      if (!initialized) {
+        log.warning(
+          `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
+        );
+        process.exit(1);
+      }
       let installationMethod;
       if (options.useNpm || options.useYarn || options.usePnpm) {
         if (options.useNpm) installationMethod = 'npm';
         if (options.usePnpm) installationMethod = 'pnpm';
         if (options.useYarn) installationMethod = 'yarn';
-      }
-      const cwd = path.resolve(options.cwd);
-      if (!existsSync(cwd)) {
-        log.error(`The path ${cwd} does not exist. Please try again.`);
-        process.exit(1);
       }
       if (options.all) {
         try {

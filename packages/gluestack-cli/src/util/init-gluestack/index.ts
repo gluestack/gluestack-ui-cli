@@ -4,16 +4,22 @@ import {
   detectProjectType,
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
-  checkIfFolderExists,
-  renameIfExists,
   addDependencies,
+  projectRootPath,
 } from '..';
 import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import { join } from 'path';
 import { log, confirm } from '@clack/prompts';
 import { promisify } from 'util';
 import { exec, execSync } from 'child_process';
-import { getEntryPathAndComponentsPath } from '../get-entry-paths';
+import { renameIfExists } from '../file-helpers';
+import {
+  Config,
+  RawConfig,
+  checkIfProviderExists,
+  generateConfigNextApp,
+  getEntryPathAndComponentsPath,
+} from '../config-helpers';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -34,8 +40,9 @@ const InitializeGlueStack = async ({
   installationMethod: string | undefined;
 }) => {
   try {
-    const initializeStatus = await checkIfFolderExists(
-      join(_currDir, config.writableComponentsPath, config.providerComponent)
+    const initializeStatus = await checkIfProviderExists(
+      projectRootPath,
+      config.UIconfigPath
     );
     if (initializeStatus) {
       log.info(
@@ -43,9 +50,9 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
+    const projectType = await detectProjectType(projectRootPath);
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-    const projectType = await detectProjectType(_currDir);
     // add gluestack provider component
     await addProvider();
     // get additional dependencies based on the project type and component style
@@ -110,7 +117,7 @@ async function nativeWindInit(projectType: string) {
       await commonInitialization(projectType);
       switch (projectType) {
         case config.nextJsProject:
-          await initNatiwindInNextJs();
+          // await initNatiwindInNextJs();
           break;
         case config.expoProject:
           await initNatiwindInExpo();
@@ -130,13 +137,13 @@ async function nativeWindInit(projectType: string) {
 //refactor this
 async function updateTSConfigPaths(projectType: string): Promise<void> {
   try {
-    const tsConfigPath = 'tsconfig.json'; // Path to your tsconfig.json file
+    const tsConfigPath = join(projectRootPath, 'tsconfig.json'); // Path to your tsconfig.json file
     let tsConfig: TSConfig = {};
-    if (fs.existsSync(join(_currDir, tsConfigPath))) {
-      const rawData = await readFileAsync(join(_currDir, tsConfigPath), 'utf8');
+    if (fs.existsSync(tsConfigPath)) {
+      const rawData = await readFileAsync(tsConfigPath, 'utf8');
       tsConfig = JSON.parse(rawData);
     } else {
-      await fs.ensureFile(join(_currDir, tsConfigPath));
+      await fs.ensureFile(tsConfigPath);
       tsConfig = {
         compilerOptions: {},
       };
@@ -179,7 +186,7 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
 
 async function generateGlobalCSS(): Promise<void> {
   try {
-    const globalCSSPath = join(_currDir, 'global.css');
+    const globalCSSPath = join(projectRootPath, 'global.css');
     const globalCSSContent = await fs.readFile(
       join(__dirname, config.templatesDir, 'common/global.css'),
       'utf8'
@@ -196,10 +203,10 @@ async function generateGlobalCSS(): Promise<void> {
         );
       }
     } else {
-      await fs.ensureFile(join(_currDir, 'global.css'));
+      await fs.ensureFile(join(projectRootPath, 'global.css'));
       await fs.copy(
         join(__dirname, config.templatesDir, 'common/global.css'),
-        join(_currDir, 'global.css'),
+        join(projectRootPath, 'global.css'),
         {
           overwrite: true,
         }
@@ -215,7 +222,7 @@ async function commonInitialization(projectType: string) {
     const resourcePath = join(__dirname, config.templatesDir, projectType);
     const filesAndFolders = fs.readdirSync(resourcePath);
     for (const file of filesAndFolders) {
-      await fs.copy(join(resourcePath, file), join(_currDir, file), {
+      await fs.copy(join(resourcePath, file), join(projectRootPath, file), {
         overwrite: true,
       });
     }
@@ -224,7 +231,7 @@ async function commonInitialization(projectType: string) {
       config.gluestackDir,
       config.tailwindConfigRootPath
     );
-    const tailwindConfigPath = join(_currDir, 'tailwind.config.js');
+    const tailwindConfigPath = join(projectRootPath, 'tailwind.config.js');
     addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
     await updateTSConfigPaths(projectType);
     // add or update global.css (check throughout the project for global.css and update it or create it)
@@ -256,20 +263,21 @@ const addtailwindConfigFile = async (
   }
 };
 
-async function initNatiwindInNextJs() {
+async function initNatiwindInNextJs(resolvedConfig: Config) {
   try {
-    renameIfExists(join(_currDir, 'tailwind.config.ts'));
+    console.log('resolvedConfig', resolvedConfig);
+    renameIfExists(join(projectRootPath, 'tailwind.config.ts'));
     let nextTransformerPath = '';
     let nextConfigPath = '';
 
-    if (existsSync(join(_currDir, 'next.config.mjs'))) {
-      nextConfigPath = join(_currDir, 'next.config.mjs');
+    if (existsSync(join(projectRootPath, 'next.config.mjs'))) {
+      nextConfigPath = join(projectRootPath, 'next.config.mjs');
       nextTransformerPath = join(
         __dirname,
         `${config.codeModesDir}/${config.nextJsProject}/next-config-mjs-transform.ts`
       );
-    } else if (existsSync(join(_currDir, 'next.config.js'))) {
-      nextConfigPath = join(_currDir, 'next.config.js');
+    } else if (existsSync(join(projectRootPath, 'next.config.js'))) {
+      nextConfigPath = join(projectRootPath, 'next.config.js');
       nextTransformerPath = join(
         __dirname,
         `${config.codeModesDir}/${config.nextJsProject}/next-config-js-transform.ts`
@@ -277,7 +285,7 @@ async function initNatiwindInNextJs() {
     }
 
     if (nextTransformerPath && nextConfigPath) {
-      execSync(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
+      exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
     }
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
@@ -286,11 +294,10 @@ async function initNatiwindInNextJs() {
 
 async function initNatiwindInExpo() {
   try {
-    const babelConfigPath = join(_currDir, 'babel.config.js');
-    const metroConfigPath = join(_currDir, 'metro.config.js');
+    const babelConfigPath = join(projectRootPath, 'babel.config.js');
+    const metroConfigPath = join(projectRootPath, 'metro.config.js');
 
     await ensureFile(babelConfigPath);
-
     const BabeltransformerPath = join(
       __dirname,
       `${config.codeModesDir}/${config.expoProject}/babel-config-transform.ts`
@@ -318,8 +325,8 @@ async function initNatiwindInExpo() {
 
 async function initNatiwindInReactNativeCLI() {
   try {
-    const babelConfigPath = join(_currDir, 'babel.config.js');
-    const metroConfigPath = join(_currDir, 'metro.config.js');
+    const babelConfigPath = join(projectRootPath, 'babel.config.js');
+    const metroConfigPath = join(projectRootPath, 'metro.config.js');
 
     await ensureFile(babelConfigPath);
     await ensureFile(metroConfigPath);
@@ -429,4 +436,21 @@ function consoleDemoCode() {
   console.log(message);
 }
 
-export { InitializeGlueStack };
+async function generateProjectConfig(projectType: string) {
+  switch (projectType) {
+    case config.nextJsProject:
+      const resolvedConfig = await generateConfigNextApp();
+      // await initNatiwindInNextJs(resolvedConfig);
+      break;
+    case config.expoProject:
+      // await initNatiwindInExpo();
+      break;
+    case config.reactNativeCLIProject:
+      // await initNatiwindInReactNativeCLI();
+      break;
+    default:
+      break;
+  }
+}
+
+export { InitializeGlueStack, generateProjectConfig };

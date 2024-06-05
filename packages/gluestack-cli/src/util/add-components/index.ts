@@ -3,9 +3,8 @@ import { join } from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
 import { addDependencies, cloneRepositoryAtRoot, getAllComponents } from '..';
-import { getComponentStyle } from '../create-config';
+import { getExistingComponentStyle } from '../config-helpers';
 import { config } from '../../config';
-const _currDir = process.cwd();
 const _homeDir = os.homedir();
 let existingComponentsChecked: boolean = false;
 
@@ -17,7 +16,7 @@ const componentAdder = async ({
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-    await getComponentStyle();
+    await getExistingComponentStyle();
     if (
       requestedComponent &&
       requestedComponent !== '--all' &&
@@ -40,11 +39,7 @@ const componentAdder = async ({
         : requestedComponents;
     await Promise.all(
       updatedComponents.map(async (component) => {
-        const targetPath = join(
-          _currDir,
-          config.writableComponentsPath,
-          component
-        );
+        const targetPath = join(config.writableComponentsPath, component);
 
         await writeComponent(component, targetPath);
       })
@@ -67,11 +62,7 @@ const isComponentInConfig = async (components: string[]): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];
   for (const component of components) {
-    const pathToCheck = join(
-      _currDir,
-      config.writableComponentsPath,
-      component
-    );
+    const pathToCheck = join(config.writableComponentsPath, component);
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);
     }

@@ -15,8 +15,10 @@ import simpleGit from 'simple-git';
 import { spawnSync } from 'child_process';
 import { config } from '../config';
 import { dependenciesConfig, projectBasedDependencies } from '../dependencies';
+import { checkIfFolderExists } from './file-helpers';
+import { RawConfig, generateConfigNextApp } from './config-helpers';
 
-const stat = util.promisify(fs.stat);
+// const stat = util.promisify(fs.stat);
 const homeDir = os.homedir();
 const currDir = process.cwd();
 
@@ -31,15 +33,6 @@ const projectRootPath: string = dirname(rootPackageJsonPath);
 interface Dependencies {
   [key: string]: string;
 }
-
-interface Component {
-  dependencies: Dependencies;
-  devDependencies?: Dependencies;
-}
-
-type Components = {
-  [key: string]: Component;
-};
 
 type Input = string | string[];
 
@@ -107,32 +100,6 @@ const cloneComponentRepo = async (
   }
 };
 
-const checkVersion = async (
-  repoPath: string,
-  tagVersion: string
-): Promise<void> => {
-  const git = simpleGit(repoPath);
-  try {
-    const tags = await git.tags();
-    const match = tags.all.includes(tagVersion);
-
-    if (!match) {
-      const ifConfirm = await confirm({
-        message: `\x1b[34mAn update is available, Do you want to update to the latest version?\x1b[0m`,
-      });
-      if (ifConfirm) {
-        fs.removeSync(repoPath);
-        await cloneComponentRepo(repoPath, config.repoUrl);
-      } else {
-        log.info(`Update skipped, using the current version...`);
-        return;
-      }
-    }
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-};
-
 const pullComponentRepo = async (targetpath: string): Promise<void> => {
   const s = spinner();
   s.start('⏳ Pulling latest changes...');
@@ -162,29 +129,12 @@ const tryGitPull = async (targetPath: string): Promise<void> => {
   } else log.error('\x1b[31m' + 'Target path does not exist' + '\x1b[0m');
 };
 
-const checkIfFolderExists = async (path: string): Promise<boolean> => {
-  try {
-    const stats = await stat(path);
-    return stats.isDirectory();
-  } catch (error) {
-    return false;
-  }
-};
-
-const checkIfFileExists = async (path: string): Promise<boolean> => {
-  try {
-    const stats = await stat(path);
-    return stats.isFile();
-  } catch (error) {
-    return false;
-  }
-};
-
 const wait = (msec: number): Promise<void> =>
   new Promise<void>((resolve, _) => {
     setTimeout(resolve, msec);
   });
 
+//checking from root
 const detectLockFile = (): string | null => {
   const packageLockPath = join(projectRootPath, 'package-lock.json');
   const yarnLockPath = join(projectRootPath, 'yarn.lock');
@@ -200,6 +150,8 @@ const detectLockFile = (): string | null => {
     return null;
   }
 };
+
+//checking from cwd
 function findLockFileType(): string | null {
   let currentDir = currDir;
   while (true) {
@@ -398,7 +350,7 @@ const addIndexFile = async (componentsDirectory: string) => {
 };
 
 //function to detect type of project
-async function detectProjectType(directoryPath: string) {
+async function detectProjectType(directoryPath: string): Promise<string> {
   try {
     // Check for files or directories unique to Next.js, Expo, or React Native CLI projects
     const nextjsFiles: string[] = ['next.config.js', 'next.config.mjs'];
@@ -554,10 +506,9 @@ function isValidPath(path: string): boolean {
 
 const checkWritablePath = async (path: string): Promise<boolean> => {
   const confirmPath = await getConfirmation(
-    `Continue writing components in the above path? :\x1b[34m${join(
-      currDir,
-      path
-    )}\x1b[0m\n[If the path is incorrect, please provide the path from the root of the project] `
+    `\x1b[33mContinue writing components in the above path? :\x1b[0m [If the path is incorrect, please provide the path from the root of the project]
+    \n\x1b[34m${join(currDir, path)}
+    \x1b[0m`
   );
   if (confirmPath) {
     return true;
@@ -566,26 +517,8 @@ const checkWritablePath = async (path: string): Promise<boolean> => {
   }
 };
 
-function renameIfExists(filePath: string): void {
-  // Check if the file exists
-  const exists = fs.existsSync(filePath);
-  // File exists, rename it
-  if (!exists) return;
-  const { dir, name, ext } = parse(filePath);
-  const oldFileName = `${name}_old${ext}`;
-  const newPath = join(dir, oldFileName);
-
-  fs.rename(filePath, newPath, (err) => {
-    if (err) {
-      return;
-    }
-  });
-}
-
 export {
   cloneRepositoryAtRoot,
-  checkIfFolderExists,
-  checkIfFileExists,
   getAllComponents,
   installPackages,
   addIndexFile,
@@ -593,6 +526,8 @@ export {
   detectProjectType,
   isValidPath,
   checkWritablePath,
-  renameIfExists,
   addDependencies,
+  projectRootPath,
 };
+
+// const resolvedConfig = await generateConfigNextApp();
