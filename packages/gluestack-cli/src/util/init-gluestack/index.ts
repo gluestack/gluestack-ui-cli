@@ -15,6 +15,7 @@ import {
 } from '../config-generate/config-types';
 import {
   checkIfInitialized,
+  generateGluestackConfig,
   getEntryPathAndComponentsPath,
 } from '../config-generate';
 import {
@@ -269,7 +270,9 @@ async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
     const transformerPath = join(
       `${NextTranformer}/next-add-provider-transform.ts --config='${options}'`
     );
-    exec(`npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}'`);
+    exec(
+      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}'`
+    );
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -350,24 +353,29 @@ async function initNatiwindRNApp(resolvedConfig: any) {
 
 async function generateProjectConfigAndInit(projectType: string) {
   let resolvedConfig; // Initialize with a default value
+  if (projectType !== 'library') {
+    switch (projectType) {
+      case config.nextJsProject:
+        resolvedConfig = await generateConfigNextApp();
+        await initNatiwindNextApp(resolvedConfig);
+        break;
+      case config.expoProject:
+        resolvedConfig = await generateConfigExpoApp();
+        await initNatiwindExpoApp(resolvedConfig);
+        break;
+      case config.reactNativeCLIProject:
+        resolvedConfig = await generateConfigRNApp();
+        await initNatiwindRNApp(resolvedConfig);
+        break;
+      default:
+        break;
+    }
 
-  switch (projectType) {
-    case config.nextJsProject:
-      resolvedConfig = await generateConfigNextApp();
-      await initNatiwindNextApp(resolvedConfig);
-      break;
-    case config.expoProject:
-      resolvedConfig = await generateConfigExpoApp();
-      await initNatiwindExpoApp(resolvedConfig);
-      break;
-    case config.reactNativeCLIProject:
-      resolvedConfig = await generateConfigRNApp();
-      await initNatiwindRNApp(resolvedConfig);
-      break;
-    default:
-      break;
+    await commonInitialization(projectType, resolvedConfig);
+  } else {
+    //write function to generate config for library
+    await generateGluestackConfig();
   }
-  await commonInitialization(projectType, resolvedConfig);
 }
 
 // const filesToOverride = (projectType: string) => {

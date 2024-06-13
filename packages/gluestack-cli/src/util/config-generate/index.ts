@@ -120,11 +120,26 @@ async function generateConfig(resultConfig: RawConfig) {
   fs.writeFileSync(targetPath, JSON.stringify(resultConfig, null, 2), 'utf8');
 }
 
+async function generateGluestackConfig() {
+  const gluestackConfig = {
+    app: {
+      components: config.writableComponentsPath,
+    },
+  };
+  const targetPath = path.resolve(currDir, 'gluestack-ui.config.json');
+  fs.writeFileSync(
+    targetPath,
+    JSON.stringify(gluestackConfig, null, 2),
+    'utf8'
+  );
+}
+
 export {
   checkIfInitialized,
   getEntryPathAndComponentsPath,
   generateConfig,
   getConfigPath,
   getComponentsPath,
+  generateGluestackConfig,
   currDir,
 };

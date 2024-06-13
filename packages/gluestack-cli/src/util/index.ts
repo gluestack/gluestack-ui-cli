@@ -503,7 +503,7 @@ async function getAdditionalDependencies(
     if (style === config.nativeWindRootPath) {
       if (projectType && projectType !== 'library') {
         return projectBasedDependencies[projectType].dependencies;
-      } else return;
+      } else return {};
     }
   } catch (error) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);

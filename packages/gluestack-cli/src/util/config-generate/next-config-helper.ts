@@ -69,8 +69,10 @@ async function generateConfigNextApp(): Promise<NextResolvedConfig> {
   const tsConfigPath = await getConfigPath(['tsconfig.*']);
   const gluestackConfig: RawConfig = {
     tailwind: {
-      config: tailwindConfigPath,
-      css: globalCssPath,
+      config: tailwindConfigPath.length
+        ? tailwindConfigPath
+        : 'tailwind.config.js',
+      css: globalCssPath.length ? globalCssPath : 'global.css',
     },
     app: {
       entry: entryPath,
