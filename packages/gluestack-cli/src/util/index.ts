@@ -519,7 +519,7 @@ function isValidPath(path: string): boolean {
 const checkWritablePath = async (path: string): Promise<boolean> => {
   const confirmPath = await getConfirmation(
     `\x1b[33mContinue writing components in the above path? :\x1b[0m [If the path is incorrect, please provide the path from the root of the project]
-     \n\x1b[34m${join(currDir, path)}
+     \n\x1b[34m${join(projectRootPath, path)}
     \x1b[0m`
   );
   if (confirmPath) {
