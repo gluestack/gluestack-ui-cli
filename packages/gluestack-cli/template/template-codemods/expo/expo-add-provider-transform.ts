@@ -78,6 +78,21 @@ const transform: Transform = (file, api, options) => {
     });
   }
 
+  //to remove the extra paranthesis
+  root.find(j.ReturnStatement).forEach((path) => {
+    // Check if the return statement is returning a JSX element
+    if (path.value.argument && path.value.argument.type !== 'JSXFragment') {
+      if (path.node.argument && path.node.argument.type === 'JSXElement') {
+        // remove the extra paranthesis
+        // @ts-ignore
+        if (path.node.argument.extra) {
+          // @ts-ignore
+          path.node.argument.extra.parenthesized = false;
+        }
+      }
+    }
+  });
+
   return root.toSource();
 };
 

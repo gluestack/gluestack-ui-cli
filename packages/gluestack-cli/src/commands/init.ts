@@ -4,7 +4,12 @@ import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
 import { InitializeGlueStack } from '../util/init-gluestack';
 import { config } from '../config';
-import { checkWritablePath, detectProjectType, isValidPath } from '../util';
+import {
+  checkWritablePath,
+  detectProjectType,
+  isValidPath,
+  projectRootPath,
+} from '../util';
 
 const initOptionsSchema = z.object({
   useNpm: z.boolean(),
@@ -43,8 +48,7 @@ export const init = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-      const currDir = process.cwd();
-      const projectType = await detectProjectType(currDir);
+      const projectType = await detectProjectType(projectRootPath);
       InitializeGlueStack({
         installationMethod,
         projectType,

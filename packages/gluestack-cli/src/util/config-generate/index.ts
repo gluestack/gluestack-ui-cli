@@ -10,8 +10,6 @@ import {
   PROJECT_SHARED_IGNORE,
 } from './config-types';
 
-const currDir = process.cwd();
-
 const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
 const possibleIndexFiles = ['_app', 'index', 'App'];
 const possibleDirectories = ['src', 'pages', 'app', 'components'];
@@ -24,7 +22,7 @@ async function checkIfInitialized(cwd: string): Promise<boolean> {
   try {
     const initializeStatus = await fg.glob('gluestack-ui.config.json', {
       cwd,
-      deep: 3,
+      deep: 8,
       ignore: PROJECT_SHARED_IGNORE,
     });
     if (initializeStatus.length) {
@@ -40,7 +38,7 @@ async function getComponentsPath(): Promise<string> {
   const componentsPath = await fg.glob(
     `**/*${config.providerComponent}/index.tsx`,
     {
-      cwd: currDir,
+      cwd: projectRootPath,
       deep: 8,
       ignore: PROJECT_SHARED_IGNORE,
     }
@@ -105,7 +103,7 @@ function getEntryPathAndComponentsPath(): {
 
 async function getConfigPath(files: string[]) {
   const filePath = await fg.glob(files, {
-    cwd: currDir,
+    cwd: projectRootPath,
     deep: 3,
     ignore: PROJECT_SHARED_IGNORE,
   });
@@ -116,7 +114,7 @@ async function getConfigPath(files: string[]) {
 }
 
 async function generateConfig(resultConfig: RawConfig) {
-  const targetPath = path.resolve(currDir, 'gluestack-ui.config.json');
+  const targetPath = path.resolve(projectRootPath, 'gluestack-ui.config.json');
   fs.writeFileSync(targetPath, JSON.stringify(resultConfig, null, 2), 'utf8');
 }
 
@@ -126,7 +124,7 @@ async function generateGluestackConfig() {
       components: config.writableComponentsPath,
     },
   };
-  const targetPath = path.resolve(currDir, 'gluestack-ui.config.json');
+  const targetPath = path.resolve(projectRootPath, 'gluestack-ui.config.json');
   fs.writeFileSync(
     targetPath,
     JSON.stringify(gluestackConfig, null, 2),
@@ -141,5 +139,4 @@ export {
   getConfigPath,
   getComponentsPath,
   generateGluestackConfig,
-  currDir,
 };

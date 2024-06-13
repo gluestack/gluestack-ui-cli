@@ -6,8 +6,9 @@ import {
   NextResolvedConfig,
   PROJECT_SHARED_IGNORE,
 } from './config-types';
-import { currDir, generateConfig, getConfigPath } from '.';
+import { generateConfig, getConfigPath } from '.';
 import { config } from '../../config';
+import { projectRootPath } from '..';
 
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
@@ -37,19 +38,25 @@ async function getNextProjectType(cwd: string): Promise<string | undefined> {
 async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
   const resolvedNextJsPaths = {
     tailwind: {
-      config: path.resolve(currDir, resultConfig.tailwind.config),
-      css: path.resolve(currDir, resultConfig.tailwind.css),
+      config: path.resolve(projectRootPath, resultConfig.tailwind.config),
+      css: path.resolve(projectRootPath, resultConfig.tailwind.css),
     },
     config: {
       postCssConfig: path.resolve(
-        currDir,
+        projectRootPath,
         resultConfig.config.postCssConfig || ''
       ),
-      nextConfig: path.resolve(currDir, resultConfig.config.nextConfig || ''),
-      tsConfig: path.resolve(currDir, resultConfig.config.tsConfig || ''),
+      nextConfig: path.resolve(
+        projectRootPath,
+        resultConfig.config.nextConfig || ''
+      ),
+      tsConfig: path.resolve(
+        projectRootPath,
+        resultConfig.config.tsConfig || ''
+      ),
     },
     app: {
-      entry: path.resolve(currDir, resultConfig.app.entry || ''),
+      entry: path.resolve(projectRootPath, resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
     },
   };
@@ -57,7 +64,7 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
 }
 
 async function generateConfigNextApp(): Promise<NextResolvedConfig> {
-  const projectType = await getNextProjectType(currDir);
+  const projectType = await getNextProjectType(projectRootPath);
   const entryPath = await getConfigPath(['**/*layout.*', '**/*_app.*']);
   const globalCssPath = await getConfigPath([
     '**/*globals.css',

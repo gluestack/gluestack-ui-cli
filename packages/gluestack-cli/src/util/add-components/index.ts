@@ -2,7 +2,12 @@ import fs from 'fs-extra';
 import { join } from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
-import { addDependencies, cloneRepositoryAtRoot, getAllComponents } from '..';
+import {
+  addDependencies,
+  cloneRepositoryAtRoot,
+  getAllComponents,
+  projectRootPath,
+} from '..';
 
 import { config } from '../../config';
 const _homeDir = os.homedir();
@@ -40,7 +45,11 @@ const componentAdder = async ({
         : requestedComponents;
     await Promise.all(
       updatedComponents.map(async (component) => {
-        const targetPath = join(config.writableComponentsPath, component);
+        const targetPath = join(
+          projectRootPath,
+          config.writableComponentsPath,
+          component
+        );
 
         await writeComponent(component, targetPath);
       })
@@ -63,7 +72,11 @@ const isComponentInConfig = async (components: string[]): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];
   for (const component of components) {
-    const pathToCheck = join(config.writableComponentsPath, component);
+    const pathToCheck = join(
+      projectRootPath,
+      config.writableComponentsPath,
+      component
+    );
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);
     }

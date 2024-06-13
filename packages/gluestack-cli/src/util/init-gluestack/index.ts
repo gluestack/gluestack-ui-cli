@@ -81,7 +81,11 @@ const InitializeGlueStack = async ({
 async function addProvider() {
   try {
     await fs.ensureDir(
-      join(_currDir, config.writableComponentsPath, config.providerComponent)
+      join(
+        projectRootPath,
+        config.writableComponentsPath,
+        config.providerComponent
+      )
     );
     await fs.copy(
       join(
@@ -91,7 +95,11 @@ async function addProvider() {
         config.style,
         config.providerComponent
       ),
-      join(_currDir, config.writableComponentsPath, config.providerComponent)
+      join(
+        projectRootPath,
+        config.writableComponentsPath,
+        config.providerComponent
+      )
     );
   } catch (err) {
     log.error(
@@ -202,16 +210,26 @@ async function commonInitialization(projectType: string, resolvedConfig: any) {
       (filePath: string) => path.parse(filePath).base
     );
     const resourcePath = join(__dirname, config.templatesDir, projectType);
-    const filesAndFolders = fs.readdirSync(resourcePath);
-    await Promise.all(
-      filesAndFolders.map(async (file) => {
-        if (resolvedConfigFileNames.includes(path.parse(file).base)) {
-          await copy(join(resourcePath, file), join(projectRootPath, file), {
-            overwrite: true,
-          });
-        }
-      })
+    if (existsSync(resourcePath)) {
+      const filesAndFolders = fs.readdirSync(resourcePath);
+      await Promise.all(
+        filesAndFolders.map(async (file) => {
+          if (resolvedConfigFileNames.includes(path.parse(file).base)) {
+            await copy(join(resourcePath, file), join(projectRootPath, file), {
+              overwrite: true,
+            });
+          }
+        })
+      );
+    }
+
+    //add nativewind-env.d.ts
+    await fs.ensureFile(join(projectRootPath, 'nativewind-env.d.ts'));
+    await fs.copy(
+      join(__dirname, `${config.templatesDir}/common/nativewind-env.d.ts`),
+      join(projectRootPath, 'nativewind-env.d.ts')
     );
+
     //add or update all the above files
     await updateTailwindConfig(resolvedConfig);
     await updateTSConfig(projectType);

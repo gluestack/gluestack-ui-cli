@@ -5,8 +5,9 @@ import {
   PROJECT_SHARED_IGNORE,
   ExpoResolvedConfig,
 } from './config-types';
-import { currDir, generateConfig, getConfigPath } from '.';
+import { generateConfig, getConfigPath } from '.';
 import { config } from '../../config';
+import { projectRootPath } from '..';
 
 // expo project type initialization
 async function getExpoProjectType(cwd: string): Promise<string | undefined> {
@@ -33,16 +34,25 @@ async function getExpoProjectType(cwd: string): Promise<string | undefined> {
 async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
   const resolvedExpoPaths = {
     tailwind: {
-      config: path.resolve(currDir, resultConfig.tailwind.config),
-      css: path.resolve(currDir, resultConfig.tailwind.css),
+      config: path.resolve(projectRootPath, resultConfig.tailwind.config),
+      css: path.resolve(projectRootPath, resultConfig.tailwind.css),
     },
     config: {
-      babelConfig: path.resolve(currDir, resultConfig.config.babelConfig || ''),
-      metroConfig: path.resolve(currDir, resultConfig.config.metroConfig || ''),
-      tsConfig: path.resolve(currDir, resultConfig.config.tsConfig || ''),
+      babelConfig: path.resolve(
+        projectRootPath,
+        resultConfig.config.babelConfig || ''
+      ),
+      metroConfig: path.resolve(
+        projectRootPath,
+        resultConfig.config.metroConfig || ''
+      ),
+      tsConfig: path.resolve(
+        projectRootPath,
+        resultConfig.config.tsConfig || ''
+      ),
     },
     app: {
-      entry: path.resolve(currDir, resultConfig.app.entry || ''),
+      entry: path.resolve(projectRootPath, resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
     },
   };
@@ -50,7 +60,7 @@ async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
 }
 
 async function generateConfigExpoApp(): Promise<ExpoResolvedConfig> {
-  const projectType = await getExpoProjectType(currDir);
+  const projectType = await getExpoProjectType(projectRootPath);
   const entryPath = await getConfigPath(['**/*_layout.*', '**/*App.*']);
   const globalCssPath = await getConfigPath([
     '**/*globals.css',

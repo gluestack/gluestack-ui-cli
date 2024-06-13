@@ -46,18 +46,18 @@ export const add = new Command()
         );
         process.exit(0);
       }
+
+      //function to get current path where GUIProvider is located
+      const currWritablePath = await getComponentsPath();
+      if (currWritablePath) {
+        config.writableComponentsPath = currWritablePath;
+      }
       if (options.path && !isValidPath(options.path)) {
         log.error(
           `\x1b[31mInvalid path "${options.path}". Please provide a valid path for installing components.\x1b[0m`
         );
         process.exit(1);
       }
-      //function to get current path where GUIProvider is located
-      const currWritablePath = await getComponentsPath();
-      if (currWritablePath) {
-        config.writableComponentsPath = currWritablePath;
-      }
-
       if (options.path && options.path !== config.writableComponentsPath) {
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
