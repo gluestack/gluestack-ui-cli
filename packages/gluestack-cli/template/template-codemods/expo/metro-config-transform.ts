@@ -1,9 +1,35 @@
+import { writeFileSync } from 'fs-extra';
 import { Transform } from 'jscodeshift';
+import { parse, print } from 'recast';
+import { ExpoResolvedConfig } from '../../../src/util/config-generate/config-types';
 
-const transform: Transform = (file, api) => {
+function getMetroConfigContent(cssPath: string) {
+  return `const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+  
+const config = getDefaultConfig(__dirname);
+  
+module.exports = withNativeWind(config, { input: '${cssPath}' });
+  `;
+}
+
+const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
-    const root = j(file.source);
+    const source = file.source.trim();
+    const cssPath = options.cssPath;
+    const config: ExpoResolvedConfig = options.config;
+    const metroConfigContent = getMetroConfigContent(cssPath);
+
+    if (source.length === 0) {
+      // Use recast to parse the content
+      const ast = parse(metroConfigContent);
+      // Print the AST back to code
+      const output = print(ast).code;
+      writeFileSync(config.config.metroConfig, output, 'utf8');
+      return null; // Return early after writing the file
+    }
+    const root = j(source);
     // Check if withNativeWind import already exists
     const withNativeWindImportExists =
       root.find(j.VariableDeclarator, {
@@ -24,7 +50,20 @@ const transform: Transform = (file, api) => {
       }).length > 0;
 
     if (!withNativeWindImportExists) {
-      const withNativeWindImport = `const {withNativeWind} = require('nativewind/metro');`;
+      const withNativeWindImport = j.variableDeclaration('const', [
+        j.variableDeclarator(
+          j.objectPattern([
+            j.property(
+              'init',
+              j.identifier('withNativeWind'),
+              j.identifier('withNativeWind')
+            ),
+          ]),
+          j.callExpression(j.identifier('require'), [
+            j.literal('nativewind/metro'),
+          ])
+        ),
+      ]);
       root.get().node.program.body.unshift(withNativeWindImport);
     }
 
@@ -42,11 +81,7 @@ const transform: Transform = (file, api) => {
           [
             configNode.right,
             j.objectExpression([
-              j.property(
-                'init',
-                j.identifier('input'),
-                j.literal('./global.css')
-              ),
+              j.property('init', j.identifier('input'), j.literal(cssPath)),
             ]),
           ]
         );

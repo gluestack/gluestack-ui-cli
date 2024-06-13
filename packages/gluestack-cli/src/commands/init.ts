@@ -2,23 +2,15 @@ import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
-import {
-  InitializeGlueStack,
-  generateProjectConfig,
-} from '../util/init-gluestack';
+import { InitializeGlueStack } from '../util/init-gluestack';
 import { config } from '../config';
-import {
-  checkWritablePath,
-  detectProjectType,
-  isValidPath,
-  projectRootPath,
-} from '../util';
+import { checkWritablePath, detectProjectType, isValidPath } from '../util';
 
 const initOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
-  componentsPath: z.string(),
+  path: z.string().optional(),
 });
 
 export const init = new Command()
@@ -28,9 +20,8 @@ export const init = new Command()
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
   .option(
-    '--components-path <componentsPath>',
-    'path to the components directory. defaults to components/ui',
-    'components/ui'
+    '--path <path>',
+    'path to the components directory. defaults to components/ui'
   )
   .action(async (opts) => {
     try {
@@ -42,22 +33,23 @@ export const init = new Command()
         if (options.useYarn) installationMethod = 'yarn';
       }
       // Check if the string starts with "/" or "."
-      if (!isValidPath(options.componentsPath)) {
+      if (options.path && !isValidPath(options.path)) {
         log.error(
-          `\x1b[31mInvalid path "${options.componentsPath}". Please provide a valid path for installing components.\x1b[0m`
+          `\x1b[31mInvalid path "${options.path}". Please provide a valid path for installing components.\x1b[0m`
         );
         process.exit(1);
       }
-      if (options.componentsPath !== config.writableComponentsPath) {
-        await checkWritablePath(options.componentsPath);
-        config.writableComponentsPath = options.componentsPath;
+      if (options.path && options.path !== config.writableComponentsPath) {
+        await checkWritablePath(options.path);
+        config.writableComponentsPath = options.path;
       }
+      console.log(config.writableComponentsPath);
       const currDir = process.cwd();
       const projectType = await detectProjectType(currDir);
-      await generateProjectConfig(projectType);
-      // InitializeGlueStack({
-      //   installationMethod,
-      // });
+      InitializeGlueStack({
+        installationMethod,
+        projectType,
+      });
     } catch (err) {
       handleError(err);
     }

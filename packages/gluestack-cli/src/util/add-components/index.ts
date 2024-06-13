@@ -3,7 +3,7 @@ import { join } from 'path';
 import os from 'os';
 import { log, confirm } from '@clack/prompts';
 import { addDependencies, cloneRepositoryAtRoot, getAllComponents } from '..';
-import { getExistingComponentStyle } from '../config-helpers';
+
 import { config } from '../../config';
 const _homeDir = os.homedir();
 let existingComponentsChecked: boolean = false;
@@ -16,7 +16,8 @@ const componentAdder = async ({
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-    await getExistingComponentStyle();
+    //currently since nativewind is default, we are not checking for the existing component style
+    // await getExistingComponentStyle();
     if (
       requestedComponent &&
       requestedComponent !== '--all' &&

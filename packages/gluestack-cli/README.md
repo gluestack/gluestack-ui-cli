@@ -10,8 +10,6 @@
 - Some of the commands provided by the gluestack-ui CLI are:
   - Installation setup command: Helps with the initial setup of the gluestack-ui library.
   - Add component command: Allows users to add components from the gluestack-ui library to their projects.
-  - Update component command: Helps users update components in their projects to newer versions available in the gluestack-ui library.
-  - Remove component command: Enables users to remove components that are no longer needed from their projects.
 - These commands help developers efficiently manage their project components and keep them up to date.
 - The gluestack-ui CLI aims to enhance the development workflow and improve productivity.
 
@@ -37,22 +35,10 @@ To use the gluestack-ui CLI, you can run the following commands:
     npx gluestack-ui@latest add <component-name>
 ```
 
-- **Update a component -** Replace `<component-name>` with the name of the component you want to update or with special flag `--all` which will update all the components in your project.
-
-```
-    npx gluestack-ui@latest update <component-name>
-```
-
-- **Remove a component -** Replace `<component-name>` with the name of the component you want to remove or with special flag `--all` which will remove all the components from your project.
-
-```
-    npx gluestack-ui@latest update <component-name>
-```
-
 - **Get help -** This command provides help and information about using the gluestack-ui CLI.
 
 ```
-    npx gluestack-ui@latest update <component-name>
+    npx gluestack-ui@latest help
 ```
 
 ## Contributing

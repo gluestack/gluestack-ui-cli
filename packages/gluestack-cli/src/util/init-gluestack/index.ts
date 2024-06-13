@@ -1,25 +1,28 @@
-import { config } from '../../config';
 import os from 'os';
+import { config } from '../../config';
+import fs, { copy, ensureFile, existsSync } from 'fs-extra';
+import path, { join, relative } from 'path';
+import { log, confirm } from '@clack/prompts';
+import { promisify } from 'util';
+import { exec, execSync } from 'child_process';
+import { generateConfigNextApp } from '../config-generate/next-config-helper';
+import { generateConfigExpoApp } from '../config-generate/expo-config-helper';
+import { generateConfigRNApp } from '../config-generate/react-native-config-helper';
 import {
-  detectProjectType,
+  RawConfig,
+  NextResolvedConfig,
+  ExpoResolvedConfig,
+} from '../config-generate/config-types';
+import {
+  checkIfInitialized,
+  getEntryPathAndComponentsPath,
+} from '../config-generate';
+import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
   addDependencies,
   projectRootPath,
 } from '..';
-import fs, { copy, ensureFile, existsSync } from 'fs-extra';
-import { join } from 'path';
-import { log, confirm } from '@clack/prompts';
-import { promisify } from 'util';
-import { exec, execSync } from 'child_process';
-import { renameIfExists } from '../file-helpers';
-import {
-  Config,
-  RawConfig,
-  checkIfProviderExists,
-  generateConfigNextApp,
-  getEntryPathAndComponentsPath,
-} from '../config-helpers';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -36,45 +39,33 @@ interface TSConfig {
 
 const InitializeGlueStack = async ({
   installationMethod = '',
+  projectType = 'library',
 }: {
   installationMethod: string | undefined;
+  projectType: string;
 }) => {
   try {
-    const initializeStatus = await checkIfProviderExists(
-      projectRootPath,
-      config.UIconfigPath
-    );
+    const initializeStatus = await checkIfInitialized(projectRootPath);
     if (initializeStatus) {
       log.info(
         `\x1b[33mgluestack-ui is already initialized in the project, use 'npx gluestack-ui help' command to continue\x1b[0m`
       );
       process.exit(1);
     }
-    const projectType = await detectProjectType(projectRootPath);
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-    // add gluestack provider component
-    await addProvider();
-    // get additional dependencies based on the project type and component style
+    const inputComponent = [config.providerComponent];
     const additionalDependencies = await getAdditionalDependencies(
       projectType,
       config.style
     );
-    const inputComponent = [config.providerComponent];
+    await generateProjectConfigAndInit(projectType);
     await addDependencies(
       installationMethod,
       inputComponent,
       additionalDependencies
     );
-
-    if (config.style === config.nativeWindRootPath && projectType !== 'other') {
-      await nativeWindInit(projectType);
-    }
-    console.log(`\n\x1b[34mPlease follow these steps to complete the setup of gluestack-ui v2 in your project entry file:
-    1. Wrap your app with GluestackUIProvider.
-    2. Import global.css\x1b[0m`);
-    // console.log(`\n\x1b[34mExample:\x1b[0m`);
-    consoleDemoCode();
+    await addProvider();
     log.step(
       'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
     );
@@ -110,52 +101,45 @@ async function addProvider() {
   }
 }
 
-async function nativeWindInit(projectType: string) {
+async function updateTailwindConfig(resolvedConfig: RawConfig) {
   try {
-    const confirmInput = await overrideWarning(filesToOverride(projectType));
-    if (confirmInput === true) {
-      await commonInitialization(projectType);
-      switch (projectType) {
-        case config.nextJsProject:
-          // await initNatiwindInNextJs();
-          break;
-        case config.expoProject:
-          await initNatiwindInExpo();
-          break;
-        case config.reactNativeCLIProject:
-          await initNatiwindInReactNativeCLI();
-          break;
-        default:
-          break;
-      }
-    }
+    const tailwindConfigRootPath = join(
+      _homeDir,
+      config.gluestackDir,
+      config.tailwindConfigRootPath
+    );
+    const tailwindConfigPath = resolvedConfig.tailwind.config;
+    await fs.copy(tailwindConfigRootPath, tailwindConfigPath);
+    // Codemod to update tailwind.config.js usage
+    const { entryPath } = getEntryPathAndComponentsPath();
+    const allNewPaths = JSON.stringify(entryPath);
+    const transformerPath = join(
+      __dirname,
+      `${config.codeModesDir}/tailwind-config-transform.ts`
+    );
+    exec(
+      `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}'`
+    );
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
 
-//refactor this
-async function updateTSConfigPaths(projectType: string): Promise<void> {
+async function updateTSConfig(projectType: string): Promise<void> {
   try {
-    const tsConfigPath = join(projectRootPath, 'tsconfig.json'); // Path to your tsconfig.json file
+    const tsConfigPath = join(projectRootPath, 'tsconfig.json');
     let tsConfig: TSConfig = {};
-    if (fs.existsSync(tsConfigPath)) {
-      const rawData = await readFileAsync(tsConfigPath, 'utf8');
-      tsConfig = JSON.parse(rawData);
-    } else {
+    try {
+      tsConfig = JSON.parse(await readFileAsync(tsConfigPath, 'utf8'));
+    } catch {
       await fs.ensureFile(tsConfigPath);
-      tsConfig = {
-        compilerOptions: {},
-      };
     }
-    if (!tsConfig.compilerOptions) {
-      tsConfig.compilerOptions = {};
-    }
-    // Add jsxImportSource for Next.js projects
+    tsConfig.compilerOptions = tsConfig.compilerOptions || {};
+
+    // Next.js project specific configuration
     if (projectType === config.nextJsProject) {
       tsConfig.compilerOptions.jsxImportSource = 'nativewind';
     }
-
     if (!tsConfig.compilerOptions.paths) {
       // Case 1: Paths do not exist, add new paths
       tsConfig.compilerOptions.paths = {
@@ -169,7 +153,6 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
         paths.push('./*');
       }
     }
-
     await writeFileAsync(
       tsConfigPath,
       JSON.stringify(tsConfig, null, 2),
@@ -184,32 +167,23 @@ async function updateTSConfigPaths(projectType: string): Promise<void> {
   }
 }
 
-async function generateGlobalCSS(): Promise<void> {
+async function updateGlobalCss(resolvedConfig: RawConfig): Promise<void> {
   try {
-    const globalCSSPath = join(projectRootPath, 'global.css');
+    const globalCSSPath = resolvedConfig.tailwind.css;
+    await fs.ensureFile(globalCSSPath);
+
     const globalCSSContent = await fs.readFile(
       join(__dirname, config.templatesDir, 'common/global.css'),
       'utf8'
     );
-    if (fs.existsSync(globalCSSPath)) {
-      const existingContent = await fs.readFile(globalCSSPath, 'utf8');
-      if (existingContent.includes(globalCSSContent)) {
-        return;
-      } else {
-        await fs.appendFile(
-          globalCSSPath,
-          globalCSSContent.toString(), // Convert buffer to string
-          'utf8'
-        );
-      }
+    const existingContent = await fs.readFile(globalCSSPath, 'utf8');
+    if (existingContent.includes(globalCSSContent)) {
+      return;
     } else {
-      await fs.ensureFile(join(projectRootPath, 'global.css'));
-      await fs.copy(
-        join(__dirname, config.templatesDir, 'common/global.css'),
-        join(projectRootPath, 'global.css'),
-        {
-          overwrite: true,
-        }
+      await fs.appendFile(
+        globalCSSPath,
+        globalCSSContent.toString(), // Convert buffer to string
+        'utf8'
       );
     }
   } catch (err) {
@@ -217,240 +191,250 @@ async function generateGlobalCSS(): Promise<void> {
   }
 }
 
-async function commonInitialization(projectType: string) {
+async function commonInitialization(projectType: string, resolvedConfig: any) {
   try {
+    const resolvedConfigValues = Object.values(resolvedConfig).flat(Infinity);
+    const flattenedConfigValues = resolvedConfigValues.flatMap((value) =>
+      typeof value === 'string' ? value : Object.values(value as object)
+    );
+    const resolvedConfigFileNames = flattenedConfigValues.map(
+      (filePath: string) => path.parse(filePath).base
+    );
     const resourcePath = join(__dirname, config.templatesDir, projectType);
     const filesAndFolders = fs.readdirSync(resourcePath);
-    for (const file of filesAndFolders) {
-      await fs.copy(join(resourcePath, file), join(projectRootPath, file), {
-        overwrite: true,
-      });
-    }
-    const tailwindConfigRootPath = join(
-      _homeDir,
-      config.gluestackDir,
-      config.tailwindConfigRootPath
+    await Promise.all(
+      filesAndFolders.map(async (file) => {
+        if (resolvedConfigFileNames.includes(path.parse(file).base)) {
+          await copy(join(resourcePath, file), join(projectRootPath, file), {
+            overwrite: true,
+          });
+        }
+      })
     );
-    const tailwindConfigPath = join(projectRootPath, 'tailwind.config.js');
-    addtailwindConfigFile(tailwindConfigRootPath, tailwindConfigPath);
-    await updateTSConfigPaths(projectType);
-    // add or update global.css (check throughout the project for global.css and update it or create it)
-    await generateGlobalCSS();
+    //add or update all the above files
+    await updateTailwindConfig(resolvedConfig);
+    await updateTSConfig(projectType);
+    await updateGlobalCss(resolvedConfig);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
 
-const addtailwindConfigFile = async (
-  resourcePath: string,
-  targetPath: string
-) => {
+//refactor
+async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
   try {
-    await fs.copy(resourcePath, targetPath);
-    // Codemod to update tailwind.config.js usage
-    const { entryPath, componentsPath } = getEntryPathAndComponentsPath();
-    const newPaths = entryPath.concat(componentsPath);
-    const allNewPaths = JSON.stringify(newPaths);
-    const transformerPath = join(
+    const NextTranformer = join(
       __dirname,
-      `${config.codeModesDir}/tailwind-config-transform.ts`
+      `${config.codeModesDir}/${config.nextJsProject}`
     );
-    exec(
-      `npx jscodeshift -t ${transformerPath}  ${targetPath} --paths='${allNewPaths}'`
-    );
-  } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
-  }
-};
-
-async function initNatiwindInNextJs(resolvedConfig: Config) {
-  try {
-    console.log('resolvedConfig', resolvedConfig);
-    renameIfExists(join(projectRootPath, 'tailwind.config.ts'));
     let nextTransformerPath = '';
-    let nextConfigPath = '';
+    let fileType = '';
+    const nextConfigPath = resolvedConfig.config.nextConfig;
 
-    if (existsSync(join(projectRootPath, 'next.config.mjs'))) {
-      nextConfigPath = join(projectRootPath, 'next.config.mjs');
-      nextTransformerPath = join(
-        __dirname,
-        `${config.codeModesDir}/${config.nextJsProject}/next-config-mjs-transform.ts`
-      );
-    } else if (existsSync(join(projectRootPath, 'next.config.js'))) {
-      nextConfigPath = join(projectRootPath, 'next.config.js');
-      nextTransformerPath = join(
-        __dirname,
-        `${config.codeModesDir}/${config.nextJsProject}/next-config-js-transform.ts`
-      );
+    if (nextConfigPath?.endsWith('.mjs')) {
+      fileType = 'mjs';
+    } else if (nextConfigPath?.endsWith('.js')) {
+      fileType = 'js';
     }
+    nextTransformerPath = join(
+      `${NextTranformer}/next-config-${fileType}-transform.ts`
+    );
 
     if (nextTransformerPath && nextConfigPath) {
       exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
     }
-  } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
-  }
-}
-
-async function initNatiwindInExpo() {
-  try {
-    const babelConfigPath = join(projectRootPath, 'babel.config.js');
-    const metroConfigPath = join(projectRootPath, 'metro.config.js');
-
-    await ensureFile(babelConfigPath);
-    const BabeltransformerPath = join(
-      __dirname,
-      `${config.codeModesDir}/${config.expoProject}/babel-config-transform.ts`
-    );
-    //metro-config-transform
-    if (existsSync(metroConfigPath)) {
-      const metroTransformerPath = join(
-        __dirname,
-        `${config.codeModesDir}/${config.expoProject}/metro-config-transform.ts`
+    if (resolvedConfig.app?.entry?.includes('layout')) {
+      // if app router add registry file to root
+      const registryContent = await fs.readFile(
+        join(__dirname, `${config.templatesDir}/common/registry.tsx`),
+        'utf8'
       );
-      exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
-      exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
-    } else {
-      await fs.ensureFile(metroConfigPath);
-      copy(
-        join(__dirname, `${config.templatesDir}/common/metro.config-expo.js`),
-        metroConfigPath
+      await fs.ensureFile(join(projectRootPath, 'registry.tsx'));
+      await fs.writeFile(
+        join(projectRootPath, 'registry.tsx'),
+        registryContent,
+        'utf8'
       );
-      exec(`npx jscodeshift -t ${BabeltransformerPath}  ${babelConfigPath}`);
     }
+    if (resolvedConfig.app?.entry?.includes('_app')) {
+      const pageDirPath = path.dirname(resolvedConfig.app.entry);
+      const docsPagePath = join(pageDirPath, '_document.tsx');
+      const transformerPath = join(
+        `${NextTranformer}/next-document-update-transform.ts`
+      );
+      exec(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
+    }
+
+    const options = JSON.stringify(resolvedConfig);
+    const transformerPath = join(
+      `${NextTranformer}/next-add-provider-transform.ts --config='${options}'`
+    );
+    exec(`npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}'`);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
 
-async function initNatiwindInReactNativeCLI() {
+async function initNatiwindExpoApp(resolveConfig: ExpoResolvedConfig) {
   try {
-    const babelConfigPath = join(projectRootPath, 'babel.config.js');
-    const metroConfigPath = join(projectRootPath, 'metro.config.js');
+    await ensureFile(resolveConfig.config.babelConfig);
+    await ensureFile(resolveConfig.config.metroConfig);
 
-    await ensureFile(babelConfigPath);
-    await ensureFile(metroConfigPath);
-
-    const BabelTransformerPath = join(
+    const expoTransformer = join(
       __dirname,
-      `${config.codeModesDir}/${config.reactNativeCLIProject}/babel-config-transform.ts`
+      config.codeModesDir,
+      config.expoProject
+    );
+    const BabeltransformerPath = join(
+      expoTransformer,
+      'babel-config-transform.ts'
     );
     const metroTransformerPath = join(
-      __dirname,
-      `${config.codeModesDir}/${config.reactNativeCLIProject}/metro-config-transform.ts`
+      expoTransformer,
+      'metro-config-transform.ts'
     );
-    exec(`npx jscodeshift -t ${BabelTransformerPath}  ${babelConfigPath}`);
-    exec(`npx jscodeshift -t ${metroTransformerPath}  ${metroConfigPath}`);
+    const rawCssPath = relative(_currDir, resolveConfig.tailwind.css);
+    const cssPath = './'.concat(rawCssPath);
+    const cssImportPath = '@/'.concat(rawCssPath);
+
+    const addProviderTransformerPath = join(
+      expoTransformer,
+      'expo-add-provider-transform.ts'
+    );
+    exec(
+      `npx jscodeshift -t ${metroTransformerPath}  ${
+        resolveConfig.config.metroConfig
+      } --cssPath='${cssPath}' --config='${JSON.stringify(resolveConfig)}'`
+    );
+    exec(
+      `npx jscodeshift -t ${BabeltransformerPath}  ${resolveConfig.config.babelConfig}`
+    );
+    exec(
+      `npx jscodeshift -t ${addProviderTransformerPath}  ${resolveConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
+    );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+  }
+}
+
+async function initNatiwindRNApp(resolvedConfig: any) {
+  try {
+    await ensureFile(resolvedConfig.config.babelConfig);
+    await ensureFile(resolvedConfig.config.metroConfig);
+
+    const RNTransformer = join(
+      __dirname,
+      config.codeModesDir,
+      config.reactNativeCLIProject
+    );
+    const BabelTransformerPath = join(
+      RNTransformer,
+      `babel-config-transform.ts`
+    );
+    const metroTransformerPath = join(
+      RNTransformer,
+      `metro-config-transform.ts`
+    );
+
+    exec(
+      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
+    );
+    exec(
+      `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
+    );
     execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
 }
 
-const filesToOverride = (projectType: string) => {
+async function generateProjectConfigAndInit(projectType: string) {
+  let resolvedConfig; // Initialize with a default value
+
   switch (projectType) {
     case config.nextJsProject:
-      return [
-        'next.config(.mjs/.js)',
-        'tailwind.config.js',
-        'global.css',
-        'tsconfig.json',
-      ];
-    case config.expoProject:
-      return [
-        'babel.config.js',
-        'metro.config.js',
-        'tailwind.config.js',
-        'global.css',
-        'tsconfig.json',
-      ];
-    case config.reactNativeCLIProject:
-      return [
-        'babel.config.js',
-        'metro.config.js',
-        'global.css',
-        'tsconfig.json',
-      ];
-    default:
-      return [];
-  }
-};
-
-function statementLength(statement: string) {
-  return statement.length;
-}
-
-async function overrideWarning(files: string[]) {
-  const boxLength = 90;
-  console.log(`\x1b[33m
-  ┌${'─'.repeat(boxLength)}┐
-  │                                                                                          │
-  │ WARNING: Overriding Files                                                                │
-  │                                                                                          │
-  │  The command you've run is attempting to override certain files in your project,         │
-  │  if already exist. Here's what's happening:                                              │
-  │                                                                                          │
-${files
-  .map(
-    (file) =>
-      `  │  - ${
-        '[' + file + ']'.padEnd(boxLength - statementLength(file) - 7)
-      }  │`
-  )
-  .join('\n')}  
-  │                                                                                          │
-  └${'─'.repeat(boxLength)}┘
-  \x1b[0m`);
-
-  const confirmInput = await confirm({
-    message: `\x1b[33mProceed with caution. Make sure to commit your changes before proceeding. Continue?
-    \x1b[0m`,
-  });
-  if (confirmInput === false) {
-    log.info(
-      'Skipping the step. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation\x1b[0m'
-    );
-  }
-  return confirmInput;
-}
-
-// Function to create a box with borders
-function consoleDemoCode() {
-  const message = `\x1b[32m
-  ┌───────────────────────────────────────────────────────────────────────────────────────────┐
-  │                                                                                           │
-  │ // ...other imports                                                                       │
-  │ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";              │
-  │ import "@/global.css";                                                                    │
-  │                                                                                           │
-  │ export default function App() {                                                           │
-  │  return (                                                                                 │
-  │     <GluestackUIProvider>                                                                 │
-  │     {/* Your code */}                                                                     │
-  │    </GluestackUIProvider>                                                                 │
-  │   );                                                                                      │
-  │ }                                                                                         │
-  │                                                                                           │
-  └───────────────────────────────────────────────────────────────────────────────────────────┘
-    \x1b[0m`;
-  console.log(message);
-}
-
-async function generateProjectConfig(projectType: string) {
-  switch (projectType) {
-    case config.nextJsProject:
-      const resolvedConfig = await generateConfigNextApp();
-      // await initNatiwindInNextJs(resolvedConfig);
+      resolvedConfig = await generateConfigNextApp();
+      await initNatiwindNextApp(resolvedConfig);
       break;
     case config.expoProject:
-      // await initNatiwindInExpo();
+      resolvedConfig = await generateConfigExpoApp();
+      await initNatiwindExpoApp(resolvedConfig);
       break;
     case config.reactNativeCLIProject:
-      // await initNatiwindInReactNativeCLI();
+      resolvedConfig = await generateConfigRNApp();
+      await initNatiwindRNApp(resolvedConfig);
       break;
     default:
       break;
   }
+  await commonInitialization(projectType, resolvedConfig);
 }
 
-export { InitializeGlueStack, generateProjectConfig };
+// const filesToOverride = (projectType: string) => {
+//   switch (projectType) {
+//     case config.nextJsProject:
+//       return [
+//         'next.config(.mjs/.js)',
+//         'tailwind.config.js',
+//         'global.css',
+//         'tsconfig.json',
+//       ];
+//     case config.expoProject:
+//       return [
+//         'babel.config.js',
+//         'metro.config.js',
+//         'tailwind.config.js',
+//         'global.css',
+//         'tsconfig.json',
+//       ];
+//     case config.reactNativeCLIProject:
+//       return [
+//         'babel.config.js',
+//         'metro.config.js',
+//         'global.css',
+//         'tsconfig.json',
+//       ];
+//     default:
+//       return [];
+//   }
+// };
+
+// function statementLength(statement: string) {
+//   return statement.length;
+// }
+
+// async function overrideWarning(files: string[]) {
+//   const boxLength = 90;
+//   console.log(`\x1b[33m
+//   ┌${'─'.repeat(boxLength)}┐
+//   │                                                                                          │
+//   │ WARNING: Overriding Files                                                                │
+//   │                                                                                          │
+//   │  The command you've run is attempting to override certain files in your project,         │
+//   │  if already exist. Here's what's happening:                                              │
+//   │                                                                                          │
+// ${files
+//   .map(
+//     (file) =>
+//       `  │  - ${
+//         '[' + file + ']'.padEnd(boxLength - statementLength(file) - 7)
+//       }  │`
+//   )
+//   .join('\n')}
+//   │                                                                                          │
+//   └${'─'.repeat(boxLength)}┘
+//   \x1b[0m`);
+
+//   const confirmInput = await confirm({
+//     message: `\x1b[33mProceed with caution. Make sure to commit your changes before proceeding. Continue?
+//     \x1b[0m`,
+//   });
+//   if (confirmInput === false) {
+//     log.info(
+//       'Skipping the step. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation\x1b[0m'
+//     );
+//   }
+//   return confirmInput;
+// }
+
+export { InitializeGlueStack };

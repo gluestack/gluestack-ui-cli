@@ -5,7 +5,7 @@ import { log } from '@clack/prompts';
 import { componentAdder } from '../util/add-components';
 import { config } from '../config';
 import { checkWritablePath, isValidPath, projectRootPath } from '../util';
-import { checkIfProviderExists } from '../util/config-helpers';
+import { checkIfInitialized, getComponentsPath } from '../util/config-generate';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -13,7 +13,7 @@ const addOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
-  path: z.string(),
+  path: z.string().optional(),
 });
 
 export const add = new Command()
@@ -24,11 +24,7 @@ export const add = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
-  .option(
-    '--path <path>',
-    'path to the components directory. defaults to components/ui',
-    'components/ui'
-  )
+  .option('--path <path>', 'path to the components directory')
   .action(async (components, opts, command) => {
     try {
       if (command.args.length > 1) {
@@ -50,21 +46,23 @@ export const add = new Command()
         );
         process.exit(0);
       }
-      if (!isValidPath(options.path)) {
+      if (options.path && !isValidPath(options.path)) {
         log.error(
           `\x1b[31mInvalid path "${options.path}". Please provide a valid path for installing components.\x1b[0m`
         );
         process.exit(1);
       }
+      //function to get current path where GUIProvider is located
+      const currWritablePath = await getComponentsPath();
+      if (currWritablePath) {
+        config.writableComponentsPath = currWritablePath;
+      }
 
-      if (options.path !== config.writableComponentsPath) {
+      if (options.path && options.path !== config.writableComponentsPath) {
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-      const initialized = await checkIfProviderExists(
-        projectRootPath,
-        config.UIconfigPath
-      );
+      const initialized = await checkIfInitialized(projectRootPath);
       if (!initialized) {
         log.warning(
           `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`

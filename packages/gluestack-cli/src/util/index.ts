@@ -1,7 +1,6 @@
 import os from 'os';
-import { join, dirname, extname, parse } from 'path';
-import util from 'util';
-import fs from 'fs-extra';
+import { join, dirname, extname } from 'path';
+import fs, { stat } from 'fs-extra';
 import {
   log,
   spinner,
@@ -9,14 +8,13 @@ import {
   isCancel,
   cancel,
   select,
+  text,
 } from '@clack/prompts';
 import finder from 'find-package-json';
 import simpleGit from 'simple-git';
 import { spawnSync } from 'child_process';
 import { config } from '../config';
 import { dependenciesConfig, projectBasedDependencies } from '../dependencies';
-import { checkIfFolderExists } from './file-helpers';
-import { RawConfig, generateConfigNextApp } from './config-helpers';
 
 // const stat = util.promisify(fs.stat);
 const homeDir = os.homedir();
@@ -331,24 +329,6 @@ const installPackages = async (
   }
 };
 
-const addIndexFile = async (componentsDirectory: string) => {
-  try {
-    const directories = await fs.readdir(componentsDirectory);
-    const componentDirectories = directories.filter((item) =>
-      fs.statSync(join(componentsDirectory, item)).isDirectory()
-    );
-    // Generate import and export statements for each component directory
-    const exportStatements = componentDirectories
-      .map((component) => `export * from './${component}';`)
-      .join('\n');
-
-    const indexContent = `${exportStatements}\n`;
-    await fs.writeFile(join(componentsDirectory, 'index.ts'), indexContent);
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-};
-
 //function to detect type of project
 async function detectProjectType(directoryPath: string): Promise<string> {
   try {
@@ -442,8 +422,8 @@ async function getFrameworkInput(): Promise<string> {
         label: 'React Native CLI',
       },
       {
-        value: 'other',
-        label: 'Other',
+        value: 'library',
+        label: 'library',
       },
     ],
   });
@@ -454,6 +434,66 @@ async function getFrameworkInput(): Promise<string> {
   return frameworkInput as string;
 }
 
+// Function to get existing component style is not used in the current implementation
+async function getExistingComponentStyle() {
+  //refactor this function so that we can directly fetch existing config path
+  if (fs.existsSync(join(currDir, config.UIconfigPath))) {
+    const fileContent: string = fs.readFileSync(
+      join(currDir, config.UIconfigPath),
+      'utf8'
+    );
+    // Define a regular expression pattern to match import statements
+    const importPattern: RegExp = new RegExp(
+      `import {\\s*\\w+\\s*} from ['"]nativewind['"]`,
+      'g'
+    );
+    if (importPattern.test(fileContent)) {
+      config.style = config.nativeWindRootPath;
+      return config.nativeWindRootPath;
+    } else {
+      config.style = config.gluestackStyleRootPath;
+      return config.gluestackStyleRootPath;
+    }
+  }
+}
+
+async function getComponentStyle() {
+  try {
+    if (
+      fs.existsSync(join(currDir, config.writableComponentsPath)) &&
+      fs.existsSync(join(currDir, config.UIconfigPath))
+    )
+      getExistingComponentStyle();
+    if (
+      fs.existsSync(join(currDir, config.writableComponentsPath)) &&
+      !fs.existsSync(join(currDir, config.UIconfigPath))
+    ) {
+      const userInput = await text({
+        message: `No file found as ${config.configFileName} in components folder, Enter path to your config file in your project, if exist:`,
+        validate(value) {
+          if (value.length === 0) return `please enter a valid path`;
+        },
+      });
+      config.UIconfigPath = userInput.toString();
+      config.configFileName = config.UIconfigPath.split('/').pop() as string;
+      if (fs.existsSync(join(currDir, config.UIconfigPath)))
+        getExistingComponentStyle();
+      else {
+        log.error(`\x1b[31mInvalid config path provided\x1b[0m`);
+        process.exit(1);
+      }
+    }
+    if (!fs.existsSync(join(currDir, config.writableComponentsPath))) {
+      log.warning(
+        `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
+      );
+      process.exit(1);
+    }
+  } catch (err) {
+    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+  }
+}
+
 //function to return additional dependencies based on project type
 async function getAdditionalDependencies(
   projectType: string | undefined,
@@ -461,7 +501,7 @@ async function getAdditionalDependencies(
 ) {
   try {
     if (style === config.nativeWindRootPath) {
-      if (projectType && projectType !== 'other') {
+      if (projectType && projectType !== 'library') {
         return projectBasedDependencies[projectType].dependencies;
       } else return;
     }
@@ -470,35 +510,7 @@ async function getAdditionalDependencies(
   }
 }
 
-// Function to copy file with checks
-const generateSpecificFile = async (
-  sourcePath: string,
-  targetPath: string,
-  fileName: string
-): Promise<void> => {
-  try {
-    // Check if file exists at targetPath
-    const exists = await fs.pathExists(targetPath);
-    if (exists) {
-      const ifConfirm = await confirm({
-        message: `File ${fileName} already exists. Do you want to overwrite it? (yes/no): `,
-      });
-      if (ifConfirm) {
-        await fs.copyFile(sourcePath, targetPath);
-      } else {
-        log.info(`Creating ${fileName} has been skipped...`);
-        return;
-      }
-      // return;
-    } else {
-      // File does not exist, proceed with copying
-      await fs.copyFile(sourcePath, targetPath);
-    }
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-};
-
+//regex check for --path input
 function isValidPath(path: string): boolean {
   const pathRegex = /^(?!\/{2})[a-zA-Z/.]{1,2}.*/;
   return pathRegex.test(path);
@@ -507,7 +519,7 @@ function isValidPath(path: string): boolean {
 const checkWritablePath = async (path: string): Promise<boolean> => {
   const confirmPath = await getConfirmation(
     `\x1b[33mContinue writing components in the above path? :\x1b[0m [If the path is incorrect, please provide the path from the root of the project]
-    \n\x1b[34m${join(currDir, path)}
+     \n\x1b[34m${join(currDir, path)}
     \x1b[0m`
   );
   if (confirmPath) {
@@ -517,17 +529,24 @@ const checkWritablePath = async (path: string): Promise<boolean> => {
   }
 };
 
+const checkIfFolderExists = async (path: string): Promise<boolean> => {
+  try {
+    const stats = await stat(path);
+    return stats.isDirectory();
+  } catch (error) {
+    return false;
+  }
+};
+
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
   installPackages,
-  addIndexFile,
   getAdditionalDependencies,
   detectProjectType,
   isValidPath,
   checkWritablePath,
   addDependencies,
+  getExistingComponentStyle,
   projectRootPath,
 };
-
-// const resolvedConfig = await generateConfigNextApp();
