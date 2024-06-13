@@ -43,7 +43,6 @@ export const init = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-      console.log(config.writableComponentsPath);
       const currDir = process.cwd();
       const projectType = await detectProjectType(currDir);
       InitializeGlueStack({

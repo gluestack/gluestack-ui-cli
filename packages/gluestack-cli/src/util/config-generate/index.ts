@@ -94,11 +94,10 @@ function getEntryPathAndComponentsPath(): {
       entryPath.push(`./${dir}/**/*.{tsx,jsx,ts,js}`);
     }
   });
-  if (fs.existsSync(config.writableComponentsPath)) {
-    const path = config.writableComponentsPath.split('/');
-    if (!entryPath.includes(`./${path[0]}/**/*.{tsx,jsx,ts,js}`)) {
-      componentsPath.push(`./${path[0]}/**/*.{tsx,jsx,ts,js}`);
-    }
+
+  const resolvedPath = config.writableComponentsPath.split('/');
+  if (!entryPath.includes(`./${resolvedPath[0]}/**/*.{tsx,jsx,ts,js}`)) {
+    componentsPath.push(`./${resolvedPath[0]}/**/*.{tsx,jsx,ts,js}`);
   }
   entryPath = [...entryPath, ...componentsPath];
   return { entryPath };
