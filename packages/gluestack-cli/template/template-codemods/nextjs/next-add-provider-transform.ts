@@ -27,6 +27,23 @@ const transform: Transform = (file, api, options) => {
         })
         .size() > 0;
 
+    function removeExtraParanthesisInFile() {
+      //to remove the extra paranthesis
+      root.find(j.ReturnStatement).forEach((path) => {
+        // Check if the return statement is returning a JSX element
+        if (path.value.argument && path.value.argument.type !== 'JSXFragment') {
+          if (path.node.argument && path.node.argument.type === 'JSXElement') {
+            // remove the extra paranthesis
+            // @ts-ignore
+            if (path.node.argument.extra) {
+              // @ts-ignore
+              path.node.argument.extra.parenthesized = false;
+            }
+          }
+        }
+      });
+    }
+    removeExtraParanthesisInFile();
     if (
       hasStyledJsx &&
       !alreadyWrappedWithStyledJsx &&
@@ -54,7 +71,7 @@ const transform: Transform = (file, api, options) => {
       // Add import for StyledJsxRegistry;
       if (
         root
-          .find(j.ImportDeclaration, { source: { value: '../../registry' } })
+          .find(j.ImportDeclaration, { source: { value: './registry' } })
           .size() === 0
       ) {
         root
@@ -63,7 +80,7 @@ const transform: Transform = (file, api, options) => {
           .insertAfter(
             j.importDeclaration(
               [j.importDefaultSpecifier(j.identifier('StyledJsxRegistry'))],
-              j.literal('../../registry')
+              j.literal('./registry')
             )
           );
       }
@@ -108,21 +125,7 @@ const transform: Transform = (file, api, options) => {
           )
         );
     }
-
-    //to remove the extra paranthesis
-    root.find(j.ReturnStatement).forEach((path) => {
-      // Check if the return statement is returning a JSX element
-      if (path.value.argument && path.value.argument.type !== 'JSXFragment') {
-        if (path.node.argument && path.node.argument.type === 'JSXElement') {
-          // remove the extra paranthesis
-          // @ts-ignore
-          if (path.node.argument.extra) {
-            // @ts-ignore
-            path.node.argument.extra.parenthesized = false;
-          }
-        }
-      }
-    });
+    removeExtraParanthesisInFile();
 
     return root.toSource();
   } catch (err) {

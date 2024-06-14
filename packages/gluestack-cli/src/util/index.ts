@@ -1,5 +1,5 @@
 import os from 'os';
-import { join, dirname, extname } from 'path';
+import path, { join, dirname, extname } from 'path';
 import fs, { stat } from 'fs-extra';
 import {
   log,
@@ -538,6 +538,16 @@ const checkIfFolderExists = async (path: string): Promise<boolean> => {
   }
 };
 
+function findDirectory(rootDir: string, relativePaths: string[]) {
+  for (const relPath of relativePaths) {
+    const dirPath = path.join(rootDir, relPath);
+    if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
+      return dirPath.replace(`${rootDir}/`, '');
+    }
+  }
+  return '';
+}
+
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
@@ -548,5 +558,6 @@ export {
   checkWritablePath,
   addDependencies,
   getExistingComponentStyle,
+  findDirectory,
   projectRootPath,
 };

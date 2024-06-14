@@ -8,7 +8,7 @@ import {
 } from './config-types';
 import { generateConfig, getConfigPath } from '.';
 import { config } from '../../config';
-import { projectRootPath } from '..';
+import { findDirectory, projectRootPath } from '..';
 
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
@@ -74,6 +74,12 @@ async function generateConfigNextApp(): Promise<NextResolvedConfig> {
   const postCssConfigPath = await getConfigPath(['postcss.config.*']);
   const nextConfigPath = await getConfigPath(['next.config.*']);
   const tsConfigPath = await getConfigPath(['tsconfig.*']);
+  let registryPath = '';
+  if (projectType?.includes('app')) {
+    const appDirectory = findDirectory(projectRootPath, ['src/app', 'app']);
+    registryPath = path.join(projectRootPath, appDirectory, 'registry.tsx');
+  }
+
   const gluestackConfig: RawConfig = {
     tailwind: {
       config: tailwindConfigPath.length
@@ -104,6 +110,7 @@ async function generateConfigNextApp(): Promise<NextResolvedConfig> {
     app: {
       type: projectType,
       entry: entryPath,
+      registry: registryPath,
     },
   };
 

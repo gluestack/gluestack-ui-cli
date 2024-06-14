@@ -61,12 +61,12 @@ const InitializeGlueStack = async ({
       config.style
     );
     await generateProjectConfigAndInit(projectType);
+    await addProvider();
     await addDependencies(
       installationMethod,
       inputComponent,
       additionalDependencies
     );
-    await addProvider();
     log.step(
       'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
     );
@@ -268,12 +268,15 @@ async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
         join(__dirname, `${config.templatesDir}/common/registry.tsx`),
         'utf8'
       );
-      await fs.ensureFile(join(projectRootPath, 'registry.tsx'));
-      await fs.writeFile(
-        join(projectRootPath, 'registry.tsx'),
-        registryContent,
-        'utf8'
-      );
+
+      if (resolvedConfig.app.registry) {
+        await fs.ensureFile(resolvedConfig.app.registry);
+        await fs.writeFile(
+          resolvedConfig.app.registry,
+          registryContent,
+          'utf8'
+        );
+      }
     }
     if (resolvedConfig.app?.entry?.includes('_app')) {
       const pageDirPath = path.dirname(resolvedConfig.app.entry);
@@ -356,12 +359,19 @@ async function initNatiwindRNApp(resolvedConfig: any) {
       RNTransformer,
       `metro-config-transform.ts`
     );
+    const addProviderTransformerPath = join(
+      RNTransformer,
+      'rn-add-provider-transform.ts'
+    );
 
     exec(
       `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
     );
     exec(
       `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
+    );
+    exec(
+      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}'`
     );
     execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {

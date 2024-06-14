@@ -36,6 +36,7 @@ export const NextResolvedConfigSchema = z.object({
   app: z.object({
     type: z.string().optional(),
     entry: z.string(),
+    registry: z.string().optional(),
   }),
 });
 

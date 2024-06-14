@@ -35,6 +35,35 @@ const transform: Transform = (file, api, options) => {
         j.stringLiteral(path)
       );
     }
+    const importantProperty = tailwindConfig.find(j.Property, {
+      key: { name: 'important' },
+    });
+
+    // if important: true roperty not found, create it
+    if (!importantProperty.size()) {
+      // Find the 'presets' property index
+      let presetsIndex = -1;
+      const properties = tailwindConfig.get(0).node.right.properties;
+
+      properties.forEach((property, index) => {
+        if (property.key.name === 'presets') {
+          presetsIndex = index;
+        }
+      });
+
+      if (presetsIndex !== -1) {
+        // Create the important property node
+        const importantPropertyNode = j.property(
+          'init',
+          j.identifier('important'),
+          j.literal(true)
+        );
+
+        // Insert the important property node after presets
+        properties.splice(presetsIndex + 1, 0, importantPropertyNode);
+      }
+    }
+
     return root.toSource();
   } catch (err) {
     console.log(`\x1b[31mError: ${err as Error}\x1b[0m`);
