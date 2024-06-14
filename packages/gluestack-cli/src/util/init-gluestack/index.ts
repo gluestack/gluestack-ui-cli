@@ -53,6 +53,7 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
+    const confirmOverride = await overrideWarning(filesToOverride(projectType));
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const inputComponent = [config.providerComponent];
@@ -60,7 +61,7 @@ const InitializeGlueStack = async ({
       projectType,
       config.style
     );
-    await generateProjectConfigAndInit(projectType);
+    await generateProjectConfigAndInit(projectType, confirmOverride);
     await addProvider();
     await addDependencies(
       installationMethod,
@@ -378,21 +379,24 @@ async function initNatiwindRNApp(resolvedConfig: any) {
   }
 }
 
-async function generateProjectConfigAndInit(projectType: string) {
+async function generateProjectConfigAndInit(
+  projectType: string,
+  confirmOverride: boolean | symbol
+) {
   let resolvedConfig; // Initialize with a default value
   if (projectType !== 'library') {
     switch (projectType) {
       case config.nextJsProject:
         resolvedConfig = await generateConfigNextApp();
-        await initNatiwindNextApp(resolvedConfig);
+        confirmOverride && (await initNatiwindNextApp(resolvedConfig));
         break;
       case config.expoProject:
         resolvedConfig = await generateConfigExpoApp();
-        await initNatiwindExpoApp(resolvedConfig);
+        confirmOverride && (await initNatiwindExpoApp(resolvedConfig));
         break;
       case config.reactNativeCLIProject:
         resolvedConfig = await generateConfigRNApp();
-        await initNatiwindRNApp(resolvedConfig);
+        confirmOverride && (await initNatiwindRNApp(resolvedConfig));
         break;
       default:
         break;
@@ -405,71 +409,72 @@ async function generateProjectConfigAndInit(projectType: string) {
   }
 }
 
-// const filesToOverride = (projectType: string) => {
-//   switch (projectType) {
-//     case config.nextJsProject:
-//       return [
-//         'next.config(.mjs/.js)',
-//         'tailwind.config.js',
-//         'global.css',
-//         'tsconfig.json',
-//       ];
-//     case config.expoProject:
-//       return [
-//         'babel.config.js',
-//         'metro.config.js',
-//         'tailwind.config.js',
-//         'global.css',
-//         'tsconfig.json',
-//       ];
-//     case config.reactNativeCLIProject:
-//       return [
-//         'babel.config.js',
-//         'metro.config.js',
-//         'global.css',
-//         'tsconfig.json',
-//       ];
-//     default:
-//       return [];
-//   }
-// };
+const filesToOverride = (projectType: string) => {
+  switch (projectType) {
+    case config.nextJsProject:
+      return [
+        'next.config(.mjs/.js)',
+        'tailwind.config.js',
+        'global.css',
+        'tsconfig.json',
+      ];
+    case config.expoProject:
+      return [
+        'babel.config.js',
+        'metro.config.js',
+        'tailwind.config.js',
+        'global.css',
+        'tsconfig.json',
+      ];
+    case config.reactNativeCLIProject:
+      return [
+        'babel.config.js',
+        'metro.config.js',
+        'global.css',
+        'tsconfig.json',
+      ];
+    default:
+      return [];
+  }
+};
 
-// function statementLength(statement: string) {
-//   return statement.length;
-// }
+// Helper function to calculate the length of the string without ANSI escape codes
+function getStringLengthWithoutAnsi(string: string) {
+  return string.replace(/\x1b\[[0-9;]*m/g, '').length;
+}
 
-// async function overrideWarning(files: string[]) {
-//   const boxLength = 90;
-//   console.log(`\x1b[33m
-//   ┌${'─'.repeat(boxLength)}┐
-//   │                                                                                          │
-//   │ WARNING: Overriding Files                                                                │
-//   │                                                                                          │
-//   │  The command you've run is attempting to override certain files in your project,         │
-//   │  if already exist. Here's what's happening:                                              │
-//   │                                                                                          │
-// ${files
-//   .map(
-//     (file) =>
-//       `  │  - ${
-//         '[' + file + ']'.padEnd(boxLength - statementLength(file) - 7)
-//       }  │`
-//   )
-//   .join('\n')}
-//   │                                                                                          │
-//   └${'─'.repeat(boxLength)}┘
-//   \x1b[0m`);
+async function overrideWarning(files: string[]) {
+  const boxLength = 90;
+  console.log(`\x1b[33m
+  ┌${'─'.repeat(boxLength)}┐
+  │                                                                                          │
+  │  NOTE: Files to get modified                                                             │
+  │                                                                                          │
+  │  The command you've run is attempting to modify certain files in your project,           │
+  │  if already exist. Here's what's happening:                                              │
+  │                                                                                          │
+${files
+  .map(
+    (file) =>
+      `  │  - ${file}${' '.repeat(
+        boxLength - getStringLengthWithoutAnsi(`  │  - ${file}`) + 3
+      )}│`
+  )
+  .join('\n')}
+  │                                                                                          │
+  └${'─'.repeat(boxLength)}┘
+  \x1b[0m`);
 
-//   const confirmInput = await confirm({
-//     message: `\x1b[33mProceed with caution. Make sure to commit your changes before proceeding. Continue?
-//     \x1b[0m`,
-//   });
-//   if (confirmInput === false) {
-//     log.info(
-//       'Skipping the step. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation\x1b[0m'
-//     );
-//   }
-//   return confirmInput;
-// }
+  const confirmInput = await confirm({
+    message: `\x1b[33mProceed with caution. Make sure to commit your changes before proceeding. Continue?
+    \x1b[0m`,
+  });
+  if (confirmInput === false) {
+    log.info(
+      'Skipping making changes in files. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation\x1b[0m'
+    );
+  }
+  return confirmInput;
+}
 
-export { InitializeGlueStack };
+export { InitializeGlueStack, filesToOverride, overrideWarning };
