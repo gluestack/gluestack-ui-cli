@@ -268,7 +268,6 @@ async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
         join(__dirname, `${config.templatesDir}/common/registry.tsx`),
         'utf8'
       );
-
       if (resolvedConfig.app.registry) {
         await fs.ensureFile(resolvedConfig.app.registry);
         await fs.writeFile(

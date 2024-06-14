@@ -58,6 +58,7 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
     app: {
       entry: path.resolve(projectRootPath, resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
+      registry: resultConfig?.app?.registry,
     },
   };
   return resolvedNextJsPaths;
