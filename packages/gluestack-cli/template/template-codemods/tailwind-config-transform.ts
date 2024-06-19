@@ -40,7 +40,7 @@ const transform: Transform = (file, api, options) => {
     });
 
     // if important: true roperty not found, create it
-    if (!importantProperty.size()) {
+    if (!importantProperty.size() && options.projectType === 'nextjs') {
       // Find the 'presets' property index
       let presetsIndex = -1;
       const properties = tailwindConfig.get(0).node.right.properties;
@@ -56,12 +56,33 @@ const transform: Transform = (file, api, options) => {
         const importantPropertyNode = j.property(
           'init',
           j.identifier('important'),
-          j.literal(true)
+          j.literal('html')
         );
 
         // Insert the important property node after presets
         properties.splice(presetsIndex + 1, 0, importantPropertyNode);
       }
+    }
+
+    // Find and modify the 'darkMode' property
+    const darkModeProperty = tailwindConfig.find(j.Property, {
+      key: { name: 'darkMode' },
+    });
+
+    const project = options.projectType;
+    const newDarkModeValue = project === 'nextjs' ? 'class' : 'media';
+
+    if (darkModeProperty.length) {
+      darkModeProperty.get(0).node.value = j.stringLiteral(newDarkModeValue);
+    } else {
+      // If darkMode property doesn't exist, add it
+      const properties = tailwindConfig.get(0).node.right.properties;
+      const darkModePropertyNode = j.property(
+        'init',
+        j.identifier('darkMode'),
+        j.stringLiteral(newDarkModeValue)
+      );
+      properties.push(darkModePropertyNode);
     }
 
     return root.toSource();

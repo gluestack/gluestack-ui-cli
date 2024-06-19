@@ -2,29 +2,26 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../../config';
 import { projectRootPath } from '..';
-import { cosmiconfig } from 'cosmiconfig';
 import fg from 'fast-glob';
-import {
-  RawConfig,
-  RawConfigSchema,
-  PROJECT_SHARED_IGNORE,
-} from './config-types';
+import { RawConfig, PROJECT_SHARED_IGNORE } from './config-types';
 
 const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
 const possibleIndexFiles = ['_app', 'index', 'App'];
 const possibleDirectories = ['src', 'pages', 'app', 'components'];
 
-const explorer = cosmiconfig('gluestack-ui', {
-  searchPlaces: ['gluestack-ui.json'],
-});
+function findDirectory(rootDir: string, relativePaths: string[]) {
+  for (const relPath of relativePaths) {
+    const dirPath = path.join(rootDir, relPath);
+    if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
+      return dirPath.replace(`${rootDir}/`, '');
+    }
+  }
+  return '';
+}
 
 async function checkIfInitialized(cwd: string): Promise<boolean> {
   try {
-    const initializeStatus = await fg.glob('gluestack-ui.config.json', {
-      cwd,
-      deep: 8,
-      ignore: PROJECT_SHARED_IGNORE,
-    });
+    const initializeStatus = await getComponentsPath();
     if (initializeStatus.length) {
       return true;
     }
@@ -53,18 +50,6 @@ async function getComponentsPath(): Promise<string> {
     ''
   );
   return resolvedComponentsPath;
-}
-
-async function checkConfigSchema(cwd: string): Promise<RawConfig | null> {
-  try {
-    const configResult = await explorer.search(cwd);
-    if (!configResult) {
-      return null;
-    }
-    return RawConfigSchema.parse(configResult.config);
-  } catch (error) {
-    throw new Error(`Invalid configuration found in ${cwd}/gluestack-ui.json.`);
-  }
 }
 
 function getEntryPathAndComponentsPath(): {
@@ -119,9 +104,14 @@ async function generateConfig(resultConfig: RawConfig) {
 }
 
 async function generateGluestackConfig() {
+  const componentPath = path.resolve(
+    projectRootPath,
+    config.writableComponentsPath
+  );
+
   const gluestackConfig = {
     app: {
-      components: config.writableComponentsPath,
+      components: componentPath.replace(`${projectRootPath}/`, ''),
     },
   };
   const targetPath = path.resolve(projectRootPath, 'gluestack-ui.config.json');
@@ -139,4 +129,5 @@ export {
   getConfigPath,
   getComponentsPath,
   generateGluestackConfig,
+  findDirectory,
 };

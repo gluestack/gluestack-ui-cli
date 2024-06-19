@@ -1,5 +1,5 @@
 import os from 'os';
-import path, { join, dirname, extname } from 'path';
+import { join, dirname, extname, resolve } from 'path';
 import fs, { stat } from 'fs-extra';
 import {
   log,
@@ -14,6 +14,7 @@ import finder from 'find-package-json';
 import simpleGit from 'simple-git';
 import { spawnSync } from 'child_process';
 import { config } from '../config';
+import prettier from 'prettier';
 import { dependenciesConfig, projectBasedDependencies } from '../dependencies';
 
 // const stat = util.promisify(fs.stat);
@@ -538,14 +539,29 @@ const checkIfFolderExists = async (path: string): Promise<boolean> => {
   }
 };
 
-function findDirectory(rootDir: string, relativePaths: string[]) {
-  for (const relPath of relativePaths) {
-    const dirPath = path.join(rootDir, relPath);
-    if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
-      return dirPath.replace(`${rootDir}/`, '');
+async function formatFileWithPrettier(filePath: string | undefined) {
+  try {
+    if (!filePath) {
+      log.error(
+        `\x1b[31mError formatting file: Invalid file path provided\x1b[0m`
+      );
+      return;
     }
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+
+    // Get Prettier configuration (if any) from the project
+    const prettierConfig = await prettier.resolveConfig(filePath);
+
+    // Format the file content using Prettier
+    const formattedContent = await prettier.format(fileContent, {
+      ...prettierConfig,
+      filepath: filePath, // This ensures Prettier uses the correct parser based on the file extension
+    });
+
+    fs.writeFileSync(filePath, formattedContent, 'utf8');
+  } catch (err) {
+    log.error(`\x1b[Error formatting file : ${(err as Error).message}\x1b[0m`);
   }
-  return '';
 }
 
 export {
@@ -558,6 +574,6 @@ export {
   checkWritablePath,
   addDependencies,
   getExistingComponentStyle,
-  findDirectory,
+  formatFileWithPrettier,
   projectRootPath,
 };

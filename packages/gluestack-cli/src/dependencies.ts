@@ -17,6 +17,7 @@ const projectBasedDependencies: Dependency = {
       autoprefixer: 'latest',
       'react-native-web': 'latest',
       '@gluestack/ui-next-adapter': 'latest',
+      '@types/react-native': '^0.73.0',
     },
   },
   expo: {
@@ -42,6 +43,7 @@ const dependenciesConfig: Dependencies = {
     },
     devDependencies: {
       jscodeshift: '0.15.2',
+      prettier: '^3.3.2',
     },
   },
   accordion: {

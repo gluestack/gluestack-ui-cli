@@ -6,9 +6,9 @@ import {
   NextResolvedConfig,
   PROJECT_SHARED_IGNORE,
 } from './config-types';
-import { generateConfig, getConfigPath } from '.';
+import { findDirectory, generateConfig, getConfigPath } from '.';
 import { config } from '../../config';
-import { findDirectory, projectRootPath } from '..';
+import { projectRootPath } from '..';
 
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
