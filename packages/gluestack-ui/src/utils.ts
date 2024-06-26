@@ -1,15 +1,15 @@
-import fs from 'fs-extra';
-import path from 'path';
-import finder from 'find-package-json';
-import { spawnSync } from 'child_process';
 import {
-  isCancel,
   cancel,
   confirm,
+  isCancel,
+  log,
   select,
   spinner,
-  log,
 } from '@clack/prompts';
+import { spawnSync } from 'child_process';
+import finder from 'find-package-json';
+import fs from 'fs-extra';
+import path from 'path';
 
 const currDir = process.cwd();
 
@@ -25,6 +25,7 @@ const detectLockFile = (): string | null => {
   const packageLockPath = path.join(projectRootPath, 'package-lock.json');
   const yarnLockPath = path.join(projectRootPath, 'yarn.lock');
   const pnpmLockPath = path.join(projectRootPath, 'pnpm-lock.yaml');
+  const bunLockPath = path.join(projectRootPath, 'bun.lockb');
 
   if (fs.existsSync(packageLockPath)) {
     return 'npm';
@@ -32,6 +33,8 @@ const detectLockFile = (): string | null => {
     return 'yarn';
   } else if (fs.existsSync(pnpmLockPath)) {
     return 'pnpm';
+  } else if (fs.existsSync(bunLockPath)) {
+    return 'bun';
   } else {
     return null;
   }
@@ -45,6 +48,7 @@ const promptVersionManager = async (): Promise<any> => {
       { value: 'npm', label: 'npm', hint: 'recommended' },
       { value: 'yarn', label: 'yarn' },
       { value: 'pnpm', label: 'pnpm' },
+      { value: 'bun', label: 'bun' },
     ],
   });
   if (isCancel(packageManager)) {
@@ -79,6 +83,9 @@ const installDependencies = async (
         break;
       case 'pnpm':
         command = 'pnpm i --lockfile-only';
+        break;
+      case 'bun':
+        command = 'bun i';
         break;
       default:
         throw new Error('Invalid package manager selected');
@@ -156,10 +163,10 @@ const dashToPascal = (str: string): string => {
 };
 
 export {
-  getConfigComponentPath,
-  installDependencies,
   addIndexFile,
-  pascalToDash,
   dashToPascal,
+  getConfigComponentPath,
   getPackageJsonPath,
+  installDependencies,
+  pascalToDash,
 };

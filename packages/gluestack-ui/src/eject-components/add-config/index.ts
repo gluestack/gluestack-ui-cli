@@ -1,8 +1,8 @@
-import fs from 'fs-extra';
-import path, { join } from 'path';
-import os from 'os';
-import { warn } from 'console';
 import { log } from '@clack/prompts';
+import { warn } from 'console';
+import fs from 'fs-extra';
+import os from 'os';
+import path, { join } from 'path';
 
 const homeDir = os.homedir();
 

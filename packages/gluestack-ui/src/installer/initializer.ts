@@ -1,16 +1,14 @@
-import { initChecker } from '../init-checker';
-import { initialProviderAdder } from '../component-adder';
-import fs from 'fs-extra';
+import { cancel, confirm, isCancel, log, select, text } from '@clack/prompts';
 import { projectDetector } from '@gluestack/ui-project-detector';
-import { nextInstaller } from './next';
-import { expoInstaller } from './expo';
-import { isCancel, cancel, text, confirm, log, select } from '@clack/prompts';
-import { isFollowingSrcDir, mergePaths, isStartingWithSrc } from './utils';
-import { get } from 'http';
-import { npmPackageInstaller } from './npm-package';
-import path, { join } from 'path';
+import fs from 'fs-extra';
 import os from 'os';
-import { match } from 'assert';
+import path, { join } from 'path';
+import { initialProviderAdder } from '../component-adder';
+import { initChecker } from '../init-checker';
+import { expoInstaller } from './expo';
+import { nextInstaller } from './next';
+import { npmPackageInstaller } from './npm-package';
+import { isFollowingSrcDir, isStartingWithSrc, mergePaths } from './utils';
 const getComponentRepoType = async (): Promise<string | symbol> => {
   const repoType: string | symbol = await select({
     message:

@@ -7,12 +7,11 @@ let supportedArgs = [
   '--help',
   '-h',
   '--use-pnpm',
+  '--use-bun',
   '--app',
   '--page',
 ];
-import path from 'path';
-import fs from 'fs';
-import { cancel, isCancel, log, spinner, text, select } from '@clack/prompts';
+import { cancel, log, select } from '@clack/prompts';
 import { spawnSync } from 'child_process';
 
 async function main() {
@@ -63,6 +62,8 @@ async function main() {
     installationPackage = 'yarn';
   } else if (packageManager && packageManager.includes('pnpm')) {
     installationPackage = 'pnpm';
+  } else if (packageManager && packageManager.includes('bun')) {
+    installationPackage = 'bun';
   } else {
     installationPackage = 'npm';
   }
