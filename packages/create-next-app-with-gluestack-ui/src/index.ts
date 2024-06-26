@@ -7,13 +7,14 @@ let supportedArgs = [
   '--help',
   '-h',
   '--use-pnpm',
+  '--use-bun',
   '--app',
   '--page',
 ];
-import path from 'path';
-import fs from 'fs';
-import { cancel, isCancel, log, spinner, text, select } from '@clack/prompts';
+import { cancel, isCancel, log, select, spinner, text } from '@clack/prompts';
 import { spawnSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 function installDependencies(projectName: string, installationMethod: string) {
   const projectPath = path.join(process.cwd(), projectName);
@@ -81,6 +82,7 @@ async function main() {
                 --use-npm           use npm to install dependencies
                 --use-yarn          use yarn to install dependencies
                 --use-pnpm          use pnpm to install dependencies
+                --use-bun           use bun to install dependencies
               `
         );
         process.exit(0);
@@ -94,6 +96,8 @@ async function main() {
         useAppRouter = 'yes';
       } else if (args[i] === '--page') {
         useAppRouter = 'no';
+      } else if (args[i] === '--use-bun') {
+        installationMethod = 'bun i';
       }
     } else {
       log.warning(

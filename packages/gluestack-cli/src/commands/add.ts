@@ -1,11 +1,11 @@
+import { log } from '@clack/prompts';
 import { Command } from 'commander';
 import { z } from 'zod';
-import { handleError } from '../util/handle-error';
-import { log } from '@clack/prompts';
-import { componentAdder } from '../util/add';
 import { config } from '../config';
 import { checkWritablePath, isValidPath, projectRootPath } from '../util';
+import { componentAdder } from '../util/add';
 import { checkIfInitialized, getComponentsPath } from '../util/config';
+import { handleError } from '../util/handle-error';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -13,6 +13,7 @@ const addOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
+  useBun: z.boolean(),
   path: z.string().optional(),
 });
 
@@ -24,6 +25,7 @@ export const add = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
+  .option('--use-bun, useBun', 'use bun to install dependencies', false)
   .option('--path <path>', 'path to the components directory')
   .action(async (components, opts, command) => {
     try {
@@ -70,10 +72,16 @@ export const add = new Command()
         process.exit(1);
       }
       let installationMethod;
-      if (options.useNpm || options.useYarn || options.usePnpm) {
+      if (
+        options.useNpm ||
+        options.useYarn ||
+        options.usePnpm ||
+        options.useBun
+      ) {
         if (options.useNpm) installationMethod = 'npm';
         if (options.usePnpm) installationMethod = 'pnpm';
         if (options.useYarn) installationMethod = 'yarn';
+        if (options.useBun) installationMethod = 'bun';
       }
       if (options.all) {
         try {

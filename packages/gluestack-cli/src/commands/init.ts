@@ -1,8 +1,6 @@
+import { log } from '@clack/prompts';
 import { Command } from 'commander';
 import { z } from 'zod';
-import { handleError } from '../util/handle-error';
-import { log } from '@clack/prompts';
-import { InitializeGlueStack } from '../util/init';
 import { config } from '../config';
 import {
   checkWritablePath,
@@ -10,11 +8,14 @@ import {
   isValidPath,
   projectRootPath,
 } from '../util';
+import { handleError } from '../util/handle-error';
+import { InitializeGlueStack } from '../util/init';
 
 const initOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
+  useBun: z.boolean(),
   path: z.string().optional(),
 });
 
@@ -24,6 +25,7 @@ export const init = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
+  .option('--use-bun, useBun', 'use bun to install dependencies', false)
   .option(
     '--path <path>',
     'path to the components directory. defaults to components/ui'
@@ -32,10 +34,16 @@ export const init = new Command()
     try {
       const options = initOptionsSchema.parse({ ...opts });
       let installationMethod;
-      if (options.useNpm || options.useYarn || options.usePnpm) {
+      if (
+        options.useNpm ||
+        options.useYarn ||
+        options.usePnpm ||
+        options.useBun
+      ) {
         if (options.useNpm) installationMethod = 'npm';
         if (options.usePnpm) installationMethod = 'pnpm';
         if (options.useYarn) installationMethod = 'yarn';
+        if (options.useBun) installationMethod = 'bun';
       }
       // Check if the string starts with "/" or "."
       if (options.path && !isValidPath(options.path)) {

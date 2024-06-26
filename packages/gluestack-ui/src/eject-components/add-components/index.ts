@@ -1,4 +1,6 @@
+import { cancel, confirm, isCancel, log } from '@clack/prompts';
 import fs from 'fs-extra';
+import os from 'os';
 import path from 'path';
 import {
   addIndexFile,
@@ -7,8 +9,6 @@ import {
   getPackageJsonPath,
   pascalToDash,
 } from '../../utils';
-import { isCancel, cancel, confirm, log } from '@clack/prompts';
-import os from 'os';
 const prompts = require('prompts');
 
 const rootPackageJsonPath: string = getPackageJsonPath();
@@ -98,7 +98,7 @@ const componentAdder = async (
     }
 
     await Promise.all(
-      addComponents.map(async component => {
+      addComponents.map(async (component) => {
         const componentPath = getConfigComponentPath();
         // createFolders(path.join(currDir, componentPath));
         const targetPath = path.join(currDir, componentPath);
@@ -177,7 +177,7 @@ const copyFolders = async (
           type: 'multiselect',
           name: 'value',
           message: 'Select the type of components:',
-          choices: Object.keys(groupedComponents).map(type => {
+          choices: Object.keys(groupedComponents).map((type) => {
             return { value: type, title: type };
           }),
           validate: (value: any) => value.length > 0,
@@ -202,7 +202,7 @@ const copyFolders = async (
                 type: 'multiselect',
                 name: 'value',
                 message: 'Select the type of components:',
-                choices: groupedComponents[component].map(type => {
+                choices: groupedComponents[component].map((type) => {
                   return { title: type, value: type };
                 }),
                 instructions: false,
@@ -236,7 +236,7 @@ const copyFolders = async (
   }
 
   await Promise.all(
-    Object.keys(selectedComponents).map(component => {
+    Object.keys(selectedComponents).map((component) => {
       // createFolders(path.join(targetPath, component));
       selectedComponents[component].map((subcomponent: any) => {
         // Add Packages
@@ -306,15 +306,15 @@ const copyFolders = async (
 
         if (!isUpdate) {
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' +
-              originalComponentPath +
-              '\u001b[22m'} \x1b[0m component added successfully!`
+            `\x1b[32m✅  ${
+              '\u001b[1m' + originalComponentPath + '\u001b[22m'
+            } \x1b[0m component added successfully!`
           );
         } else {
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' +
-              originalComponentPath +
-              '\u001b[22m'} \x1b[0m component updated successfully!`
+            `\x1b[32m✅  ${
+              '\u001b[1m' + originalComponentPath + '\u001b[22m'
+            } \x1b[0m component updated successfully!`
           );
         }
       });
@@ -358,7 +358,7 @@ const checkForExistingFolders = async (
         type: 'multiselect',
         name: 'value',
         message: `The following components already exists. Kindly choose the ones you wish to replace. Be advised that if there are any interdependent components, selecting them for replacement will result in their dependent components being replaced as well.`,
-        choices: alreadyExistingComponents.map(component => ({
+        choices: alreadyExistingComponents.map((component) => ({
           title: component,
           value: component,
         })),
@@ -376,7 +376,7 @@ const checkForExistingFolders = async (
 
   // Remove repeated components from all components
   const filteredComponents = specificComponents.filter(
-    component => !alreadyExistingComponents.includes(component)
+    (component) => !alreadyExistingComponents.includes(component)
   );
 
   // Add selected components to all components

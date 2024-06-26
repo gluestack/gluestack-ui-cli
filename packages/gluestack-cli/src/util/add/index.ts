@@ -1,7 +1,7 @@
+import { confirm, log } from '@clack/prompts';
 import fs from 'fs-extra';
-import { join } from 'path';
 import os from 'os';
-import { log, confirm } from '@clack/prompts';
+import { join } from 'path';
 import {
   addDependencies,
   cloneRepositoryAtRoot,
@@ -43,6 +43,7 @@ const componentAdder = async ({
       !existingComponentsChecked && showWarning && requestedComponent
         ? await isComponentInConfig(requestedComponents)
         : requestedComponents;
+
     await Promise.all(
       updatedComponents.map(async (component) => {
         const targetPath = join(
@@ -50,7 +51,7 @@ const componentAdder = async ({
           config.writableComponentsPath,
           component
         );
-
+        console.log(`writing component`, component, targetPath);
         await writeComponent(component, targetPath);
       })
     )
