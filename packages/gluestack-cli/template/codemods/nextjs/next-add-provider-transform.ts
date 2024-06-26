@@ -94,7 +94,7 @@ const transform: Transform = (file, api, options) => {
         const gluestackUIProviderElement = j.jsxElement(
           j.jsxOpeningElement(
             j.jsxIdentifier('GluestackUIProvider'),
-            [],
+            [j.jsxAttribute(j.jsxIdentifier('mode'), j.literal('light'))],
             false
           ),
           j.jsxClosingElement(j.jsxIdentifier('GluestackUIProvider')),

@@ -5,19 +5,19 @@ import path, { join, relative } from 'path';
 import { log, confirm } from '@clack/prompts';
 import { promisify } from 'util';
 import { exec, execSync } from 'child_process';
-import { generateConfigNextApp } from '../config-generate/next-config-helper';
-import { generateConfigExpoApp } from '../config-generate/expo-config-helper';
-import { generateConfigRNApp } from '../config-generate/react-native-config-helper';
+import { generateConfigNextApp } from '../config/next-config-helper';
+import { generateConfigExpoApp } from '../config/expo-config-helper';
+import { generateConfigRNApp } from '../config/react-native-config-helper';
 import {
   RawConfig,
   NextResolvedConfig,
   ExpoResolvedConfig,
-} from '../config-generate/config-types';
+} from '../config/config-types';
 import {
   checkIfInitialized,
   generateGluestackConfig,
   getEntryPathAndComponentsPath,
-} from '../config-generate';
+} from '../config';
 import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,

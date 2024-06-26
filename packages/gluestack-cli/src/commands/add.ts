@@ -2,10 +2,10 @@ import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
-import { componentAdder } from '../util/add-components';
+import { componentAdder } from '../util/add';
 import { config } from '../config';
 import { checkWritablePath, isValidPath, projectRootPath } from '../util';
-import { checkIfInitialized, getComponentsPath } from '../util/config-generate';
+import { checkIfInitialized, getComponentsPath } from '../util/config';
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),

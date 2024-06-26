@@ -18,7 +18,7 @@ const config = {
   nativewindUtilPattern: '@gluestack-ui/nativewind-utils/',
   gluestackUIPattern: '@gluestack-ui/',
   templatesDir: '../../../template',
-  codeModesDir: '../../../template/template-codemods',
+  codeModesDir: '../../../template/codemods',
 };
 
 export { config };

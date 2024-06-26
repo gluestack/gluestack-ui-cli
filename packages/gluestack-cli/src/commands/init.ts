@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
-import { InitializeGlueStack } from '../util/init-gluestack';
+import { InitializeGlueStack } from '../util/init';
 import { config } from '../config';
 import {
   checkWritablePath,

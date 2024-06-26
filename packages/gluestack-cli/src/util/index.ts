@@ -1,5 +1,5 @@
 import os from 'os';
-import { join, dirname, extname, resolve } from 'path';
+import { join, dirname, extname } from 'path';
 import fs, { stat } from 'fs-extra';
 import {
   log,
