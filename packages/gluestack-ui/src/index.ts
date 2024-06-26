@@ -1,15 +1,15 @@
 #!/usr/bin/env node
+import { confirm, intro, log, outro } from '@clack/prompts';
 import { componentAdder, getComponentGitRepo } from './component-adder';
-import { updateComponent } from './update-component';
+import { ejectComponents } from './eject-components';
 import { initializer } from './installer/initializer';
 import { removeComponent } from './remove-component';
-import { intro, outro, confirm, log } from '@clack/prompts';
+import { updateComponent } from './update-component';
 import { installDependencies } from './utils';
-import { ejectComponents } from './eject-components';
 
 async function main() {
   intro(`gluestack-ui`);
-  let supportedArgs = ['--use-npm', '--use-yarn', '--use-pnpm'];
+  let supportedArgs = ['--use-npm', '--use-yarn', '--use-pnpm', '--use-bun'];
   const command = process.argv[2];
   const subCommand = process.argv[3];
   const args = process.argv.splice(4);
@@ -24,6 +24,8 @@ async function main() {
         installationMethod = 'yarn';
       } else if (args[i] === '--use-pnpm') {
         installationMethod = 'pnpm i --lockfile-only';
+      } else if (args[i] === '--use-bun') {
+        installationMethod = 'bun i';
       } else if (args[i] === '--force-update') {
         forceUpdate = true;
       }

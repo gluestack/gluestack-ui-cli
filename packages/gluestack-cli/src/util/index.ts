@@ -1,20 +1,20 @@
-import os from 'os';
-import { join, dirname, extname } from 'path';
-import fs, { stat } from 'fs-extra';
 import {
-  log,
-  spinner,
+  cancel,
   confirm,
   isCancel,
-  cancel,
+  log,
   select,
+  spinner,
   text,
 } from '@clack/prompts';
-import finder from 'find-package-json';
-import simpleGit from 'simple-git';
 import { spawnSync } from 'child_process';
-import { config } from '../config';
+import finder from 'find-package-json';
+import fs, { stat } from 'fs-extra';
+import os from 'os';
+import { dirname, extname, join } from 'path';
 import prettier from 'prettier';
+import simpleGit from 'simple-git';
+import { config } from '../config';
 import { dependenciesConfig, projectBasedDependencies } from '../dependencies';
 
 // const stat = util.promisify(fs.stat);
@@ -36,15 +36,14 @@ interface Dependencies {
 type Input = string | string[];
 
 const getAllComponents = (): string[] => {
+  const componentListDir = join(
+    homeDir,
+    config.gluestackDir,
+    config.componentsResourcePath,
+    config.style
+  );
   const componentList = fs
-    .readdirSync(
-      join(
-        homeDir,
-        config.gluestackDir,
-        config.componentsResourcePath,
-        config.style
-      )
-    )
+    .readdirSync(componentListDir)
     .filter(
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js'].includes(extname(file).toLowerCase()) &&
@@ -138,6 +137,7 @@ const detectLockFile = (): string | null => {
   const packageLockPath = join(projectRootPath, 'package-lock.json');
   const yarnLockPath = join(projectRootPath, 'yarn.lock');
   const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
+  const bunLockPath = join(projectRootPath, 'bun.lockb');
 
   if (fs.existsSync(packageLockPath)) {
     return 'npm';
@@ -145,6 +145,8 @@ const detectLockFile = (): string | null => {
     return 'yarn';
   } else if (fs.existsSync(pnpmLockPath)) {
     return 'pnpm';
+  } else if (fs.existsSync(bunLockPath)) {
+    return 'bun';
   } else {
     return null;
   }
@@ -157,6 +159,7 @@ function findLockFileType(): string | null {
     const packageLockPath = join(currentDir, 'package-lock.json');
     const yarnLockPath = join(currentDir, 'yarn.lock');
     const pnpmLockPath = join(currentDir, 'pnpm-lock.yaml');
+    const bunLockPath = join(currentDir, 'bun.lockb');
 
     if (fs.existsSync(packageLockPath)) {
       return 'npm';
@@ -164,6 +167,8 @@ function findLockFileType(): string | null {
       return 'yarn';
     } else if (fs.existsSync(pnpmLockPath)) {
       return 'pnpm';
+    } else if (fs.existsSync(bunLockPath)) {
+      return 'bun';
     } else if (currentDir === dirname(currentDir)) {
       // Reached root directory
       return null;
@@ -181,6 +186,7 @@ const promptVersionManager = async (): Promise<any> => {
       { value: 'npm', label: 'npm', hint: 'recommended' },
       { value: 'yarn', label: 'yarn' },
       { value: 'pnpm', label: 'pnpm' },
+      { value: 'bun', label: 'bun' },
     ],
   });
   if (isCancel(packageManager)) {
@@ -293,6 +299,9 @@ const installPackages = async (
       case 'pnpm':
         command = `pnpm i --lockfile-only `;
         break;
+      case 'bun':
+        command = `bun install`;
+        break;
       default:
         throw new Error('Invalid package manager selected');
     }
@@ -306,6 +315,9 @@ const installPackages = async (
         break;
       case 'pnpm':
         command = `pnpm i --lockfile-only`;
+        break;
+      case 'bun':
+        command = `bun install`;
         break;
       default:
         throw new Error('Invalid package manager selected');
@@ -565,15 +577,15 @@ async function formatFileWithPrettier(filePath: string | undefined) {
 }
 
 export {
-  cloneRepositoryAtRoot,
-  getAllComponents,
-  installPackages,
-  getAdditionalDependencies,
-  detectProjectType,
-  isValidPath,
-  checkWritablePath,
   addDependencies,
-  getExistingComponentStyle,
+  checkWritablePath,
+  cloneRepositoryAtRoot,
+  detectProjectType,
   formatFileWithPrettier,
+  getAdditionalDependencies,
+  getAllComponents,
+  getExistingComponentStyle,
+  installPackages,
+  isValidPath,
   projectRootPath,
 };

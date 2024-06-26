@@ -1,9 +1,9 @@
+import { cancel, confirm, isCancel, log } from '@clack/prompts';
 import fs from 'fs-extra';
+import os from 'os';
 import path from 'path';
 import { componentAdder } from '../component-adder';
 import { dashToPascal, getConfigComponentPath, pascalToDash } from '../utils';
-import { isCancel, cancel, confirm, log } from '@clack/prompts';
-import os from 'os';
 
 const homeDir = os.homedir();
 const getAllComponents = (source: string): string[] => {

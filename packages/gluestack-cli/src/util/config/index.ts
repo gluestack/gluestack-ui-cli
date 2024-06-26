@@ -1,9 +1,9 @@
+import fg from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config } from '../../config';
 import { projectRootPath } from '..';
-import fg from 'fast-glob';
-import { RawConfig, PROJECT_SHARED_IGNORE } from './config-types';
+import { config } from '../../config';
+import { PROJECT_SHARED_IGNORE, RawConfig } from './config-types';
 
 const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
 const possibleIndexFiles = ['_app', 'index', 'App'];
@@ -124,10 +124,10 @@ async function generateGluestackConfig() {
 
 export {
   checkIfInitialized,
-  getEntryPathAndComponentsPath,
-  generateConfig,
-  getConfigPath,
-  getComponentsPath,
-  generateGluestackConfig,
   findDirectory,
+  generateConfig,
+  generateGluestackConfig,
+  getComponentsPath,
+  getConfigPath,
+  getEntryPathAndComponentsPath,
 };

@@ -1,30 +1,30 @@
-import os from 'os';
-import { config } from '../../config';
-import fs, { copy, ensureFile, existsSync } from 'fs-extra';
-import path, { join, relative } from 'path';
-import { log, confirm } from '@clack/prompts';
-import { promisify } from 'util';
+import { confirm, log } from '@clack/prompts';
 import { exec, execSync } from 'child_process';
-import { generateConfigNextApp } from '../config/next-config-helper';
-import { generateConfigExpoApp } from '../config/expo-config-helper';
-import { generateConfigRNApp } from '../config/react-native-config-helper';
+import fs, { copy, ensureFile, existsSync } from 'fs-extra';
+import os from 'os';
+import path, { join, relative } from 'path';
+import { promisify } from 'util';
 import {
-  RawConfig,
-  NextResolvedConfig,
-  ExpoResolvedConfig,
-} from '../config/config-types';
+  addDependencies,
+  cloneRepositoryAtRoot,
+  formatFileWithPrettier,
+  getAdditionalDependencies,
+  projectRootPath,
+} from '..';
+import { config } from '../../config';
 import {
   checkIfInitialized,
   generateGluestackConfig,
   getEntryPathAndComponentsPath,
 } from '../config';
 import {
-  cloneRepositoryAtRoot,
-  getAdditionalDependencies,
-  addDependencies,
-  projectRootPath,
-  formatFileWithPrettier,
-} from '..';
+  ExpoResolvedConfig,
+  NextResolvedConfig,
+  RawConfig,
+} from '../config/config-types';
+import { generateConfigExpoApp } from '../config/expo-config-helper';
+import { generateConfigNextApp } from '../config/next-config-helper';
+import { generateConfigRNApp } from '../config/react-native-config-helper';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -86,27 +86,29 @@ const InitializeGlueStack = async ({
 
 async function addProvider() {
   try {
-    await fs.ensureDir(
-      join(
-        projectRootPath,
-        config.writableComponentsPath,
-        config.providerComponent
-      )
+    const ensurePath = join(
+      projectRootPath,
+      config.writableComponentsPath,
+      config.providerComponent
     );
-    await fs.copy(
-      join(
-        _homeDir,
-        config.gluestackDir,
-        config.componentsResourcePath,
-        config.style,
-        config.providerComponent
-      ),
-      join(
-        projectRootPath,
-        config.writableComponentsPath,
-        config.providerComponent
-      )
+    log.message(
+      `Ensuring path ${ensurePath} "${projectRootPath}" "${config.writableComponentsPath}" "${config.providerComponent}"`
     );
+    await fs.ensureDir(ensurePath);
+    const copyFrom = join(
+      _homeDir,
+      config.gluestackDir,
+      config.componentsResourcePath,
+      config.style,
+      config.providerComponent
+    );
+    const copyTo = join(
+      projectRootPath,
+      config.writableComponentsPath,
+      config.providerComponent
+    );
+    log.message(`Copying provider from ${copyFrom} to ${copyTo}`);
+    await fs.copy(copyFrom, copyTo);
   } catch (err) {
     log.error(
       `\x1b[31mError occured while adding the provider. (${

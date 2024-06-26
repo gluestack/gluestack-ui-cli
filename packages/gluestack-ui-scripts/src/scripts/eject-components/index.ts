@@ -1,10 +1,7 @@
-import { execSync } from 'child_process';
-import { constrainedMemory } from 'process';
-import { ParseResult, parse } from '@babel/parser';
 import generate from '@babel/generator';
-import { File } from '@babel/types';
+import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-import { confirm, select, text } from '@clack/prompts';
+import { select, text } from '@clack/prompts';
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
@@ -296,7 +293,7 @@ async function copyFiles(srcPath: any) {
       console.log(
         `${chalk.bold(
           `${chalk.green(`
-           NOTE: Run npm install/yarn install/pnpm install once before running the project.
+           NOTE: Run npm install/yarn install/pnpm install/bun install once before running the project.
         `)}`
         )}`
       );

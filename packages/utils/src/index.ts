@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 
-let supportedArgs = ['--use-npm', '--use-yarn', '--help', '-h', '--use-pnpm'];
-import path from 'path';
+let supportedArgs = [
+  '--use-npm',
+  '--use-yarn',
+  '--help',
+  '-h',
+  '--use-pnpm',
+  '--use-bun',
+];
 import { log, spinner } from '@clack/prompts';
 import { spawnSync } from 'child_process';
+import path from 'path';
 
 function installDependencies(projectName: string, installationMethod: string) {
   const projectPath = path.join(process.cwd(), projectName);
@@ -64,6 +71,7 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
                 --use-npm           use npm to install dependencies
                 --use-yarn          use yarn to install dependencies
                 --use-pnpm          use pnpm to install dependencies
+                --use-bun           use bun to install dependencies
               `
         );
         process.exit(0);
@@ -73,6 +81,8 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
         installationMethod = 'yarn';
       } else if (args[i] === '--use-pnpm' || args[i] === 'use-pnpm') {
         installationMethod = 'pnpm i --lockfile-only';
+      } else if (args[i] === '--use-bun' || args[i] === 'use-bun') {
+        installationMethod = 'bun i';
       }
     } else {
       if (!(args[i].startsWith('-') || args[i].startsWith('--'))) {
@@ -86,4 +96,4 @@ function getArgsData(args: any, customSupportedArgs?: Array<any>) {
   }
   return { installationMethod, projectName };
 }
-export { installDependencies, getArgsData };
+export { getArgsData, installDependencies };

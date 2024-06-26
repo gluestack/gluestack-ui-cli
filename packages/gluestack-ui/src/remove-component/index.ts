@@ -1,8 +1,8 @@
+import { cancel, confirm, isCancel, log } from '@clack/prompts';
 import fs from 'fs-extra';
+import os from 'os';
 import path from 'path';
 import { addIndexFile, dashToPascal, getConfigComponentPath } from '../utils';
-import { isCancel, cancel, confirm, log } from '@clack/prompts';
-import os from 'os';
 
 const homeDir = os.homedir();
 
@@ -93,9 +93,9 @@ async function removeComponent(component = '') {
         );
         fs.rmSync(componentsPath, { recursive: true, force: true });
         log.success(
-          `\x1b[32m✅  ${'\u001b[1m' +
-            component +
-            '\u001b[22m'} \x1b[0m component removed successfully!`
+          `\x1b[32m✅  ${
+            '\u001b[1m' + component + '\u001b[22m'
+          } \x1b[0m component removed successfully!`
         );
       }
       //  Update index file
@@ -114,9 +114,9 @@ async function removeComponent(component = '') {
         if (fs.existsSync(dirPath)) {
           fs.rmSync(componentsPath, { recursive: true, force: true });
           log.success(
-            `\x1b[32m✅  ${'\u001b[1m' +
-              component +
-              '\u001b[22m'} \x1b[0m component removed successfully!`
+            `\x1b[32m✅  ${
+              '\u001b[1m' + component + '\u001b[22m'
+            } \x1b[0m component removed successfully!`
           );
 
           //  Update index file
