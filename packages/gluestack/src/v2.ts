@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import path from 'path';
 import { cancel, text, select } from '@clack/prompts';
+import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
@@ -14,6 +15,16 @@ export async function main(args: string[]) {
     '--next-page-router',
     '--react-native',
   ];
+
+  console.log(chalk.bold.magenta('\nWelcome to gluestack-ui v2!'));
+  console.log(chalk.yellow('Creating a new project with gluestack-ui v2.'));
+  console.log(
+    chalk.yellow(
+      `Please use ${chalk.green(
+        'npm create gluestack@1'
+      )} to use gluestack-ui v1. \n`
+    )
+  );
 
   const supportedStyleArgs = ['--gs', '--nw'];
 

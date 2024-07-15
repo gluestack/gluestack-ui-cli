@@ -15,11 +15,11 @@ async function main() {
   args = args.filter((arg) => arg !== '--v1' && arg !== '--v2' && arg);
 
   // Now run the appropriate version
-  if (version === 'v2') {
-    await runLatest(args);
-  } else {
-    // version v1 or default
+  if (version === 'v1') {
     await runLegacy(args);
+  } else {
+    await runLatest(args);
+    // version v2 or default
   }
 }
 

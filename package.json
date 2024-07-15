@@ -13,6 +13,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ./scripts/post-install.js",
     "build": "yarn build --filter=[gluestack-*] --no-cache && yarn build:rest"
   },
   "author": "",
