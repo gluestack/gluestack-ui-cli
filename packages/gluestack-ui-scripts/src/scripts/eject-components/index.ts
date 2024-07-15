@@ -11,6 +11,7 @@ const chalk = require('chalk');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
 const rootPath = process.cwd(); // You can customize this if needed
 const workspaceRoot = findWorkspaceRoot(rootPath);
+let isWorkSpace = false;
 // Define the paths
 import synchronizedPrettier from '@prettier/sync';
 
@@ -20,12 +21,11 @@ const green = chalk.hex('#00FF00');
 
 export const ejectComponents = async () => {
   let srcPath;
-
   // Check if @gluestack-ui/config exists in node_modules
   if (
     fs.existsSync(path.join(rootPath, 'node_modules', '@gluestack-ui/config'))
   ) {
-    console.log('hello');
+    // console.log('hello');
 
     srcPath = path.join(
       rootPath,
@@ -40,7 +40,8 @@ export const ejectComponents = async () => {
       path.join(workspaceRoot, 'node_modules', '@gluestack-ui/config')
     )
   ) {
-    console.log('hello 2');
+    isWorkSpace = true;
+    // console.log('hello 2');
 
     srcPath = path.join(
       workspaceRoot,
@@ -51,7 +52,7 @@ export const ejectComponents = async () => {
     );
     await copyFiles(srcPath);
   } else {
-    console.log('hello 3');
+    // console.log('hello 3');
 
     console.error(
       chalk.red.bold('❌ Error:'),
@@ -150,12 +151,22 @@ async function updateSourceCode(
 }
 
 async function installDependencies() {
-  const srcPath = path.join(
-    rootPath,
-    'node_modules',
-    '@gluestack-ui/config',
-    'package.json'
-  );
+  let srcPath;
+  if (isWorkSpace) {
+    srcPath = path.join(
+      workspaceRoot,
+      'node_modules',
+      '@gluestack-ui/config',
+      'package.json'
+    );
+  } else {
+    srcPath = path.join(
+      rootPath,
+      'node_modules',
+      '@gluestack-ui/config',
+      'package.json'
+    );
+  }
   const rootPackageJson = require(path.join(rootPath, 'package.json'));
   const packageJson = require(srcPath);
 
@@ -177,7 +188,6 @@ async function updateImports(
   folderName: string | symbol,
   importAs: string | symbol
 ) {
-  // console.log(folderName);
   const projectDir = rootPath;
   const extension = '.tsx';
   const allTSXFiles = getAllFilesWithExtension(projectDir, extension);
@@ -286,7 +296,6 @@ async function copyFiles(srcPath: any) {
             )}. Please wait...`
           )
         );
-
         fs.copySync(srcPath, path.join(rootPath, folderName));
 
         await updateImports(folderName, importPathName);
