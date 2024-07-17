@@ -28,13 +28,7 @@ export const init = new Command()
   .action(async (opts) => {
     try {
       const options = initOptionsSchema.parse({ ...opts });
-      let installationMethod;
       const cwd = process.cwd();
-      if (options.useNpm || options.useYarn || options.usePnpm) {
-        if (options.useNpm) installationMethod = 'npm';
-        if (options.usePnpm) installationMethod = 'pnpm';
-        if (options.useYarn) installationMethod = 'yarn';
-      }
       //if cwd doesn't have package.json file
       if (!fs.existsSync(path.join(cwd, 'package.json'))) {
         log.error(

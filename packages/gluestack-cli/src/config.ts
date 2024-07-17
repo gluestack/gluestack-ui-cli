@@ -2,6 +2,7 @@ const config = {
   repoUrl: 'https://github.com/gluestack/gluestack-ui.git',
   gluestackDir: '.gluestack/cache/gluestack-ui',
   componentsResourcePath: 'example/storybook-nativewind/src/core-components',
+  hooksResourcePath: 'example/storybook-nativewind/src/core-components/hooks',
   gluestackStyleRootPath: 'themed',
   nativeWindRootPath: 'nativewind',
   expoProject: 'expo',

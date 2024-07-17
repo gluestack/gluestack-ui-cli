@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { z } from 'zod';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
-import { componentAdder } from '../util/add';
+import { componentAdder, hookAdder, isHookFromConfig } from '../util/add';
 import { config } from '../config';
 import { checkWritablePath, isValidPath, projectRootPath } from '../util';
 import { checkIfInitialized, getComponentsPath } from '../util/config';
@@ -42,7 +42,7 @@ export const add = new Command()
         (options.components === '' || options.components === undefined)
       ) {
         log.error(
-          '\x1b[31mInvalid arguement, please provide the component name you want to add or --all.\x1b[0m'
+          '\x1b[31mInvalid arguement, please provide the component/hook name you want to add or --all.\x1b[0m'
         );
         process.exit(0);
       }
@@ -68,26 +68,22 @@ export const add = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-
-      let installationMethod;
-      if (options.useNpm || options.useYarn || options.usePnpm) {
-        if (options.useNpm) installationMethod = 'npm';
-        if (options.usePnpm) installationMethod = 'pnpm';
-        if (options.useYarn) installationMethod = 'yarn';
-      }
       if (options.all) {
         try {
           await componentAdder({
             requestedComponent: '--all',
-            installationMethod: installationMethod,
           });
         } catch (err) {
           log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
         }
+      } else if (await isHookFromConfig(options.components)) {
+        options.components &&
+          (await hookAdder({
+            requestedHook: options.components,
+          }));
       } else {
         await componentAdder({
           requestedComponent: options.components?.toLowerCase(),
-          installationMethod: installationMethod,
         });
       }
     } catch (err) {

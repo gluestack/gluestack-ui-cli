@@ -539,6 +539,10 @@ async function formatFileWithPrettier(filePath: string | undefined) {
   }
 }
 
+function removeHyphen(str: string): string {
+  return str.replace(/-/g, '');
+}
+
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
@@ -550,4 +554,5 @@ export {
   formatFileWithPrettier,
   projectRootPath,
   installDependencies,
+  removeHyphen,
 };

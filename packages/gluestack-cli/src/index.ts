@@ -16,7 +16,7 @@ process.on('SIGTERM', () => {
 
 async function main() {
   const program = new Command().name('gluestack-ui');
-
+  console.log('Welcome to gluestack-ui!');
   // Define action for unrecognized commands
   program.action(() => {
     log.error(
