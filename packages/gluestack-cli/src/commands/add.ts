@@ -46,9 +46,15 @@ export const add = new Command()
         );
         process.exit(0);
       }
-
+      const initialized = await checkIfInitialized(projectRootPath);
+      if (!initialized) {
+        log.warning(
+          `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
+        );
+        process.exit(1);
+      }
       //function to get current path where GUIProvider is located
-      const currWritablePath = await getComponentsPath();
+      const currWritablePath = await getComponentsPath(projectRootPath);
       if (currWritablePath) {
         config.writableComponentsPath = currWritablePath;
       }
@@ -62,13 +68,7 @@ export const add = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-      const initialized = await checkIfInitialized(projectRootPath);
-      if (!initialized) {
-        log.warning(
-          `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
-        );
-        process.exit(1);
-      }
+
       let installationMethod;
       if (options.useNpm || options.useYarn || options.usePnpm) {
         if (options.useNpm) installationMethod = 'npm';

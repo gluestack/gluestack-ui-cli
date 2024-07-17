@@ -21,7 +21,7 @@ function findDirectory(rootDir: string, relativePaths: string[]) {
 
 async function checkIfInitialized(cwd: string): Promise<boolean> {
   try {
-    const initializeStatus = await getComponentsPath();
+    const initializeStatus = await getComponentsPath(cwd);
     if (initializeStatus.length) {
       return true;
     }
@@ -31,11 +31,11 @@ async function checkIfInitialized(cwd: string): Promise<boolean> {
   }
 }
 
-async function getComponentsPath(): Promise<string> {
+async function getComponentsPath(cwd: string): Promise<string> {
   const componentsPath = await fg.glob(
     `**/*${config.providerComponent}/index.tsx`,
     {
-      cwd: projectRootPath,
+      cwd: cwd,
       deep: 8,
       ignore: PROJECT_SHARED_IGNORE,
     }

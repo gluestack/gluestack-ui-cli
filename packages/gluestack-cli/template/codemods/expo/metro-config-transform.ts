@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs-extra';
 import { Transform } from 'jscodeshift';
 import { parse, print } from 'recast';
-import { ExpoResolvedConfig } from '../../../src/util/config-generate/config-types';
+import { ExpoResolvedConfig } from '../../../src/util/config/config-types';
 
 function getMetroConfigContent(cssPath: string) {
   return `const { getDefaultConfig } = require('expo/metro-config');

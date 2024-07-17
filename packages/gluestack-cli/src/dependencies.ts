@@ -1,40 +1,40 @@
-interface Dependencies {
-  [key: string]: {
-    dependencies: { [key: string]: string };
-    devDependencies?: { [key: string]: string };
-  };
+export interface Dependency {
+  [key: string]: string;
 }
-interface Dependency {
+export interface Dependencies {
   [key: string]: {
-    dependencies: { [key: string]: string };
+    dependencies: Dependency;
+    devDependencies?: Dependency;
   };
 }
 
-const projectBasedDependencies: Dependency = {
+const projectBasedDependencies: Dependencies = {
   nextjs: {
     dependencies: {
-      postcss: 'latest',
-      autoprefixer: 'latest',
-      'react-native-web': 'latest',
+      postcss: '',
+      autoprefixer: '',
+      'react-native-web': '',
       '@gluestack/ui-next-adapter': 'latest',
-      '@types/react-native': '^0.73.0',
+    },
+    devDependencies: {
+      '@types/react-native': '',
     },
   },
   expo: {
     dependencies: {
-      'react-native-reanimated': 'latest',
+      'react-native-reanimated': '',
     },
   },
   'react-native-cli': {
     dependencies: {
-      'react-native-reanimated': 'latest',
+      'react-native-reanimated': '',
     },
   },
 };
 const dependenciesConfig: Dependencies = {
   'gluestack-ui-provider': {
     dependencies: {
-      tailwindcss: '3.4.3',
+      tailwindcss: '',
       nativewind: '4.0.36',
       '@gluestack-ui/overlay': 'latest',
       '@gluestack-ui/toast': 'latest',
@@ -43,7 +43,7 @@ const dependenciesConfig: Dependencies = {
     },
     devDependencies: {
       jscodeshift: '0.15.2',
-      prettier: '^3.3.2',
+      prettier: '',
     },
   },
   accordion: {

@@ -1,7 +1,8 @@
 import * as path from 'path';
 import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 import { generateConfig, getConfigPath } from '.';
-import { projectRootPath } from '..';
+
+const _currDir = process.cwd();
 
 //react-native project type initialization
 async function resolvedReactNativePaths(
@@ -9,25 +10,22 @@ async function resolvedReactNativePaths(
 ) {
   const resolvedReactNativePaths = {
     tailwind: {
-      config: path.resolve(projectRootPath, resultConfig.tailwind.config),
-      css: path.resolve(projectRootPath, resultConfig.tailwind.css),
+      config: path.resolve(_currDir, resultConfig.tailwind.config),
+      css: path.resolve(_currDir, resultConfig.tailwind.css),
     },
     config: {
       babelConfig: path.resolve(
-        projectRootPath,
+        _currDir,
         resultConfig.config.babelConfig || ''
       ),
       metroConfig: path.resolve(
-        projectRootPath,
+        _currDir,
         resultConfig.config.metroConfig || ''
       ),
-      tsConfig: path.resolve(
-        projectRootPath,
-        resultConfig.config.tsConfig || ''
-      ),
+      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path.resolve(projectRootPath, resultConfig.app.entry || ''),
+      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
     },
   };
   return resolvedReactNativePaths;
@@ -69,7 +67,7 @@ async function generateConfigRNApp() {
       tsConfig: tsConfigPath.length ? tsConfigPath : 'tsconfig.json',
     },
     app: {
-      entry: path.resolve(projectRootPath, entryPath),
+      entry: path.resolve(_currDir, entryPath),
     },
   };
 

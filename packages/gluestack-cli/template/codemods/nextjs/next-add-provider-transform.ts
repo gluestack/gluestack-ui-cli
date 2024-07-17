@@ -1,5 +1,5 @@
 import { Transform } from 'jscodeshift';
-import { NextResolvedConfig } from '../../../src//util/config-generate/config-types';
+import { NextResolvedConfig } from '../../../src//util/config/config-types';
 
 const transform: Transform = (file, api, options) => {
   try {
@@ -7,6 +7,20 @@ const transform: Transform = (file, api, options) => {
     const root = j(file.source);
     const config: NextResolvedConfig = options.config || {};
     const componentsImportPath = options.componentsPath;
+    const cssImporPath = options.cssImportPath;
+
+    //add import for global.css
+    //update this for condition when import is in the form of "../." or "./"
+    if (
+      root
+        .find(j.ImportDeclaration, { source: { value: cssImporPath } })
+        .size() === 0
+    ) {
+      root
+        .find(j.ImportDeclaration)
+        .at(0)
+        .insertAfter(j.importDeclaration([], j.literal(cssImporPath)));
+    }
 
     /* condition to check if StyledJsxRegistry is needed */
     const hasStyledJsx = config.app.entry?.includes('layout') || false;

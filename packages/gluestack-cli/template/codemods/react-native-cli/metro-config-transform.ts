@@ -1,6 +1,6 @@
 import { Transform } from 'jscodeshift';
 
-const transform: Transform = (file, api, options) => {
+const transform: Transform = (file, api) => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);

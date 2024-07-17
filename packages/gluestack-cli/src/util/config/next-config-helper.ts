@@ -8,8 +8,8 @@ import {
 } from './config-types';
 import { findDirectory, generateConfig, getConfigPath } from '.';
 import { config } from '../../config';
-import { projectRootPath } from '..';
 
+const _currDir = process.cwd();
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
   const files = await fg.glob('**/*', {
@@ -38,25 +38,19 @@ async function getNextProjectType(cwd: string): Promise<string | undefined> {
 async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
   const resolvedNextJsPaths = {
     tailwind: {
-      config: path.resolve(projectRootPath, resultConfig.tailwind.config),
-      css: path.resolve(projectRootPath, resultConfig.tailwind.css),
+      config: path.resolve(_currDir, resultConfig.tailwind.config),
+      css: path.resolve(_currDir, resultConfig.tailwind.css),
     },
     config: {
       postCssConfig: path.resolve(
-        projectRootPath,
+        _currDir,
         resultConfig.config.postCssConfig || ''
       ),
-      nextConfig: path.resolve(
-        projectRootPath,
-        resultConfig.config.nextConfig || ''
-      ),
-      tsConfig: path.resolve(
-        projectRootPath,
-        resultConfig.config.tsConfig || ''
-      ),
+      nextConfig: path.resolve(_currDir, resultConfig.config.nextConfig || ''),
+      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path.resolve(projectRootPath, resultConfig.app.entry || ''),
+      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
       registry: resultConfig?.app?.registry,
     },
@@ -65,7 +59,7 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
 }
 
 async function generateConfigNextApp(): Promise<NextResolvedConfig> {
-  const projectType = await getNextProjectType(projectRootPath);
+  const projectType = await getNextProjectType(_currDir);
   const entryPath = await getConfigPath(['**/*layout.*', '**/*_app.*']);
   const globalCssPath = await getConfigPath([
     '**/*globals.css',
@@ -77,8 +71,8 @@ async function generateConfigNextApp(): Promise<NextResolvedConfig> {
   const tsConfigPath = await getConfigPath(['tsconfig.*']);
   let registryPath = '';
   if (projectType?.includes('app')) {
-    const appDirectory = findDirectory(projectRootPath, ['src/app', 'app']);
-    registryPath = path.join(projectRootPath, appDirectory, 'registry.tsx');
+    const appDirectory = findDirectory(_currDir, ['src/app', 'app']);
+    registryPath = path.join(_currDir, appDirectory, 'registry.tsx');
   }
 
   const gluestackConfig: RawConfig = {

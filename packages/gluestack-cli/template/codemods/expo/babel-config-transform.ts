@@ -1,137 +1,138 @@
-import { Transform, FileInfo, API, ExpressionStatement } from 'jscodeshift';
+import {
+  Transform,
+  FileInfo,
+  API,
+  ReturnStatement,
+  ObjectExpression,
+  Property,
+} from 'jscodeshift';
 
-const transform: Transform = (file: FileInfo, api: API) => {
+const transform: Transform = (file: FileInfo, api: API): string => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
 
-    // Find the module.exports function
-    const moduleExportsFunction = root.find<ExpressionStatement>(
-      j.ExpressionStatement,
-      {
-        expression: {
-          type: 'AssignmentExpression',
-          left: {
-            type: 'MemberExpression',
-            object: { name: 'module' },
-            property: { name: 'exports' },
-          },
-          right: { type: 'FunctionExpression' },
-        },
-      }
-    );
+    root.find<ReturnStatement>(j.ReturnStatement).forEach((path) => {
+      const returnObject = path.node.argument as ObjectExpression | null;
 
-    // Update the presets array
-    moduleExportsFunction.find(j.ReturnStatement).forEach((returnStatement) => {
-      const returnObject = returnStatement.node.argument;
       if (returnObject && returnObject.type === 'ObjectExpression') {
-        let presetsProperty: any = null;
-
-        // Find existing presets property
-        returnObject.properties.forEach((property) => {
-          if (
+        let presetsProperty = returnObject.properties.find(
+          (property) =>
             property.type === 'Property' &&
-            property.key.type === 'Identifier' &&
-            property.key.name === 'presets'
-          ) {
-            presetsProperty = property;
-          }
-        });
+            (property.key as any).name === 'presets'
+        ) as Property | undefined;
+
+        let pluginsProperty = returnObject.properties.find(
+          (property) =>
+            property.type === 'Property' &&
+            (property.key as any).name === 'plugins'
+        ) as Property | undefined;
+
+        const nativewindPreset = j.arrayExpression([
+          j.stringLiteral('babel-preset-expo'),
+          j.objectExpression([
+            j.objectProperty(
+              j.identifier('jsxImportSource'),
+              j.stringLiteral('nativewind')
+            ),
+          ]),
+        ]);
+
+        const nativewindBabel = j.stringLiteral('nativewind/babel');
 
         if (!presetsProperty) {
-          // Presets property doesn't exist, create it
           returnObject.properties.push(
             j.objectProperty(
               j.identifier('presets'),
-              j.arrayExpression([
-                j.arrayExpression([
-                  j.stringLiteral('babel-preset-expo'),
-                  j.objectExpression([
-                    j.objectProperty(
-                      j.identifier('jsxImportSource'),
-                      j.stringLiteral('nativewind')
-                    ),
-                  ]),
-                ]),
-                j.stringLiteral('nativewind/babel'),
-              ])
+              j.arrayExpression([nativewindPreset, nativewindBabel])
             )
           );
         } else {
-          // Check if nativewind presets already exist
           const presetsArray = presetsProperty.value as any;
-
-          const nativewindPresetExists =
-            presetsArray &&
-            presetsArray.elements.some((element: any) => {
-              if (
+          if (
+            presetsArray.type === 'ArrayExpression' &&
+            !presetsArray.elements.some(
+              (element: any) =>
                 element.type === 'ArrayExpression' &&
-                element.elements.length >= 2
-              ) {
-                const [presetNameNode, configNode] = element.elements;
-                const presetName = presetNameNode.value;
-                const config =
-                  configNode.type === 'ObjectExpression'
-                    ? configNode.properties
-                    : [];
+                element.elements[0].value === 'babel-preset-expo' &&
+                element.elements[1].properties.some(
+                  (prop: any) =>
+                    prop.key.name === 'jsxImportSource' &&
+                    prop.value.value === 'nativewind'
+                )
+            )
+          ) {
+            presetsArray.elements = [
+              nativewindPreset,
+              ...presetsArray.elements.filter(
+                (element: any) => element.type === 'StringLiteral'
+              ),
+              nativewindBabel,
+            ];
+          }
+        }
 
-                return (
-                  presetName === 'babel-preset-expo' &&
-                  config.some(
-                    (prop: any) =>
-                      prop.key.type === 'Identifier' &&
-                      prop.key.name === 'jsxImportSource' &&
-                      prop.value.value === 'nativewind'
-                  )
-                );
-              }
-              return false;
-            });
-          if (!nativewindPresetExists) {
-            // Presets property already exists, append to it
-            if (presetsProperty.value.type === 'ArrayExpression') {
-              const subArr: any[] = [];
+        const moduleResolverPlugin = j.arrayExpression([
+          j.stringLiteral('module-resolver'),
+          j.objectExpression([
+            j.objectProperty(
+              j.identifier('root'),
+              j.arrayExpression([j.stringLiteral('./')])
+            ),
+            j.objectProperty(
+              j.identifier('alias'),
+              j.objectExpression([
+                j.objectProperty(j.stringLiteral('@'), j.stringLiteral('./')),
+              ])
+            ),
+          ]),
+        ]);
 
-              // Extract existing properties in presets array
-              presetsProperty.value.elements.forEach((element: any) => {
-                if (
-                  element.type === 'ArrayExpression' &&
-                  Array.isArray(element.elements) && // Ensure elements is an array
-                  element.elements.length >= 1
-                ) {
-                  subArr.push(element);
-                }
-              });
-
-              // Append { jsxImportSource } to subArr
-              subArr.push(
-                j.arrayExpression([
-                  j.stringLiteral('babel-preset-expo'),
-                  j.objectExpression([
-                    j.objectProperty(
-                      j.identifier('jsxImportSource'),
-                      j.stringLiteral('nativewind')
-                    ),
-                  ]),
-                ])
-              );
-
-              // Create a new array to assign to presets and add 'nativewind/babel'
-              const newPresetsArray = j.arrayExpression([
-                ...subArr,
-                j.stringLiteral('nativewind/babel'),
-              ]);
-
-              // Update presetsProperty value
-              presetsProperty.value = newPresetsArray;
-            }
+        if (!pluginsProperty) {
+          returnObject.properties.push(
+            j.objectProperty(
+              j.identifier('plugins'),
+              j.arrayExpression([moduleResolverPlugin])
+            )
+          );
+        } else {
+          const pluginsArray = pluginsProperty.value as any;
+          if (
+            pluginsArray.type === 'ArrayExpression' &&
+            !pluginsArray.elements.some(
+              (element: any) =>
+                element.type === 'ArrayExpression' &&
+                element.elements[0].value === 'module-resolver' &&
+                element.elements[1].properties.some(
+                  (prop: any) =>
+                    prop.key.name === 'root' &&
+                    prop.value.elements.some(
+                      (rootElement: any) => rootElement.value === './'
+                    ) &&
+                    prop.key.name === 'alias' &&
+                    prop.value.properties.some(
+                      (aliasProperty: any) =>
+                        aliasProperty.key.value === '@' &&
+                        aliasProperty.value.value === './'
+                    )
+                )
+            )
+          ) {
+            pluginsArray.elements = [
+              moduleResolverPlugin,
+              ...pluginsArray.elements.filter(
+                (element: any) => element.type === 'ArrayExpression'
+              ),
+            ];
           }
         }
       }
     });
+
     return root.toSource();
   } catch (err) {
-    console.log(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    console.log(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+    return file.source;
   }
 };
 

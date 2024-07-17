@@ -15,7 +15,12 @@ import simpleGit from 'simple-git';
 import { spawnSync } from 'child_process';
 import { config } from '../config';
 import prettier from 'prettier';
-import { dependenciesConfig, projectBasedDependencies } from '../dependencies';
+import {
+  Dependencies,
+  Dependency,
+  dependenciesConfig,
+  projectBasedDependencies,
+} from '../dependencies';
 
 // const stat = util.promisify(fs.stat);
 const homeDir = os.homedir();
@@ -28,10 +33,6 @@ const getPackageJsonPath = (): string => {
 
 const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = dirname(rootPackageJsonPath);
-
-interface Dependencies {
-  [key: string]: string;
-}
 
 type Input = string | string[];
 
@@ -189,144 +190,110 @@ const promptVersionManager = async (): Promise<any> => {
   }
   return packageManager;
 };
-
-const addDependencies = async (
-  installationMethod: string | undefined,
-  inputComponent: string[] | string,
+const installDependencies = async (
+  input: string[] | string,
   additionalDependencies?: Dependencies | undefined
 ): Promise<void> => {
   try {
-    await updatePackageJson(inputComponent, additionalDependencies);
-    await installPackages(installationMethod);
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-};
-
-async function updatePackageJson(
-  input: Input,
-  additionalDependencies?: Dependencies
-): Promise<void> {
-  // Read the existing package.json file
-  const packageJsonPath = rootPackageJsonPath;
-  let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-  // Object containing dependencies and devDependencies to be updated
-  let dependenciesToUpdate: {
-    dependencies: Dependencies;
-    devDependencies?: Dependencies;
-  } = { dependencies: {}, devDependencies: {} };
-
-  if (additionalDependencies) {
-    dependenciesToUpdate.dependencies = {
-      ...dependenciesToUpdate.dependencies,
-      ...additionalDependencies,
-    };
-  }
-  if (typeof input === 'string' && input === '--all') {
-    for (const component in dependenciesConfig) {
-      dependenciesToUpdate.dependencies = {
-        ...dependenciesToUpdate.dependencies,
-        ...dependenciesConfig[component].dependencies,
-      };
-      if (dependenciesConfig[component].devDependencies) {
-        dependenciesToUpdate.devDependencies = {
-          ...dependenciesToUpdate.devDependencies,
-          ...dependenciesConfig[component].devDependencies,
-        };
-      }
-    }
-  } else if (Array.isArray(input)) {
-    // If input is an array of component names, update corresponding dependencies
-    input.forEach((component) => {
-      if (dependenciesConfig[component]) {
-        dependenciesToUpdate.dependencies = {
-          ...dependenciesToUpdate.dependencies,
-          ...dependenciesConfig[component].dependencies,
-        };
-        if (dependenciesConfig[component].devDependencies) {
-          dependenciesToUpdate.devDependencies = {
-            ...dependenciesToUpdate.devDependencies,
-            ...dependenciesConfig[component].devDependencies,
-          };
-        }
-      } else {
-        return;
-      }
-    });
-  }
-
-  // Update package.json with the new dependencies
-  packageJson = {
-    ...packageJson,
-    dependencies: {
-      ...packageJson.dependencies,
-      ...dependenciesToUpdate.dependencies,
-    },
-    devDependencies: {
-      ...packageJson.devDependencies,
-      ...dependenciesToUpdate.devDependencies,
-    },
-  };
-
-  // Write the updated package.json file
-  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-}
-
-const installPackages = async (
-  installationMethod: string | undefined
-): Promise<void> => {
-  let command;
-  if (!installationMethod) {
     let versionManager: string | null = findLockFileType();
     if (!versionManager) {
       versionManager = await promptVersionManager();
     }
+    const dependenciesToInstall: {
+      dependencies: Dependency;
+      devDependencies: Dependency;
+    } = { dependencies: {}, devDependencies: {} };
+
+    //add additional dependencies if any
+    if (additionalDependencies) {
+      Object.assign(
+        dependenciesToInstall.dependencies,
+        additionalDependencies.dependencies
+      );
+      additionalDependencies?.devDependencies &&
+        Object.assign(
+          dependenciesToInstall.devDependencies,
+          additionalDependencies?.devDependencies
+        );
+    }
+
+    //get dependencies from config
+    const gatherDependencies = (components: string[]): void => {
+      components.forEach((component) => {
+        if (dependenciesConfig[component]) {
+          Object.assign(
+            dependenciesToInstall.dependencies,
+            dependenciesConfig[component].dependencies
+          );
+          if (dependenciesConfig[component].devDependencies) {
+            Object.assign(
+              dependenciesToInstall.devDependencies,
+              dependenciesConfig[component].devDependencies
+            );
+          }
+        }
+      });
+    };
+
+    //generate install command
+    const generateInstallCommand = (deps: Dependency, flag: string): string => {
+      return (
+        Object.entries(deps)
+          .map(([pkg, version]) => `${pkg}@${version}`)
+          .join(' ') + flag
+      );
+    };
+
+    //get input based dependencies
+    if (input === '--all') {
+      gatherDependencies(Object.keys(dependenciesConfig));
+    } else if (Array.isArray(input)) {
+      gatherDependencies(input);
+    }
+
+    let installCommand = '',
+      devInstallCommand = '';
+
     switch (versionManager) {
       case 'npm':
-        command = `npm install --legacy-peer-deps `;
+        installCommand = `npm install ${generateInstallCommand(dependenciesToInstall.dependencies, ' --legacy-peer-deps')}`;
+        devInstallCommand = `npm install ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --legacy-peer-deps --save-dev')}`;
         break;
       case 'yarn':
-        command = `yarn `;
-
+        installCommand = `yarn add ${generateInstallCommand(dependenciesToInstall.dependencies, '')}`;
+        devInstallCommand = `yarn add ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --dev')}`;
         break;
       case 'pnpm':
-        command = `pnpm i --lockfile-only `;
+        installCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.dependencies, ' --lockfile-only')}`;
+        devInstallCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --lockfile-only')}`;
         break;
       default:
         throw new Error('Invalid package manager selected');
     }
-  } else {
-    switch (installationMethod) {
-      case 'npm':
-        command = `npm install --legacy-peer-deps`;
-        break;
-      case 'yarn':
-        command = `yarn `;
-        break;
-      case 'pnpm':
-        command = `pnpm i --lockfile-only`;
-        break;
-      default:
-        throw new Error('Invalid package manager selected');
+    const s = spinner();
+    s.start(
+      '⏳ Installing dependencies. This might take a couple of minutes...'
+    );
+
+    try {
+      spawnSync(installCommand, {
+        cwd: currDir,
+        stdio: 'inherit',
+        shell: true,
+      });
+      spawnSync(devInstallCommand, {
+        cwd: currDir,
+        stdio: 'inherit',
+        shell: true,
+      });
+      s.stop(`Dependencies have been installed successfully.`);
+    } catch (err) {
+      log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+      log.error('\x1b[31mError installing dependencies:\x1b[0m');
+      throw new Error('Error installing dependencies.');
     }
-  }
-
-  const s = spinner();
-  s.start('⏳ Installing dependencies. This might take a couple of minutes...');
-
-  try {
-    spawnSync(command, {
-      cwd: projectRootPath,
-      stdio: 'inherit',
-      shell: true,
-    });
-    s.stop(`Dependencies have been installed successfully.`);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-    log.error('\x1b[31mError installing dependencies:\x1b[0m');
-    log.warning(` - Run \x1b[33m'${command}'\x1b[0m manually!`);
-    throw new Error('Error installing dependencies.');
   }
 };
 
@@ -352,7 +319,7 @@ async function detectProjectType(directoryPath: string): Promise<string> {
     const isReactNative: boolean = await Promise.all(
       reactNativeFiles.map((file) => fs.pathExists(`${directoryPath}/${file}`))
     ).then((results) => results.every(Boolean));
-    if (fs.existsSync(packageJsonPath)) {
+    if (fs.existsSync(packageJsonPath) && packageJsonPath !== '') {
       const packageJson = await fs.readJSONSync(packageJsonPath);
 
       // Determine the project type based on the presence of specific files/directories
@@ -501,9 +468,17 @@ async function getAdditionalDependencies(
   style: string
 ) {
   try {
+    let additionalDependencies = {
+      dependencies: {},
+      devDependencies: {} || undefined,
+    };
     if (style === config.nativeWindRootPath) {
       if (projectType && projectType !== 'library') {
-        return projectBasedDependencies[projectType].dependencies;
+        additionalDependencies.dependencies =
+          projectBasedDependencies[projectType].dependencies;
+        additionalDependencies.devDependencies =
+          projectBasedDependencies[projectType]?.devDependencies;
+        return additionalDependencies;
       } else return {};
     }
   } catch (error) {
@@ -567,13 +542,12 @@ async function formatFileWithPrettier(filePath: string | undefined) {
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
-  installPackages,
   getAdditionalDependencies,
   detectProjectType,
   isValidPath,
   checkWritablePath,
-  addDependencies,
   getExistingComponentStyle,
   formatFileWithPrettier,
   projectRootPath,
+  installDependencies,
 };

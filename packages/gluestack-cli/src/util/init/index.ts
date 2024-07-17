@@ -2,9 +2,9 @@ import os from 'os';
 import { config } from '../../config';
 import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import path, { join, relative } from 'path';
-import { log, confirm } from '@clack/prompts';
+import { log, confirm, spinner } from '@clack/prompts';
 import { promisify } from 'util';
-import { exec, execSync } from 'child_process';
+import { execSync } from 'child_process';
 import { generateConfigNextApp } from '../config/next-config-helper';
 import { generateConfigExpoApp } from '../config/expo-config-helper';
 import { generateConfigRNApp } from '../config/react-native-config-helper';
@@ -21,9 +21,8 @@ import {
 import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
-  addDependencies,
-  projectRootPath,
   formatFileWithPrettier,
+  installDependencies,
 } from '..';
 
 const _currDir = process.cwd();
@@ -40,14 +39,12 @@ interface TSConfig {
 }
 
 const InitializeGlueStack = async ({
-  installationMethod = '',
   projectType = 'library',
 }: {
-  installationMethod: string | undefined;
   projectType: string;
 }) => {
   try {
-    const initializeStatus = await checkIfInitialized(projectRootPath);
+    const initializeStatus = await checkIfInitialized(_currDir);
     if (initializeStatus) {
       log.info(
         `\x1b[33mgluestack-ui is already initialized in the project, use 'npx gluestack-ui help' command to continue\x1b[0m`
@@ -62,17 +59,18 @@ const InitializeGlueStack = async ({
       projectType,
       config.style
     );
+    await installDependencies(inputComponent, additionalDependencies);
+    const s = spinner();
+    s.start(
+      '⏳ Generating project configuration. This might take a couple of minutes...'
+    );
     const resolvedConfig = await generateProjectConfigAndInit(
       projectType,
       confirmOverride
     );
     await addProvider();
-    await addDependencies(
-      installationMethod,
-      inputComponent,
-      additionalDependencies
-    );
-    await formatFileWithPrettier(resolvedConfig?.app.entry);
+    s.stop(`\x1b[32mProject configuration generated.\x1b[0m`);
+    // await formatFileWithPrettier(resolvedConfig?.app.entry);
     log.step(
       'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
     );
@@ -86,32 +84,24 @@ const InitializeGlueStack = async ({
 
 async function addProvider() {
   try {
-    await fs.ensureDir(
-      join(
-        projectRootPath,
-        config.writableComponentsPath,
-        config.providerComponent
-      )
+    const targetPath = join(
+      _currDir,
+      config.writableComponentsPath,
+      config.providerComponent
     );
-    await fs.copy(
-      join(
-        _homeDir,
-        config.gluestackDir,
-        config.componentsResourcePath,
-        config.style,
-        config.providerComponent
-      ),
-      join(
-        projectRootPath,
-        config.writableComponentsPath,
-        config.providerComponent
-      )
+    const sourcePath = join(
+      _homeDir,
+      config.gluestackDir,
+      config.componentsResourcePath,
+      config.style,
+      config.providerComponent
     );
+
+    await fs.ensureDir(targetPath);
+    await fs.copy(sourcePath, targetPath);
   } catch (err) {
     log.error(
-      `\x1b[31mError occured while adding the provider. (${
-        err as Error
-      })\x1b[0m`
+      `\x1b[31mError occured while adding the provider. (${err as Error})\x1b[0m`
     );
   }
 }
@@ -135,7 +125,7 @@ async function updateTailwindConfig(
       __dirname,
       `${config.codeModesDir}/tailwind-config-transform.ts`
     );
-    exec(
+    execSync(
       `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}' --projectType='${projectType}' `
     );
   } catch (err) {
@@ -145,7 +135,7 @@ async function updateTailwindConfig(
 
 async function updateTSConfig(projectType: string): Promise<void> {
   try {
-    const tsConfigPath = join(projectRootPath, 'tsconfig.json');
+    const tsConfigPath = join(_currDir, 'tsconfig.json');
     let tsConfig: TSConfig = {};
     try {
       tsConfig = JSON.parse(await readFileAsync(tsConfigPath, 'utf8'));
@@ -228,7 +218,7 @@ async function commonInitialization(
       await Promise.all(
         filesAndFolders.map(async (file) => {
           if (resolvedConfigFileNames.includes(path.parse(file).base)) {
-            await copy(join(resourcePath, file), join(projectRootPath, file), {
+            await copy(join(resourcePath, file), join(_currDir, file), {
               overwrite: true,
             });
           }
@@ -237,10 +227,10 @@ async function commonInitialization(
     }
 
     //add nativewind-env.d.ts
-    await fs.ensureFile(join(projectRootPath, 'nativewind-env.d.ts'));
+    await fs.ensureFile(join(_currDir, 'nativewind-env.d.ts'));
     await fs.copy(
       join(__dirname, `${config.templatesDir}/common/nativewind-env.d.ts`),
-      join(projectRootPath, 'nativewind-env.d.ts')
+      join(_currDir, 'nativewind-env.d.ts')
     );
 
     permission && (await updateTSConfig(projectType));
@@ -249,17 +239,15 @@ async function commonInitialization(
 
     //function to update package.json script to implement darkMode in expo, will be removed later
     if (projectType === config.expoProject) {
-      const packageJsonPath = join(projectRootPath, 'package.json');
+      const packageJsonPath = join(_currDir, 'package.json');
       const packageJson = JSON.parse(
         await fs.readFile(packageJsonPath, 'utf8')
       );
       const devices = ['android', 'ios', 'web'];
 
       //get existing value of scripts
-
       devices.forEach((device) => {
         const script = packageJson.scripts[device];
-        // packageJson.scripts[device] = `DARK_MODE=media expo start --${device}`;
         packageJson.scripts[device] = `DARK_MODE=media `.concat(script);
       });
 
@@ -295,7 +283,7 @@ async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
     );
 
     if (nextTransformerPath && nextConfigPath) {
-      exec(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
+      execSync(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
     }
     if (resolvedConfig.app?.entry?.includes('layout')) {
       // if app router add registry file to root
@@ -318,15 +306,17 @@ async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
       const transformerPath = join(
         `${NextTranformer}/next-document-update-transform.ts`
       );
-      exec(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
+      execSync(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
     }
 
     const options = JSON.stringify(resolvedConfig);
     const transformerPath = join(
       `${NextTranformer}/next-add-provider-transform.ts --config='${options}'`
     );
-    exec(
-      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}'`
+    const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
+    const cssImportPath = '@/'.concat(rawCssPath);
+    execSync(
+      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
     );
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
@@ -359,17 +349,19 @@ async function initNatiwindExpoApp(resolveConfig: ExpoResolvedConfig) {
       expoTransformer,
       'expo-add-provider-transform.ts'
     );
-    exec(
+
+    execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${
         resolveConfig.config.metroConfig
       } --cssPath='${cssPath}' --config='${JSON.stringify(resolveConfig)}'`
     );
-    exec(
+    execSync(
       `npx jscodeshift -t ${BabeltransformerPath}  ${resolveConfig.config.babelConfig}`
     );
-    exec(
+    execSync(
       `npx jscodeshift -t ${addProviderTransformerPath}  ${resolveConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
     );
+    execSync('npx expo install babel-plugin-module-resolver');
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
@@ -398,13 +390,13 @@ async function initNatiwindRNApp(resolvedConfig: any) {
       'rn-add-provider-transform.ts'
     );
 
-    exec(
+    execSync(
       `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
     );
-    exec(
+    execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
     );
-    exec(
+    execSync(
       `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}'`
     );
     execSync('npx pod-install', { stdio: 'inherit' });
