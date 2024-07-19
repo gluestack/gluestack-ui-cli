@@ -44,6 +44,34 @@ const transform: Transform = (file, api, options) => {
         );
     }
 
+    //if there is an import for GluestackUIProvider from @gluestack-ui/themed, then remove GluestackUIProvider from imports
+    const gluestackUIProviderImport = root.find(j.ImportDeclaration, {
+      source: { value: '@gluestack-ui/themed' },
+    });
+    if (gluestackUIProviderImport.size()) {
+      gluestackUIProviderImport.forEach((path) => {
+        if (path.node.specifiers) {
+          const gluestackUIProvider = path.node.specifiers.find(
+            (specifier) =>
+              specifier.local && specifier.local.name === 'GluestackUIProvider'
+          );
+          if (gluestackUIProvider) {
+            if (
+              gluestackUIProviderImport.find(j.ImportSpecifier).size() === 1
+            ) {
+              gluestackUIProviderImport.remove();
+            } else {
+              path.node.specifiers = path.node.specifiers.filter(
+                (specifier) =>
+                  specifier.local &&
+                  specifier.local.name !== 'GluestackUIProvider'
+              );
+            }
+          }
+        }
+      });
+    }
+
     root.find(j.ExportDefaultDeclaration).forEach((path) => {
       const declaration = path.node.declaration;
       if (declaration.type === 'Identifier') {
@@ -57,11 +85,8 @@ const transform: Transform = (file, api, options) => {
     });
 
     // Function to check if GlustackUIProvider exists as a JSX element
-    const hasGlustackUIProvider = root.find(j.JSXOpeningElement, {
-      name: {
-        type: 'JSXIdentifier',
-        name: 'GlustackUIProvider',
-      },
+    const GluestackUIProviderElement = root.find(j.JSXElement, {
+      openingElement: { name: { name: 'GluestackUIProvider' } },
     });
 
     let hasAppFunction = false;
@@ -82,7 +107,7 @@ const transform: Transform = (file, api, options) => {
               (argument.type === 'JSXElement' ||
                 argument.type === 'JSXFragment')
             ) {
-              if (!hasGlustackUIProvider.size()) {
+              if (!GluestackUIProviderElement.size()) {
                 // Wrap the JSXElement with <GluestackUIProvider> tag
                 returnPath.replace(
                   j.returnStatement(
@@ -98,6 +123,32 @@ const transform: Transform = (file, api, options) => {
                     )
                   )
                 );
+              } else {
+                //and change the attributes of GluestackUIProvider
+                GluestackUIProviderElement.forEach((path) => {
+                  const children = path.node.children;
+                  const currentProps = path.node.openingElement.attributes;
+                  let hasModeAttribute = false;
+                  currentProps?.forEach((item) => {
+                    if (
+                      item.type === 'JSXAttribute' &&
+                      item.name.name === 'config'
+                    ) {
+                      item.name.name = 'mode';
+                      item.value = j.literal('light');
+                      hasModeAttribute = true;
+                    } else if (!hasModeAttribute) {
+                      currentProps?.push(
+                        j.jsxAttribute(
+                          j.jsxIdentifier('mode'),
+                          j.literal('light')
+                        )
+                      );
+                    }
+                  });
+
+                  path.node.children = children;
+                });
               }
             }
           });
