@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    "@gluestack-style/react@latest",
+    "@gluestack-style/animation-resolver",
+    "@gluestack-style/legend-motion-animation-driver",
+    "@legendapp/motion",
+    "@gluestack-ui/provider",
+    "@gluestack-ui/overlay",
+    "@gluestack-ui/toast",
+    "react-native-svg@14.1.0",
+    "@expo/html-elements"
+  ]
+}

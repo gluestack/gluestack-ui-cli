@@ -1,0 +1,34 @@
+{
+  "name": "expo-with-nativewind",
+  "version": "1.0.0",
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~3.2.1",
+    "@gluestack-ui/nativewind-utils": "^1.0.20",
+    "@gluestack-ui/overlay": "^0.1.14",
+    "@gluestack-ui/toast": "^1.0.4",
+    "expo": "~51.0.8",
+    "expo-status-bar": "~1.12.1",
+    "nativewind": "^4.0.36",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.74.1",
+    "react-native-reanimated": "^3.11.0",
+    "react-native-svg": "14.1.0",
+    "react-native-web": "~0.19.10",
+    "tailwindcss": "^3.4.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@types/react": "~18.2.45",
+    "typescript": "^5.1.3"
+  },
+  "private": true
+}
