@@ -152,6 +152,7 @@ const dependenciesConfig: Dependencies = {
   modal: {
     dependencies: {
       '@gluestack-ui/modal': 'latest',
+      '@legendapp/motion': 'latest',
     },
   },
   popover: {

@@ -1,7 +1,8 @@
 import fs from 'fs-extra';
-import { basename, join, parse } from 'path';
 import os from 'os';
+import { basename, join, parse } from 'path';
 import { log, confirm } from '@clack/prompts';
+import { config } from '../../config';
 import {
   cloneRepositoryAtRoot,
   getAllComponents,
@@ -10,7 +11,6 @@ import {
   removeHyphen,
 } from '..';
 
-import { config } from '../../config';
 const _homeDir = os.homedir();
 let existingComponentsChecked: boolean = false;
 
@@ -21,8 +21,6 @@ const componentAdder = async ({
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-    //currently since nativewind is default, we are not checking for the existing component style
-    // await getExistingComponentStyle();
     if (
       requestedComponent &&
       requestedComponent !== '--all' &&

@@ -21,8 +21,6 @@ export const RawConfigSchema = z
   })
   .strict();
 
-export type RawConfig = z.infer<typeof RawConfigSchema>;
-
 export const NextResolvedConfigSchema = z.object({
   tailwind: z.object({
     config: z.string().default(''),
@@ -72,6 +70,7 @@ export const ReactNativeResolvedSchema = z.object({
   }),
 });
 
+export type RawConfig = z.infer<typeof RawConfigSchema>;
 export type NextResolvedConfig = z.infer<typeof NextResolvedConfigSchema>;
 export type ExpoResolvedConfig = z.infer<typeof ExpoResolvedConfigSchema>;
 export type ReactNativeResolvedConfig = z.infer<

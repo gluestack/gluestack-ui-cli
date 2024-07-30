@@ -1,6 +1,11 @@
 import os from 'os';
-import { join, dirname, extname } from 'path';
 import fs, { stat } from 'fs-extra';
+import simpleGit from 'simple-git';
+import prettier from 'prettier';
+import { config } from '../config';
+import { spawnSync } from 'child_process';
+import finder from 'find-package-json';
+import { join, dirname, extname } from 'path';
 import {
   log,
   spinner,
@@ -10,11 +15,6 @@ import {
   select,
   text,
 } from '@clack/prompts';
-import finder from 'find-package-json';
-import simpleGit from 'simple-git';
-import { spawnSync } from 'child_process';
-import { config } from '../config';
-import prettier from 'prettier';
 import {
   Dependencies,
   Dependency,
@@ -22,7 +22,6 @@ import {
   projectBasedDependencies,
 } from '../dependencies';
 
-// const stat = util.promisify(fs.stat);
 const homeDir = os.homedir();
 const currDir = process.cwd();
 
@@ -37,15 +36,14 @@ const projectRootPath: string = dirname(rootPackageJsonPath);
 type Input = string | string[];
 
 const getAllComponents = (): string[] => {
+  const componentListDir = join(
+    homeDir,
+    config.gluestackDir,
+    config.componentsResourcePath,
+    config.style
+  );
   const componentList = fs
-    .readdirSync(
-      join(
-        homeDir,
-        config.gluestackDir,
-        config.componentsResourcePath,
-        config.style
-      )
-    )
+    .readdirSync(componentListDir)
     .filter(
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js'].includes(extname(file).toLowerCase()) &&

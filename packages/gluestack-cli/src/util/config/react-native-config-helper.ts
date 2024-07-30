@@ -1,6 +1,6 @@
 import * as path from 'path';
-import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 import { generateConfig, getConfigPath } from '.';
+import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 
 const _currDir = process.cwd();
 

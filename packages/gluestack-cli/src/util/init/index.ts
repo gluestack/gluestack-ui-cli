@@ -1,13 +1,10 @@
 import os from 'os';
 import { config } from '../../config';
-import fs, { copy, ensureFile, existsSync } from 'fs-extra';
-import path, { join, relative } from 'path';
-import { log, confirm, spinner } from '@clack/prompts';
 import { promisify } from 'util';
 import { execSync } from 'child_process';
-import { generateConfigNextApp } from '../config/next-config-helper';
-import { generateConfigExpoApp } from '../config/expo-config-helper';
-import { generateConfigRNApp } from '../config/react-native-config-helper';
+import path, { join, relative } from 'path';
+import { log, confirm, spinner } from '@clack/prompts';
+import fs, { copy, ensureFile, existsSync } from 'fs-extra';
 import {
   RawConfig,
   NextResolvedConfig,
@@ -21,9 +18,11 @@ import {
 import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
-  formatFileWithPrettier,
   installDependencies,
 } from '..';
+import { generateConfigNextApp } from '../config/next-config-helper';
+import { generateConfigExpoApp } from '../config/expo-config-helper';
+import { generateConfigRNApp } from '../config/react-native-config-helper';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -233,6 +232,9 @@ async function commonInitialization(
       join(_currDir, 'nativewind-env.d.ts')
     );
 
+    //add npmrc file for legacy-peer-deps-support
+    execSync('npm config --location=project set legacy-peer-deps=true');
+
     permission && (await updateTSConfig(projectType));
     permission && (await updateGlobalCss(resolvedConfig));
     await updateTailwindConfig(resolvedConfig, projectType);
@@ -390,6 +392,9 @@ async function initNatiwindRNApp(resolvedConfig: any) {
       'rn-add-provider-transform.ts'
     );
 
+    const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
+    const cssImportPath = '@/'.concat(rawCssPath);
+
     execSync(
       `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
     );
@@ -397,7 +402,7 @@ async function initNatiwindRNApp(resolvedConfig: any) {
       `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
     );
     execSync(
-      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}'`
+      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
     );
     execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {

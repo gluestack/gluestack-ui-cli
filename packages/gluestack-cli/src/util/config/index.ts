@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { config } from '../../config';
-import { projectRootPath } from '..';
 import fg from 'fast-glob';
+import { projectRootPath } from '..';
+import { config } from '../../config';
 import { RawConfig, PROJECT_SHARED_IGNORE } from './config-types';
 
 const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];

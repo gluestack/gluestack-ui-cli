@@ -1,13 +1,13 @@
 import * as path from 'path';
-import { pathExists } from 'fs-extra';
 import fg from 'fast-glob';
+import { pathExists } from 'fs-extra';
+import { config } from '../../config';
+import { findDirectory, generateConfig, getConfigPath } from '.';
 import {
   RawConfig,
   NextResolvedConfig,
   PROJECT_SHARED_IGNORE,
 } from './config-types';
-import { findDirectory, generateConfig, getConfigPath } from '.';
-import { config } from '../../config';
 
 const _currDir = process.cwd();
 //next project type initialization

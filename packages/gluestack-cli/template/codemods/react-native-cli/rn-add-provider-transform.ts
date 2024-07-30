@@ -5,6 +5,7 @@ const transform: Transform = (file, api, options) => {
     const j = api.jscodeshift.withParser('tsx');
     const root = j(file.source);
     const componentsImportPath = options.componentsPath;
+    const cssImporPath = options.cssImportPath || './global.css';
 
     let defaultExportName = '';
 
@@ -42,6 +43,18 @@ const transform: Transform = (file, api, options) => {
             j.literal(`@/${componentsImportPath}/gluestack-ui-provider`)
           )
         );
+    }
+
+    //add import for global.css
+    if (
+      root
+        .find(j.ImportDeclaration, { source: { value: cssImporPath } })
+        .size() === 0
+    ) {
+      root
+        .find(j.ImportDeclaration)
+        .at(0)
+        .insertAfter(j.importDeclaration([], j.literal(cssImporPath)));
     }
 
     //if there is an import for GluestackUIProvider from @gluestack-ui/themed, then remove GluestackUIProvider from imports
@@ -114,7 +127,12 @@ const transform: Transform = (file, api, options) => {
                     j.jsxElement(
                       j.jsxOpeningElement(
                         j.jsxIdentifier('GluestackUIProvider'),
-                        []
+                        [
+                          j.jsxAttribute(
+                            j.jsxIdentifier('mode'),
+                            j.literal('light')
+                          ),
+                        ]
                       ),
                       j.jsxClosingElement(
                         j.jsxIdentifier('GluestackUIProvider')

@@ -1,12 +1,13 @@
 import * as path from 'path';
 import fg from 'fast-glob';
+import * as fs from 'fs';
+import { config } from '../../config';
+import { generateConfig, getConfigPath } from '.';
 import {
   RawConfig,
   PROJECT_SHARED_IGNORE,
   ExpoResolvedConfig,
 } from './config-types';
-import { generateConfig, getConfigPath } from '.';
-import { config } from '../../config';
 
 const _currDir = process.cwd();
 
@@ -18,12 +19,23 @@ async function getExpoProjectType(cwd: string): Promise<string | undefined> {
     ignore: PROJECT_SHARED_IGNORE,
   });
 
-  const isExpoProject = files.find((file) => file.startsWith('app.json'));
+  const isExpoProject = files.find(
+    (file) =>
+      file.startsWith('app.json') ||
+      file.startsWith('app.config.js') ||
+      file.startsWith('app.config.ts')
+  );
   if (!isExpoProject) {
     return undefined;
   }
 
-  const isUsingExpoRouter = await getConfigPath(['app/_layout.*']);
+  const expoLayoutPath = fs.existsSync('app')
+    ? 'app/_layout.*'
+    : fs.existsSync('src/app')
+      ? 'src/app/_layout.*'
+      : '**/*_layout.*';
+
+  const isUsingExpoRouter = await getConfigPath([expoLayoutPath]);
   const isUsingDefaultExpo = await getConfigPath(['App.*']);
   return isUsingExpoRouter
     ? 'expo-router'
