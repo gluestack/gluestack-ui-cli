@@ -86,7 +86,7 @@ function getEntryPathAndComponentsPath(): {
   return { entryPath };
 }
 
-async function getConfigPath(files: string[]) {
+async function getFilePath(files: string[]) {
   const filePath = await fg.glob(files, {
     cwd: projectRootPath,
     deep: 3,
@@ -126,7 +126,7 @@ export {
   checkIfInitialized,
   getEntryPathAndComponentsPath,
   generateConfig,
-  getConfigPath,
+  getFilePath,
   getComponentsPath,
   generateGluestackConfig,
   findDirectory,

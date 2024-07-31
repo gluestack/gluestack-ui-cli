@@ -43,6 +43,32 @@ const InitializeGlueStack = async ({
   projectType: string;
 }) => {
   try {
+    //if expo project, check if expo version is greater than 50.0.0  by checking expo version in package.json file
+    if (projectType === config.expoProject) {
+      const packageJsonPath = join(_currDir, 'package.json');
+      const packageJson = JSON.parse(
+        await fs.readFile(packageJsonPath, 'utf8')
+      );
+      const expoVersion = packageJson.dependencies.expo;
+      if (!expoVersion) {
+        log.error(
+          `\x1b[31mexpo is not installed in the project. Please install expo and try again.\x1b[0m`
+        );
+        process.exit(1);
+      }
+      const version = expoVersion.replace('^', '').replace('~', '');
+      const versionArray = version.split('.');
+      const majorVersion = parseInt(versionArray[0]);
+      if (majorVersion < 50) {
+        log.error(
+          `\x1b[31mDetected Expo SDK version less than 50.0.0, gluestack-ui CLI supports installation for Expo SDK 50 and above only\x1b[0m.`
+        );
+        console.log(
+          `\nFor more manual installation please refer this link:\x1b[34m https://gluestack.io/ui/docs/home/getting-started/installation\x1b[0m`
+        );
+        process.exit(1);
+      }
+    }
     const initializeStatus = await checkIfInitialized(_currDir);
     if (initializeStatus) {
       log.info(
@@ -69,9 +95,8 @@ const InitializeGlueStack = async ({
     );
     await addProvider();
     s.stop(`\x1b[32mProject configuration generated.\x1b[0m`);
-    // await formatFileWithPrettier(resolvedConfig?.app.entry);
     log.step(
-      'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/overview/introduction \x1b[0m'
+      'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/docs/home/overview/introduction \x1b[0m'
     );
     log.success(
       `\x1b[32mDone!\x1b[0m Initialized \x1b[1mgluestack-ui v2\x1b[0m in the project`
@@ -510,7 +535,7 @@ ${files
   });
   if (confirmInput === false) {
     log.info(
-      'Skipping making changes in files. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/nativewind/docs/getting-started/installation\x1b[0m'
+      'Skipping making changes in files. Please refer docs for making the changes manually --> \x1b[33mhttps://gluestack.io/ui/docs/home/getting-started/installation\x1b[0m'
     );
   }
   return confirmInput;

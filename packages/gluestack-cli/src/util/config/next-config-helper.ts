@@ -2,7 +2,7 @@ import * as path from 'path';
 import fg from 'fast-glob';
 import { pathExists } from 'fs-extra';
 import { config } from '../../config';
-import { findDirectory, generateConfig, getConfigPath } from '.';
+import { findDirectory, generateConfig, getFilePath } from '.';
 import {
   RawConfig,
   NextResolvedConfig,
@@ -60,15 +60,15 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
 
 async function generateConfigNextApp(): Promise<NextResolvedConfig> {
   const projectType = await getNextProjectType(_currDir);
-  const entryPath = await getConfigPath(['**/*layout.*', '**/*_app.*']);
-  const globalCssPath = await getConfigPath([
+  const entryPath = await getFilePath(['**/*layout.*', '**/*_app.*']);
+  const globalCssPath = await getFilePath([
     '**/*globals.css',
     '**/*global.css',
   ]);
-  const tailwindConfigPath = await getConfigPath(['tailwind.config.*']);
-  const postCssConfigPath = await getConfigPath(['postcss.config.*']);
-  const nextConfigPath = await getConfigPath(['next.config.*']);
-  const tsConfigPath = await getConfigPath(['tsconfig.*']);
+  const tailwindConfigPath = await getFilePath(['tailwind.config.*']);
+  const postCssConfigPath = await getFilePath(['postcss.config.*']);
+  const nextConfigPath = await getFilePath(['next.config.*']);
+  const tsConfigPath = await getFilePath(['tsconfig.*']);
   let registryPath = '';
   if (projectType?.includes('app')) {
     const appDirectory = findDirectory(_currDir, ['src/app', 'app']);

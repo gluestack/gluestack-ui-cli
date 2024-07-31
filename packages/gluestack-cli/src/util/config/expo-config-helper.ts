@@ -2,7 +2,7 @@ import * as path from 'path';
 import fg from 'fast-glob';
 import * as fs from 'fs';
 import { config } from '../../config';
-import { generateConfig, getConfigPath } from '.';
+import { generateConfig, getFilePath } from '.';
 import {
   RawConfig,
   PROJECT_SHARED_IGNORE,
@@ -35,8 +35,8 @@ async function getExpoProjectType(cwd: string): Promise<string | undefined> {
       ? 'src/app/_layout.*'
       : '**/*_layout.*';
 
-  const isUsingExpoRouter = await getConfigPath([expoLayoutPath]);
-  const isUsingDefaultExpo = await getConfigPath(['App.*']);
+  const isUsingExpoRouter = await getFilePath([expoLayoutPath]);
+  const isUsingDefaultExpo = await getFilePath(['App.*']);
   return isUsingExpoRouter
     ? 'expo-router'
     : isUsingDefaultExpo
@@ -71,15 +71,15 @@ async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
 
 async function generateConfigExpoApp(): Promise<ExpoResolvedConfig> {
   const projectType = await getExpoProjectType(_currDir);
-  const entryPath = await getConfigPath(['**/*_layout.*', '**/*App.*']);
-  const globalCssPath = await getConfigPath([
+  const entryPath = await getFilePath(['**/*_layout.*', '**/*App.*']);
+  const globalCssPath = await getFilePath([
     '**/*globals.css',
     '**/*global.css',
   ]);
-  const tailwindConfigPath = await getConfigPath(['tailwind.config.*']);
-  const BabelConfigPath = await getConfigPath(['babel.config.*']);
-  const MetroConfigPath = await getConfigPath(['metro.config.*']);
-  const tsConfigPath = await getConfigPath(['tsconfig.*']);
+  const tailwindConfigPath = await getFilePath(['tailwind.config.*']);
+  const BabelConfigPath = await getFilePath(['babel.config.*']);
+  const MetroConfigPath = await getFilePath(['metro.config.*']);
+  const tsConfigPath = await getFilePath(['tsconfig.*']);
   const gluestackConfig: RawConfig = {
     tailwind: {
       config: tailwindConfigPath.length

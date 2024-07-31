@@ -1,9 +1,8 @@
 import os from 'os';
 import fs, { stat } from 'fs-extra';
 import simpleGit from 'simple-git';
-import prettier from 'prettier';
 import { config } from '../config';
-import { spawnSync } from 'child_process';
+import { exec, spawnSync } from 'child_process';
 import finder from 'find-package-json';
 import { join, dirname, extname } from 'path';
 import {
@@ -13,7 +12,6 @@ import {
   isCancel,
   cancel,
   select,
-  text,
 } from '@clack/prompts';
 import {
   Dependencies,
@@ -32,8 +30,6 @@ const getPackageJsonPath = (): string => {
 
 const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = dirname(rootPackageJsonPath);
-
-type Input = string | string[];
 
 const getAllComponents = (): string[] => {
   const componentListDir = join(
@@ -300,7 +296,7 @@ async function detectProjectType(directoryPath: string): Promise<string> {
   try {
     // Check for files or directories unique to Next.js, Expo, or React Native CLI projects
     const nextjsFiles: string[] = ['next.config.js', 'next.config.mjs'];
-    const expoFiles: string[] = ['app.json'];
+    const expoFiles: string[] = ['app.json', 'app.config.js', 'app.config.ts'];
     const reactNativeFiles: string[] = ['ios', 'android'];
     const packageJsonPath = rootPackageJsonPath;
     // Check for presence of Next.js files/directories
@@ -311,12 +307,14 @@ async function detectProjectType(directoryPath: string): Promise<string> {
     // Check for presence of Expo files/directories
     const isExpo: boolean = await Promise.all(
       expoFiles.map((file) => fs.pathExists(`${directoryPath}/${file}`))
-    ).then((results) => results.every(Boolean));
+    ).then((results) => results.some(Boolean));
 
     // Check for presence of React Native CLI files/directories
     const isReactNative: boolean = await Promise.all(
       reactNativeFiles.map((file) => fs.pathExists(`${directoryPath}/${file}`))
     ).then((results) => results.every(Boolean));
+
+    // Check for presence of package.json file
     if (fs.existsSync(packageJsonPath) && packageJsonPath !== '') {
       const packageJson = await fs.readJSONSync(packageJsonPath);
 
@@ -423,43 +421,6 @@ async function getExistingComponentStyle() {
   }
 }
 
-async function getComponentStyle() {
-  try {
-    if (
-      fs.existsSync(join(currDir, config.writableComponentsPath)) &&
-      fs.existsSync(join(currDir, config.UIconfigPath))
-    )
-      getExistingComponentStyle();
-    if (
-      fs.existsSync(join(currDir, config.writableComponentsPath)) &&
-      !fs.existsSync(join(currDir, config.UIconfigPath))
-    ) {
-      const userInput = await text({
-        message: `No file found as ${config.configFileName} in components folder, Enter path to your config file in your project, if exist:`,
-        validate(value) {
-          if (value.length === 0) return `please enter a valid path`;
-        },
-      });
-      config.UIconfigPath = userInput.toString();
-      config.configFileName = config.UIconfigPath.split('/').pop() as string;
-      if (fs.existsSync(join(currDir, config.UIconfigPath)))
-        getExistingComponentStyle();
-      else {
-        log.error(`\x1b[31mInvalid config path provided\x1b[0m`);
-        process.exit(1);
-      }
-    }
-    if (!fs.existsSync(join(currDir, config.writableComponentsPath))) {
-      log.warning(
-        `\x1b[33mgluestack is not initialized in the project. use 'npx gluestack-ui init' or 'help' to continue.\x1b[0m`
-      );
-      process.exit(1);
-    }
-  } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-  }
-}
-
 //function to return additional dependencies based on project type
 async function getAdditionalDependencies(
   projectType: string | undefined,
@@ -512,33 +473,25 @@ const checkIfFolderExists = async (path: string): Promise<boolean> => {
   }
 };
 
-async function formatFileWithPrettier(filePath: string | undefined) {
-  try {
-    if (!filePath) {
-      log.error(
-        `\x1b[31mError formatting file: Invalid file path provided\x1b[0m`
-      );
-      return;
-    }
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-
-    // Get Prettier configuration (if any) from the project
-    const prettierConfig = await prettier.resolveConfig(filePath);
-
-    // Format the file content using Prettier
-    const formattedContent = await prettier.format(fileContent, {
-      ...prettierConfig,
-      filepath: filePath, // This ensures Prettier uses the correct parser based on the file extension
-    });
-
-    fs.writeFileSync(filePath, formattedContent, 'utf8');
-  } catch (err) {
-    log.error(`\x1b[Error formatting file : ${(err as Error).message}\x1b[0m`);
-  }
-}
-
 function removeHyphen(str: string): string {
   return str.replace(/-/g, '');
+}
+
+// Define a callback type
+type Callback = (error: Error | null, output: string | null) => void;
+
+function runCliCommand(command: string, callback: Callback): void {
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    if (stderr) {
+      callback(new Error(stderr), null);
+      return;
+    }
+    callback(null, stdout);
+  });
 }
 
 export {
@@ -548,8 +501,6 @@ export {
   detectProjectType,
   isValidPath,
   checkWritablePath,
-  getExistingComponentStyle,
-  formatFileWithPrettier,
   projectRootPath,
   installDependencies,
   removeHyphen,

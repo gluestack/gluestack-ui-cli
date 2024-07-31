@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { generateConfig, getConfigPath } from '.';
+import { generateConfig, getFilePath } from '.';
 import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 
 const _currDir = process.cwd();
@@ -32,15 +32,15 @@ async function resolvedReactNativePaths(
 }
 
 async function generateConfigRNApp() {
-  const entryPath = await getConfigPath(['**/*App.*']);
-  const globalCssPath = await getConfigPath([
+  const entryPath = await getFilePath(['**/*App.*']);
+  const globalCssPath = await getFilePath([
     '**/*globals.css',
     '**/*global.css',
   ]);
-  const tailwindConfigPath = await getConfigPath(['tailwind.config.*']);
-  const BabelConfigPath = await getConfigPath(['babel.config.*']);
-  const MetroConfigPath = await getConfigPath(['metro.config.*']);
-  const tsConfigPath = await getConfigPath(['tsconfig.*']);
+  const tailwindConfigPath = await getFilePath(['tailwind.config.*']);
+  const BabelConfigPath = await getFilePath(['babel.config.*']);
+  const MetroConfigPath = await getFilePath(['metro.config.*']);
+  const tsConfigPath = await getFilePath(['tsconfig.*']);
 
   const gluestackConfig: RawConfig = {
     tailwind: {
