@@ -22,8 +22,8 @@ async function getExpoProjectType(cwd: string): Promise<string | undefined> {
   const isExpoProject = files.find(
     (file) =>
       file.startsWith('app.json') ||
-      file.startsWith('app.config.js') ||
-      file.startsWith('app.config.ts')
+      file.startsWith('app.config.ts') ||
+      file.startsWith('app.config.js')
   );
   if (!isExpoProject) {
     return undefined;

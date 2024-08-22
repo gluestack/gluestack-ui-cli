@@ -32,14 +32,15 @@ const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = dirname(rootPackageJsonPath);
 
 const getAllComponents = (): string[] => {
-  const componentListDir = join(
-    homeDir,
-    config.gluestackDir,
-    config.componentsResourcePath,
-    config.style
-  );
   const componentList = fs
-    .readdirSync(componentListDir)
+    .readdirSync(
+      join(
+        homeDir,
+        config.gluestackDir,
+        config.componentsResourcePath,
+        config.style
+      )
+    )
     .filter(
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js'].includes(extname(file).toLowerCase()) &&

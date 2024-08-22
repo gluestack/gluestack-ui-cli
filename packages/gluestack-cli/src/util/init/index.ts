@@ -63,10 +63,7 @@ const InitializeGlueStack = async ({
     s.start(
       '⏳ Generating project configuration. This might take a couple of minutes...'
     );
-    const resolvedConfig = await generateProjectConfigAndInit(
-      projectType,
-      confirmOverride
-    );
+    await generateProjectConfigAndInit(projectType, confirmOverride);
     await addProvider();
     s.stop(`\x1b[32mProject configuration generated.\x1b[0m`);
     log.step(
@@ -403,7 +400,7 @@ async function initNatiwindRNApp(resolvedConfig: any) {
     execSync(
       `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
     );
-    execSync('npx pod-install', { stdio: 'inherit' });
+    // execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
