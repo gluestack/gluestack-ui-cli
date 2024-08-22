@@ -90,7 +90,7 @@ const transform: Transform = (file, api, options): string => {
           ]),
         ]);
 
-        const expoRouterBabel = j.stringLiteral('expo-router/babel');
+        // const expoRouterBabel = j.stringLiteral('expo-router/babel');
         const reactNativeReanimatedPlugin = j.stringLiteral(
           'react-native-reanimated/plugin'
         );
@@ -108,7 +108,6 @@ const transform: Transform = (file, api, options): string => {
                   j.identifier('plugins'),
                   j.arrayExpression([
                     moduleResolverPlugin,
-                    expoRouterBabel,
                     reactNativeReanimatedPlugin,
                   ])
                 )
@@ -129,16 +128,16 @@ const transform: Transform = (file, api, options): string => {
           }
 
           // Check for expo-router/babel
-          if (
-            !pluginElements.some(
-              (element: any) =>
-                element.type === 'StringLiteral' &&
-                element.value === 'expo-router/babel'
-            ) &&
-            !isSDK50
-          ) {
-            pluginElements.push(expoRouterBabel);
-          }
+          // if (
+          //   !pluginElements.some(
+          //     (element: any) =>
+          //       element.type === 'StringLiteral' &&
+          //       element.value === 'expo-router/babel'
+          //   ) &&
+          //   !isSDK50
+          // ) {
+          //   pluginElements.push(expoRouterBabel);
+          // }
 
           // Check for react-native-reanimated/plugin
           if (
