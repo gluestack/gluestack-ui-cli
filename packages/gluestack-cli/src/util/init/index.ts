@@ -400,7 +400,7 @@ async function initNatiwindRNApp(resolvedConfig: any) {
     execSync(
       `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
     );
-    // execSync('npx pod-install', { stdio: 'inherit' });
+    execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
   }
