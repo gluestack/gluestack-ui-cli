@@ -44,6 +44,22 @@ async function getExpoProjectType(cwd: string): Promise<string | undefined> {
       : undefined;
 }
 
+async function isExpoSDK50(cwd: string): Promise<boolean> {
+  //if expo project, check if expo version is greater than 50.0.0  by checking expo version in package.json file
+  const packageJsonPath = path.join(_currDir, 'package.json');
+  const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+  const packageJson = JSON.parse(packageJsonContent);
+  const expoVersion = packageJson.dependencies.expo;
+
+  const version = expoVersion.replace('^', '').replace('~', '');
+  const versionArray = version.split('.');
+  const majorVersion = parseInt(versionArray[0]);
+
+  if (majorVersion < 50) {
+    return false;
+  }
+  return true;
+}
 async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
   const resolvedExpoPaths = {
     tailwind: {
@@ -64,6 +80,7 @@ async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
     app: {
       entry: path.resolve(_currDir, resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
+      sdk50: resultConfig?.app?.sdk50,
     },
   };
   return resolvedExpoPaths;
@@ -108,6 +125,7 @@ async function generateConfigExpoApp(): Promise<ExpoResolvedConfig> {
     app: {
       entry: entryPath,
       type: projectType,
+      sdk50: await isExpoSDK50(_currDir),
     },
   };
   generateConfig(gluestackConfig);

@@ -70,6 +70,7 @@ const cloneRepositoryAtRoot = async (rootPath: string) => {
     }
   } catch (err) {
     log.error(`\x1b[31m Cloning failed, ${(err as Error).message}\x1b[0m`);
+    process.exit(1);
   }
 };
 
@@ -152,6 +153,7 @@ function findLockFileType(): string | null {
     const packageLockPath = join(currentDir, 'package-lock.json');
     const yarnLockPath = join(currentDir, 'yarn.lock');
     const pnpmLockPath = join(currentDir, 'pnpm-lock.yaml');
+    const bunLockPath = join(currentDir, 'bun.lockb');
 
     if (fs.existsSync(packageLockPath)) {
       return 'npm';
@@ -159,6 +161,8 @@ function findLockFileType(): string | null {
       return 'yarn';
     } else if (fs.existsSync(pnpmLockPath)) {
       return 'pnpm';
+    } else if (fs.existsSync(bunLockPath)) {
+      return 'bun';
     } else if (currentDir === dirname(currentDir)) {
       // Reached root directory
       return null;
@@ -176,6 +180,7 @@ const promptVersionManager = async (): Promise<any> => {
       { value: 'npm', label: 'npm', hint: 'recommended' },
       { value: 'yarn', label: 'yarn' },
       { value: 'pnpm', label: 'pnpm' },
+      { value: 'bun', label: 'bun' },
     ],
   });
   if (isCancel(packageManager)) {
@@ -261,6 +266,10 @@ const installDependencies = async (
         installCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.dependencies, ' --lockfile-only')}`;
         devInstallCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --lockfile-only')}`;
         break;
+      case 'bun':
+        installCommand = `bun add ${generateInstallCommand(dependenciesToInstall.dependencies, '')}`;
+        devInstallCommand = `bun add ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --dev')}`;
+        break;
       default:
         throw new Error('Invalid package manager selected');
     }
@@ -288,6 +297,7 @@ const installDependencies = async (
     }
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+    process.exit(1);
   }
 };
 

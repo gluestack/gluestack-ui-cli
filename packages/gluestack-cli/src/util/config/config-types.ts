@@ -51,6 +51,7 @@ export const ExpoResolvedConfigSchema = z.object({
   app: z.object({
     type: z.string().optional(),
     entry: z.string(),
+    sdk50: z.boolean().optional(),
   }),
 });
 

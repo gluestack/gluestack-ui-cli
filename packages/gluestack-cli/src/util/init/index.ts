@@ -43,32 +43,6 @@ const InitializeGlueStack = async ({
   projectType: string;
 }) => {
   try {
-    //if expo project, check if expo version is greater than 50.0.0  by checking expo version in package.json file
-    if (projectType === config.expoProject) {
-      const packageJsonPath = join(_currDir, 'package.json');
-      const packageJson = JSON.parse(
-        await fs.readFile(packageJsonPath, 'utf8')
-      );
-      const expoVersion = packageJson.dependencies.expo;
-      if (!expoVersion) {
-        log.error(
-          `\x1b[31mexpo is not installed in the project. Please install expo and try again.\x1b[0m`
-        );
-        process.exit(1);
-      }
-      const version = expoVersion.replace('^', '').replace('~', '');
-      const versionArray = version.split('.');
-      const majorVersion = parseInt(versionArray[0]);
-      if (majorVersion < 50) {
-        log.error(
-          `\x1b[31mDetected Expo SDK version less than 50.0.0, gluestack-ui CLI supports installation for Expo SDK 50 and above only\x1b[0m.`
-        );
-        console.log(
-          `\nFor more manual installation please refer this link:\x1b[34m https://gluestack.io/ui/docs/home/getting-started/installation\x1b[0m`
-        );
-        process.exit(1);
-      }
-    }
     const initializeStatus = await checkIfInitialized(_currDir);
     if (initializeStatus) {
       log.info(
@@ -234,7 +208,8 @@ async function commonInitialization(
       typeof value === 'string' ? value : Object.values(value as object)
     );
     const resolvedConfigFileNames = flattenedConfigValues.map(
-      (filePath: string) => path.parse(filePath).base
+      (filePath: any) =>
+        typeof filePath === 'string' && path.parse(filePath).base
     );
     const resourcePath = join(__dirname, config.templatesDir, projectType);
     if (existsSync(resourcePath)) {
@@ -376,14 +351,13 @@ async function initNatiwindExpoApp(resolveConfig: ExpoResolvedConfig) {
       expoTransformer,
       'expo-add-provider-transform.ts'
     );
-
     execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${
         resolveConfig.config.metroConfig
       } --cssPath='${cssPath}' --config='${JSON.stringify(resolveConfig)}'`
     );
     execSync(
-      `npx jscodeshift -t ${BabeltransformerPath}  ${resolveConfig.config.babelConfig}`
+      `npx jscodeshift -t ${BabeltransformerPath}  ${resolveConfig.config.babelConfig} --isSDK50='${resolveConfig.app.sdk50}'`
     );
     execSync(
       `npx jscodeshift -t ${addProviderTransformerPath}  ${resolveConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
@@ -461,7 +435,6 @@ async function generateProjectConfigAndInit(
       default:
         break;
     }
-
     await commonInitialization(projectType, resolvedConfig, permission);
   } else {
     //write function to generate config for library

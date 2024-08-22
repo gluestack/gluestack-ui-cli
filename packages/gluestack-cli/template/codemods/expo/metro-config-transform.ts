@@ -3,25 +3,27 @@ import { Transform } from 'jscodeshift';
 import { parse, print } from 'recast';
 import { ExpoResolvedConfig } from '../../../src/util/config/config-types';
 
-function getMetroConfigContent(cssPath: string) {
-  return `const { getDefaultConfig } = require('expo/metro-config');
-const { withNativeWind } = require('nativewind/metro');
-  
-const config = getDefaultConfig(__dirname);
-  
-module.exports = withNativeWind(config, { input: '${cssPath}' });
-  `;
-}
-
 const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
     const source = file.source.trim();
     const cssPath = options.cssPath;
     const config: ExpoResolvedConfig = options.config;
-    const metroConfigContent = getMetroConfigContent(cssPath);
-
+    const isSDK50 = config.app.sdk50;
     if (source.length === 0) {
+      const metroConfigContent = isSDK50
+        ? `const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+  
+const config = getDefaultConfig(__dirname);
+  
+module.exports = withNativeWind(config, { input: '${cssPath}' });`
+        : `const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+  
+const config = getDefaultConfig(__dirname, { isCSSEnabled: true });
+  
+module.exports = withNativeWind(config, { input: '${cssPath}' });`;
       // Use recast to parse the content
       const ast = parse(metroConfigContent);
       // Print the AST back to code
@@ -30,6 +32,7 @@ const transform: Transform = (file, api, options) => {
       return null; // Return early after writing the file
     }
     const root = j(source);
+
     // Check if withNativeWind import already exists
     const withNativeWindImportExists =
       root.find(j.VariableDeclarator, {
