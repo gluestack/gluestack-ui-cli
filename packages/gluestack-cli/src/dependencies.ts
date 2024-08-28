@@ -185,6 +185,9 @@ const dependenciesConfig: Dependencies = {
   select: {
     dependencies: {
       '@gluestack-ui/select': 'latest',
+      '@gluestack-ui/actionsheet': 'latest',
+      '@legendapp/motion': 'latest',
+      '@expo/html-elements': 'latest',
     },
   },
   slider: {
