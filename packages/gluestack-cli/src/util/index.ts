@@ -43,8 +43,9 @@ const getAllComponents = (): string[] => {
     )
     .filter(
       (file) =>
-        !['.tsx', '.ts', '.jsx', '.js'].includes(extname(file).toLowerCase()) &&
-        file !== config.providerComponent
+        !['.tsx', '.ts', '.jsx', '.js', 'json'].includes(
+          extname(file).toLowerCase()
+        ) && file !== config.providerComponent
     );
   return componentList;
 };
