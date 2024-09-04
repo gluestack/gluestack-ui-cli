@@ -29,6 +29,9 @@ const projectBasedDependencies: Dependencies = {
     dependencies: {
       'react-native-reanimated': '',
     },
+    devDependencies: {
+      'babel-plugin-module-resolver': '',
+    },
   },
 };
 const dependenciesConfig: Dependencies = {
@@ -49,7 +52,7 @@ const dependenciesConfig: Dependencies = {
   accordion: {
     dependencies: {
       '@gluestack-ui/accordion': 'latest',
-      '@expo/html-elements': 'latest',
+      '@expo/html-elements': '0.4.2',
     },
   },
   actionsheet: {
@@ -108,7 +111,7 @@ const dependenciesConfig: Dependencies = {
   },
   heading: {
     dependencies: {
-      '@expo/html-elements': 'latest',
+      '@expo/html-elements': '0.4.2',
     },
   },
   hstack: {
@@ -187,7 +190,7 @@ const dependenciesConfig: Dependencies = {
       '@gluestack-ui/select': 'latest',
       '@gluestack-ui/actionsheet': 'latest',
       '@legendapp/motion': 'latest',
-      '@expo/html-elements': 'latest',
+      '@expo/html-elements': '0.4.2',
     },
   },
   slider: {

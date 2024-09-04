@@ -9,6 +9,7 @@ import {
   RawConfig,
   NextResolvedConfig,
   ExpoResolvedConfig,
+  ReactNativeResolvedConfig,
 } from '../config/config-types';
 import {
   checkIfInitialized,
@@ -18,6 +19,7 @@ import {
 import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
+  getRelativePath,
   installDependencies,
 } from '..';
 import { generateConfigNextApp } from '../config/next-config-helper';
@@ -365,11 +367,15 @@ async function initNatiwindExpoApp(resolveConfig: ExpoResolvedConfig) {
   }
 }
 
-async function initNatiwindRNApp(resolvedConfig: any) {
+async function initNatiwindRNApp(resolvedConfig: ReactNativeResolvedConfig) {
   try {
     await ensureFile(resolvedConfig.config.babelConfig);
     await ensureFile(resolvedConfig.config.metroConfig);
 
+    const relativeCSSImport = getRelativePath({
+      sourcePath: resolvedConfig.app.entry,
+      targetPath: resolvedConfig.tailwind.css,
+    });
     const RNTransformer = join(
       __dirname,
       config.codeModesDir,
@@ -388,9 +394,6 @@ async function initNatiwindRNApp(resolvedConfig: any) {
       'rn-add-provider-transform.ts'
     );
 
-    const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
-    const cssImportPath = '@/'.concat(rawCssPath);
-
     execSync(
       `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
     );
@@ -398,7 +401,7 @@ async function initNatiwindRNApp(resolvedConfig: any) {
       `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
     );
     execSync(
-      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
+      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${relativeCSSImport}'`
     );
     execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {

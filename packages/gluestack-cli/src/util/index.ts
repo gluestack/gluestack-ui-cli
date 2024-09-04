@@ -4,7 +4,7 @@ import simpleGit from 'simple-git';
 import { config } from '../config';
 import { exec, spawnSync } from 'child_process';
 import finder from 'find-package-json';
-import { join, dirname, extname } from 'path';
+import { join, dirname, extname, relative, basename } from 'path';
 import {
   log,
   spinner,
@@ -43,7 +43,7 @@ const getAllComponents = (): string[] => {
     )
     .filter(
       (file) =>
-        !['.tsx', '.ts', '.jsx', '.js', 'json'].includes(
+        !['.tsx', '.ts', '.jsx', '.js', '.json'].includes(
           extname(file).toLowerCase()
         ) && file !== config.providerComponent
     );
@@ -506,6 +506,27 @@ function runCliCommand(command: string, callback: Callback): void {
   });
 }
 
+function getRelativePath({
+  sourcePath,
+  targetPath,
+}: {
+  sourcePath: string;
+  targetPath: string;
+}) {
+  const sourceDir = dirname(sourcePath);
+  const targetDir = dirname(targetPath);
+
+  let relativePath = relative(sourceDir, targetDir);
+  // If the relative path is '.' or empty, it means the directories are the same
+  if (relativePath === '.' || relativePath === '') {
+    // Files are in the same directory
+    return './' + basename(targetPath);
+  } else {
+    // Construct the full relative path
+    return join(relativePath, basename(targetPath));
+  }
+}
+
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
@@ -516,4 +537,5 @@ export {
   projectRootPath,
   installDependencies,
   removeHyphen,
+  getRelativePath,
 };
