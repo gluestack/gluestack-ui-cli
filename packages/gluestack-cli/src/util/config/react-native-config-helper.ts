@@ -1,6 +1,12 @@
 import * as path from 'path';
 import { generateConfig, getFilePath } from '.';
 import { RawConfig, ReactNativeResolvedConfig } from './config-types';
+import { ensureFilesPromise, getRelativePath } from '..';
+import { config } from '../../config';
+import { join } from 'path';
+import { execSync } from 'child_process';
+import { log } from '@clack/prompts';
+import { commonInitialization } from '../init';
 
 const _currDir = process.cwd();
 
@@ -31,7 +37,56 @@ async function resolvedReactNativePaths(
   return resolvedReactNativePaths;
 }
 
-async function generateConfigRNApp() {
+//project specific initialization: react-native
+async function initNatiwindRNApp(
+  resolvedConfig: ReactNativeResolvedConfig,
+  permission: boolean
+) {
+  try {
+    const relativeCSSImport = getRelativePath({
+      sourcePath: resolvedConfig.app.entry,
+      targetPath: resolvedConfig.tailwind.css,
+    });
+    const RNTransformer = join(
+      __dirname,
+      config.codeModesDir,
+      config.reactNativeCLIProject
+    );
+    const BabelTransformerPath = join(
+      RNTransformer,
+      `babel-config-transform.ts`
+    );
+    const metroTransformerPath = join(
+      RNTransformer,
+      `metro-config-transform.ts`
+    );
+    const addProviderTransformerPath = join(
+      RNTransformer,
+      'rn-add-provider-transform.ts'
+    );
+
+    execSync(
+      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
+    );
+    execSync(
+      `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
+    );
+    execSync(
+      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${relativeCSSImport}'`
+    );
+    await commonInitialization(
+      config.reactNativeCLIProject,
+      resolvedConfig,
+      permission
+    );
+
+    execSync('npx pod-install', { stdio: 'inherit' });
+  } catch (err) {
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+  }
+}
+
+async function generateConfigRNApp(permission: boolean) {
   const entryPath = await getFilePath(['**/*App.*']);
   const globalCssPath = await getFilePath([
     '**/*globals.css',
@@ -72,7 +127,22 @@ async function generateConfigRNApp() {
   };
 
   generateConfig(gluestackConfig);
-  return await resolvedReactNativePaths(resolvedGluestackConfig);
+  const resolvedConfig = await resolvedReactNativePaths(
+    resolvedGluestackConfig
+  );
+  const filesTobeEnsured = [
+    resolvedConfig.config.babelConfig,
+    resolvedConfig.config.metroConfig,
+    resolvedConfig.config.tsConfig,
+    resolvedConfig.tailwind.css,
+    join(_currDir, 'nativewind-env.d.ts'),
+  ];
+  const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
+  if (permission && filesEnsured) {
+    if (permission) {
+      await initNatiwindRNApp(resolvedConfig, permission);
+    }
+  }
 }
 
 export { generateConfigRNApp };

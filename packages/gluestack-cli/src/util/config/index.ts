@@ -103,7 +103,7 @@ async function generateConfig(resultConfig: RawConfig) {
   fs.writeFileSync(targetPath, JSON.stringify(resultConfig, null, 2), 'utf8');
 }
 
-async function generateGluestackConfig() {
+async function generateMonoRepoConfig() {
   const componentPath = path.resolve(
     projectRootPath,
     config.writableComponentsPath
@@ -128,6 +128,6 @@ export {
   generateConfig,
   getFilePath,
   getComponentsPath,
-  generateGluestackConfig,
+  generateMonoRepoConfig,
   findDirectory,
 };

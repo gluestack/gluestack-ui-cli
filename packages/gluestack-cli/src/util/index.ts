@@ -2,7 +2,7 @@ import os from 'os';
 import fs, { stat } from 'fs-extra';
 import simpleGit from 'simple-git';
 import { config } from '../config';
-import { exec, spawnSync } from 'child_process';
+import { exec, execSync, spawnSync } from 'child_process';
 import finder from 'find-package-json';
 import { join, dirname, extname, relative, basename } from 'path';
 import {
@@ -19,6 +19,7 @@ import {
   dependenciesConfig,
   projectBasedDependencies,
 } from '../dependencies';
+import { installNativeWind } from './init';
 
 const homeDir = os.homedir();
 const currDir = process.cwd();
@@ -191,11 +192,14 @@ const promptVersionManager = async (): Promise<any> => {
   }
   return packageManager;
 };
+
 const installDependencies = async (
   input: string[] | string,
   additionalDependencies?: Dependencies | undefined
 ): Promise<void> => {
   try {
+    //add npmrc file for legacy-peer-deps-support
+    execSync('npm config --location=project set legacy-peer-deps=true');
     let versionManager: string | null = findLockFileType();
     if (!versionManager) {
       versionManager = await promptVersionManager();
@@ -257,16 +261,16 @@ const installDependencies = async (
 
     switch (versionManager) {
       case 'npm':
-        installCommand = `npm install ${generateInstallCommand(dependenciesToInstall.dependencies, ' --legacy-peer-deps')}`;
-        devInstallCommand = `npm install ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --legacy-peer-deps --save-dev')}`;
+        installCommand = `npm install ${generateInstallCommand(dependenciesToInstall.dependencies, '')}`;
+        devInstallCommand = `npm install ${generateInstallCommand(dependenciesToInstall.devDependencies, '  --save-dev')}`;
         break;
       case 'yarn':
         installCommand = `yarn add ${generateInstallCommand(dependenciesToInstall.dependencies, '')}`;
         devInstallCommand = `yarn add ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --dev')}`;
         break;
       case 'pnpm':
-        installCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.dependencies, ' --lockfile-only')}`;
-        devInstallCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.devDependencies, ' --lockfile-only')}`;
+        installCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.dependencies, '')}`;
+        devInstallCommand = `pnpm i ${generateInstallCommand(dependenciesToInstall.devDependencies, '')}`;
         break;
       case 'bun':
         installCommand = `bun add ${generateInstallCommand(dependenciesToInstall.dependencies, '')}`;
@@ -281,6 +285,7 @@ const installDependencies = async (
     );
 
     try {
+      await installNativeWind(versionManager);
       spawnSync(installCommand, {
         cwd: currDir,
         stdio: 'inherit',
@@ -527,6 +532,21 @@ function getRelativePath({
   }
 }
 
+async function ensureFilesPromise(filePaths: string[]): Promise<boolean> {
+  try {
+    // Filter out empty strings, null, and undefined values
+    const validPaths = filePaths.filter(
+      (path) => path && typeof path === 'string' && path.trim() !== ''
+    );
+    // Use Promise.all to run all ensureFile operations concurrently
+    await Promise.all(validPaths.map((path) => fs.ensureFile(path)));
+    return true; // All operations successful
+  } catch (error) {
+    console.error('Error ensuring files:', error);
+    return false; // At least one operation failed
+  }
+}
+
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
@@ -538,4 +558,5 @@ export {
   installDependencies,
   removeHyphen,
   getRelativePath,
+  ensureFilesPromise,
 };

@@ -2,24 +2,18 @@ import os from 'os';
 import { config } from '../../config';
 import { promisify } from 'util';
 import { execSync } from 'child_process';
-import path, { join, relative } from 'path';
+import path, { join } from 'path';
 import { log, confirm, spinner } from '@clack/prompts';
-import fs, { copy, ensureFile, existsSync } from 'fs-extra';
-import {
-  RawConfig,
-  NextResolvedConfig,
-  ExpoResolvedConfig,
-  ReactNativeResolvedConfig,
-} from '../config/config-types';
+import fs, { copy, existsSync } from 'fs-extra';
+import { RawConfig } from '../config/config-types';
 import {
   checkIfInitialized,
-  generateGluestackConfig,
+  generateMonoRepoConfig,
   getEntryPathAndComponentsPath,
 } from '../config';
 import {
   cloneRepositoryAtRoot,
   getAdditionalDependencies,
-  getRelativePath,
   installDependencies,
 } from '..';
 import { generateConfigNextApp } from '../config/next-config-helper';
@@ -103,6 +97,17 @@ async function addProvider() {
   }
 }
 
+function createDefaultTSConfig() {
+  return {
+    compilerOptions: {
+      paths: {
+        '@/*': ['./*'],
+      },
+    },
+    exclude: ['node_modules'],
+  };
+}
+
 async function updateTailwindConfig(
   resolvedConfig: RawConfig,
   projectType: string
@@ -130,14 +135,17 @@ async function updateTailwindConfig(
   }
 }
 
-async function updateTSConfig(projectType: string): Promise<void> {
+async function updateTSConfig(
+  projectType: string,
+  configPath: string
+): Promise<void> {
   try {
-    const tsConfigPath = join(_currDir, 'tsconfig.json');
     let tsConfig: TSConfig = {};
     try {
-      tsConfig = JSON.parse(await readFileAsync(tsConfigPath, 'utf8'));
+      tsConfig = JSON.parse(await readFileAsync(configPath, 'utf8'));
     } catch {
-      await fs.ensureFile(tsConfigPath);
+      //write another function if file is empty
+      tsConfig = createDefaultTSConfig();
     }
     tsConfig.compilerOptions = tsConfig.compilerOptions || {};
 
@@ -158,11 +166,7 @@ async function updateTSConfig(projectType: string): Promise<void> {
         paths.push('./*');
       }
     }
-    await writeFileAsync(
-      tsConfigPath,
-      JSON.stringify(tsConfig, null, 2),
-      'utf8'
-    );
+    await writeFileAsync(configPath, JSON.stringify(tsConfig, null, 2), 'utf8');
   } catch (err) {
     log.error(
       `\x1b[31mError occured while installing dependencies (${
@@ -175,8 +179,6 @@ async function updateTSConfig(projectType: string): Promise<void> {
 async function updateGlobalCss(resolvedConfig: RawConfig): Promise<void> {
   try {
     const globalCSSPath = resolvedConfig.tailwind.css;
-    await fs.ensureFile(globalCSSPath);
-
     const globalCSSContent = await fs.readFile(
       join(__dirname, config.templatesDir, 'common/global.css'),
       'utf8'
@@ -202,6 +204,7 @@ async function commonInitialization(
   permission: boolean | symbol
 ) {
   try {
+    //get resolvedFileNames from the resolvedConfig
     const resolvedConfigValues = Object.values(resolvedConfig).flat(Infinity);
     const flattenedConfigValues = resolvedConfigValues.flatMap((value) =>
       typeof value === 'string' ? value : Object.values(value as object)
@@ -210,9 +213,12 @@ async function commonInitialization(
       (filePath: any) =>
         typeof filePath === 'string' && path.parse(filePath).base
     );
+
     const resourcePath = join(__dirname, config.templatesDir, projectType);
+    //if any filepath
     if (existsSync(resourcePath)) {
       const filesAndFolders = fs.readdirSync(resourcePath);
+      //if any fileName in resourcePath matches with the resolvedConfigFileNames, copy the file
       await Promise.all(
         filesAndFolders.map(async (file) => {
           if (resolvedConfigFileNames.includes(path.parse(file).base)) {
@@ -224,17 +230,13 @@ async function commonInitialization(
       );
     }
 
-    //add nativewind-env.d.ts
-    await fs.ensureFile(join(_currDir, 'nativewind-env.d.ts'));
+    //add nativewind-env.d.ts contents
     await fs.copy(
       join(__dirname, `${config.templatesDir}/common/nativewind-env.d.ts`),
       join(_currDir, 'nativewind-env.d.ts')
     );
-
-    //add npmrc file for legacy-peer-deps-support
-    execSync('npm config --location=project set legacy-peer-deps=true');
-
-    permission && (await updateTSConfig(projectType));
+    permission &&
+      (await updateTSConfig(projectType, resolvedConfig.config.tsConfig));
     permission && (await updateGlobalCss(resolvedConfig));
     await updateTailwindConfig(resolvedConfig, projectType);
 
@@ -263,152 +265,7 @@ async function commonInitialization(
   }
 }
 
-//refactor
-async function initNatiwindNextApp(resolvedConfig: NextResolvedConfig) {
-  try {
-    const NextTranformer = join(
-      __dirname,
-      `${config.codeModesDir}/${config.nextJsProject}`
-    );
-    let nextTransformerPath = '';
-    let fileType = '';
-    const nextConfigPath = resolvedConfig.config.nextConfig;
-
-    if (nextConfigPath?.endsWith('.mjs')) {
-      fileType = 'mjs';
-    } else if (nextConfigPath?.endsWith('.js')) {
-      fileType = 'js';
-    }
-    nextTransformerPath = join(
-      `${NextTranformer}/next-config-${fileType}-transform.ts`
-    );
-
-    if (nextTransformerPath && nextConfigPath) {
-      execSync(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
-    }
-    if (resolvedConfig.app?.entry?.includes('layout')) {
-      // if app router add registry file to root
-      const registryContent = await fs.readFile(
-        join(__dirname, `${config.templatesDir}/common/registry.tsx`),
-        'utf8'
-      );
-      if (resolvedConfig.app.registry) {
-        await fs.ensureFile(resolvedConfig.app.registry);
-        await fs.writeFile(
-          resolvedConfig.app.registry,
-          registryContent,
-          'utf8'
-        );
-      }
-    }
-    if (resolvedConfig.app?.entry?.includes('_app')) {
-      const pageDirPath = path.dirname(resolvedConfig.app.entry);
-      const docsPagePath = join(pageDirPath, '_document.tsx');
-      const transformerPath = join(
-        `${NextTranformer}/next-document-update-transform.ts`
-      );
-      execSync(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
-    }
-
-    const options = JSON.stringify(resolvedConfig);
-    const transformerPath = join(
-      `${NextTranformer}/next-add-provider-transform.ts --config='${options}'`
-    );
-    const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
-    const cssImportPath = '@/'.concat(rawCssPath);
-    execSync(
-      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
-    );
-  } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
-  }
-}
-
-async function initNatiwindExpoApp(resolveConfig: ExpoResolvedConfig) {
-  try {
-    await ensureFile(resolveConfig.config.babelConfig);
-    await ensureFile(resolveConfig.config.metroConfig);
-
-    const expoTransformer = join(
-      __dirname,
-      config.codeModesDir,
-      config.expoProject
-    );
-    const BabeltransformerPath = join(
-      expoTransformer,
-      'babel-config-transform.ts'
-    );
-    const metroTransformerPath = join(
-      expoTransformer,
-      'metro-config-transform.ts'
-    );
-    const rawCssPath = relative(_currDir, resolveConfig.tailwind.css);
-    const cssPath = './'.concat(rawCssPath);
-    const cssImportPath = '@/'.concat(rawCssPath);
-
-    const addProviderTransformerPath = join(
-      expoTransformer,
-      'expo-add-provider-transform.ts'
-    );
-    execSync(
-      `npx jscodeshift -t ${metroTransformerPath}  ${
-        resolveConfig.config.metroConfig
-      } --cssPath='${cssPath}' --config='${JSON.stringify(resolveConfig)}'`
-    );
-    execSync(
-      `npx jscodeshift -t ${BabeltransformerPath}  ${resolveConfig.config.babelConfig} --isSDK50='${resolveConfig.app.sdk50}'`
-    );
-    execSync(
-      `npx jscodeshift -t ${addProviderTransformerPath}  ${resolveConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
-    );
-    execSync('npx expo install babel-plugin-module-resolver');
-  } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
-  }
-}
-
-async function initNatiwindRNApp(resolvedConfig: ReactNativeResolvedConfig) {
-  try {
-    await ensureFile(resolvedConfig.config.babelConfig);
-    await ensureFile(resolvedConfig.config.metroConfig);
-
-    const relativeCSSImport = getRelativePath({
-      sourcePath: resolvedConfig.app.entry,
-      targetPath: resolvedConfig.tailwind.css,
-    });
-    const RNTransformer = join(
-      __dirname,
-      config.codeModesDir,
-      config.reactNativeCLIProject
-    );
-    const BabelTransformerPath = join(
-      RNTransformer,
-      `babel-config-transform.ts`
-    );
-    const metroTransformerPath = join(
-      RNTransformer,
-      `metro-config-transform.ts`
-    );
-    const addProviderTransformerPath = join(
-      RNTransformer,
-      'rn-add-provider-transform.ts'
-    );
-
-    execSync(
-      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
-    );
-    execSync(
-      `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
-    );
-    execSync(
-      `npx  jscodeshift -t ${addProviderTransformerPath} ${resolvedConfig.app.entry}  --componentsPath='${config.writableComponentsPath}' --cssImportPath='${relativeCSSImport}'`
-    );
-    execSync('npx pod-install', { stdio: 'inherit' });
-  } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
-  }
-}
-
+//generate project config and initialize
 async function generateProjectConfigAndInit(
   projectType: string,
   confirmOverride: boolean | symbol
@@ -421,28 +278,44 @@ async function generateProjectConfigAndInit(
   if (projectType !== 'library') {
     switch (projectType) {
       case config.nextJsProject:
-        resolvedConfig = await generateConfigNextApp();
-        permission && (await initNatiwindNextApp(resolvedConfig));
+        await generateConfigNextApp(permission);
         break;
       case config.expoProject:
-        resolvedConfig = await generateConfigExpoApp();
-        permission && (await initNatiwindExpoApp(resolvedConfig));
+        await generateConfigExpoApp(permission);
         break;
       case config.reactNativeCLIProject:
-        resolvedConfig = await generateConfigRNApp();
-        permission && (await initNatiwindRNApp(resolvedConfig));
+        await generateConfigRNApp(permission);
         break;
       default:
         break;
     }
-    await commonInitialization(projectType, resolvedConfig, permission);
   } else {
-    //write function to generate config for library
-    await generateGluestackConfig();
+    //write function to generate config for monorepo or library
+    await generateMonoRepoConfig();
   }
   return resolvedConfig;
 }
 
+//package manager based installation for nativewind@4.0.36 using --save-exact flag, has to be refactored later
+//temporary solution for patch
+const installNativeWind = async (versionManager: string) => {
+  switch (versionManager) {
+    case 'npm':
+      execSync('npm install --save-exact nativewind@4.0.36 ');
+      break;
+    case 'yarn':
+      execSync('yarn add --exact nativewind@4.0.36');
+      break;
+    case 'pnpm':
+      execSync('pnpm i --save-exact nativewind@4.0.36 ');
+      break;
+    case 'bun':
+      execSync('bun add --exact nativewind@4.0.36');
+      break;
+  }
+};
+
+//files to override in the project directory data
 const filesToOverride = (projectType: string) => {
   switch (projectType) {
     case config.nextJsProject:
@@ -476,7 +349,7 @@ const filesToOverride = (projectType: string) => {
 function getStringLengthWithoutAnsi(string: string) {
   return string.replace(/\x1b\[[0-9;]*m/g, '').length;
 }
-
+//overriding warning message
 async function overrideWarning(files: string[]) {
   if (files.length === 0) {
     return true;
@@ -514,4 +387,4 @@ ${files
   return confirmInput;
 }
 
-export { InitializeGlueStack };
+export { InitializeGlueStack, commonInitialization, installNativeWind };

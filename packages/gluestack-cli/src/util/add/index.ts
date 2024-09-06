@@ -72,7 +72,8 @@ const isComponentInConfig = async (components: string[]): Promise<string[]> => {
     const pathToCheck = join(
       projectRootPath,
       config.writableComponentsPath,
-      component
+      component,
+      'index.tsx'
     );
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);

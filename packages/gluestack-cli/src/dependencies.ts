@@ -38,7 +38,6 @@ const dependenciesConfig: Dependencies = {
   'gluestack-ui-provider': {
     dependencies: {
       tailwindcss: '',
-      nativewind: '4.0.36',
       '@gluestack-ui/overlay': 'latest',
       '@gluestack-ui/toast': 'latest',
       '@gluestack-ui/nativewind-utils': 'latest',

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import fg from 'fast-glob';
-import { pathExists } from 'fs-extra';
+import { pathExists, readFile, writeFile } from 'fs-extra';
 import { config } from '../../config';
 import { findDirectory, generateConfig, getFilePath } from '.';
 import {
@@ -8,6 +8,11 @@ import {
   NextResolvedConfig,
   PROJECT_SHARED_IGNORE,
 } from './config-types';
+import { join, relative } from 'path';
+import { execSync } from 'child_process';
+import { log } from '@clack/prompts';
+import { ensureFilesPromise } from '..';
+import { commonInitialization } from '../init';
 
 const _currDir = process.cwd();
 //next project type initialization
@@ -58,7 +63,73 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
   return resolvedNextJsPaths;
 }
 
-async function generateConfigNextApp(): Promise<NextResolvedConfig> {
+//project specific initialization: nextjs
+async function initNatiwindNextApp(
+  resolvedConfig: NextResolvedConfig,
+  permission: boolean
+) {
+  try {
+    const NextTransformer = join(
+      __dirname,
+      `${config.codeModesDir}/${config.nextJsProject}`
+    );
+    const nextConfigPath = resolvedConfig.config.nextConfig;
+
+    let nextTransformerPath = '';
+    let fileType = '';
+
+    if (nextConfigPath?.endsWith('.mjs')) {
+      fileType = 'mjs';
+    } else if (nextConfigPath?.endsWith('.js')) {
+      fileType = 'js';
+    }
+    nextTransformerPath = join(
+      `${NextTransformer}/next-config-${fileType}-transform.ts`
+    );
+
+    if (nextTransformerPath && nextConfigPath) {
+      execSync(`npx jscodeshift -t ${nextTransformerPath}  ${nextConfigPath}`);
+    }
+    if (
+      resolvedConfig.app?.entry?.includes('layout') &&
+      resolvedConfig.app.registry
+    ) {
+      // if app router add registry file to root
+      const registryContent = await readFile(
+        join(__dirname, `${config.templatesDir}/common/registry.tsx`),
+        'utf8'
+      );
+      await writeFile(resolvedConfig.app.registry, registryContent, 'utf8');
+    }
+    if (resolvedConfig.app?.entry?.includes('_app')) {
+      const pageDirPath = path.dirname(resolvedConfig.app.entry);
+      const docsPagePath = join(pageDirPath, '_document.tsx');
+      const transformerPath = join(
+        `${NextTransformer}/next-document-update-transform.ts`
+      );
+      execSync(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
+    }
+
+    const options = JSON.stringify(resolvedConfig);
+    const transformerPath = join(
+      `${NextTransformer}/next-add-provider-transform.ts --config='${options}'`
+    );
+    const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
+    const cssImportPath = '@/'.concat(rawCssPath);
+    execSync(
+      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
+    );
+    await commonInitialization(
+      config.nextJsProject,
+      resolvedConfig,
+      permission
+    );
+  } catch (err) {
+    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+  }
+}
+
+async function generateConfigNextApp(permission: boolean) {
   const projectType = await getNextProjectType(_currDir);
   const entryPath = await getFilePath(['**/*layout.*', '**/*_app.*']);
   const globalCssPath = await getFilePath([
@@ -110,7 +181,17 @@ async function generateConfigNextApp(): Promise<NextResolvedConfig> {
   };
 
   generateConfig(gluestackConfig);
-  return await resolvedNextJsPaths(resolvedGluestackConfig);
+  const resolvedConfig = await resolvedNextJsPaths(resolvedGluestackConfig);
+  const filesTobeEnsured = [
+    resolvedConfig.app.registry ?? '',
+    resolvedConfig.config.tsConfig,
+    resolvedConfig.tailwind.css,
+    join(_currDir, 'nativewind-env.d.ts'),
+  ];
+  const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
+  if (permission && filesEnsured) {
+    await initNatiwindNextApp(resolvedConfig, permission);
+  }
 }
 
 export { generateConfigNextApp };
