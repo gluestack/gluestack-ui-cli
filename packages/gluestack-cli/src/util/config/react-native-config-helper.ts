@@ -3,7 +3,7 @@ import { generateConfig, getFilePath } from '.';
 import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 import { ensureFilesPromise, getRelativePath } from '..';
 import { config } from '../../config';
-import { join } from 'path';
+import { join, normalize } from 'path';
 import { execSync } from 'child_process';
 import { log } from '@clack/prompts';
 import { commonInitialization } from '../init';
@@ -47,10 +47,8 @@ async function initNatiwindRNApp(
       sourcePath: resolvedConfig.app.entry,
       targetPath: resolvedConfig.tailwind.css,
     });
-    const RNTransformer = join(
-      __dirname,
-      config.codeModesDir,
-      config.reactNativeCLIProject
+    const RNTransformer = normalize(
+      join(__dirname, config.codeModesDir, config.reactNativeCLIProject)
     );
     const BabelTransformerPath = join(
       RNTransformer,

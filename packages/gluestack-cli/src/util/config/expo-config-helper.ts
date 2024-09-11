@@ -97,10 +97,8 @@ async function initNatiwindExpoApp(
   permission: boolean
 ) {
   try {
-    const expoTransformer = join(
-      __dirname,
-      config.codeModesDir,
-      config.expoProject
+    const expoTransformer = path.normalize(
+      join(__dirname, config.codeModesDir, config.expoProject)
     );
     const BabeltransformerPath = join(
       expoTransformer,

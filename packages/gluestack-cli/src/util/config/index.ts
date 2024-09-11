@@ -9,6 +9,7 @@ const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
 const possibleIndexFiles = ['_app', 'index', 'App'];
 const possibleDirectories = ['src', 'pages', 'app', 'components'];
 
+//refactor this for normalisedPath
 function findDirectory(rootDir: string, relativePaths: string[]) {
   for (const relPath of relativePaths) {
     const dirPath = path.join(rootDir, relPath);

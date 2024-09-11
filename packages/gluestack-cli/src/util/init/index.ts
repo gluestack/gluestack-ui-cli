@@ -2,7 +2,7 @@ import os from 'os';
 import { config } from '../../config';
 import { promisify } from 'util';
 import { execSync } from 'child_process';
-import path, { join } from 'path';
+import path, { join, normalize } from 'path';
 import { log, confirm, spinner } from '@clack/prompts';
 import fs, { copy, existsSync } from 'fs-extra';
 import { RawConfig } from '../config/config-types';
@@ -48,7 +48,7 @@ const InitializeGlueStack = async ({
     }
     const confirmOverride = await overrideWarning(filesToOverride(projectType));
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+    await cloneRepositoryAtRoot(normalize(join(_homeDir, config.gluestackDir)));
     const inputComponent = [config.providerComponent];
     const additionalDependencies = await getAdditionalDependencies(
       projectType,
@@ -113,19 +113,16 @@ async function updateTailwindConfig(
   projectType: string
 ) {
   try {
-    const tailwindConfigRootPath = join(
-      _homeDir,
-      config.gluestackDir,
-      config.tailwindConfigRootPath
+    const tailwindConfigRootPath = normalize(
+      join(_homeDir, config.gluestackDir, config.tailwindConfigRootPath)
     );
     const tailwindConfigPath = resolvedConfig.tailwind.config;
     await fs.copy(tailwindConfigRootPath, tailwindConfigPath);
     // Codemod to update tailwind.config.js usage
     const { entryPath } = getEntryPathAndComponentsPath();
     const allNewPaths = JSON.stringify(entryPath);
-    const transformerPath = join(
-      __dirname,
-      `${config.codeModesDir}/tailwind-config-transform.ts`
+    const transformerPath = normalize(
+      join(__dirname, config.codeModesDir, 'tailwind-config-transform.ts')
     );
     execSync(
       `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}' --projectType='${projectType}' `
@@ -179,10 +176,10 @@ async function updateTSConfig(
 async function updateGlobalCss(resolvedConfig: RawConfig): Promise<void> {
   try {
     const globalCSSPath = resolvedConfig.tailwind.css;
-    const globalCSSContent = await fs.readFile(
-      join(__dirname, config.templatesDir, 'common/global.css'),
-      'utf8'
+    const globalCSSContentPath = normalize(
+      join(__dirname, config.templatesDir, 'common/global.css')
     );
+    const globalCSSContent = await fs.readFile(globalCSSContentPath, 'utf8');
     const existingContent = await fs.readFile(globalCSSPath, 'utf8');
     if (existingContent.includes(globalCSSContent)) {
       return;
@@ -214,7 +211,9 @@ async function commonInitialization(
         typeof filePath === 'string' && path.parse(filePath).base
     );
 
-    const resourcePath = join(__dirname, config.templatesDir, projectType);
+    const resourcePath = normalize(
+      join(__dirname, config.templatesDir, projectType)
+    );
     //if any filepath
     if (existsSync(resourcePath)) {
       const filesAndFolders = fs.readdirSync(resourcePath);
@@ -232,7 +231,9 @@ async function commonInitialization(
 
     //add nativewind-env.d.ts contents
     await fs.copy(
-      join(__dirname, `${config.templatesDir}/common/nativewind-env.d.ts`),
+      normalize(
+        join(__dirname, config.templatesDir, 'common', 'nativewind-env.d.ts')
+      ),
       join(_currDir, 'nativewind-env.d.ts')
     );
     permission &&

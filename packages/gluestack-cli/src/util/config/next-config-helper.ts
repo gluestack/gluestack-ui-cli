@@ -8,7 +8,7 @@ import {
   NextResolvedConfig,
   PROJECT_SHARED_IGNORE,
 } from './config-types';
-import { join, relative } from 'path';
+import { join, normalize, relative } from 'path';
 import { execSync } from 'child_process';
 import { log } from '@clack/prompts';
 import { ensureFilesPromise } from '..';
@@ -69,9 +69,8 @@ async function initNatiwindNextApp(
   permission: boolean
 ) {
   try {
-    const NextTransformer = join(
-      __dirname,
-      `${config.codeModesDir}/${config.nextJsProject}`
+    const NextTransformer = normalize(
+      join(__dirname, config.codeModesDir, config.nextJsProject)
     );
     const nextConfigPath = resolvedConfig.config.nextConfig;
 

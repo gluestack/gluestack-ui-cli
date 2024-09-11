@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import os from 'os';
-import { basename, join, parse } from 'path';
+import { basename, join, normalize, parse } from 'path';
 import { log, confirm } from '@clack/prompts';
 import { config } from '../../config';
 import {
@@ -20,7 +20,7 @@ const componentAdder = async ({
 }) => {
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+    await cloneRepositoryAtRoot(normalize(join(_homeDir, config.gluestackDir)));
     if (
       requestedComponent &&
       requestedComponent !== '--all' &&
@@ -42,10 +42,8 @@ const componentAdder = async ({
         : requestedComponents;
     await Promise.all(
       updatedComponents.map(async (component) => {
-        const targetPath = join(
-          projectRootPath,
-          config.writableComponentsPath,
-          component
+        const targetPath = normalize(
+          join(projectRootPath, config.writableComponentsPath, component)
         );
 
         await writeComponent(component, targetPath);
@@ -69,11 +67,13 @@ const isComponentInConfig = async (components: string[]): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];
   for (const component of components) {
-    const pathToCheck = join(
-      projectRootPath,
-      config.writableComponentsPath,
-      component,
-      'index.tsx'
+    const pathToCheck = normalize(
+      join(
+        projectRootPath,
+        config.writableComponentsPath,
+        component,
+        'index.tsx'
+      )
     );
     if (fs.existsSync(pathToCheck)) {
       alreadyExistingComponents.push(component);
@@ -124,20 +124,18 @@ const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
 const writeComponent = async (component: string, targetPath: string) => {
   try {
     await fs.ensureDir(targetPath);
-    await fs.copy(
+    const componentResourcePath = normalize(
       join(
         _homeDir,
         config.gluestackDir,
         config.componentsResourcePath,
         config.style,
         component
-      ),
-      join(targetPath),
-
-      {
-        overwrite: true,
-      }
+      )
     );
+    await fs.copy(componentResourcePath, join(targetPath), {
+      overwrite: true,
+    });
   } catch (error) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
   }
@@ -161,7 +159,7 @@ const confirmOverride = async (
 const hookAdder = async ({ requestedHook }: { requestedHook: string }) => {
   try {
     console.log(`\n\x1b[1mAdding new hook...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+    await cloneRepositoryAtRoot(normalize(join(_homeDir, config.gluestackDir)));
 
     await writeHook(requestedHook);
     log.success(
@@ -173,17 +171,21 @@ const hookAdder = async ({ requestedHook }: { requestedHook: string }) => {
 };
 
 const isHookFromConfig = async (hook: string | undefined): Promise<boolean> => {
+  const hooksFolderPath = normalize(
+    join(_homeDir, config.gluestackDir, config.hooksResourcePath)
+  );
   const hooksList = fs
-    .readdirSync(join(_homeDir, config.gluestackDir, config.hooksResourcePath))
+    .readdirSync(hooksFolderPath)
     .map((file) => removeHyphen(parse(file).name));
   if (hook && hooksList.includes(hook.toLowerCase())) return true;
   else return false;
 };
 
 const hookFileName = async (hook: string): Promise<string> => {
-  const hooksList = fs.readdirSync(
+  const hookFolderPath = normalize(
     join(_homeDir, config.gluestackDir, config.hooksResourcePath)
   );
+  const hooksList = fs.readdirSync(hookFolderPath);
   let fileName = '';
   hooksList.forEach((file) => {
     if (removeHyphen(parse(file).name) == hook.toLowerCase()) {
@@ -194,17 +196,11 @@ const hookFileName = async (hook: string): Promise<string> => {
 };
 const writeHook = async (hook: string) => {
   const fileName = await hookFileName(hook);
-  const utilsPath = join(
-    projectRootPath,
-    config.writableComponentsPath,
-    'utils',
-    fileName
+  const utilsPath = normalize(
+    join(projectRootPath, config.writableComponentsPath, 'utils', fileName)
   );
-  const sourceFilePath = join(
-    _homeDir,
-    config.gluestackDir,
-    config.hooksResourcePath,
-    fileName
+  const sourceFilePath = normalize(
+    join(_homeDir, config.gluestackDir, config.hooksResourcePath, fileName)
   );
   if (fs.existsSync(utilsPath)) {
     const confirm = await confirmHookOverride(hook);

@@ -4,7 +4,7 @@ import simpleGit from 'simple-git';
 import { config } from '../config';
 import { exec, execSync, spawnSync } from 'child_process';
 import finder from 'find-package-json';
-import { join, dirname, extname, relative, basename } from 'path';
+import { join, dirname, extname, relative, basename, normalize } from 'path';
 import {
   log,
   spinner,
@@ -33,15 +33,11 @@ const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = dirname(rootPackageJsonPath);
 
 const getAllComponents = (): string[] => {
+  const componentsPath = normalize(
+    join(homeDir, config.gluestackDir, config.componentsResourcePath)
+  );
   const componentList = fs
-    .readdirSync(
-      join(
-        homeDir,
-        config.gluestackDir,
-        config.componentsResourcePath,
-        config.style
-      )
-    )
+    .readdirSync(componentsPath)
     .filter(
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js', '.json'].includes(
@@ -464,8 +460,22 @@ async function getAdditionalDependencies(
 
 //regex check for --path input
 function isValidPath(path: string): boolean {
-  const pathRegex = /^(?!\/{2})[a-zA-Z/.]{1,2}.*/;
-  return pathRegex.test(path);
+  // Normalize the path to handle mixed separators
+  const normalizedPath = path.normalize(path);
+
+  // Regex for Unix-like systems (macOS and Linux)
+  const unixPathRegex =
+    /^(\/(?!\/)|\.{1,2}\/|~\/)?(([a-zA-Z0-9_.-]+\/?)+)(?<!\.{1,2}\/?)(\/)?$/;
+
+  // Regex for Windows
+  const windowsPathRegex =
+    /^([a-zA-Z]:\\(?!\\)|\.{1,2}\\|\\\\[a-zA-Z0-9_.$]+\\[a-zA-Z0-9_.$]+\\)?(([a-zA-Z0-9_.-]+\\?)+)(?<!\.{1,2}\\?)(\\)?$/;
+
+  if (process.platform === 'win32') {
+    return windowsPathRegex.test(normalizedPath);
+  } else {
+    return unixPathRegex.test(normalizedPath);
+  }
 }
 
 const checkWritablePath = async (path: string): Promise<boolean> => {
