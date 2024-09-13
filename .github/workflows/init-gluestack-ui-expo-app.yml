@@ -3,12 +3,10 @@ name: Initialize Gluestack-UI in Expo App
 on:
   push:
     branches:
-      - main
-      - development
+      - patch
   pull_request:
     branches:
-      - main
-      - development
+      - patch
 
 jobs:
   test:
