@@ -35,22 +35,12 @@ jobs:
             curl -fsSL https://bun.sh/install | bash
           fi
 
-      - name: Install dependencies
+      - name: Install dependencies (prevent updates to lock file)
         working-directory: ${{ env.working-directory }}
-        run: |
-          if [ "${{ matrix.package-manager }}" == "npm" ]; then
-            npm install --legacy-peer-deps
-          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            yarn install --ignore-engines
-          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
-            pnpm install --no-strict-peer-dependencies
-          elif [ "${{ matrix.package-manager }}" == "bun" ]; then
-            bun install
-          fi
-
-      - name: Build project
+        run: yarn
+      - name: Building
         working-directory: ${{ env.working-directory }}
-        run: ${{ matrix.package-manager }} run build
+        run: yarn build
 
       - name: Create Expo app
         run: |
