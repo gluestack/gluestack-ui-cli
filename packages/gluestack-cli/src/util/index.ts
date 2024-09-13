@@ -463,7 +463,7 @@ async function getAdditionalDependencies(
 //regex check for --path input
 function isValidPath(path: string): boolean {
   // Normalize the path to handle mixed separators
-  const normalizedPath = path.normalize(path);
+  const normalizedPath = normalize(path);
 
   // Regex for Unix-like systems (macOS and Linux)
   const unixPathRegex =
