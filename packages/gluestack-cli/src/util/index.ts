@@ -59,7 +59,8 @@ const cloneRepositoryAtRoot = async (rootPath: string) => {
       }
       if (currBranch.current === config.branchName) {
         log.step('Repository already cloned.');
-        await pullComponentRepo(join(homeDir, config.gluestackDir));
+        const cachedDirPath = normalize(join(homeDir, config.gluestackDir));
+        await pullComponentRepo(cachedDirPath);
       }
     } else {
       const s = spinner();
@@ -81,7 +82,8 @@ const cloneComponentRepo = async (
   const s = spinner();
   s.start('⏳ Cloning repository...');
   try {
-    await git.clone(gitURL, targetPath, [
+    const normalizedTargetPath = normalize(targetPath);
+    await git.clone(gitURL, normalizedTargetPath, [
       '--depth=1',
       '--branch',
       config.branchName,

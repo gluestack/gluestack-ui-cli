@@ -141,7 +141,7 @@ async function generateConfigNextApp(permission: boolean) {
   const tsConfigPath = await getFilePath(['tsconfig.*']);
   let registryPath = '';
   if (projectType?.includes('app')) {
-    const appDirectory = findDirectory(_currDir, ['src/app', 'app']);
+    const appDirectory = findDirectory(_currDir, [normalize('src/app'), 'app']);
     registryPath = path.join(_currDir, appDirectory, 'registry.tsx');
   }
 

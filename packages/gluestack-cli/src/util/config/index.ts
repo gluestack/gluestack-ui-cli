@@ -4,6 +4,7 @@ import fg from 'fast-glob';
 import { projectRootPath } from '..';
 import { config } from '../../config';
 import { RawConfig, PROJECT_SHARED_IGNORE } from './config-types';
+import { normalize } from 'path';
 
 const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
 const possibleIndexFiles = ['_app', 'index', 'App'];
@@ -14,7 +15,7 @@ function findDirectory(rootDir: string, relativePaths: string[]) {
   for (const relPath of relativePaths) {
     const dirPath = path.join(rootDir, relPath);
     if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
-      return dirPath.replace(`${rootDir}/`, '');
+      return dirPath.replace(`${rootDir}${path.sep}`, '');
     }
   }
   return '';
@@ -105,14 +106,13 @@ async function generateConfig(resultConfig: RawConfig) {
 }
 
 async function generateMonoRepoConfig() {
-  const componentPath = path.resolve(
-    projectRootPath,
-    config.writableComponentsPath
+  const componentPath = normalize(
+    path.resolve(projectRootPath, config.writableComponentsPath)
   );
 
   const gluestackConfig = {
     app: {
-      components: componentPath.replace(`${projectRootPath}/`, ''),
+      components: componentPath.replace(`${projectRootPath}${path.sep}`, ''),
     },
   };
   const targetPath = path.resolve(projectRootPath, 'gluestack-ui.config.json');
