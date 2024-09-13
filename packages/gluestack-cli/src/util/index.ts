@@ -131,21 +131,21 @@ const wait = (msec: number): Promise<void> =>
   });
 
 //checking from root
-const detectLockFile = (): string | null => {
-  const packageLockPath = join(projectRootPath, 'package-lock.json');
-  const yarnLockPath = join(projectRootPath, 'yarn.lock');
-  const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
+// const detectLockFile = (): string | null => {
+//   const packageLockPath = join(projectRootPath, 'package-lock.json');
+//   const yarnLockPath = join(projectRootPath, 'yarn.lock');
+//   const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
 
-  if (fs.existsSync(packageLockPath)) {
-    return 'npm';
-  } else if (fs.existsSync(yarnLockPath)) {
-    return 'yarn';
-  } else if (fs.existsSync(pnpmLockPath)) {
-    return 'pnpm';
-  } else {
-    return null;
-  }
-};
+//   if (fs.existsSync(packageLockPath)) {
+//     return 'npm';
+//   } else if (fs.existsSync(yarnLockPath)) {
+//     return 'yarn';
+//   } else if (fs.existsSync(pnpmLockPath)) {
+//     return 'pnpm';
+//   } else {
+//     return null;
+//   }
+// };
 
 //checking from cwd
 function findLockFileType(): string | null {
