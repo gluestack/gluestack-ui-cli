@@ -316,10 +316,10 @@
     picocolors "^1.0.0"
     sisteransi "^1.0.5"
 
-"@gluestack/cli-utils@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.npmjs.org/@gluestack/cli-utils/-/cli-utils-0.1.6.tgz"
-  integrity sha512-DMN0HcW9FkZz90iFCQJJ+X6aECc6avd9AYNAwmq6CNU2kG+AMF96HLj10XEzipH+rEAxCCkNDehRRFs1dAp2SQ==
+"@gluestack/cli-utils@0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@gluestack/cli-utils/-/cli-utils-0.1.11.tgz#d3c666d6c93db20af99697897c9bbeb1e7c5c7ab"
+  integrity sha512-KtHNKNX85/CXC4qfCJxdM++TOdV9XmoW8VVTkPZ+qBWyRcW4sgtU8xEP0A7uN9Y43NYnrbNC38Euib5PzhFihA==
   dependencies:
     "@clack/prompts" "^0.6.3"
     find-package-json "^1.2.0"
@@ -900,6 +900,11 @@ chalk@^4.0.0:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
+
+chalk@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-5.3.0.tgz#67c20a7ebef70e7f3970a01f90fa210cb6860385"
+  integrity sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==
 
 char-regex@^1.0.2:
   version "1.0.2"

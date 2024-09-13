@@ -1,3 +1,4 @@
 {
-  "cmake.sourceDirectory": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/node_modules/cpu-features/deps/cpu_features"
+  "cmake.sourceDirectory": "/Users/vidhikataria/Documents/Projects/gluestack-ui/gluestack-ui-cli/node_modules/cpu-features/deps/cpu_features",
+  "editor.formatOnSave": true
 }

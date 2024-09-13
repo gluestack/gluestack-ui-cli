@@ -1135,10 +1135,10 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.19.tgz#8cfaf2ff603e9aabb910e9c0558c26cf32744061"
   integrity sha512-lAhycmKnVOuRYNtRtatQR1LPQf2oYCkRGkSFnseDAKPl8lu5SOsK/e1sXe5a0Pc5kHIHe6P2I/ilntNv2xf3cA==
 
-"@gluestack/cli-utils@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@gluestack/cli-utils/-/cli-utils-0.1.8.tgz#21880e8d9b20a911c85e1ad72408fa50553b9c17"
-  integrity sha512-9FIpqgiCYmbzZ2EdnE1zFaRSP7NylPSN+p3nXNQtbqRpN1zhKrc717Q3vsaH/MtT9HYOs59b76rmXkzCJyEQbA==
+"@gluestack/cli-utils@^0.1.14":
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/@gluestack/cli-utils/-/cli-utils-0.1.14.tgz#db31d91a6bdfa5ec8db0b6275ab581946fda1279"
+  integrity sha512-bqjA17xQXNt6Dq5LamP0JWsM9o7Sbr9CK2ljIHsxcR9w/EeqOL3hYbI9cKbK+Rhey5y5LOG3//c6pQ2VjtcCIg==
   dependencies:
     "@clack/prompts" "^0.6.3"
     find-package-json "^1.2.0"
