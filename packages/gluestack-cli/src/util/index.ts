@@ -286,20 +286,33 @@ const installDependencies = async (
 
     try {
       await installNativeWind(versionManager);
-      spawnSync(installCommand, {
-        cwd: currDir,
-        stdio: 'inherit',
-        shell: true,
-      });
-      spawnSync(devInstallCommand, {
-        cwd: currDir,
-        stdio: 'inherit',
-        shell: true,
-      });
+      let depResult;
+      let devDepResult;
+
+      if (Object.keys(dependenciesToInstall.dependencies || {}).length > 0) {
+        depResult = spawnSync(installCommand, {
+          cwd: currDir,
+          stdio: 'inherit',
+          shell: true,
+        });
+      }
+      if (Object.keys(dependenciesToInstall.devDependencies || {}).length > 0) {
+        devDepResult = spawnSync(devInstallCommand, {
+          cwd: currDir,
+          stdio: 'inherit',
+          shell: true,
+        });
+      }
+
+      if (
+        (depResult && depResult.status) ||
+        (devDepResult && devDepResult.status)
+      ) {
+        throw new Error();
+      }
+
       s.stop(`Dependencies have been installed successfully.`);
     } catch (err) {
-      log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-      log.error('\x1b[31mError installing dependencies:\x1b[0m');
       throw new Error('Error installing dependencies.');
     }
   } catch (err) {
