@@ -2,7 +2,7 @@
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-> A CLI tool for easily adding components from `gluestack-ui` to your projects.
+> A CLI tool for easily initialising `gluestack-ui` and adding components to your projects.
 
 - gluestack-ui offers a powerful and user-friendly Command Line Interface (CLI) for developers.
 - Simplifies the development experience and provides a streamlined workflow.
@@ -20,25 +20,19 @@ To use the gluestack-ui CLI, you can run the following commands:
 - **Initialize gluestack-ui -** This command sets up the gluestack-ui library in your project.
 
 ```
-    npx gluestack-ui@latest init
+    npx gluestack-ui init
 ```
 
-- **Initialize and add components -**: This command initializes gluestack-ui and adds the required components to your project.
+- **Add a component or a Hook -** Replace `<component-name>` with the name of the component or a hook you want to add to your project. You can also use a special flag `--all` which will add all the components to your project.
 
 ```
-    npx gluestack-ui@latest
-```
-
-- **Add a component -** Replace `<component-name>` with the name of the component you want to add or with special flag `--all` which will add all the components to your project.
-
-```
-    npx gluestack-ui@latest add <component-name>
+    npx gluestack-ui add <component-name>
 ```
 
 - **Get help -** This command provides help and information about using the gluestack-ui CLI.
 
 ```
-    npx gluestack-ui@latest help
+    npx gluestack-ui help
 ```
 
 ## Contributing
