@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: patch
+  pull_request:
+    branches: patch
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        package-manager: [npm, yarn, bun, pnpm]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16" # Specify the version of Node.js you need
+
+      - name: Install package manager
+        run: |
+          if [ "${{ matrix.package-manager }}" == "bun" ]; then
+            curl -fsSL https://bun.sh/install | bash
+            export PATH="$HOME/.bun/bin:$PATH" # Add bun to PATH
+          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
+            npm install -g pnpm
+          fi
+
+      - name: Install dependencies
+        working-directory: packages/gluestack-cli
+        run: |
+          if [ "${{ matrix.package-manager }}" == "npm" ]; then
+            npm install
+          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
+            yarn install
+          elif [ "${{ matrix.package-manager }}" == "bun" ]; then
+            bun install
+          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
+            pnpm install
+          fi
+
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.package-manager }}" == "npm" ]; then
+            npm test
+          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
+            yarn test
+          elif [ "${{ matrix.package-manager }}" == "bun" ]; then
+            bun test
+          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
+            pnpm test
+          fi
