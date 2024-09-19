@@ -25,7 +25,7 @@
     "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "tsc",
-    "test": "echo 'Test passed'"
+    "test": "jest"
   },
   "husky": {
     "hooks": {

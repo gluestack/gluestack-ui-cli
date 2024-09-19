@@ -20,6 +20,7 @@ const config = {
   gluestackUIPattern: '@gluestack-ui/',
   templatesDir: '../../../template',
   codeModesDir: '../../../template/codemods',
+  packageManager: null as string | null,
 };
 
 export { config };
