@@ -133,21 +133,21 @@ const wait = (msec: number): Promise<void> =>
   });
 
 //checking from root
-const detectLockFile = (): string | null => {
-  const packageLockPath = join(projectRootPath, 'package-lock.json');
-  const yarnLockPath = join(projectRootPath, 'yarn.lock');
-  const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
+// const detectLockFile = (): string | null => {
+//   const packageLockPath = join(projectRootPath, 'package-lock.json');
+//   const yarnLockPath = join(projectRootPath, 'yarn.lock');
+//   const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
 
-  if (fs.existsSync(packageLockPath)) {
-    return 'npm';
-  } else if (fs.existsSync(yarnLockPath)) {
-    return 'yarn';
-  } else if (fs.existsSync(pnpmLockPath)) {
-    return 'pnpm';
-  } else {
-    return null;
-  }
-};
+//   if (fs.existsSync(packageLockPath)) {
+//     return 'npm';
+//   } else if (fs.existsSync(yarnLockPath)) {
+//     return 'yarn';
+//   } else if (fs.existsSync(pnpmLockPath)) {
+//     return 'pnpm';
+//   } else {
+//     return null;
+//   }
+// };
 
 //checking from cwd
 function findLockFileType(): string | null {
@@ -172,6 +172,25 @@ function findLockFileType(): string | null {
     } else {
       currentDir = dirname(currentDir);
     }
+  }
+}
+
+function getPackageMangerFlag(options: any) {
+  if (options.useBun) {
+    config.packageManager = 'bun';
+    return 'bun';
+  }
+  if (options.usePnpm) {
+    config.packageManager = 'pnpm';
+    return 'pnpm';
+  }
+  if (options.useYarn) {
+    config.packageManager = 'yarn';
+    return 'yarn';
+  }
+  if (options.useNpm) {
+    config.packageManager = 'npm';
+    return 'npm';
   }
 }
 
@@ -200,10 +219,13 @@ const installDependencies = async (
   try {
     //add npmrc file for legacy-peer-deps-support
     execSync('npm config --location=project set legacy-peer-deps=true');
-    let versionManager: string | null = findLockFileType();
-    if (!versionManager) {
-      versionManager = await promptVersionManager();
-    }
+    let versionManager: string | null;
+    if (!config.packageManager) {
+      versionManager = findLockFileType();
+      if (!versionManager) {
+        versionManager = await promptVersionManager();
+      }
+    } else versionManager = config.packageManager;
     const dependenciesToInstall: {
       dependencies: Dependency;
       devDependencies: Dependency;
@@ -576,4 +598,5 @@ export {
   removeHyphen,
   getRelativePath,
   ensureFilesPromise,
+  getPackageMangerFlag,
 };
