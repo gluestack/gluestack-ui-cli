@@ -4,12 +4,7 @@ import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
 import { componentAdder, hookAdder, isHookFromConfig } from '../util/add';
 import { config } from '../config';
-import {
-  checkWritablePath,
-  getPackageMangerFlag,
-  isValidPath,
-  projectRootPath,
-} from '../util';
+import { checkWritablePath, isValidPath, projectRootPath } from '../util';
 import { checkIfInitialized, getComponentsPath } from '../util/config';
 
 const addOptionsSchema = z.object({
@@ -18,7 +13,6 @@ const addOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
-  useBun: z.boolean(),
   path: z.string().optional(),
 });
 
@@ -30,7 +24,6 @@ export const add = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
-  .option('--use-bun, useBun', 'use bun to install dependencies', false)
   .option('--path <path>', 'path to the components directory')
   .action(async (components, opts, command) => {
     try {
@@ -60,19 +53,6 @@ export const add = new Command()
         );
         process.exit(1);
       }
-      //if multiple package managers are used
-      if (
-        (options.useNpm && options.useYarn) ||
-        (options.useNpm && options.usePnpm) ||
-        (options.useYarn && options.usePnpm)
-      ) {
-        log.error(
-          `\x1b[31mMultiple package managers selected. Please select only one package manager.\x1b[0m`
-        );
-        process.exit(1);
-      }
-      //define package manager
-      getPackageMangerFlag(options);
       //function to get current path where GUIProvider is located
       const currWritablePath = await getComponentsPath(projectRootPath);
       if (currWritablePath) {

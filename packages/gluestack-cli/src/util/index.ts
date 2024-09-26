@@ -173,25 +173,6 @@ function findLockFileType(): string | null {
   }
 }
 
-function getPackageMangerFlag(options: any) {
-  if (options.useBun) {
-    config.packageManager = 'bun';
-    return 'bun';
-  }
-  if (options.usePnpm) {
-    config.packageManager = 'pnpm';
-    return 'pnpm';
-  }
-  if (options.useYarn) {
-    config.packageManager = 'yarn';
-    return 'yarn';
-  }
-  if (options.useNpm) {
-    config.packageManager = 'npm';
-    return 'npm';
-  }
-}
-
 const promptVersionManager = async (): Promise<any> => {
   const packageManager = await select({
     message:
@@ -217,14 +198,10 @@ const installDependencies = async (
   try {
     //add npmrc file for legacy-peer-deps-support
     execSync('npm config --location=project set legacy-peer-deps=true');
-    let versionManager: string | null;
-    if (!config.packageManager) {
-      versionManager = findLockFileType();
-      if (!versionManager) {
-        versionManager = await promptVersionManager();
-      }
+    let versionManager: string | null = findLockFileType();
+    if (!versionManager) {
+      versionManager = await promptVersionManager();
     }
-    versionManager = config.packageManager;
     const dependenciesToInstall: {
       dependencies: Dependency;
       devDependencies: Dependency;
@@ -610,5 +587,4 @@ export {
   removeHyphen,
   getRelativePath,
   ensureFilesPromise,
-  getPackageMangerFlag,
 };
