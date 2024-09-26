@@ -478,10 +478,13 @@ async function getAdditionalDependencies(
   style: string
 ) {
   try {
-    let additionalDependencies = {
+    let additionalDependencies: {
+      dependencies: {};
+      devDependencies?: {};
+    } = {
       dependencies: {},
-      devDependencies: {} || undefined,
     };
+
     if (style === config.nativeWindRootPath) {
       if (projectType && projectType !== 'library') {
         additionalDependencies.dependencies =
