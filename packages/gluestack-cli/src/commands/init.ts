@@ -13,6 +13,8 @@ const initOptionsSchema = z.object({
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
   path: z.string().optional(),
+  templateOnly: z.boolean(),
+  projectType: z.string(),
 });
 
 export const init = new Command()
@@ -25,9 +27,20 @@ export const init = new Command()
     '--path <path>',
     'path to the components directory. defaults to components/ui'
   )
+  .option(
+    '--template-only templateOnly',
+    'Only install the template without installing dependencies',
+    false
+  )
+  .option(
+    '--projectType <projectType>',
+    'Type of project to initialize',
+    'library'
+  )
   .action(async (opts) => {
     try {
       const options = initOptionsSchema.parse({ ...opts });
+      const isTemplate = options.templateOnly;
       const cwd = process.cwd();
       //if cwd doesn't have package.json file
       if (!fs.existsSync(path.join(cwd, 'package.json'))) {
@@ -52,9 +65,11 @@ export const init = new Command()
         }
       }
       // Detect project type
-      const projectType = await detectProjectType(cwd);
+      const projectType = isTemplate
+        ? options.projectType
+        : await detectProjectType(cwd);
       // Initialize the gluestack
-      InitializeGlueStack({ projectType });
+      InitializeGlueStack({ projectType, isTemplate });
     } catch (err) {
       handleError(err);
     }
