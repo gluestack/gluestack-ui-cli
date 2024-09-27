@@ -7,15 +7,65 @@ import { displayHelp } from './help';
 import templatesMap from './data.js';
 const { gitRepo, tag, options } = templatesMap;
 
-export async function main(args: string[]) {
-  const supportedFrameworkArgs = [
-    '--expo',
-    '--expo-router',
-    '--next-app-router',
-    '--next-page-router',
-    '--react-native',
-  ];
+type RouterType = 'legacy' | 'latest';
+type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
+interface ProjectOptions {
+  projectType: string;
+  router: RouterType;
+  packageManager?: PackageManager;
+  projectName: string;
+}
+
+async function createProject(createOptions: ProjectOptions) {
+  const { projectName, projectType, packageManager, router } = createOptions;
+  let createCommand = '';
+  console.log(`Creating project: ${projectName}`);
+
+  if (projectType.includes('expo')) {
+    // create expo project
+
+    createCommand = router.includes('expo-router')
+      ? `npx create-expo-app@latest ${projectName} --template expo-template-blank-typescript --use-${packageManager}`
+      : `npx create-expo-app@latest ${projectName} --template typescript --use-${packageManager}`;
+  } else if (projectType.includes('next')) {
+    // create next project
+
+    createCommand = projectType.includes('next-page-router')
+      ? `npx create-next-app@latest ${projectName} --ts --use-${packageManager}`
+      : `npx create-next-app@latest ${projectName} --ts --use-${packageManager}`;
+  } else if (projectType.includes('react-native')) {
+    // create react-native project
+
+    createCommand = `npx @react-native-community/cli@latest init ${projectName} --use-${packageManager}`;
+  }
+  try {
+    execSync(createCommand, { stdio: 'inherit' });
+    console.log(`Successfully created project: ${projectName}`);
+  } catch (e) {
+    console.error(`Failed to create project: ${e}`);
+    throw e;
+  }
+}
+
+async function initializeGluestack(projectOptions: ProjectOptions) {
+  const { projectName, packageManager, projectType } = projectOptions;
+  try {
+    execSync(`cd ${projectName}`, { stdio: 'inherit' });
+    execSync(
+      `npx gluestack-ui@alpha init --template-only --projectType ${projectType} --use-${packageManager}`,
+      { stdio: 'inherit' }
+    );
+    execSync(`npx gluestack-ui@alpha add --all --use-${packageManager}`, {
+      stdio: 'inherit',
+    });
+  } catch (e) {
+    console.log('Failed to initialize gluestack-ui');
+    throw e;
+  }
+}
+
+export async function main(args: string[]) {
   console.log(chalk.bold.magenta('\nWelcome to gluestack-ui v2!'));
   console.log(chalk.yellow('Creating a new project with gluestack-ui v2.'));
   console.log(
@@ -26,25 +76,19 @@ export async function main(args: string[]) {
     )
   );
 
+  const supportedFrameworkArgs = [
+    '--expo',
+    '--expo-router',
+    '--next-app-router',
+    '--next-page-router',
+    '--react-native',
+  ];
   const supportedStyleArgs = ['--gs', '--nw'];
-
   const supportedPackagemanagers = ['npm', 'yarn', 'pnpm', 'bun'];
+  const supportedDocumentationArgs = ['--help', '-h'];
   const supportedPackagemanagerArgs = supportedPackagemanagers.map(
     (manager) => '--use-' + manager
   );
-
-  const supportedDocumentationArgs = ['--help', '-h'];
-
-  // let supportedArgs = [
-  //   // frameworks
-  //   ...supportedFrameworkArgs,
-  //   // style options
-  //   ...supportedStyleArgs,
-  //   // package manager
-  //   ...supportedPackagemanagerArgs,
-  //   // documentation
-  //   ...supportedDocumentationArgs,
-  // ];
 
   let selectedFramework = '';
   let selectedRouter = '';
@@ -134,14 +178,24 @@ export async function main(args: string[]) {
       selectedPackageManager = 'npm';
     }
   }
-
-  const templateDir = templatesMap.map[templateName];
-
-  // @ts-ignore
-  await cloneProject(projName, templateDir);
-
-  await installDependencies(projName, selectedPackageManager);
-  console.log('done ...');
+  const createOptions: ProjectOptions = {
+    projectType: selectedFramework,
+    router: selectedRouter as RouterType,
+    packageManager: selectedPackageManager as PackageManager,
+    projectName: projName,
+  };
+  console.log('createOptions--->', createOptions);
+  try {
+    // @ts-ignore
+    // await cloneProject(projName, templateDir);
+    // await installDependencies(projName, selectedPackageManager);
+    // await createProject(createOptions);
+    // await initializeGluestack(createOptions);
+    console.log('done ...');
+  } catch {
+    console.log('Failed to create project');
+    process.exit(1);
+  }
 }
 
 async function cloneProject(projectName: string, templateName: string) {

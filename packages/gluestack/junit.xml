@@ -1,29 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="4" failures="1" errors="0" time="263.257">
-  <testsuite name="Create Next.js app with page router:" errors="0" failures="0" skipped="0" timestamp="2023-07-19T11:19:11" time="246.661" tests="2">
-    <testcase classname="Create Next.js app with page router: Create a Next.js app with npx" name="Create Next.js app with page router: Create a Next.js app with npx" time="183.973">
-    </testcase>
-    <testcase classname="Create Next.js app with page router: Start and check if Next.js app is running" name="Create Next.js app with page router: Start and check if Next.js app is running" time="42.093">
-    </testcase>
-  </testsuite>
-  <testsuite name="Create Next.js app with app router:" errors="0" failures="1" skipped="0" timestamp="2023-07-19T11:19:11" time="261.734" tests="2">
-    <testcase classname="Create Next.js app with app router: Create a Next.js app with npx" name="Create Next.js app with app router: Create a Next.js app with npx" time="184.723">
-    </testcase>
-    <testcase classname="Create Next.js app with app router: Start and check if Next.js app is running" name="Create Next.js app with app router: Start and check if Next.js app is running" time="50.005">
-      <failure>Error: thrown: &quot;Exceeded timeout of 50000 ms for a test.
-Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout.&quot;
-    at it (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/packages/create-next-app-with-gluestack-ui/__tests__/integration/next-app-router.test.js:35:3)
-    at _dispatchDescribe (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-circus/build/index.js:91:26)
-    at describe (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-circus/build/index.js:55:5)
-    at Object.describe (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/packages/create-next-app-with-gluestack-ui/__tests__/integration/next-app-router.test.js:22:1)
-    at Runtime._execModule (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-runtime/build/index.js:1430:24)
-    at Runtime._loadModule (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-runtime/build/index.js:1013:12)
-    at Runtime.requireModule (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-runtime/build/index.js:873:12)
-    at jestAdapter (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:77:13)
-    at processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at runTestInternal (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-runner/build/runTest.js:367:16)
-    at runTest (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-runner/build/runTest.js:444:34)
-    at Object.worker (/Users/virajajayjoshi/WorkSpace/gluestack-ui-cli/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+<testsuites name="jest tests" tests="1" failures="0" errors="0" time="2.656">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2024-09-27T07:45:50" time="2.373" tests="1">
+    <testcase classname=" Test template: expo-with-gluestack-style" name=" Test template: expo-with-gluestack-style" time="0.717">
     </testcase>
   </testsuite>
 </testsuites>
