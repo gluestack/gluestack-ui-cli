@@ -25,19 +25,34 @@ async function createProject(createOptions: ProjectOptions) {
   if (projectType.includes('expo')) {
     // create expo project
 
-    createCommand = router.includes('expo-router')
-      ? `npx create-expo-app@latest ${projectName} --template expo-template-blank-typescript --use-${packageManager}`
-      : `npx create-expo-app@latest ${projectName} --template typescript --use-${packageManager}`;
+    const templateFlag = router.includes('expo-router')
+      ? `expo-template-blank-typescript`
+      : `typescript`;
+
+    switch (packageManager) {
+      case 'npm':
+        createCommand = `npx create-expo-app@latest ${projectName} --template ${templateFlag}`;
+        break;
+      case 'yarn':
+        createCommand = `yarn create expo-app ${projectName} --template ${templateFlag}`;
+        break;
+      case 'pnpm':
+        createCommand = `pnpm create expo-app ${projectName} --template ${templateFlag}`;
+        break;
+      case 'bun':
+        createCommand = `npx create expo ${projectName} --template ${templateFlag}`;
+        break;
+    }
   } else if (projectType.includes('nextjs')) {
     // create next project
 
     createCommand = projectType.includes('next-page-router')
-      ? `npx create-next-app@latest ${projectName} --ts --use-${packageManager}`
-      : `npx create-next-app@latest ${projectName} --ts --use-${packageManager}`;
+      ? `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --tailwind --no-src-dir --no-app`
+      : `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --tailwind --no-src-dir --app`;
   } else if (projectType.includes('react-native')) {
     // create react-native project
 
-    createCommand = `npx @react-native-community/cli@latest init ${projectName} --use-${packageManager}`;
+    createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager}`;
   }
   try {
     execSync(createCommand, { stdio: 'inherit' });
