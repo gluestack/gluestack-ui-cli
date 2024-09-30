@@ -38,7 +38,7 @@ const componentAdder = async ({
 
     const updatedComponents =
       !existingComponentsChecked && showWarning && requestedComponent
-        ? await isComponentInConfig(requestedComponents)
+        ? await isComponentInProject(requestedComponents)
         : requestedComponents;
     await Promise.all(
       updatedComponents.map(async (component) => {
@@ -65,7 +65,9 @@ const componentAdder = async ({
   }
 };
 
-const isComponentInConfig = async (components: string[]): Promise<string[]> => {
+const isComponentInProject = async (
+  components: string[]
+): Promise<string[]> => {
   const alreadyExistingComponents: string[] = [];
   let componentsToAdd: any = [];
   for (const component of components) {

@@ -26,8 +26,8 @@ async function createProject(createOptions: ProjectOptions) {
     // create expo project
 
     const templateFlag = router.includes('expo-router')
-      ? `expo-template-blank-typescript`
-      : `typescript`;
+      ? `blank-typescript`
+      : ``;
 
     switch (packageManager) {
       case 'npm':
@@ -40,7 +40,7 @@ async function createProject(createOptions: ProjectOptions) {
         createCommand = `pnpm create expo-app ${projectName} --template ${templateFlag}`;
         break;
       case 'bun':
-        createCommand = `npx create expo ${projectName} --template ${templateFlag}`;
+        createCommand = `bun create expo ${projectName} --template ${templateFlag}`;
         break;
     }
   } else if (projectType.includes('nextjs')) {
@@ -64,14 +64,14 @@ async function createProject(createOptions: ProjectOptions) {
 }
 
 async function initializeGluestack(projectOptions: ProjectOptions) {
-  const { projectName, packageManager, projectType } = projectOptions;
+  const { projectName, projectType } = projectOptions;
   try {
     execSync(`cd ${projectName}`, { stdio: 'inherit' });
     execSync(
-      `npx gluestack-ui@alpha init --template-only --projectType ${projectType} --use-${packageManager}`,
+      `npx gluestack-ui@alpha init --template-only --projectType ${projectType}`,
       { stdio: 'inherit' }
     );
-    execSync(`npx gluestack-ui@alpha add --all --use-${packageManager}`, {
+    execSync(`npx gluestack-ui@alpha add --all`, {
       stdio: 'inherit',
     });
   } catch (e) {
