@@ -1,11 +1,15 @@
 export interface Dependency {
   [key: string]: string;
 }
+export interface ComponentConfig {
+  dependencies: Dependency;
+  devDependencies?: Dependency;
+  additionalComponents?: string[];
+  hooks?: string[];
+}
+
 export interface Dependencies {
-  [key: string]: {
-    dependencies: Dependency;
-    devDependencies?: Dependency;
-  };
+  [key: string]: ComponentConfig;
 }
 
 const projectBasedDependencies: Dependencies = {
@@ -42,6 +46,7 @@ const dependenciesConfig: Dependencies = {
       '@gluestack-ui/toast': 'latest',
       '@gluestack-ui/nativewind-utils': 'latest',
       'react-native-svg': '13.4.0',
+      nativewind: '4.1.10',
     },
     devDependencies: {
       jscodeshift: '0.15.2',
@@ -229,6 +234,35 @@ const dependenciesConfig: Dependencies = {
   view: { dependencies: {} },
   'virtualized-list': { dependencies: {} },
   vstack: { dependencies: {} },
+  grid: {
+    dependencies: {},
+    hooks: ['useBreakpointValue'],
+  },
 };
 
-export { dependenciesConfig, projectBasedDependencies };
+// Ignore components that are in development or not in supported list
+const IgnoredComponents = ['bottomsheet'];
+
+const getComponentDependencies = (componentName: string): ComponentConfig => {
+  const config = dependenciesConfig[componentName];
+  if (!config) {
+    return {
+      dependencies: {},
+      devDependencies: {},
+      additionalComponents: [],
+      hooks: [],
+    };
+  }
+  return {
+    dependencies: config.dependencies || {},
+    devDependencies: config.devDependencies || {},
+    additionalComponents: config.additionalComponents || [],
+    hooks: config.hooks || [],
+  };
+};
+export {
+  dependenciesConfig,
+  projectBasedDependencies,
+  IgnoredComponents,
+  getComponentDependencies,
+};

@@ -96,7 +96,7 @@ async function initNatiwindNextApp(
     ) {
       // if app router add registry file to root
       const registryContent = await readFile(
-        join(__dirname, `${config.templatesDir}/common/registry.tsx`),
+        join(__dirname, config.templatesDir, 'common', 'registry.tsx'),
         'utf8'
       );
       await writeFile(resolvedConfig.app.registry, registryContent, 'utf8');
