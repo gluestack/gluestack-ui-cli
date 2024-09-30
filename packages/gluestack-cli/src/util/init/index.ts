@@ -305,25 +305,6 @@ async function generateProjectConfigAndInit(
   return resolvedConfig;
 }
 
-//package manager based installation for nativewind@4.0.36 using --save-exact flag, has to be refactored later
-//temporary solution for patch
-const installNativeWind = async (versionManager: string) => {
-  switch (versionManager) {
-    case 'npm':
-      execSync('npm install --save-exact nativewind@4.0.36 ');
-      break;
-    case 'yarn':
-      execSync('yarn add --exact nativewind@4.0.36');
-      break;
-    case 'pnpm':
-      execSync('pnpm i --save-exact nativewind@4.0.36 ');
-      break;
-    case 'bun':
-      execSync('bun add --exact nativewind@4.0.36');
-      break;
-  }
-};
-
 //files to override in the project directory data
 const filesToOverride = (projectType: string) => {
   switch (projectType) {

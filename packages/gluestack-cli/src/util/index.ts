@@ -165,23 +165,6 @@ const wait = (msec: number): Promise<void> =>
     setTimeout(resolve, msec);
   });
 
-//checking from root
-// const detectLockFile = (): string | null => {
-//   const packageLockPath = join(projectRootPath, 'package-lock.json');
-//   const yarnLockPath = join(projectRootPath, 'yarn.lock');
-//   const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
-
-//   if (fs.existsSync(packageLockPath)) {
-//     return 'npm';
-//   } else if (fs.existsSync(yarnLockPath)) {
-//     return 'yarn';
-//   } else if (fs.existsSync(pnpmLockPath)) {
-//     return 'pnpm';
-//   } else {
-//     return null;
-//   }
-// };
-
 //checking from cwd
 function findLockFileType(): string | null {
   let currentDir = currDir;
@@ -245,19 +228,36 @@ const promptVersionManager = async (): Promise<any> => {
   return packageManager;
 };
 
+async function ensureLegacyPeerDeps() {
+  //add legacy-peer-deps-support
+  switch (config.packageManager) {
+    case 'npm':
+      execSync('npm config --location=project set legacy-peer-deps=true');
+      break;
+    case 'yarn':
+      execSync('yarn config set legacy-peer-deps true');
+      break;
+    case 'pnpm':
+      execSync('pnpm config set legacy-peer-deps true');
+      break;
+    case 'bun':
+      break;
+  }
+}
+
 const installDependencies = async (
   input: string[] | string,
   additionalDependencies?: Dependencies | undefined
 ): Promise<void> => {
   try {
-    //add npmrc file for legacy-peer-deps-support
-    execSync('npm config --location=project set legacy-peer-deps=true');
+    await ensureLegacyPeerDeps();
     let versionManager: string | null;
     if (!config.packageManager) {
       versionManager = findLockFileType();
       if (!versionManager) {
         versionManager = await promptVersionManager();
       }
+      config.packageManager = versionManager;
     } else versionManager = config.packageManager;
     const dependenciesToInstall: {
       dependencies: Dependency;
