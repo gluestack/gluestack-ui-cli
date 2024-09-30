@@ -16,7 +16,9 @@ import {
 import {
   Dependencies,
   Dependency,
+  IgnoredComponents,
   dependenciesConfig,
+  getComponentDependencies,
   projectBasedDependencies,
 } from '../dependencies';
 import { installNativeWind } from './init';
@@ -46,10 +48,42 @@ const getAllComponents = (): string[] => {
       (file) =>
         !['.tsx', '.ts', '.jsx', '.js', '.json'].includes(
           extname(file).toLowerCase()
-        ) && file !== config.providerComponent
+        ) &&
+        file !== config.providerComponent &&
+        !IgnoredComponents.includes(file)
     );
   return componentList;
 };
+
+interface AdditionalDependencies {
+  components: string[];
+  hooks: string[];
+}
+
+function checkAdditionalDependencies(
+  components: string[]
+): AdditionalDependencies {
+  const additionalDependencies: AdditionalDependencies = {
+    components: [],
+    hooks: [],
+  };
+
+  components.forEach((component) => {
+    const config = getComponentDependencies(component);
+
+    // Add additional components
+    config.additionalComponents?.forEach((additionalComponent) => {
+      additionalDependencies.components.push(additionalComponent);
+    });
+
+    // Add hooks
+    config.hooks?.forEach((hook) => {
+      additionalDependencies.hooks.push(hook);
+    });
+  });
+
+  return additionalDependencies;
+}
 
 const cloneRepositoryAtRoot = async (rootPath: string) => {
   try {
@@ -572,4 +606,5 @@ export {
   removeHyphen,
   getRelativePath,
   ensureFilesPromise,
+  checkAdditionalDependencies,
 };

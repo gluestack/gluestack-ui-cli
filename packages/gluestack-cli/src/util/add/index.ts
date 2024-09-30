@@ -4,6 +4,7 @@ import { basename, join, parse } from 'path';
 import { log, confirm } from '@clack/prompts';
 import { config } from '../../config';
 import {
+  checkAdditionalDependencies,
   cloneRepositoryAtRoot,
   getAllComponents,
   installDependencies,
@@ -21,6 +22,7 @@ const componentAdder = async ({
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+    let hooksToAdd: string[] = [];
     if (
       requestedComponent &&
       requestedComponent !== '--all' &&
@@ -36,6 +38,9 @@ const componentAdder = async ({
         ? getAllComponents()
         : [requestedComponent];
 
+    const { hooks } = checkAdditionalDependencies(requestedComponents);
+    hooksToAdd = Array.from(hooks);
+
     const updatedComponents =
       !existingComponentsChecked && showWarning && requestedComponent
         ? await isComponentInConfig(requestedComponents)
@@ -49,6 +54,7 @@ const componentAdder = async ({
         );
 
         await writeComponent(component, targetPath);
+        await hookAdder({ requestedHook: hooksToAdd[0] });
       })
     )
       .then(async () => {
@@ -158,7 +164,11 @@ const confirmOverride = async (
   return shouldContinue;
 };
 
-const hookAdder = async ({ requestedHook }: { requestedHook: string }) => {
+const hookAdder = async ({
+  requestedHook,
+}: {
+  requestedHook: string | string[];
+}) => {
   try {
     console.log(`\n\x1b[1mAdding new hook...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
@@ -192,32 +202,37 @@ const hookFileName = async (hook: string): Promise<string> => {
   });
   return fileName;
 };
-const writeHook = async (hook: string) => {
-  const fileName = await hookFileName(hook);
-  const utilsPath = join(
-    projectRootPath,
-    config.writableComponentsPath,
-    'utils',
-    fileName
-  );
-  const sourceFilePath = join(
-    _homeDir,
-    config.gluestackDir,
-    config.hooksResourcePath,
-    fileName
-  );
-  if (fs.existsSync(utilsPath)) {
-    const confirm = await confirmHookOverride(hook);
-    if (confirm === false) {
-      processTerminate('Installation aborted');
+const writeHook = async (hooks: string | string[]) => {
+  const hooksArray = Array.isArray(hooks) ? hooks : [hooks];
+  for (const hook of hooksArray) {
+    const fileName = await hookFileName(hook);
+    const utilsPath = join(
+      projectRootPath,
+      config.writableComponentsPath,
+      'utils',
+      fileName
+    );
+    const sourceFilePath = join(
+      _homeDir,
+      config.gluestackDir,
+      config.hooksResourcePath,
+      fileName
+    );
+    if (fs.existsSync(utilsPath)) {
+      const shouldOverride = await confirmHookOverride(hook);
+      if (!shouldOverride) {
+        processTerminate('Installation aborted');
+      }
     }
-  }
 
-  try {
-    await fs.ensureFile(utilsPath);
-    fs.copyFileSync(sourceFilePath, utilsPath);
-  } catch (error) {
-    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
+    try {
+      await fs.ensureFile(utilsPath);
+      await fs.copy(sourceFilePath, utilsPath);
+    } catch (error) {
+      log.error(
+        `\x1b[31mError adding hook ${hook}: ${(error as Error).message}\x1b[0m`
+      );
+    }
   }
 };
 
