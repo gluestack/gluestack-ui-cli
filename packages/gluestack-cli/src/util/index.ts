@@ -21,7 +21,6 @@ import {
   getComponentDependencies,
   projectBasedDependencies,
 } from '../dependencies';
-import { installNativeWind } from './init';
 
 const homeDir = os.homedir();
 const currDir = process.cwd();
@@ -319,7 +318,6 @@ const installDependencies = async (
     );
 
     try {
-      await installNativeWind(versionManager);
       let depResult;
       let devDepResult;
 

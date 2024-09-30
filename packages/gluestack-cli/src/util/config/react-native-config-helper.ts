@@ -66,7 +66,7 @@ async function initNatiwindRNApp(
     );
 
     execSync(
-      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig}`
+      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig} --config='${JSON.stringify(resolvedConfig)}'`
     );
     execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`

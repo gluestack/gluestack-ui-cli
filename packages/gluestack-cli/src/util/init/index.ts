@@ -97,17 +97,7 @@ async function addProvider() {
   }
 }
 
-function createDefaultTSConfig() {
-  return {
-    compilerOptions: {
-      paths: {
-        '@/*': ['./*'],
-      },
-    },
-    exclude: ['node_modules'],
-  };
-}
-
+//update tailwind.config.js and codemod
 async function updateTailwindConfig(
   resolvedConfig: RawConfig,
   projectType: string
@@ -135,47 +125,62 @@ async function updateTailwindConfig(
   }
 }
 
-async function updateTSConfig(
-  projectType: string,
-  configPath: string
-): Promise<void> {
+//updateConfig helper, create default tsconfig.json
+function createDefaultTSConfig() {
+  return {
+    compilerOptions: {
+      paths: {
+        '@/*': ['./*'],
+      },
+    },
+    exclude: ['node_modules'],
+  };
+}
+// updateConfig helper, read tsconfig.json
+async function readTSConfig(configPath: string): Promise<TSConfig> {
   try {
-    let tsConfig: TSConfig = {};
-    try {
-      tsConfig = JSON.parse(await readFileAsync(configPath, 'utf8'));
-    } catch {
-      //write another function if file is empty
-      tsConfig = createDefaultTSConfig();
-    }
+    return JSON.parse(await readFileAsync(configPath, 'utf8'));
+  } catch {
+    return createDefaultTSConfig();
+  }
+}
+// updateConfig helper, update paths in tsconfig.json
+function updatePaths(
+  paths: Record<string, string[]>,
+  key: string,
+  newValues: string[]
+): void {
+  paths[key] = Array.from(new Set([...(paths[key] || []), ...newValues]));
+}
+//update tsconfig.json
+async function updateTSConfig(projectType: string, config: any): Promise<void> {
+  try {
+    const configPath = config.config.tsConfig;
+    let tsConfig: TSConfig = await readTSConfig(configPath);
+    let tailwindConfig = config.tailwind.config;
+    const tailwindConfigFileName = tailwindConfig?.split('/').pop();
+
     tsConfig.compilerOptions = tsConfig.compilerOptions || {};
+    tsConfig.compilerOptions.paths = tsConfig.compilerOptions.paths || {};
 
     // Next.js project specific configuration
     if (projectType === config.nextJsProject) {
       tsConfig.compilerOptions.jsxImportSource = 'nativewind';
     }
-    if (!tsConfig.compilerOptions.paths) {
-      // Case 1: Paths do not exist, add new paths
-      tsConfig.compilerOptions.paths = {
-        '@/*': ['./*'],
-      };
-    } else {
-      // Case 2 & 3: Paths exist, update them without undoing previous values
-      const paths = tsConfig.compilerOptions.paths['@/*'];
-      if (!paths.includes('./*')) {
-        // If './*' is not included, add it
-        paths.push('./*');
-      }
-    }
+    updatePaths(tsConfig.compilerOptions.paths, '@/*', ['./*']);
+    updatePaths(tsConfig.compilerOptions.paths, 'tailwind.config', [
+      `./${tailwindConfigFileName}`,
+    ]);
+
     await writeFileAsync(configPath, JSON.stringify(tsConfig, null, 2), 'utf8');
   } catch (err) {
     log.error(
-      `\x1b[31mError occured while installing dependencies (${
-        err as Error
-      })\x1b[0m`
+      `\x1b[31mError occurred while updating tsconfig.json: ${(err as Error).message}\x1b[0m`
     );
   }
 }
 
+//update global.css
 async function updateGlobalCss(resolvedConfig: RawConfig): Promise<void> {
   try {
     const globalCSSPath = resolvedConfig.tailwind.css;
@@ -235,8 +240,7 @@ async function commonInitialization(
       join(__dirname, `${config.templatesDir}/common/nativewind-env.d.ts`),
       join(_currDir, 'nativewind-env.d.ts')
     );
-    permission &&
-      (await updateTSConfig(projectType, resolvedConfig.config.tsConfig));
+    permission && (await updateTSConfig(projectType, resolvedConfig));
     permission && (await updateGlobalCss(resolvedConfig));
     await updateTailwindConfig(resolvedConfig, projectType);
 
@@ -387,4 +391,4 @@ ${files
   return confirmInput;
 }
 
-export { InitializeGlueStack, commonInitialization, installNativeWind };
+export { InitializeGlueStack, commonInitialization };

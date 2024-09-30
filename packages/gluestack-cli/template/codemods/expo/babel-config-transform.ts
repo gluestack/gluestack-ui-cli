@@ -4,12 +4,15 @@ import {
   ObjectExpression,
   Property,
 } from 'jscodeshift';
+import { ExpoResolvedConfig } from '../../../src/util/config/config-types';
 
 const transform: Transform = (file, api, options): string => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
-    const isSDK50 = options.isSDK50;
+    const config: ExpoResolvedConfig = options.config;
+    const isSDK50 = config.app.sdk50;
+    const tailwindConfig = config.tailwind.config;
 
     root.find<ReturnStatement>(j.ReturnStatement).forEach((path) => {
       const returnObject = path.node.argument as ObjectExpression | null;
@@ -73,6 +76,9 @@ const transform: Transform = (file, api, options): string => {
           }
         }
 
+        // fetch tailwind config filenName from resolved path of tailwind.config.js
+        const tailwindConfigFileName = tailwindConfig.split('/').pop();
+
         //plugin code modification
         const moduleResolverPlugin = j.arrayExpression([
           j.stringLiteral('module-resolver'),
@@ -85,6 +91,10 @@ const transform: Transform = (file, api, options): string => {
               j.identifier('alias'),
               j.objectExpression([
                 j.objectProperty(j.stringLiteral('@'), j.stringLiteral('./')),
+                j.objectProperty(
+                  j.stringLiteral('tailwindConfig'),
+                  j.stringLiteral(`./` + tailwindConfigFileName)
+                ),
               ])
             ),
           ]),
