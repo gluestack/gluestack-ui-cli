@@ -20,7 +20,7 @@ interface ProjectOptions {
 async function createProject(createOptions: ProjectOptions) {
   const { projectName, projectType, packageManager, router } = createOptions;
   let createCommand = '';
-  console.log(`Creating project: ${projectName}`);
+  console.log(`Creating project: ${chalk.blue(projectName)}`);
 
   if (projectType.includes('expo')) {
     // create expo project
@@ -28,7 +28,7 @@ async function createProject(createOptions: ProjectOptions) {
     createCommand = router.includes('expo-router')
       ? `npx create-expo-app@latest ${projectName} --template expo-template-blank-typescript --use-${packageManager}`
       : `npx create-expo-app@latest ${projectName} --template typescript --use-${packageManager}`;
-  } else if (projectType.includes('next')) {
+  } else if (projectType.includes('nextjs')) {
     // create next project
 
     createCommand = projectType.includes('next-page-router')
@@ -189,7 +189,7 @@ export async function main(args: string[]) {
     // @ts-ignore
     // await cloneProject(projName, templateDir);
     // await installDependencies(projName, selectedPackageManager);
-    // await createProject(createOptions);
+    await createProject(createOptions);
     // await initializeGluestack(createOptions);
     console.log('done ...');
   } catch {
