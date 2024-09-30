@@ -1,0 +1,77 @@
+name: Initialize Gluestack-UI in Expo App
+
+on:
+  push:
+    branches:
+      - patch
+  pull_request:
+    branches:
+      - patch
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        package-manager: [npm, yarn, pnpm, bun]
+    runs-on: ${{ matrix.os }}
+    env:
+      working-directory: packages/gluestack-cli
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js v18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      - name: Install package manager
+        run: |
+          if [ "${{ matrix.package-manager }}" == "yarn" ]; then
+            npm install -g yarn
+          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
+            npm install -g pnpm
+          elif [ "${{ matrix.package-manager }}" == "bun" ]; then
+            curl -fsSL https://bun.sh/install | bash
+          fi
+
+      - name: Install dependencies (prevent updates to lock file)
+        working-directory: ${{ env.working-directory }}
+        run: yarn
+      - name: Building
+        working-directory: ${{ env.working-directory }}
+        run: yarn build
+
+      - name: Create Expo app
+        run: |
+          npx create-expo-app test-expo-app
+          cd test-expo-app
+          echo "EXPO_PROJECT_DIR=$PWD" >> $GITHUB_ENV
+
+      - name: Run Gluestack-UI CLI command
+        working-directory: ${{ env.EXPO_PROJECT_DIR }}
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            npx.cmd gluestack-ui init
+          else
+            npx gluestack-ui init
+          fi
+
+      - name: Install Expo CLI
+        run: ${{ matrix.package-manager }} add -g expo-cli
+
+      - name: Start Expo app
+        working-directory: ${{ env.EXPO_PROJECT_DIR }}
+        run: |
+          timeout 2m expo start &
+          sleep 120
+          if [ $? -eq 124 ]; then
+            echo "Expo app started successfully"
+          else
+            echo "Failed to start Expo app"
+            exit 1
+          fi
+
+      - name: Run tests
+        working-directory: ${{ env.working-directory }}
+        run: ${{ matrix.package-manager }} test

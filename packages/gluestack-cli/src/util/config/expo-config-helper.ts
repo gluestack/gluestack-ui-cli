@@ -124,7 +124,7 @@ async function initNatiwindExpoApp(
       } --cssPath='${cssPath}' --config='${JSON.stringify(resolvedConfig)}'`
     );
     execSync(
-      `npx jscodeshift -t ${BabeltransformerPath}  ${resolvedConfig.config.babelConfig} --isSDK50='${resolvedConfig.app.sdk50}'`
+      `npx jscodeshift -t ${BabeltransformerPath}  ${resolvedConfig.config.babelConfig} --config='${JSON.stringify(resolvedConfig)}'`
     );
     execSync(
       `npx jscodeshift -t ${addProviderTransformerPath}  ${resolvedConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
