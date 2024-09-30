@@ -77,7 +77,8 @@ const transform: Transform = (file, api, options): string => {
         }
 
         // fetch tailwind config filenName from resolved path of tailwind.config.js
-        const tailwindConfigFileName = tailwindConfig.split('/').pop();
+        const parts = tailwindConfig.split(/[/\\]/);
+        const tailwindConfigFileName = parts[parts.length - 1];
 
         //plugin code modification
         const moduleResolverPlugin = j.arrayExpression([

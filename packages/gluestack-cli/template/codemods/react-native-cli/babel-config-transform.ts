@@ -8,6 +8,10 @@ const transform: Transform = (file, api, options) => {
     const config: ReactNativeResolvedConfig = options.config;
     const tailwindConfig = config.tailwind.config;
 
+    // fetch tailwind config filenName from resolved path of tailwind.config.js
+    const parts = tailwindConfig.split(/[/\\]/);
+    const tailwindConfigFileName = parts[parts.length - 1];
+
     // Find the module.exports assignment
     const moduleExports = root.find(j.AssignmentExpression, {
       left: {
@@ -103,7 +107,7 @@ const transform: Transform = (file, api, options) => {
                 j.property(
                   'init',
                   j.stringLiteral('tailwind.config'),
-                  j.stringLiteral('./' + tailwindConfig.split('/').pop())
+                  j.stringLiteral('./' + tailwindConfig)
                 ),
               ])
             ),
@@ -166,7 +170,7 @@ const transform: Transform = (file, api, options) => {
               j.property(
                 'init',
                 j.stringLiteral('tailwind.config'),
-                j.stringLiteral('./' + tailwindConfig.split('/').pop())
+                j.stringLiteral('./' + tailwindConfigFileName)
               ),
             ])
           );
@@ -188,7 +192,7 @@ const transform: Transform = (file, api, options) => {
             j.property(
               'init',
               j.stringLiteral('tailwind.config'),
-              j.stringLiteral('./' + tailwindConfig.split('/').pop())
+              j.stringLiteral('./' + tailwindConfigFileName)
             )
           );
         }

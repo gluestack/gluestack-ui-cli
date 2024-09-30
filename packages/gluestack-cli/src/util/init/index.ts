@@ -158,7 +158,7 @@ async function updateTSConfig(projectType: string, config: any): Promise<void> {
     const configPath = config.config.tsConfig;
     let tsConfig: TSConfig = await readTSConfig(configPath);
     let tailwindConfig = config.tailwind.config;
-    const tailwindConfigFileName = tailwindConfig?.split('/').pop();
+    const tailwindConfigFileName = path.basename(tailwindConfig);
 
     tsConfig.compilerOptions = tsConfig.compilerOptions || {};
     tsConfig.compilerOptions.paths = tsConfig.compilerOptions.paths || {};
@@ -185,7 +185,7 @@ async function updateGlobalCss(resolvedConfig: RawConfig): Promise<void> {
   try {
     const globalCSSPath = resolvedConfig.tailwind.css;
     const globalCSSContent = await fs.readFile(
-      join(__dirname, config.templatesDir, 'common/global.css'),
+      join(__dirname, config.templatesDir, 'common', 'global.css'),
       'utf8'
     );
     const existingContent = await fs.readFile(globalCSSPath, 'utf8');
@@ -237,7 +237,7 @@ async function commonInitialization(
 
     //add nativewind-env.d.ts contents
     await fs.copy(
-      join(__dirname, `${config.templatesDir}/common/nativewind-env.d.ts`),
+      join(__dirname, config.templatesDir, 'common', 'nativewind-env.d.ts'),
       join(_currDir, 'nativewind-env.d.ts')
     );
     permission && (await updateTSConfig(projectType, resolvedConfig));

@@ -29,7 +29,7 @@ const componentAdder = async ({
       !(await checkIfComponentIsValid(requestedComponent))
     ) {
       log.error(
-        `\x1b[31mThe ${requestedComponent} does not exist. Kindly choose a valid component name.\x1b[0m `
+        `The ${requestedComponent} does not exist. Kindly choose a valid component name.`
       );
       return;
     }
@@ -54,7 +54,7 @@ const componentAdder = async ({
         );
 
         await writeComponent(component, targetPath);
-        await hookAdder({ requestedHook: hooksToAdd[0] });
+        await hookAdder({ requestedHook: hooksToAdd });
       })
     )
       .then(async () => {
@@ -229,9 +229,7 @@ const writeHook = async (hooks: string | string[]) => {
       await fs.ensureFile(utilsPath);
       await fs.copy(sourceFilePath, utilsPath);
     } catch (error) {
-      log.error(
-        `\x1b[31mError adding hook ${hook}: ${(error as Error).message}\x1b[0m`
-      );
+      log.error(`Error adding hook ${hook}: ${(error as Error).message}`);
     }
   }
 };
