@@ -1,16 +1,21 @@
 import { Command } from 'commander';
 import { z } from 'zod';
+import os from 'os';
+import { join } from 'path';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
 import { componentAdder, hookAdder, isHookFromConfig } from '../util/add';
 import { config } from '../config';
 import {
   checkWritablePath,
+  cloneRepositoryAtRoot,
   getPackageMangerFlag,
   isValidPath,
   projectRootPath,
 } from '../util';
 import { checkIfInitialized, getComponentsPath } from '../util/config';
+
+const _homeDir = os.homedir();
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -88,6 +93,8 @@ export const add = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
+      await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+
       if (options.all) {
         try {
           await componentAdder({

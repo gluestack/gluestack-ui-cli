@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import path from 'path';
-import { cancel, text, select } from '@clack/prompts';
+import { cancel, text, select, log } from '@clack/prompts';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { displayHelp } from './help';
@@ -20,27 +20,25 @@ interface ProjectOptions {
 async function createProject(createOptions: ProjectOptions) {
   const { projectName, projectType, packageManager, router } = createOptions;
   let createCommand = '';
-  console.log(`Creating project: ${chalk.blue(projectName)}`);
-
   if (projectType.includes('expo')) {
     // create expo project
 
     const templateFlag = router.includes('expo-router')
-      ? `blank-typescript`
+      ? `--template blank-typescript`
       : ``;
 
     switch (packageManager) {
       case 'npm':
-        createCommand = `npx create-expo-app@latest ${projectName} --template ${templateFlag}`;
+        createCommand = `npx create-expo-app@latest ${projectName} ${templateFlag}`;
         break;
       case 'yarn':
-        createCommand = `yarn create expo-app ${projectName} --template ${templateFlag}`;
+        createCommand = `yarn create expo-app ${projectName} ${templateFlag}`;
         break;
       case 'pnpm':
-        createCommand = `pnpm create expo-app ${projectName} --template ${templateFlag}`;
+        createCommand = `pnpm create expo-app ${projectName} ${templateFlag}`;
         break;
       case 'bun':
-        createCommand = `bun create expo ${projectName} --template ${templateFlag}`;
+        createCommand = `bun create expo ${projectName} ${templateFlag}`;
         break;
     }
   } else if (projectType.includes('nextjs')) {
@@ -55,8 +53,8 @@ async function createProject(createOptions: ProjectOptions) {
     createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager}`;
   }
   try {
-    execSync(createCommand, { stdio: 'inherit' });
-    console.log(`Successfully created project: ${projectName}`);
+    execSync(createCommand);
+    console.log(chalk.bold(`✅ Your project is ready!`));
   } catch (e) {
     console.error(`Failed to create project: ${e}`);
     throw e;
@@ -75,7 +73,7 @@ async function initializeGluestack(projectOptions: ProjectOptions) {
       stdio: 'inherit',
     });
   } catch (e) {
-    console.log('Failed to initialize gluestack-ui');
+    console.error('Failed to initialize gluestack-ui');
     throw e;
   }
 }
@@ -96,7 +94,7 @@ export async function main(args: string[]) {
     '--expo-router',
     '--next-app-router',
     '--next-page-router',
-    '--react-native',
+    '--react-native-cli',
   ];
   const supportedStyleArgs = ['--gs', '--nw'];
   const supportedPackagemanagers = ['npm', 'yarn', 'pnpm', 'bun'];
@@ -149,7 +147,7 @@ export async function main(args: string[]) {
       options: [...optionsType],
     });
     templateName = selectedFramework;
-    if (selectedFramework !== 'react-native') {
+    if (selectedFramework !== 'react-native-cli') {
       const { question, options: optionsType } =
         // @ts-ignore
         options.framework.Route[selectedFramework];
@@ -193,13 +191,26 @@ export async function main(args: string[]) {
       selectedPackageManager = 'npm';
     }
   }
+
+  // Add this check after determining the framework and package manager
+  if (
+    selectedFramework === 'react-native-cli' &&
+    selectedPackageManager === 'pnpm'
+  ) {
+    log.warn(
+      chalk.yellow(
+        'React Native CLI does not officially support pnpm as a package manager. It is recommended to use npm or yarn instead.'
+      )
+    );
+    process.exit(1);
+  }
+
   const createOptions: ProjectOptions = {
     projectType: selectedFramework,
     router: selectedRouter as RouterType,
     packageManager: selectedPackageManager as PackageManager,
     projectName: projName,
   };
-  console.log('createOptions--->', createOptions);
   try {
     // @ts-ignore
     // await cloneProject(projName, templateDir);
@@ -208,7 +219,7 @@ export async function main(args: string[]) {
     await initializeGluestack(createOptions);
     console.log('done ...');
   } catch {
-    console.log('Failed to create project');
+    console.error('Failed to create project');
     process.exit(1);
   }
 }

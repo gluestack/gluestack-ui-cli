@@ -4,7 +4,7 @@ import { basename, join, parse } from 'path';
 import { log, confirm } from '@clack/prompts';
 import { config } from '../../config';
 import {
-  checkAdditionalDependencies,
+  checkComponentDependencies,
   cloneRepositoryAtRoot,
   getAllComponents,
   installDependencies,
@@ -21,7 +21,6 @@ const componentAdder = async ({
 }) => {
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     let hooksToAdd: string[] = [];
     if (
       requestedComponent &&
@@ -38,13 +37,14 @@ const componentAdder = async ({
         ? getAllComponents()
         : [requestedComponent];
 
-    const { hooks } = checkAdditionalDependencies(requestedComponents);
+    const { hooks } = checkComponentDependencies(requestedComponents);
     hooksToAdd = Array.from(hooks);
 
     const updatedComponents =
       !existingComponentsChecked && showWarning && requestedComponent
         ? await isComponentInProject(requestedComponents)
         : requestedComponents;
+    const count = updatedComponents.length;
     await Promise.all(
       updatedComponents.map(async (component) => {
         const targetPath = join(
@@ -54,19 +54,18 @@ const componentAdder = async ({
         );
 
         await writeComponent(component, targetPath);
-        if (hooksToAdd.length > 0)
-          await hookAdder({ requestedHook: hooksToAdd });
       })
     )
       .then(async () => {
         await installDependencies(updatedComponents);
         log.success(
-          `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m component into project`
+          `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m ${count === 1 ? 'component' : 'components'} into project`
         );
       })
       .catch((err) => {
         log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
       });
+    if (hooksToAdd.length > 0) await hookAdder({ requestedHook: hooksToAdd });
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
@@ -174,8 +173,6 @@ const hookAdder = async ({
 }) => {
   try {
     console.log(`\n\x1b[1mAdding new hook...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
-
     await writeHook(requestedHook);
     log.success(
       `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m hook into project`

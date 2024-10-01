@@ -21,7 +21,7 @@ module.exports = {
         ],
       },
       Route: {
-        next: {
+        nextjs: {
           question: 'Would you like to use \x1b[36mApp Router\x1b[0m?',
           options: [
             {

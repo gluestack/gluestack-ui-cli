@@ -59,7 +59,7 @@ interface AdditionalDependencies {
   hooks: string[];
 }
 
-function checkAdditionalDependencies(
+function checkComponentDependencies(
   components: string[]
 ): AdditionalDependencies {
   const additionalDependencies: AdditionalDependencies = {
@@ -535,5 +535,5 @@ export {
   getRelativePath,
   ensureFilesPromise,
   getPackageMangerFlag,
-  checkAdditionalDependencies,
+  checkComponentDependencies,
 };
