@@ -21,7 +21,7 @@ const projectBasedDependencies: Dependencies = {
       '@gluestack/ui-next-adapter': 'latest',
     },
     devDependencies: {
-      '@types/react-native': '',
+      '@types/react-native': '0.72.8',
     },
   },
   expo: {

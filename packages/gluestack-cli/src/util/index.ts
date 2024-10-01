@@ -72,12 +72,16 @@ function checkComponentDependencies(
 
     // Add additional components
     config.additionalComponents?.forEach((additionalComponent) => {
-      additionalDependencies.components.push(additionalComponent);
+      if (!additionalDependencies.components.includes(additionalComponent)) {
+        additionalDependencies.components.push(additionalComponent);
+      }
     });
 
     // Add hooks
     config.hooks?.forEach((hook) => {
-      additionalDependencies.hooks.push(hook);
+      if (!additionalDependencies.hooks.includes(hook)) {
+        additionalDependencies.hooks.push(hook);
+      }
     });
   });
 
@@ -295,7 +299,7 @@ const installDependencies = async (
     const commands: { [key: string]: { install: string; devFlag: string } } = {
       npm: { install: 'npm install', devFlag: ' --save-dev' },
       yarn: { install: 'yarn add', devFlag: ' --dev' },
-      pnpm: { install: 'pnpm i', devFlag: '' },
+      pnpm: { install: 'pnpm i', devFlag: '-D' },
       bun: { install: 'bun add', devFlag: ' --dev' },
     };
     const { install, devFlag } = commands[versionManager];

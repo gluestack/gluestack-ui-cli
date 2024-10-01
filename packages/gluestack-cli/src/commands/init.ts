@@ -81,7 +81,7 @@ export const init = new Command()
         if (options.path !== config.writableComponentsPath) {
           await checkWritablePath(options.path);
           //check this change with all project types
-          config.writableComponentsPath = resolve(cwd, options.path);
+          config.writableComponentsPath = options.path;
         }
       }
       // Detect project type

@@ -45,8 +45,8 @@ async function createProject(createOptions: ProjectOptions) {
     // create next project
 
     createCommand = projectType.includes('next-page-router')
-      ? `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --tailwind --no-src-dir --no-app`
-      : `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --tailwind --no-src-dir --app`;
+      ? `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --no-app`
+      : `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --app`;
   } else if (projectType.includes('react-native')) {
     // create react-native project
 
