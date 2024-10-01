@@ -64,11 +64,11 @@ async function createProject(createOptions: ProjectOptions) {
 }
 
 async function initializeGluestack(projectOptions: ProjectOptions) {
-  const { projectName, projectType } = projectOptions;
+  const { projectName, projectType, packageManager } = projectOptions;
   try {
-    execSync(`cd ${projectName}`, { stdio: 'inherit' });
+    process.chdir(projectName);
     execSync(
-      `npx gluestack-ui@alpha init --template-only --projectType ${projectType}`,
+      `npx gluestack-ui@alpha init --template-only --projectType ${projectType} --use-${packageManager}`,
       { stdio: 'inherit' }
     );
     execSync(`npx gluestack-ui@alpha add --all`, {
@@ -205,7 +205,7 @@ export async function main(args: string[]) {
     // await cloneProject(projName, templateDir);
     // await installDependencies(projName, selectedPackageManager);
     await createProject(createOptions);
-    // await initializeGluestack(createOptions);
+    await initializeGluestack(createOptions);
     console.log('done ...');
   } catch {
     console.log('Failed to create project');

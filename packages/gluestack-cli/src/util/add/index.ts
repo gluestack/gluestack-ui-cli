@@ -54,7 +54,8 @@ const componentAdder = async ({
         );
 
         await writeComponent(component, targetPath);
-        await hookAdder({ requestedHook: hooksToAdd });
+        if (hooksToAdd.length > 0)
+          await hookAdder({ requestedHook: hooksToAdd });
       })
     )
       .then(async () => {
