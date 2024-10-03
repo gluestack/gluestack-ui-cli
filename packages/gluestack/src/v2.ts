@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import path from 'path';
-import { cancel, text, select, log } from '@clack/prompts';
+import { cancel, text, select, log, spinner } from '@clack/prompts';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { displayHelp } from './help';
@@ -24,8 +24,8 @@ async function createProject(createOptions: ProjectOptions) {
     // create expo project
 
     const templateFlag = router.includes('expo-router')
-      ? `--template blank-typescript`
-      : ``;
+      ? ``
+      : `--template blank-typescript`;
 
     switch (packageManager) {
       case 'npm':
@@ -53,8 +53,10 @@ async function createProject(createOptions: ProjectOptions) {
     createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager}`;
   }
   try {
+    const s = spinner();
+    s.start('⏳ Initializing project. This might take a couple of minutes...');
     execSync(createCommand);
-    console.log(chalk.bold(`✅ Your project is ready!`));
+    s.stop(chalk.bold(`✅ Your project is ready!`));
   } catch (e) {
     console.error(`Failed to create project: ${e}`);
     throw e;
