@@ -16,10 +16,8 @@ import {
 import {
   ComponentConfig,
   Dependency,
-  IgnoredComponents,
-  dependenciesConfig,
+  getIgnoredComponents,
   getComponentDependencies,
-  projectBasedDependencies,
 } from '../dependencies';
 
 const homeDir = os.homedir();
@@ -33,7 +31,8 @@ const getPackageJsonPath = (): string => {
 const rootPackageJsonPath = getPackageJsonPath();
 const projectRootPath: string = dirname(rootPackageJsonPath);
 
-const getAllComponents = (): string[] => {
+const getAllComponents = async (): Promise<string[]> => {
+  const ignore = await getIgnoredComponents();
   const componentList = fs
     .readdirSync(
       join(
@@ -49,7 +48,7 @@ const getAllComponents = (): string[] => {
           extname(file).toLowerCase()
         ) &&
         file !== config.providerComponent &&
-        !IgnoredComponents.includes(file)
+        !ignore.includes(file)
     );
   return componentList;
 };
@@ -59,32 +58,30 @@ interface AdditionalDependencies {
   hooks: string[];
 }
 
-function checkComponentDependencies(
+async function checkComponentDependencies(
   components: string[]
-): AdditionalDependencies {
+): Promise<AdditionalDependencies> {
   const additionalDependencies: AdditionalDependencies = {
     components: [],
     hooks: [],
   };
 
-  components.forEach((component) => {
-    const config = getComponentDependencies(component);
-
+  for (const component of components) {
+    const dependencyConfig = await getComponentDependencies(component);
     // Add additional components
-    config.additionalComponents?.forEach((additionalComponent) => {
+    dependencyConfig.additionalComponents?.forEach((additionalComponent) => {
       if (!additionalDependencies.components.includes(additionalComponent)) {
         additionalDependencies.components.push(additionalComponent);
       }
     });
 
     // Add hooks
-    config.hooks?.forEach((hook) => {
+    dependencyConfig.hooks?.forEach((hook) => {
       if (!additionalDependencies.hooks.includes(hook)) {
         additionalDependencies.hooks.push(hook);
       }
     });
-  });
-
+  }
   return additionalDependencies;
 }
 
@@ -266,26 +263,27 @@ const installDependencies = async (
     }
 
     //get dependencies from config
-    const gatherDependencies = (components: string[]): void => {
-      components.forEach((component) => {
-        if (dependenciesConfig[component]) {
-          Object.assign(
-            dependenciesToInstall.dependencies,
-            dependenciesConfig[component].dependencies
-          );
-          if (dependenciesConfig[component].devDependencies) {
-            Object.assign(
-              dependenciesToInstall.devDependencies,
-              dependenciesConfig[component].devDependencies
-            );
-          }
-        }
-      });
+    const gatherDependencies = async (
+      components: string[]
+    ): Promise<{
+      dependencies: Dependency;
+      devDependencies: Dependency;
+    }> => {
+      for (const component of components) {
+        const config = await getComponentDependencies(component);
+        // Add dependencies
+        Object.assign(dependenciesToInstall.dependencies, config.dependencies);
+        // Add devDependencies
+        Object.assign(
+          dependenciesToInstall?.devDependencies,
+          config?.devDependencies
+        );
+      }
+      return dependenciesToInstall;
     };
-
     //get input based dependencies
-    if (input === '--all') gatherDependencies(Object.keys(dependenciesConfig));
-    else if (Array.isArray(input)) gatherDependencies(input);
+    if (input === '--all') await gatherDependencies(await getAllComponents());
+    else if (Array.isArray(input)) await gatherDependencies(input);
 
     //generate install command
     const generateInstallCommand = (
@@ -299,7 +297,7 @@ const installDependencies = async (
     const commands: { [key: string]: { install: string; devFlag: string } } = {
       npm: { install: 'npm install', devFlag: ' --save-dev' },
       yarn: { install: 'yarn add', devFlag: ' --dev' },
-      pnpm: { install: 'pnpm i', devFlag: '-D' },
+      pnpm: { install: 'pnpm i', devFlag: ' -D' },
       bun: { install: 'bun add', devFlag: ' --dev' },
     };
     const { install, devFlag } = commands[versionManager];
@@ -434,35 +432,6 @@ async function getFrameworkInput(): Promise<string> {
   return frameworkInput as string;
 }
 
-//function to return additional dependencies based on project type
-async function getAdditionalDependencies(
-  projectType: string | undefined,
-  style: string
-) {
-  try {
-    let additionalDependencies: ComponentConfig = {
-      dependencies: {},
-      devDependencies: {},
-    };
-
-    if (
-      style === config.nativeWindRootPath &&
-      projectType &&
-      projectType !== 'library'
-    ) {
-      additionalDependencies = {
-        dependencies: projectBasedDependencies[projectType].dependencies,
-        devDependencies:
-          projectBasedDependencies[projectType]?.devDependencies || {},
-      };
-    }
-    additionalDependencies = { dependencies: {}, devDependencies: {} };
-    return additionalDependencies;
-  } catch (error) {
-    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
-  }
-}
-
 //regex check for --path input
 function isValidPath(path: string): boolean {
   const pathRegex = /^(?!\/{2})[a-zA-Z/.]{1,2}.*/;
@@ -529,7 +498,6 @@ async function ensureFilesPromise(filePaths: string[]): Promise<boolean> {
 export {
   cloneRepositoryAtRoot,
   getAllComponents,
-  getAdditionalDependencies,
   detectProjectType,
   isValidPath,
   checkWritablePath,

@@ -5,7 +5,6 @@ import { log, confirm } from '@clack/prompts';
 import { config } from '../../config';
 import {
   checkComponentDependencies,
-  cloneRepositoryAtRoot,
   getAllComponents,
   installDependencies,
   projectRootPath,
@@ -34,10 +33,10 @@ const componentAdder = async ({
     }
     let requestedComponents =
       requestedComponent === '--all'
-        ? getAllComponents()
+        ? await getAllComponents()
         : [requestedComponent];
 
-    const { hooks } = checkComponentDependencies(requestedComponents);
+    const { hooks } = await checkComponentDependencies(requestedComponents);
     hooksToAdd = Array.from(hooks);
 
     const updatedComponents =
@@ -123,7 +122,7 @@ const processTerminate = (message: string) => {
 };
 
 const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
-  const componentList = getAllComponents();
+  const componentList = await getAllComponents();
   if (componentList.includes(component) || componentList.includes(component))
     return true;
   else return false;

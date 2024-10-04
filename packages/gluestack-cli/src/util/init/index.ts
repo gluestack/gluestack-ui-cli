@@ -11,11 +11,8 @@ import {
   generateMonoRepoConfig,
   getEntryPathAndComponentsPath,
 } from '../config';
-import {
-  cloneRepositoryAtRoot,
-  getAdditionalDependencies,
-  installDependencies,
-} from '..';
+import { cloneRepositoryAtRoot, installDependencies } from '..';
+import { getProjectBasedDependencies } from '../../dependencies';
 import { generateConfigNextApp } from '../config/next-config-helper';
 import { generateConfigExpoApp } from '../config/expo-config-helper';
 import { generateConfigRNApp } from '../config/react-native-config-helper';
@@ -55,7 +52,7 @@ const InitializeGlueStack = async ({
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const inputComponent = [config.providerComponent];
-    const additionalDependencies = await getAdditionalDependencies(
+    const additionalDependencies = await getProjectBasedDependencies(
       projectType,
       config.style
     );
