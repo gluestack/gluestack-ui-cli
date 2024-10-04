@@ -68,9 +68,7 @@ async function createProject(createOptions: ProjectOptions) {
     createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager} --install-pods ${useCocoapods}`;
   }
   const s = spinner();
-  s.start(
-    `⏳ Creating a react-native-cli project. Hang tight, this may take a bit...`
-  );
+  s.start(message);
   try {
     await execPromise(createCommand);
     s.stop(chalk.bold(`✅ Your project is ready!`));
@@ -248,8 +246,9 @@ export async function main(args: string[]) {
     await createProject(createOptions);
     await initializeGluestack(createOptions);
     console.log('done ...');
-  } catch {
+  } catch (e) {
     console.error('Failed to create project');
+    console.error(e);
     process.exit(1);
   }
 }
