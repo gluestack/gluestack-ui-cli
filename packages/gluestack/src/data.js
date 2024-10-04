@@ -48,6 +48,21 @@ module.exports = {
           ],
         },
       },
+      cocoaPods: {
+        question: 'Would you like to use \x1b[36mCocoaPods\x1b[0m?',
+        options: [
+          {
+            value: 'react-native-cli-cocoapods',
+            label: 'Yes',
+            hint: 'Only needed if you run your project in Xcode directly',
+          },
+          {
+            value: 'react-native-cli',
+            label: 'No',
+            hint: 'For Android or no iOS.',
+          },
+        ],
+      },
     },
     style: {
       bundle: {

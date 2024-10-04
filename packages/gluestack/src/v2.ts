@@ -2,6 +2,7 @@
 import path from 'path';
 import { cancel, text, select, log, spinner } from '@clack/prompts';
 import chalk from 'chalk';
+import fs from 'fs';
 import { promisify } from 'util';
 import { exec, execSync } from 'child_process';
 import { displayHelp } from './help';
@@ -21,10 +22,20 @@ interface ProjectOptions {
 
 async function createProject(createOptions: ProjectOptions) {
   const { projectName, projectType, packageManager, router } = createOptions;
+  // Get the absolute path of the folder
+  const projectPath = path.join(process.cwd(), projectName);
+
+  // Check if the folder exists
+  if (fs.existsSync(projectPath)) {
+    throw new Error(
+      `The folder '${projectName}' already exists in the current directory.`
+    );
+  }
   let createCommand = '';
+  let message = '';
   if (projectType.includes('expo')) {
     // create expo project
-
+    message = `⏳ Creating a new Expo project. Hang tight, this may take a bit...`;
     const templateFlag = router.includes('expo-router')
       ? ``
       : `--template blank-typescript`;
@@ -45,17 +56,21 @@ async function createProject(createOptions: ProjectOptions) {
     }
   } else if (projectType.includes('nextjs')) {
     // create next project
-
+    message = `⏳ Creating a new NextJs project. Hang tight, this may take a bit...`;
     createCommand = projectType.includes('next-page-router')
       ? `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --no-app`
       : `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --app`;
   } else if (projectType.includes('react-native')) {
     // create react-native project
-
-    createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager}`;
+    const useCocoapods = router.includes('react-native-cli-cocoapods')
+      ? true
+      : false;
+    createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager} --install-pods ${useCocoapods}`;
   }
   const s = spinner();
-  s.start(`⏳ Initializing project. This might take a couple of minutes...`);
+  s.start(
+    `⏳ Creating a react-native-cli project. Hang tight, this may take a bit...`
+  );
   try {
     await execPromise(createCommand);
     s.stop(chalk.bold(`✅ Your project is ready!`));
@@ -155,6 +170,17 @@ export async function main(args: string[]) {
       const { question, options: optionsType } =
         // @ts-ignore
         options.framework.Route[selectedFramework];
+      // @ts-ignore
+      selectedRouter = await select({
+        message: question,
+        options: [...optionsType],
+      });
+      templateName = selectedRouter;
+    }
+    if (selectedFramework === 'react-native-cli') {
+      const { question, options: optionsType } =
+        // @ts-ignore
+        options.framework.cocoaPods;
       // @ts-ignore
       selectedRouter = await select({
         message: question,
