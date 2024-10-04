@@ -2,13 +2,15 @@
 import path from 'path';
 import { cancel, text, select, log, spinner } from '@clack/prompts';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { promisify } from 'util';
+import { exec, execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
 const { gitRepo, tag, options } = templatesMap;
 
 type RouterType = 'legacy' | 'latest';
 type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+const execPromise = promisify(exec);
 
 interface ProjectOptions {
   projectType: string;
@@ -52,13 +54,13 @@ async function createProject(createOptions: ProjectOptions) {
 
     createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager}`;
   }
+  const s = spinner();
+  s.start(`⏳ Initializing project. This might take a couple of minutes...`);
   try {
-    const s = spinner();
-    s.start('⏳ Initializing project. This might take a couple of minutes...');
-    execSync(createCommand);
+    await execPromise(createCommand);
     s.stop(chalk.bold(`✅ Your project is ready!`));
   } catch (e) {
-    console.error(`Failed to create project: ${e}`);
+    s.stop(chalk.bold(`❌ An error occurred: ${e}`));
     throw e;
   }
 }
