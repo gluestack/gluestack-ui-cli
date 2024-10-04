@@ -62,6 +62,7 @@ async function createProject(createOptions: ProjectOptions) {
       : `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --app`;
   } else if (projectType.includes('react-native')) {
     // create react-native project
+    message = `⏳ Creating a react-native-cli project. Hang tight, this may take a bit...`;
     const useCocoapods = router.includes('react-native-cli-cocoapods')
       ? true
       : false;

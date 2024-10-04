@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import chalk from 'chalk';
 import os from 'os';
 import { basename, join, parse } from 'path';
 import { log, confirm } from '@clack/prompts';
@@ -15,56 +16,65 @@ const _homeDir = os.homedir();
 let existingComponentsChecked: boolean = false;
 
 const componentAdder = async ({
-  requestedComponent = '',
+  addAll = false,
+  componentArgs = [],
   showWarning = true,
+}: {
+  addAll?: boolean;
+  componentArgs?: Array<string>;
+  showWarning?: boolean;
 }) => {
   try {
-    console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
-    let hooksToAdd: string[] = [];
-    if (
-      requestedComponent &&
-      requestedComponent !== '--all' &&
-      !(await checkIfComponentIsValid(requestedComponent))
-    ) {
-      log.error(
-        `The ${requestedComponent} does not exist. Kindly choose a valid component name.`
-      );
-      return;
-    }
-    let requestedComponents =
-      requestedComponent === '--all'
+    const res = await sortComponentsAndHooks(componentArgs);
+    let componentsToAdd = res.components;
+    let hooksToAdd = res.hooks;
+    if (componentsToAdd.length > 0 || addAll) {
+      if (
+        !addAll &&
+        componentsToAdd?.length &&
+        !(await checkIfComponentIsValid(componentsToAdd))
+      ) {
+        log.error(
+          chalk.red(
+            `Invalid names entered. Kindly check and choose a valid component name.`
+          )
+        );
+        return;
+      }
+      console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
+      let requestedComponents = addAll
         ? await getAllComponents()
-        : [requestedComponent];
+        : componentsToAdd;
+      const { hooks } = await checkComponentDependencies(requestedComponents);
+      hooksToAdd = Array.from(hooks);
 
-    const { hooks } = await checkComponentDependencies(requestedComponents);
-    hooksToAdd = Array.from(hooks);
+      const updatedComponents =
+        !existingComponentsChecked && showWarning && componentsToAdd.length
+          ? await isComponentInProject(requestedComponents)
+          : requestedComponents;
+      const count = updatedComponents.length;
+      await Promise.all(
+        updatedComponents.map(async (component) => {
+          const targetPath = join(
+            projectRootPath,
+            config.writableComponentsPath,
+            component
+          );
 
-    const updatedComponents =
-      !existingComponentsChecked && showWarning && requestedComponent
-        ? await isComponentInProject(requestedComponents)
-        : requestedComponents;
-    const count = updatedComponents.length;
-    await Promise.all(
-      updatedComponents.map(async (component) => {
-        const targetPath = join(
-          projectRootPath,
-          config.writableComponentsPath,
-          component
-        );
-
-        await writeComponent(component, targetPath);
-      })
-    )
-      .then(async () => {
-        await installDependencies(updatedComponents);
-        log.success(
-          `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m ${count === 1 ? 'component' : 'components'} into project`
-        );
-      })
-      .catch((err) => {
-        log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
-      });
-    if (hooksToAdd.length > 0) await hookAdder({ requestedHook: hooksToAdd });
+          await writeComponent(component, targetPath);
+        })
+      )
+        .then(async () => {
+          await installDependencies(updatedComponents);
+          log.success(
+            `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m ${count === 1 ? 'component' : 'components'} into project`
+          );
+        })
+        .catch((err) => {
+          log.error(`\x1b[31mError : ${(err as Error).message}\x1b[0m`);
+        });
+    }
+    if (hooksToAdd.length > 0) await hookAdder(hooksToAdd);
   } catch (err) {
     log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
   }
@@ -121,9 +131,11 @@ const processTerminate = (message: string) => {
   process.exit(1);
 };
 
-const checkIfComponentIsValid = async (component: string): Promise<boolean> => {
+const checkIfComponentIsValid = async (
+  components: string[]
+): Promise<boolean> => {
   const componentList = await getAllComponents();
-  if (componentList.includes(component) || componentList.includes(component))
+  if (components.every((component) => componentList.includes(component)))
     return true;
   else return false;
 };
@@ -165,11 +177,7 @@ const confirmOverride = async (
   return shouldContinue;
 };
 
-const hookAdder = async ({
-  requestedHook,
-}: {
-  requestedHook: string | string[];
-}) => {
+const hookAdder = async (requestedHook: string[]) => {
   try {
     console.log(`\n\x1b[1mAdding new hook...\x1b[0m\n`);
     await writeHook(requestedHook);
@@ -181,12 +189,36 @@ const hookAdder = async ({
   }
 };
 
-const isHookFromConfig = async (hook: string | undefined): Promise<boolean> => {
+const sortComponentsAndHooks = async (
+  inputNames: string[] | undefined
+): Promise<{ hooks: string[]; components: string[] }> => {
+  if (!inputNames || inputNames.length === 0) {
+    return { hooks: [], components: [] };
+  }
+
+  const hooksPath = join(
+    _homeDir,
+    config.gluestackDir,
+    config.hooksResourcePath
+  );
   const hooksList = fs
-    .readdirSync(join(_homeDir, config.gluestackDir, config.hooksResourcePath))
-    .map((file) => removeHyphen(parse(file).name));
-  if (hook && hooksList.includes(hook.toLowerCase())) return true;
-  else return false;
+    .readdirSync(hooksPath)
+    .map((file) => removeHyphen(parse(file).name).toLowerCase());
+
+  const result = inputNames.reduce(
+    (acc, name) => {
+      const lowercaseName = name.toLowerCase();
+      if (hooksList.includes(lowercaseName)) {
+        acc.hooks.push(name);
+      } else {
+        acc.components.push(name);
+      }
+      return acc;
+    },
+    { hooks: [] as string[], components: [] as string[] }
+  );
+
+  return result;
 };
 
 const hookFileName = async (hook: string): Promise<string> => {
@@ -201,8 +233,7 @@ const hookFileName = async (hook: string): Promise<string> => {
   });
   return fileName;
 };
-const writeHook = async (hooks: string | string[]) => {
-  const hooksArray = Array.isArray(hooks) ? hooks : [hooks];
+const writeHook = async (hooksArray: string[]) => {
   for (const hook of hooksArray) {
     const fileName = await hookFileName(hook);
     const utilsPath = join(
@@ -243,4 +274,4 @@ const confirmHookOverride = async (hook: string): Promise<boolean | symbol> => {
   return shouldContinue;
 };
 
-export { componentAdder, getAllComponents, isHookFromConfig, hookAdder };
+export { componentAdder, getAllComponents };

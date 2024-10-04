@@ -4,7 +4,7 @@ import os from 'os';
 import { join } from 'path';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
-import { componentAdder, hookAdder, isHookFromConfig } from '../util/add';
+import { componentAdder } from '../util/add';
 import { config } from '../config';
 import {
   checkWritablePath,
@@ -18,7 +18,7 @@ import { checkIfInitialized, getComponentsPath } from '../util/config';
 const _homeDir = os.homedir();
 
 const addOptionsSchema = z.object({
-  components: z.string().optional(),
+  components: z.array(z.string()),
   all: z.boolean(),
   useNpm: z.boolean(),
   useYarn: z.boolean(),
@@ -39,19 +39,13 @@ export const add = new Command()
   .option('--path <path>', 'path to the components directory')
   .action(async (components, opts, command) => {
     try {
-      if (command.args.length > 1) {
-        log.error(
-          '\x1b[31mOnly one component can be provided at a time, please provide the component name you want to add or --all.\x1b[0m'
-        );
-        process.exit(1);
-      }
       const options = addOptionsSchema.parse({
-        components: components ?? '',
+        components: command.args.length > 0 ? command.args : [],
         ...opts,
       });
       if (
-        options.all === false &&
-        (options.components === '' || options.components === undefined)
+        (!options.all && options.components?.length === 0) ||
+        (options.all && options.components?.length > 0)
       ) {
         log.error(
           '\x1b[31mInvalid arguement, please provide the component/hook name you want to add or --all.\x1b[0m'
@@ -94,24 +88,15 @@ export const add = new Command()
         config.writableComponentsPath = options.path;
       }
       await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+      // define args based on --all or components
+      const args = options.all
+        ? { addAll: true }
+        : { componentArgs: options.components.map((c) => c.toLowerCase()) };
 
-      if (options.all) {
-        try {
-          await componentAdder({
-            requestedComponent: '--all',
-          });
-        } catch (err) {
-          log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-        }
-      } else if (await isHookFromConfig(options.components)) {
-        options.components &&
-          (await hookAdder({
-            requestedHook: options.components,
-          }));
-      } else {
-        await componentAdder({
-          requestedComponent: options.components?.toLowerCase(),
-        });
+      try {
+        await componentAdder(args);
+      } catch (err) {
+        log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
       }
     } catch (err) {
       handleError(err);
