@@ -18,11 +18,9 @@ let existingComponentsChecked: boolean = false;
 const componentAdder = async ({
   addAll = false,
   componentArgs = [],
-  showWarning = true,
 }: {
   addAll?: boolean;
   componentArgs?: Array<string>;
-  showWarning?: boolean;
 }) => {
   try {
     const res = await sortComponentsAndHooks(componentArgs);
@@ -49,7 +47,7 @@ const componentAdder = async ({
       hooksToAdd = Array.from(hooks);
 
       const updatedComponents =
-        !existingComponentsChecked && showWarning && componentsToAdd.length
+        !existingComponentsChecked && requestedComponents.length
           ? await isComponentInProject(requestedComponents)
           : requestedComponents;
       const count = updatedComponents.length;

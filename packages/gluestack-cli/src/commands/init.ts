@@ -48,6 +48,7 @@ export const init = new Command()
     try {
       const options = initOptionsSchema.parse({ ...opts });
       const isTemplate = options.templateOnly;
+      console.log('\n\x1b[1mWelcome to gluestack-ui!\x1b[0m\n');
       const cwd = process.cwd();
       //if cwd doesn't have package.json file
       if (!fs.existsSync(path.join(cwd, 'package.json'))) {
