@@ -68,22 +68,28 @@ async function isExpoSDK50(cwd: string): Promise<boolean> {
 async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
   const resolvedExpoPaths = {
     tailwind: {
-      config: path.resolve(_currDir, resultConfig.tailwind.config),
-      css: path.resolve(_currDir, resultConfig.tailwind.css),
+      config: path
+        .resolve(_currDir, resultConfig.tailwind.config)
+        .replace(/\\/g, '/'),
+      css: path
+        .resolve(_currDir, resultConfig.tailwind.css)
+        .replace(/\\/g, '/'),
     },
     config: {
-      babelConfig: path.resolve(
-        _currDir,
-        resultConfig.config.babelConfig || ''
-      ),
-      metroConfig: path.resolve(
-        _currDir,
-        resultConfig.config.metroConfig || ''
-      ),
-      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
+      babelConfig: path
+        .resolve(_currDir, resultConfig.config.babelConfig || '')
+        .replace(/\\/g, '/'),
+      metroConfig: path
+        .resolve(_currDir, resultConfig.config.metroConfig || '')
+        .replace(/\\/g, '/'),
+      tsConfig: path
+        .resolve(_currDir, resultConfig.config.tsConfig || '')
+        .replace(/\\/g, '/'),
     },
     app: {
-      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
+      entry: path
+        .resolve(_currDir, resultConfig.app.entry || '')
+        .replace(/\\/g, '/'),
       type: resultConfig?.app?.type,
       sdk50: resultConfig?.app?.sdk50,
     },
@@ -118,16 +124,17 @@ async function initNatiwindExpoApp(
       expoTransformer,
       'expo-add-provider-transform.ts'
     );
+
     execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${
         resolvedConfig.config.metroConfig
-      } --cssPath='${cssPath}' --config='${JSON.stringify(resolvedConfig)}'`
+      } --cssPath=${cssPath} --isSDK50=${resolvedConfig.app.sdk50}`
     );
     execSync(
-      `npx jscodeshift -t ${BabeltransformerPath}  ${resolvedConfig.config.babelConfig} --config='${JSON.stringify(resolvedConfig)}'`
+      `npx jscodeshift -t ${BabeltransformerPath}  ${resolvedConfig.config.babelConfig} --isSDK50=${resolvedConfig.app.sdk50} --tailwindConfig=${resolvedConfig.tailwind.config}`
     );
     execSync(
-      `npx jscodeshift -t ${addProviderTransformerPath}  ${resolvedConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
+      `npx jscodeshift -t ${addProviderTransformerPath}  ${resolvedConfig.app.entry} --cssImportPath=${cssImportPath} --componentsPath=${config.writableComponentsPath}`
     );
     execSync('npx expo install babel-plugin-module-resolver', {
       stdio: 'inherit',
@@ -188,7 +195,7 @@ async function generateConfigExpoApp(permission: boolean) {
     resolvedConfig.config.metroConfig,
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
-    join(_currDir, 'nativewind-env.d.ts'),
+    join(_currDir, 'nativewind-env.d.ts').replace(/\\/g, '/'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {

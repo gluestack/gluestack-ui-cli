@@ -43,21 +43,32 @@ async function getNextProjectType(cwd: string): Promise<string | undefined> {
 async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
   const resolvedNextJsPaths = {
     tailwind: {
-      config: path.resolve(_currDir, resultConfig.tailwind.config),
-      css: path.resolve(_currDir, resultConfig.tailwind.css),
+      config: path
+        .resolve(_currDir, resultConfig.tailwind.config)
+        .replace(/\\/g, '/'),
+      css: path
+        .resolve(_currDir, resultConfig.tailwind.css)
+        .replace(/\\/g, '/'),
     },
     config: {
-      postCssConfig: path.resolve(
-        _currDir,
-        resultConfig.config.postCssConfig || ''
-      ),
-      nextConfig: path.resolve(_currDir, resultConfig.config.nextConfig || ''),
-      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
+      postCssConfig: path
+        .resolve(_currDir, resultConfig.config.postCssConfig || '')
+        .replace(/\\/g, '/'),
+      nextConfig: path
+        .resolve(_currDir, resultConfig.config.nextConfig || '')
+        .replace(/\\/g, '/'),
+      tsConfig: path
+        .resolve(_currDir, resultConfig.config.tsConfig || '')
+        .replace(/\\/g, '/'),
     },
     app: {
-      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
+      entry: path
+        .resolve(_currDir, resultConfig.app.entry || '')
+        .replace(/\\/g, '/'),
       type: resultConfig?.app?.type,
-      registry: resultConfig?.app?.registry,
+      registry: resultConfig?.app?.registry
+        ? resultConfig.app.registry.replace(/\\/g, '/')
+        : undefined,
     },
   };
   return resolvedNextJsPaths;
@@ -143,7 +154,7 @@ async function generateConfigNextApp(permission: boolean) {
   let registryPath = '';
   if (projectType?.includes('app')) {
     const appDirectory = findDirectory(_currDir, ['src/app', 'app']);
-    registryPath = path.join(_currDir, appDirectory, 'registry.tsx');
+    registryPath = path.resolve(_currDir, appDirectory, 'registry.tsx');
   }
 
   const gluestackConfig: RawConfig = {
@@ -186,7 +197,8 @@ async function generateConfigNextApp(permission: boolean) {
     resolvedConfig.app.registry ?? '',
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
-    join(_currDir, 'nativewind-env.d.ts'),
+    resolvedConfig.config.postCssConfig,
+    path.resolve(_currDir, 'nativewind-env.d.ts').replace(/\\/g, '/'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {

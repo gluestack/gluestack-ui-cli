@@ -16,22 +16,28 @@ async function resolvedReactNativePaths(
 ) {
   const resolvedReactNativePaths = {
     tailwind: {
-      config: path.resolve(_currDir, resultConfig.tailwind.config),
-      css: path.resolve(_currDir, resultConfig.tailwind.css),
+      config: path
+        .resolve(_currDir, resultConfig.tailwind.config)
+        .replace(/\\/g, '/'),
+      css: path
+        .resolve(_currDir, resultConfig.tailwind.css)
+        .replace(/\\/g, '/'),
     },
     config: {
-      babelConfig: path.resolve(
-        _currDir,
-        resultConfig.config.babelConfig || ''
-      ),
-      metroConfig: path.resolve(
-        _currDir,
-        resultConfig.config.metroConfig || ''
-      ),
-      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
+      babelConfig: path
+        .resolve(_currDir, resultConfig.config.babelConfig || '')
+        .replace(/\\/g, '/'),
+      metroConfig: path
+        .resolve(_currDir, resultConfig.config.metroConfig || '')
+        .replace(/\\/g, '/'),
+      tsConfig: path
+        .resolve(_currDir, resultConfig.config.tsConfig || '')
+        .replace(/\\/g, '/'),
     },
     app: {
-      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
+      entry: path
+        .resolve(_currDir, resultConfig.app.entry || '')
+        .replace(/\\/g, '/'),
     },
   };
   return resolvedReactNativePaths;
@@ -106,7 +112,7 @@ async function generateConfigRNApp(permission: boolean) {
     },
     app: {
       entry: entryPath,
-      components: 'components/ui',
+      components: config.writableComponentsPath,
     },
   };
   const resolvedGluestackConfig = {
@@ -122,7 +128,7 @@ async function generateConfigRNApp(permission: boolean) {
       tsConfig: tsConfigPath.length ? tsConfigPath : 'tsconfig.json',
     },
     app: {
-      entry: path.resolve(_currDir, entryPath),
+      entry: path.resolve(_currDir, entryPath).replace(/\\/g, '/'),
     },
   };
 

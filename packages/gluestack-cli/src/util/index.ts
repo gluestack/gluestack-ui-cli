@@ -100,10 +100,7 @@ const cloneRepositoryAtRoot = async (rootPath: string) => {
         await pullComponentRepo(join(homeDir, config.gluestackDir));
       }
     } else {
-      const s = spinner();
-      s.start('Cloning repository...');
       await cloneComponentRepo(rootPath, config.repoUrl);
-      s.stop('Repository cloned successfully.');
     }
   } catch (err) {
     log.error(`\x1b[31m Cloning failed, ${(err as Error).message}\x1b[0m`);
@@ -487,7 +484,13 @@ async function ensureFilesPromise(filePaths: string[]): Promise<boolean> {
       (path) => path && typeof path === 'string' && path.trim() !== ''
     );
     // Use Promise.all to run all ensureFile operations concurrently
-    await Promise.all(validPaths.map((path) => fs.ensureFile(path)));
+    await Promise.all(
+      validPaths.map(async (filePath) => {
+        // Normalize the path and ensure the file
+        const normalizedPath = filePath.normalize();
+        await fs.ensureFile(normalizedPath); // Ensure the file exists asynchronously
+      })
+    );
     return true; // All operations successful
   } catch (error) {
     console.error('Error ensuring files:', error);
