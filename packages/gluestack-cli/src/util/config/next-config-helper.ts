@@ -89,12 +89,9 @@ async function initNatiwindNextApp(
     let nextTransformerPath = '';
     let fileType = '';
 
-    if (nextConfigPath?.endsWith('.mjs')) {
+    if (nextConfigPath?.endsWith('.mjs') || nextConfigPath?.endsWith('.ts')) {
       fileType = 'mjs';
-    } else if (
-      nextConfigPath?.endsWith('.js') ||
-      nextConfigPath?.endsWith('.ts')
-    ) {
+    } else if (nextConfigPath?.endsWith('.js')) {
       fileType = 'js';
     }
     nextTransformerPath = join(
