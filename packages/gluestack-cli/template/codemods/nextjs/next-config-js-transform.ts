@@ -2,7 +2,9 @@ import { Transform } from 'jscodeshift';
 
 const transform: Transform = (file, api) => {
   try {
-    const j = api.jscodeshift;
+    const j = file.path.includes('.ts')
+      ? api.jscodeshift.withParser('ts')
+      : api.jscodeshift;
     const root = j(file.source);
 
     // Step 1: Check if the import statement for withGluestackUI already exists

@@ -1,5 +1,4 @@
 import { Transform } from 'jscodeshift';
-import { NextResolvedConfig } from '../../../src//util/config/config-types';
 
 const transform: Transform = (file, api, options) => {
   try {
