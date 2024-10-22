@@ -5,7 +5,6 @@ const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift.withParser('tsx');
     const root = j(file.source);
-    const config: NextResolvedConfig = options.config || {};
     const componentsImportPath = options.componentsPath;
     const cssImportPath = options.cssImportPath;
 
@@ -94,7 +93,7 @@ const transform: Transform = (file, api, options) => {
     }
 
     /* condition to check if StyledJsxRegistry is needed */
-    const hasStyledJsx = config.app.entry?.includes('layout') || false;
+    const hasStyledJsx = file.path?.includes('layout') || false;
 
     const bodyElement = root.find(j.JSXElement, {
       openingElement: { name: { name: 'body' } },

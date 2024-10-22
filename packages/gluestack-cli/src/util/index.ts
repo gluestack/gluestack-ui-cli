@@ -337,7 +337,7 @@ const installDependencies = async (
 async function detectProjectType(directoryPath: string): Promise<string> {
   try {
     const fileChecks: { [key: string]: string[] } = {
-      nextjs: ['next.config.js', 'next.config.mjs'],
+      nextjs: ['next.config.js', 'next.config.mjs', 'next.config.ts'],
       expo: ['app.json', 'app.config.js', 'app.config.ts'],
       reactNative: ['ios', 'android'],
     };

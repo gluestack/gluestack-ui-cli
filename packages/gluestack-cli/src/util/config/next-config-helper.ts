@@ -91,7 +91,10 @@ async function initNatiwindNextApp(
 
     if (nextConfigPath?.endsWith('.mjs')) {
       fileType = 'mjs';
-    } else if (nextConfigPath?.endsWith('.js')) {
+    } else if (
+      nextConfigPath?.endsWith('.js') ||
+      nextConfigPath?.endsWith('.ts')
+    ) {
       fileType = 'js';
     }
     nextTransformerPath = join(
@@ -121,14 +124,13 @@ async function initNatiwindNextApp(
       execSync(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
     }
 
-    const options = JSON.stringify(resolvedConfig);
     const transformerPath = join(
-      `${NextTransformer}/next-add-provider-transform.ts --config='${options}'`
+      `${NextTransformer}/next-add-provider-transform.ts`
     );
     const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
     const cssImportPath = '@/'.concat(rawCssPath);
     execSync(
-      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
+      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath=${config.writableComponentsPath} --cssImportPath=${cssImportPath} `
     );
     await commonInitialization(
       config.nextJsProject,
