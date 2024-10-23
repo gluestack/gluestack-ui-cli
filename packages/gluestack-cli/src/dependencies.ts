@@ -46,7 +46,7 @@ const dependenciesConfig: Dependencies = {
       '@gluestack-ui/toast': 'latest',
       '@gluestack-ui/nativewind-utils': '1.0.23',
       'react-native-svg': '13.4.0',
-      nativewind: '4.1.10',
+      nativewind: '4.0.36',
     },
     devDependencies: {
       jscodeshift: '0.15.2',

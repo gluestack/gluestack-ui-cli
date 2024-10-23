@@ -4,8 +4,17 @@ import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
 import { componentAdder, hookAdder, isHookFromConfig } from '../util/add';
 import { config } from '../config';
-import { checkWritablePath, isValidPath, projectRootPath } from '../util';
+import {
+  checkWritablePath,
+  isValidPath,
+  projectRootPath,
+  cloneRepositoryAtRoot,
+} from '../util';
 import { checkIfInitialized, getComponentsPath } from '../util/config';
+import { join } from 'path';
+import os from 'os';
+
+const _homeDir = os.homedir();
 
 const addOptionsSchema = z.object({
   components: z.string().optional(),
@@ -53,6 +62,7 @@ export const add = new Command()
         );
         process.exit(1);
       }
+      await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
       //function to get current path where GUIProvider is located
       const currWritablePath = await getComponentsPath(projectRootPath);
       if (currWritablePath) {

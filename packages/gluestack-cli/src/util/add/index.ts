@@ -21,7 +21,6 @@ const componentAdder = async ({
 }) => {
   try {
     console.log(`\n\x1b[1mAdding new component...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     let hooksToAdd: string[] = [];
     if (
       requestedComponent &&
@@ -54,7 +53,8 @@ const componentAdder = async ({
         );
 
         await writeComponent(component, targetPath);
-        await hookAdder({ requestedHook: hooksToAdd });
+        if (hooksToAdd.length > 0)
+          await hookAdder({ requestedHook: hooksToAdd });
       })
     )
       .then(async () => {
