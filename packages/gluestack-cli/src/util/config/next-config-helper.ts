@@ -58,6 +58,9 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
       entry: path.resolve(_currDir, resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
       registry: resultConfig?.app?.registry,
+      page: resultConfig?.app?.page
+        ? path.resolve(_currDir, resultConfig.app.page)
+        : '',
     },
   };
   return resolvedNextJsPaths;
@@ -100,6 +103,13 @@ async function initNatiwindNextApp(
         'utf8'
       );
       await writeFile(resolvedConfig.app.registry, registryContent, 'utf8');
+      const pageTransformerPath = join(
+        `${NextTransformer}/next-add-page-type-transform.ts`
+      );
+      resolvedConfig.app.page?.length &&
+        execSync(
+          `npx jscodeshift -t ${pageTransformerPath} ${resolvedConfig.app.page}`
+        );
     }
     if (resolvedConfig.app?.entry?.includes('_app')) {
       const pageDirPath = path.dirname(resolvedConfig.app.entry);
@@ -145,6 +155,9 @@ async function generateConfigNextApp(permission: boolean) {
     const appDirectory = findDirectory(_currDir, ['src/app', 'app']);
     registryPath = path.join(_currDir, appDirectory, 'registry.tsx');
   }
+  const pagePath = entryPath.includes('layout.')
+    ? await getFilePath(['**/*page.*'])
+    : undefined;
 
   const gluestackConfig: RawConfig = {
     tailwind: {
@@ -177,6 +190,7 @@ async function generateConfigNextApp(permission: boolean) {
       type: projectType,
       entry: entryPath,
       registry: registryPath,
+      page: pagePath,
     },
   };
 
