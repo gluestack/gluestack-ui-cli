@@ -310,8 +310,8 @@ const filesToOverride = (projectType: string) => {
   switch (projectType) {
     case config.nextJsProject:
       return [
-        'next.config(.mjs/.js)',
-        'tailwind.config.js',
+        'next.config.*',
+        'tailwind.config.*',
         'global.css',
         'tsconfig.json',
       ];
@@ -319,7 +319,7 @@ const filesToOverride = (projectType: string) => {
       return [
         'babel.config.js',
         'metro.config.js',
-        'tailwind.config.js',
+        'tailwind.config.*',
         'global.css',
         'tsconfig.json',
       ];
