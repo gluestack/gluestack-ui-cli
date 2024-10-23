@@ -155,11 +155,14 @@ function updatePaths(
   paths[key] = Array.from(new Set([...(paths[key] || []), ...newValues]));
 }
 //update tsconfig.json
-async function updateTSConfig(projectType: string, config: any): Promise<void> {
+async function updateTSConfig(
+  projectType: string,
+  resolvedConfig: any
+): Promise<void> {
   try {
-    const configPath = config.config.tsConfig;
+    const configPath = resolvedConfig.config.tsConfig;
     let tsConfig: TSConfig = await readTSConfig(configPath);
-    let tailwindConfig = config.tailwind.config;
+    let tailwindConfig = resolvedConfig.tailwind.config;
     const tailwindConfigFileName = path.basename(tailwindConfig);
 
     tsConfig.compilerOptions = tsConfig.compilerOptions || {};

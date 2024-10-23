@@ -237,12 +237,12 @@ const installDependencies = async (
   additionalDependencies?: ComponentConfig | undefined
 ): Promise<void> => {
   try {
-    await ensureLegacyPeerDeps();
     let versionManager =
       config.packageManager ||
       findLockFileType() ||
       (await promptVersionManager());
     config.packageManager = versionManager;
+    await ensureLegacyPeerDeps();
 
     const dependenciesToInstall: {
       dependencies: Dependency;
