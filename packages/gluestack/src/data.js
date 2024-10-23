@@ -8,16 +8,20 @@ module.exports = {
         question: 'What would you like to \x1b[36mbuild\x1b[0m?',
         options: [
           { value: 'expo', label: 'Expo app', hint: 'Expo + gluestack-ui' },
-          { value: 'next', label: 'Next.js app', hint: 'Next + gluestack-ui' },
           {
-            value: 'react-native',
+            value: 'nextjs',
+            label: 'Next.js app',
+            hint: 'Next + gluestack-ui',
+          },
+          {
+            value: 'react-native-cli',
             label: 'React Native app',
             hint: 'React Native + gluestack-ui',
           },
         ],
       },
       Route: {
-        next: {
+        nextjs: {
           question: 'Would you like to use \x1b[36mApp Router\x1b[0m?',
           options: [
             {
@@ -43,6 +47,21 @@ module.exports = {
             { value: 'expo', label: 'No', hint: 'Expo app' },
           ],
         },
+      },
+      cocoaPods: {
+        question: 'Would you like to use \x1b[36mCocoaPods\x1b[0m?',
+        options: [
+          {
+            value: 'react-native-cli-cocoapods',
+            label: 'Yes',
+            hint: 'Only needed if you run your project in Xcode directly',
+          },
+          {
+            value: 'react-native-cli',
+            label: 'No',
+            hint: 'For Android or no iOS.',
+          },
+        ],
       },
     },
     style: {

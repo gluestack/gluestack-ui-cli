@@ -93,7 +93,7 @@ const transform: Transform = (file, api, options): string => {
               j.objectExpression([
                 j.objectProperty(j.stringLiteral('@'), j.stringLiteral('./')),
                 j.objectProperty(
-                  j.stringLiteral('tailwindConfig'),
+                  j.stringLiteral('tailwind.config'),
                   j.stringLiteral(`./` + tailwindConfigFileName)
                 ),
               ])

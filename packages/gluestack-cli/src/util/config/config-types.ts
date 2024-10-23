@@ -35,6 +35,7 @@ export const NextResolvedConfigSchema = z.object({
     type: z.string().optional(),
     entry: z.string(),
     registry: z.string().optional(),
+    page: z.string().optional(),
   }),
 });
 

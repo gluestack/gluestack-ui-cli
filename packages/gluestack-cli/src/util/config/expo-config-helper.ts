@@ -129,7 +129,9 @@ async function initNatiwindExpoApp(
     execSync(
       `npx jscodeshift -t ${addProviderTransformerPath}  ${resolvedConfig.app.entry} --cssImportPath='${cssImportPath}' --componentsPath='${config.writableComponentsPath}'`
     );
-    execSync('npx expo install babel-plugin-module-resolver');
+    execSync('npx expo install babel-plugin-module-resolver', {
+      stdio: 'inherit',
+    });
     await commonInitialization(config.expoProject, resolvedConfig, permission);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);

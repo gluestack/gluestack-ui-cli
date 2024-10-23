@@ -1,21 +1,102 @@
 #! /usr/bin/env node
 import path from 'path';
-import { cancel, text, select } from '@clack/prompts';
+import { cancel, text, select, log, spinner } from '@clack/prompts';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import fs from 'fs';
+import { promisify } from 'util';
+import { exec, execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
 const { gitRepo, tag, options } = templatesMap;
 
-export async function main(args: string[]) {
-  const supportedFrameworkArgs = [
-    '--expo',
-    '--expo-router',
-    '--next-app-router',
-    '--next-page-router',
-    '--react-native',
-  ];
+type RouterType = 'legacy' | 'latest';
+type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+const execPromise = promisify(exec);
 
+interface ProjectOptions {
+  projectType: string;
+  router: RouterType;
+  packageManager?: PackageManager;
+  projectName: string;
+}
+
+async function createProject(createOptions: ProjectOptions) {
+  const { projectName, projectType, packageManager, router } = createOptions;
+  // Get the absolute path of the folder
+  const projectPath = path.join(process.cwd(), projectName);
+
+  // Check if the folder exists
+  if (fs.existsSync(projectPath)) {
+    throw new Error(
+      `The folder '${projectName}' already exists in the current directory.`
+    );
+  }
+  let createCommand = '';
+  let message = '';
+  if (projectType.includes('expo')) {
+    // create expo project
+    message = `⏳ Creating a new Expo project. Hang tight, this may take a bit...`;
+    const templateFlag = router.includes('expo-router')
+      ? ``
+      : `--template blank-typescript`;
+
+    switch (packageManager) {
+      case 'npm':
+        createCommand = `npx create-expo-app@latest ${projectName} ${templateFlag}`;
+        break;
+      case 'yarn':
+        createCommand = `yarn create expo-app ${projectName} ${templateFlag}`;
+        break;
+      case 'pnpm':
+        createCommand = `pnpm create expo-app ${projectName} ${templateFlag}`;
+        break;
+      case 'bun':
+        createCommand = `bun create expo ${projectName} ${templateFlag}`;
+        break;
+    }
+  } else if (projectType.includes('nextjs')) {
+    // create next project
+    message = `⏳ Creating a new NextJs project. Hang tight, this may take a bit...`;
+    createCommand = projectType.includes('next-page-router')
+      ? `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --no-app`
+      : `npx create-next-app@latest ${projectName} --ts --no-eslint --use-${packageManager} --import-alias "@/*" --no-tailwind --no-src-dir --app`;
+  } else if (projectType.includes('react-native')) {
+    // create react-native project
+    message = `⏳ Creating a react-native-cli project. Hang tight, this may take a bit...`;
+    const useCocoapods = router.includes('react-native-cli-cocoapods')
+      ? true
+      : false;
+    createCommand = `npx @react-native-community/cli@latest init ${projectName} --pm ${packageManager} --install-pods ${useCocoapods}`;
+  }
+  const s = spinner();
+  s.start(message);
+  try {
+    await execPromise(createCommand);
+    s.stop(chalk.bold(`✅ Your project is ready!`));
+  } catch (e) {
+    s.stop(chalk.bold(`❌ An error occurred: ${e}`));
+    throw e;
+  }
+}
+
+async function initializeGluestack(projectOptions: ProjectOptions) {
+  const { projectName, projectType, packageManager } = projectOptions;
+  try {
+    process.chdir(projectName);
+    execSync(
+      `npx gluestack-ui@alpha init --template-only --projectType ${projectType} --use-${packageManager}`,
+      { stdio: 'inherit' }
+    );
+    execSync(`npx gluestack-ui@alpha add --all --template-only`, {
+      stdio: 'inherit',
+    });
+  } catch (e) {
+    console.error('Failed to initialize gluestack-ui');
+    throw e;
+  }
+}
+
+export async function main(args: string[]) {
   console.log(chalk.bold.magenta('\nWelcome to gluestack-ui v2!'));
   console.log(chalk.yellow('Creating a new project with gluestack-ui v2.'));
   console.log(
@@ -26,25 +107,19 @@ export async function main(args: string[]) {
     )
   );
 
+  const supportedFrameworkArgs = [
+    '--expo',
+    '--expo-router',
+    '--next-app-router',
+    '--next-page-router',
+    '--react-native-cli',
+  ];
   const supportedStyleArgs = ['--gs', '--nw'];
-
   const supportedPackagemanagers = ['npm', 'yarn', 'pnpm', 'bun'];
+  const supportedDocumentationArgs = ['--help', '-h'];
   const supportedPackagemanagerArgs = supportedPackagemanagers.map(
     (manager) => '--use-' + manager
   );
-
-  const supportedDocumentationArgs = ['--help', '-h'];
-
-  // let supportedArgs = [
-  //   // frameworks
-  //   ...supportedFrameworkArgs,
-  //   // style options
-  //   ...supportedStyleArgs,
-  //   // package manager
-  //   ...supportedPackagemanagerArgs,
-  //   // documentation
-  //   ...supportedDocumentationArgs,
-  // ];
 
   let selectedFramework = '';
   let selectedRouter = '';
@@ -90,10 +165,21 @@ export async function main(args: string[]) {
       options: [...optionsType],
     });
     templateName = selectedFramework;
-    if (selectedFramework !== 'react-native') {
+    if (selectedFramework !== 'react-native-cli') {
       const { question, options: optionsType } =
         // @ts-ignore
         options.framework.Route[selectedFramework];
+      // @ts-ignore
+      selectedRouter = await select({
+        message: question,
+        options: [...optionsType],
+      });
+      templateName = selectedRouter;
+    }
+    if (selectedFramework === 'react-native-cli') {
+      const { question, options: optionsType } =
+        // @ts-ignore
+        options.framework.cocoaPods;
       // @ts-ignore
       selectedRouter = await select({
         message: question,
@@ -135,13 +221,37 @@ export async function main(args: string[]) {
     }
   }
 
-  const templateDir = templatesMap.map[templateName];
+  // Add this check after determining the framework and package manager
+  if (
+    selectedFramework === 'react-native-cli' &&
+    selectedPackageManager === 'pnpm'
+  ) {
+    log.warn(
+      chalk.yellow(
+        'React Native CLI does not officially support pnpm as a package manager. It is recommended to use npm or yarn instead.'
+      )
+    );
+    process.exit(1);
+  }
 
-  // @ts-ignore
-  await cloneProject(projName, templateDir);
-
-  await installDependencies(projName, selectedPackageManager);
-  console.log('done ...');
+  const createOptions: ProjectOptions = {
+    projectType: selectedFramework,
+    router: selectedRouter as RouterType,
+    packageManager: selectedPackageManager as PackageManager,
+    projectName: projName,
+  };
+  try {
+    // @ts-ignore
+    // await cloneProject(projName, templateDir);
+    // await installDependencies(projName, selectedPackageManager);
+    await createProject(createOptions);
+    await initializeGluestack(createOptions);
+    console.log('done ...');
+  } catch (e) {
+    console.error('Failed to create project');
+    console.error(e);
+    process.exit(1);
+  }
 }
 
 async function cloneProject(projectName: string, templateName: string) {

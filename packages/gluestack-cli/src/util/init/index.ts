@@ -11,11 +11,8 @@ import {
   generateMonoRepoConfig,
   getEntryPathAndComponentsPath,
 } from '../config';
-import {
-  cloneRepositoryAtRoot,
-  getAdditionalDependencies,
-  installDependencies,
-} from '..';
+import { cloneRepositoryAtRoot, installDependencies } from '..';
+import { getProjectBasedDependencies } from '../../dependencies';
 import { generateConfigNextApp } from '../config/next-config-helper';
 import { generateConfigExpoApp } from '../config/expo-config-helper';
 import { generateConfigRNApp } from '../config/react-native-config-helper';
@@ -35,8 +32,10 @@ interface TSConfig {
 
 const InitializeGlueStack = async ({
   projectType = 'library',
+  isTemplate = false,
 }: {
   projectType: string;
+  isTemplate?: boolean;
 }) => {
   try {
     const initializeStatus = await checkIfInitialized(_currDir);
@@ -46,11 +45,14 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
-    const confirmOverride = await overrideWarning(filesToOverride(projectType));
+    const confirmOverride = isTemplate
+      ? true
+      : await overrideWarning(filesToOverride(projectType));
+
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const inputComponent = [config.providerComponent];
-    const additionalDependencies = await getAdditionalDependencies(
+    const additionalDependencies = await getProjectBasedDependencies(
       projectType,
       config.style
     );
@@ -153,11 +155,14 @@ function updatePaths(
   paths[key] = Array.from(new Set([...(paths[key] || []), ...newValues]));
 }
 //update tsconfig.json
-async function updateTSConfig(projectType: string, config: any): Promise<void> {
+async function updateTSConfig(
+  projectType: string,
+  resolvedConfig: any
+): Promise<void> {
   try {
-    const configPath = config.config.tsConfig;
+    const configPath = resolvedConfig.config.tsConfig;
     let tsConfig: TSConfig = await readTSConfig(configPath);
-    let tailwindConfig = config.tailwind.config;
+    let tailwindConfig = resolvedConfig.tailwind.config;
     const tailwindConfigFileName = path.basename(tailwindConfig);
 
     tsConfig.compilerOptions = tsConfig.compilerOptions || {};
@@ -299,25 +304,6 @@ async function generateProjectConfigAndInit(
   }
   return resolvedConfig;
 }
-
-//package manager based installation for nativewind@4.0.36 using --save-exact flag, has to be refactored later
-//temporary solution for patch
-const installNativeWind = async (versionManager: string) => {
-  switch (versionManager) {
-    case 'npm':
-      execSync('npm install --save-exact nativewind@4.0.36 ');
-      break;
-    case 'yarn':
-      execSync('yarn add --exact nativewind@4.0.36');
-      break;
-    case 'pnpm':
-      execSync('pnpm i --save-exact nativewind@4.0.36 ');
-      break;
-    case 'bun':
-      execSync('bun add --exact nativewind@4.0.36');
-      break;
-  }
-};
 
 //files to override in the project directory data
 const filesToOverride = (projectType: string) => {

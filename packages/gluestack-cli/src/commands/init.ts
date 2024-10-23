@@ -4,7 +4,12 @@ import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
 import { InitializeGlueStack } from '../util/init';
 import { config } from '../config';
-import { checkWritablePath, detectProjectType, isValidPath } from '../util';
+import {
+  checkWritablePath,
+  detectProjectType,
+  getPackageMangerFlag,
+  isValidPath,
+} from '../util';
 import path, { resolve } from 'path';
 import fs from 'fs';
 
@@ -12,7 +17,10 @@ const initOptionsSchema = z.object({
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
+  useBun: z.boolean(),
   path: z.string().optional(),
+  templateOnly: z.boolean(),
+  projectType: z.string(),
 });
 
 export const init = new Command()
@@ -21,13 +29,26 @@ export const init = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
+  .option('--use-bun, useBun', 'use bun to install dependencies', false)
   .option(
     '--path <path>',
     'path to the components directory. defaults to components/ui'
   )
+  .option(
+    '--template-only templateOnly',
+    'Only install the template without installing dependencies',
+    false
+  )
+  .option(
+    '--projectType <projectType>',
+    'Type of project to initialize',
+    'library'
+  )
   .action(async (opts) => {
     try {
       const options = initOptionsSchema.parse({ ...opts });
+      const isTemplate = options.templateOnly;
+      console.log('\n\x1b[1mWelcome to gluestack-ui!\x1b[0m\n');
       const cwd = process.cwd();
       //if cwd doesn't have package.json file
       if (!fs.existsSync(path.join(cwd, 'package.json'))) {
@@ -36,6 +57,19 @@ export const init = new Command()
         );
         process.exit(1);
       }
+      //if multiple package managers are used
+      if (
+        (options.useNpm && options.useYarn) ||
+        (options.useNpm && options.usePnpm) ||
+        (options.useYarn && options.usePnpm)
+      ) {
+        log.error(
+          `\x1b[31mMultiple package managers selected. Please select only one package manager.\x1b[0m`
+        );
+        process.exit(1);
+      }
+      //define package manager
+      getPackageMangerFlag(options);
       //if path option is used
       if (options.path) {
         // Check if the string starts with "/" or "."
@@ -48,13 +82,15 @@ export const init = new Command()
         if (options.path !== config.writableComponentsPath) {
           await checkWritablePath(options.path);
           //check this change with all project types
-          config.writableComponentsPath = resolve(cwd, options.path);
+          config.writableComponentsPath = options.path;
         }
       }
       // Detect project type
-      const projectType = await detectProjectType(cwd);
+      const projectType = isTemplate
+        ? options.projectType
+        : await detectProjectType(cwd);
       // Initialize the gluestack
-      InitializeGlueStack({ projectType });
+      InitializeGlueStack({ projectType, isTemplate });
     } catch (err) {
       handleError(err);
     }
