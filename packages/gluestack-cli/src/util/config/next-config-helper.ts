@@ -2,7 +2,13 @@ import * as path from 'path';
 import fg from 'fast-glob';
 import { pathExists, readFile, writeFile } from 'fs-extra';
 import { config } from '../../config';
-import { findDirectory, generateConfig, getFilePath } from '.';
+import {
+  findDirectory,
+  generateConfig,
+  getFilePath,
+  pathResolver,
+  _currDir,
+} from '.';
 import {
   RawConfig,
   NextResolvedConfig,
@@ -14,7 +20,6 @@ import { log } from '@clack/prompts';
 import { ensureFilesPromise } from '..';
 import { commonInitialization } from '../init';
 
-const _currDir = process.cwd();
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
   const files = await fg.glob('**/*', {
@@ -43,28 +48,16 @@ async function getNextProjectType(cwd: string): Promise<string | undefined> {
 async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
   const resolvedNextJsPaths = {
     tailwind: {
-      config: path
-        .resolve(_currDir, resultConfig.tailwind.config)
-        .replace(/\\/g, '/'),
-      css: path
-        .resolve(_currDir, resultConfig.tailwind.css)
-        .replace(/\\/g, '/'),
+      config: pathResolver(resultConfig.tailwind.config),
+      css: pathResolver(resultConfig.tailwind.css),
     },
     config: {
-      postCssConfig: path
-        .resolve(_currDir, resultConfig.config.postCssConfig || '')
-        .replace(/\\/g, '/'),
-      nextConfig: path
-        .resolve(_currDir, resultConfig.config.nextConfig || '')
-        .replace(/\\/g, '/'),
-      tsConfig: path
-        .resolve(_currDir, resultConfig.config.tsConfig || '')
-        .replace(/\\/g, '/'),
+      postCssConfig: pathResolver(resultConfig.config.postCssConfig || ''),
+      nextConfig: pathResolver(resultConfig.config.nextConfig || ''),
+      tsConfig: pathResolver(resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path
-        .resolve(_currDir, resultConfig.app.entry || '')
-        .replace(/\\/g, '/'),
+      entry: pathResolver(resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
       registry: resultConfig?.app?.registry
         ? resultConfig.app.registry.replace(/\\/g, '/')
@@ -197,7 +190,7 @@ async function generateConfigNextApp(permission: boolean) {
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
     resolvedConfig.config.postCssConfig,
-    path.resolve(_currDir, 'nativewind-env.d.ts').replace(/\\/g, '/'),
+    pathResolver('nativewind-env.d.ts'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { generateConfig, getFilePath } from '.';
+import { generateConfig, getFilePath, pathResolver } from '.';
 import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 import { ensureFilesPromise, getRelativePath } from '..';
 import { config } from '../../config';
@@ -8,36 +8,22 @@ import { execSync } from 'child_process';
 import { log } from '@clack/prompts';
 import { commonInitialization } from '../init';
 
-const _currDir = process.cwd();
-
 //react-native project type initialization
 async function resolvedReactNativePaths(
   resultConfig: ReactNativeResolvedConfig
 ) {
   const resolvedReactNativePaths = {
     tailwind: {
-      config: path
-        .resolve(_currDir, resultConfig.tailwind.config)
-        .replace(/\\/g, '/'),
-      css: path
-        .resolve(_currDir, resultConfig.tailwind.css)
-        .replace(/\\/g, '/'),
+      config: pathResolver(resultConfig.tailwind.config),
+      css: pathResolver(resultConfig.tailwind.css),
     },
     config: {
-      babelConfig: path
-        .resolve(_currDir, resultConfig.config.babelConfig || '')
-        .replace(/\\/g, '/'),
-      metroConfig: path
-        .resolve(_currDir, resultConfig.config.metroConfig || '')
-        .replace(/\\/g, '/'),
-      tsConfig: path
-        .resolve(_currDir, resultConfig.config.tsConfig || '')
-        .replace(/\\/g, '/'),
+      babelConfig: pathResolver(resultConfig.config.babelConfig || ''),
+      metroConfig: pathResolver(resultConfig.config.metroConfig || ''),
+      tsConfig: pathResolver(resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path
-        .resolve(_currDir, resultConfig.app.entry || '')
-        .replace(/\\/g, '/'),
+      entry: pathResolver(resultConfig.app.entry || ''),
     },
   };
   return resolvedReactNativePaths;
@@ -128,7 +114,7 @@ async function generateConfigRNApp(permission: boolean) {
       tsConfig: tsConfigPath.length ? tsConfigPath : 'tsconfig.json',
     },
     app: {
-      entry: path.resolve(_currDir, entryPath).replace(/\\/g, '/'),
+      entry: pathResolver(entryPath),
     },
   };
 
@@ -141,7 +127,7 @@ async function generateConfigRNApp(permission: boolean) {
     resolvedConfig.config.metroConfig,
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
-    join(_currDir, 'nativewind-env.d.ts'),
+    pathResolver('nativewind-env.d.ts'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {

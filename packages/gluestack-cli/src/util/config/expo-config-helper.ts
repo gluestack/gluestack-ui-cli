@@ -2,7 +2,7 @@ import * as path from 'path';
 import fg from 'fast-glob';
 import * as fs from 'fs';
 import { config } from '../../config';
-import { generateConfig, getFilePath } from '.';
+import { _currDir, generateConfig, getFilePath, pathResolver } from '.';
 import {
   RawConfig,
   PROJECT_SHARED_IGNORE,
@@ -13,8 +13,6 @@ import { execSync } from 'child_process';
 import { log } from '@clack/prompts';
 import { ensureFilesPromise } from '..';
 import { commonInitialization } from '../init';
-
-const _currDir = process.cwd();
 
 // expo project type initialization
 async function getExpoProjectType(cwd: string): Promise<string | undefined> {
@@ -68,28 +66,16 @@ async function isExpoSDK50(cwd: string): Promise<boolean> {
 async function resolvedExpoPaths(resultConfig: ExpoResolvedConfig) {
   const resolvedExpoPaths = {
     tailwind: {
-      config: path
-        .resolve(_currDir, resultConfig.tailwind.config)
-        .replace(/\\/g, '/'),
-      css: path
-        .resolve(_currDir, resultConfig.tailwind.css)
-        .replace(/\\/g, '/'),
+      config: pathResolver(resultConfig.tailwind.config),
+      css: pathResolver(resultConfig.tailwind.css),
     },
     config: {
-      babelConfig: path
-        .resolve(_currDir, resultConfig.config.babelConfig || '')
-        .replace(/\\/g, '/'),
-      metroConfig: path
-        .resolve(_currDir, resultConfig.config.metroConfig || '')
-        .replace(/\\/g, '/'),
-      tsConfig: path
-        .resolve(_currDir, resultConfig.config.tsConfig || '')
-        .replace(/\\/g, '/'),
+      babelConfig: pathResolver(resultConfig.config.babelConfig || ''),
+      metroConfig: pathResolver(resultConfig.config.metroConfig || ''),
+      tsConfig: pathResolver(resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path
-        .resolve(_currDir, resultConfig.app.entry || '')
-        .replace(/\\/g, '/'),
+      entry: pathResolver(resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
       sdk50: resultConfig?.app?.sdk50,
     },
@@ -195,7 +181,7 @@ async function generateConfigExpoApp(permission: boolean) {
     resolvedConfig.config.metroConfig,
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
-    join(_currDir, 'nativewind-env.d.ts').replace(/\\/g, '/'),
+    pathResolver('nativewind-env.d.ts'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {
