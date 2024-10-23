@@ -25,6 +25,7 @@ const addOptionsSchema = z.object({
   usePnpm: z.boolean(),
   useBun: z.boolean(),
   path: z.string().optional(),
+  templateOnly: z.boolean(),
 });
 
 export const add = new Command()
@@ -37,12 +38,20 @@ export const add = new Command()
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
   .option('--use-bun, useBun', 'use bun to install dependencies', false)
   .option('--path <path>', 'path to the components directory')
+  .option(
+    '--template-only templateOnly',
+    'Only install the template without installing dependencies',
+    false
+  )
   .action(async (components, opts, command) => {
     try {
       const options = addOptionsSchema.parse({
         components: command.args.length > 0 ? command.args : [],
         ...opts,
       });
+      const isTemplate = options.templateOnly;
+      !isTemplate && console.log('\n\x1b[1mWelcome to gluestack-ui!\x1b[0m\n');
+
       if (
         (!options.all && options.components?.length === 0) ||
         (options.all && options.components?.length > 0)
@@ -87,7 +96,8 @@ export const add = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-      await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+      !isTemplate &&
+        (await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir)));
       // define args based on --all or components
       const args = options.all
         ? { addAll: true }

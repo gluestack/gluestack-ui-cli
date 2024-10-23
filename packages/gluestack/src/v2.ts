@@ -87,7 +87,7 @@ async function initializeGluestack(projectOptions: ProjectOptions) {
       `npx gluestack-ui@alpha init --template-only --projectType ${projectType} --use-${packageManager}`,
       { stdio: 'inherit' }
     );
-    execSync(`npx gluestack-ui@alpha add --all`, {
+    execSync(`npx gluestack-ui@alpha add --all --template-only`, {
       stdio: 'inherit',
     });
   } catch (e) {
