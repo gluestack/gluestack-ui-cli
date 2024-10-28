@@ -127,7 +127,7 @@ async function initNatiwindExpoApp(
     });
     await commonInitialization(config.expoProject, resolvedConfig, permission);
   } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 

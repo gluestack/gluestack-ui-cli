@@ -88,7 +88,7 @@ async function getProjectBasedDependencies(
     }
     return { dependencies: {}, devDependencies: {} };
   } catch (error) {
-    log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);
+    throw new Error((error as Error).message);
   }
 }
 

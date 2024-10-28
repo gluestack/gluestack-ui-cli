@@ -74,7 +74,7 @@ async function initNatiwindRNApp(
 
     execSync('npx pod-install', { stdio: 'inherit' });
   } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 

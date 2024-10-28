@@ -72,6 +72,7 @@ const InitializeGlueStack = async ({
     );
   } catch (err) {
     log.error(`\x1b[31mError occured in init. (${err as Error})\x1b[0m`);
+    process.exit(1);
   }
 };
 
@@ -93,9 +94,8 @@ async function addProvider() {
     await fs.ensureDir(targetPath);
     await fs.copy(sourcePath, targetPath);
   } catch (err) {
-    log.error(
-      `\x1b[31mError occured while adding the provider. (${err as Error})\x1b[0m`
-    );
+    log.error(`\x1b[31mError occured while adding the provider.\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 
@@ -270,7 +270,7 @@ async function commonInitialization(
       );
     }
   } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 

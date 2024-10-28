@@ -74,7 +74,7 @@ const componentAdder = async ({
     }
     if (hooksToAdd.length > 0) await hookAdder(hooksToAdd);
   } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 };
 
