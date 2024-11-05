@@ -100,14 +100,11 @@ const cloneRepositoryAtRoot = async (rootPath: string) => {
         await pullComponentRepo(join(homeDir, config.gluestackDir));
       }
     } else {
-      const s = spinner();
-      s.start('Cloning repository...');
       await cloneComponentRepo(rootPath, config.repoUrl);
-      s.stop('Repository cloned successfully.');
     }
   } catch (err) {
-    log.error(`\x1b[31m Cloning failed, ${(err as Error).message}\x1b[0m`);
-    process.exit(1);
+    log.error(`\x1b[31m Cloning failed.\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 };
 
@@ -127,8 +124,7 @@ const cloneComponentRepo = async (
     s.stop('\x1b[32m' + 'Cloning successful.' + '\x1b[0m');
   } catch (err) {
     s.stop('\x1b[31m' + 'Cloning failed' + '\x1b[0m');
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-    process.exit(1);
+    throw new Error((err as Error).message);
   }
 };
 
@@ -150,8 +146,10 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
       retry++;
     }
   }
-  if (!success) s.stop('\x1b[31m' + 'Pulling failed!' + '\x1b[0m');
-  else s.stop('Git pull successful.');
+  if (!success) {
+    s.stop('\x1b[31m' + 'Pulling failed!' + '\x1b[0m');
+    throw new Error('Error pulling remote branch!')
+  } else s.stop('Git pull successful.');
 };
 
 const tryGitPull = async (targetPath: string): Promise<void> => {
@@ -328,11 +326,12 @@ const installDependencies = async (
 
       s.stop(`Dependencies have been installed successfully.`);
     } catch (err) {
-      throw new Error('Error installing dependencies.');
+      throw new Error(
+        `Error installing dependencies: ${(err as Error).message}`
+      );
     }
   } catch (err) {
-    log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-    process.exit(1);
+    throw new Error((err as Error).message);
   }
 };
 
@@ -340,7 +339,7 @@ const installDependencies = async (
 async function detectProjectType(directoryPath: string): Promise<string> {
   try {
     const fileChecks: { [key: string]: string[] } = {
-      nextjs: ['next.config.js', 'next.config.mjs'],
+      nextjs: ['next.config.js', 'next.config.mjs', 'next.config.ts'],
       expo: ['app.json', 'app.config.js', 'app.config.ts'],
       reactNative: ['ios', 'android'],
     };
@@ -487,7 +486,13 @@ async function ensureFilesPromise(filePaths: string[]): Promise<boolean> {
       (path) => path && typeof path === 'string' && path.trim() !== ''
     );
     // Use Promise.all to run all ensureFile operations concurrently
-    await Promise.all(validPaths.map((path) => fs.ensureFile(path)));
+    await Promise.all(
+      validPaths.map(async (filePath) => {
+        // Normalize the path and ensure the file
+        const normalizedPath = filePath.normalize();
+        await fs.ensureFile(normalizedPath); // Ensure the file exists asynchronously
+      })
+    );
     return true; // All operations successful
   } catch (error) {
     console.error('Error ensuring files:', error);

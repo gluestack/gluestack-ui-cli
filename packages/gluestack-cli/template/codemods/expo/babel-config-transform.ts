@@ -4,15 +4,13 @@ import {
   ObjectExpression,
   Property,
 } from 'jscodeshift';
-import { ExpoResolvedConfig } from '../../../src/util/config/config-types';
 
 const transform: Transform = (file, api, options): string => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
-    const config: ExpoResolvedConfig = options.config;
-    const isSDK50 = config.app.sdk50;
-    const tailwindConfig = config.tailwind.config;
+    const isSDK50 = options.isSDK50;
+    const tailwindConfig = options.tailwindConfig;
 
     root.find<ReturnStatement>(j.ReturnStatement).forEach((path) => {
       const returnObject = path.node.argument as ObjectExpression | null;
