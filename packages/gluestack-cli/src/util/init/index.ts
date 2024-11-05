@@ -104,6 +104,8 @@ async function updateTailwindConfig(
   resolvedConfig: RawConfig,
   projectType: string
 ) {
+  // Create a temporary file to store options
+  const tempFilePath = join(os.tmpdir(), 'jscodeshift-options.json');
   try {
     const tailwindConfigRootPath = join(
       _homeDir,
@@ -113,17 +115,30 @@ async function updateTailwindConfig(
     const tailwindConfigPath = resolvedConfig.tailwind.config;
     await fs.copy(tailwindConfigRootPath, tailwindConfigPath);
     // Codemod to update tailwind.config.js usage
-    const { entryPath } = getEntryPathAndComponentsPath();
-    const allNewPaths = JSON.stringify(entryPath);
+    const { entryPath } = getEntryPathAndComponentsPath(); // entryPaths is an array of strings
+
+    fs.writeFileSync(
+      tempFilePath,
+      JSON.stringify({ paths: entryPath }) // Write paths and projectType to the file
+    );
     const transformerPath = join(
       __dirname,
       `${config.codeModesDir}/tailwind-config-transform.ts`
     );
-    execSync(
-      `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}' --projectType='${projectType}' `
-    );
+
+    // Build the jscodeshift command
+    const command = `npx jscodeshift -t ${transformerPath} ${tailwindConfigPath} --optionsFile=${tempFilePath} --projectType=${projectType}`;
+
+    // Execute the command
+    execSync(command);
+    // Delete the temporary file after usage
+    fs.unlinkSync(tempFilePath);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    // Ensure the temporary file is deleted even in case of an error
+    if (fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
+    }
   }
 }
 
