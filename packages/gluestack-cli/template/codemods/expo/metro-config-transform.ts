@@ -1,7 +1,6 @@
 import { writeFileSync } from 'fs-extra';
 import { Transform } from 'jscodeshift';
 import { parse, print } from 'recast';
-import { ExpoResolvedConfig } from '../../../src/util/config/config-types';
 
 const transform: Transform = (file, api, options) => {
   try {

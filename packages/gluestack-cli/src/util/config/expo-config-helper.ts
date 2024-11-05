@@ -10,7 +10,6 @@ import {
 } from './config-types';
 import { join, relative } from 'path';
 import { execSync } from 'child_process';
-import { log } from '@clack/prompts';
 import { ensureFilesPromise } from '..';
 import { commonInitialization } from '../init';
 
