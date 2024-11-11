@@ -11,11 +11,8 @@ import {
   generateMonoRepoConfig,
   getEntryPathAndComponentsPath,
 } from '../config';
-import {
-  cloneRepositoryAtRoot,
-  getAdditionalDependencies,
-  installDependencies,
-} from '..';
+import { cloneRepositoryAtRoot, installDependencies } from '..';
+import { getProjectBasedDependencies } from '../../dependencies';
 import { generateConfigNextApp } from '../config/next-config-helper';
 import { generateConfigExpoApp } from '../config/expo-config-helper';
 import { generateConfigRNApp } from '../config/react-native-config-helper';
@@ -35,8 +32,10 @@ interface TSConfig {
 
 const InitializeGlueStack = async ({
   projectType = 'library',
+  isTemplate = false,
 }: {
   projectType: string;
+  isTemplate?: boolean;
 }) => {
   try {
     const initializeStatus = await checkIfInitialized(_currDir);
@@ -46,11 +45,14 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
-    const confirmOverride = await overrideWarning(filesToOverride(projectType));
+    const confirmOverride = isTemplate
+      ? true
+      : await overrideWarning(filesToOverride(projectType));
+
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const inputComponent = [config.providerComponent];
-    const additionalDependencies = await getAdditionalDependencies(
+    const additionalDependencies = await getProjectBasedDependencies(
       projectType,
       config.style
     );
@@ -70,6 +72,7 @@ const InitializeGlueStack = async ({
     );
   } catch (err) {
     log.error(`\x1b[31mError occured in init. (${err as Error})\x1b[0m`);
+    process.exit(1);
   }
 };
 
@@ -91,9 +94,8 @@ async function addProvider() {
     await fs.ensureDir(targetPath);
     await fs.copy(sourcePath, targetPath);
   } catch (err) {
-    log.error(
-      `\x1b[31mError occured while adding the provider. (${err as Error})\x1b[0m`
-    );
+    log.error(`\x1b[31mError occured while adding the provider.\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 
@@ -102,6 +104,8 @@ async function updateTailwindConfig(
   resolvedConfig: RawConfig,
   projectType: string
 ) {
+  // Create a temporary file to store options
+  const tempFilePath = join(os.tmpdir(), 'jscodeshift-options.json');
   try {
     const tailwindConfigRootPath = join(
       _homeDir,
@@ -111,17 +115,30 @@ async function updateTailwindConfig(
     const tailwindConfigPath = resolvedConfig.tailwind.config;
     await fs.copy(tailwindConfigRootPath, tailwindConfigPath);
     // Codemod to update tailwind.config.js usage
-    const { entryPath } = getEntryPathAndComponentsPath();
-    const allNewPaths = JSON.stringify(entryPath);
+    const { entryPath } = getEntryPathAndComponentsPath(); // entryPaths is an array of strings
+
+    fs.writeFileSync(
+      tempFilePath,
+      JSON.stringify({ paths: entryPath }) // Write paths and projectType to the file
+    );
     const transformerPath = join(
       __dirname,
       `${config.codeModesDir}/tailwind-config-transform.ts`
     );
-    execSync(
-      `npx jscodeshift -t ${transformerPath}  ${tailwindConfigPath} --paths='${allNewPaths}' --projectType='${projectType}' `
-    );
+
+    // Build the jscodeshift command
+    const command = `npx jscodeshift -t ${transformerPath} ${tailwindConfigPath} --optionsFile=${tempFilePath} --projectType=${projectType}`;
+
+    // Execute the command
+    execSync(command);
+    // Delete the temporary file after usage
+    fs.unlinkSync(tempFilePath);
   } catch (err) {
     log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    // Ensure the temporary file is deleted even in case of an error
+    if (fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
+    }
   }
 }
 
@@ -153,11 +170,14 @@ function updatePaths(
   paths[key] = Array.from(new Set([...(paths[key] || []), ...newValues]));
 }
 //update tsconfig.json
-async function updateTSConfig(projectType: string, config: any): Promise<void> {
+async function updateTSConfig(
+  projectType: string,
+  resolvedConfig: any
+): Promise<void> {
   try {
-    const configPath = config.config.tsConfig;
+    const configPath = resolvedConfig.config.tsConfig;
     let tsConfig: TSConfig = await readTSConfig(configPath);
-    let tailwindConfig = config.tailwind.config;
+    let tailwindConfig = resolvedConfig.tailwind.config;
     const tailwindConfigFileName = path.basename(tailwindConfig);
 
     tsConfig.compilerOptions = tsConfig.compilerOptions || {};
@@ -265,7 +285,7 @@ async function commonInitialization(
       );
     }
   } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 
@@ -300,32 +320,13 @@ async function generateProjectConfigAndInit(
   return resolvedConfig;
 }
 
-//package manager based installation for nativewind@4.0.36 using --save-exact flag, has to be refactored later
-//temporary solution for patch
-const installNativeWind = async (versionManager: string) => {
-  switch (versionManager) {
-    case 'npm':
-      execSync('npm install --save-exact nativewind@4.0.36 ');
-      break;
-    case 'yarn':
-      execSync('yarn add --exact nativewind@4.0.36');
-      break;
-    case 'pnpm':
-      execSync('pnpm i --save-exact nativewind@4.0.36 ');
-      break;
-    case 'bun':
-      execSync('bun add --exact nativewind@4.0.36');
-      break;
-  }
-};
-
 //files to override in the project directory data
 const filesToOverride = (projectType: string) => {
   switch (projectType) {
     case config.nextJsProject:
       return [
-        'next.config(.mjs/.js)',
-        'tailwind.config.js',
+        'next.config.*',
+        'tailwind.config.*',
         'global.css',
         'tsconfig.json',
       ];
@@ -333,7 +334,7 @@ const filesToOverride = (projectType: string) => {
       return [
         'babel.config.js',
         'metro.config.js',
-        'tailwind.config.js',
+        'tailwind.config.*',
         'global.css',
         'tsconfig.json',
       ];

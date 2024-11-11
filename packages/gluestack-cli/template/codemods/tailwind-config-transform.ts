@@ -1,10 +1,26 @@
 import { Transform } from 'jscodeshift';
+import fs from 'fs-extra';
 
 const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
-    // Find the tailwind.config.js file
+
+    // Read the options from the file (passed via --optionsFile)
+    const optionsFile = options.optionsFile;
+    let externalOptions = { paths: [], projectType: '' };
+
+    if (optionsFile && fs.existsSync(optionsFile)) {
+      const fileContent = fs.readFileSync(optionsFile, 'utf-8');
+      externalOptions = JSON.parse(fileContent);
+    }
+
+    const { paths: newPaths } = externalOptions;
+
+    // Ensure options.paths is an array
+    const pathsArray = Array.isArray(newPaths) ? newPaths : [];
+
+    // Find the tailwind.config.js or tailwind.config.ts file
     const tailwindConfig = root.find(j.AssignmentExpression, {
       left: {
         type: 'MemberExpression',
@@ -25,16 +41,35 @@ const transform: Transform = (file, api, options) => {
       return file.source; // No changes, return original content
     }
     // Find the 'content' property
-    const contentProperty = tailwindConfig.find(j.Property, {
+    let contentProperty = tailwindConfig.find(j.Property, {
       key: { name: 'content' },
     });
-    if (contentProperty.length) {
-      const contentValueNode = contentProperty.get('value');
-      const newPaths = options.paths || [];
-      contentValueNode.value.elements = newPaths.map((path) =>
-        j.stringLiteral(path)
+
+    if (!contentProperty.length) {
+      // If the content property doesn't exist, create it
+      const properties = tailwindConfig.get(0).node.right.properties;
+      const contentPropertyNode = j.property(
+        'init',
+        j.identifier('content'),
+        j.arrayExpression([]) // Start with an empty array
+      );
+      properties.push(contentPropertyNode);
+
+      // Refetch the content property after adding it
+      contentProperty = tailwindConfig.find(j.Property, {
+        key: { name: 'content' },
+      });
+    }
+
+    const contentValueNode = contentProperty.get('value');
+    if (contentValueNode.value.type === 'ArrayExpression') {
+      // Replace the existing elements with the new paths
+      contentValueNode.value.elements = pathsArray.map((path: string) =>
+        j.stringLiteral(path.replace(/\\/g, '/'))
       );
     }
+
+    //  handling important property
     const importantProperty = tailwindConfig.find(j.Property, {
       key: { name: 'important' },
     });

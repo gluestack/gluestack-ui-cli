@@ -1,14 +1,11 @@
-import * as path from 'path';
-import { generateConfig, getFilePath } from '.';
+import { generateConfig, getFilePath, pathResolver } from '.';
 import { RawConfig, ReactNativeResolvedConfig } from './config-types';
 import { ensureFilesPromise, getRelativePath } from '..';
 import { config } from '../../config';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { log } from '@clack/prompts';
+import os from 'os';
 import { commonInitialization } from '../init';
-
-const _currDir = process.cwd();
 
 //react-native project type initialization
 async function resolvedReactNativePaths(
@@ -16,26 +13,29 @@ async function resolvedReactNativePaths(
 ) {
   const resolvedReactNativePaths = {
     tailwind: {
-      config: path.resolve(_currDir, resultConfig.tailwind.config),
-      css: path.resolve(_currDir, resultConfig.tailwind.css),
+      config: pathResolver(resultConfig.tailwind.config),
+      css: pathResolver(resultConfig.tailwind.css),
     },
     config: {
-      babelConfig: path.resolve(
-        _currDir,
-        resultConfig.config.babelConfig || ''
-      ),
-      metroConfig: path.resolve(
-        _currDir,
-        resultConfig.config.metroConfig || ''
-      ),
-      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
+      babelConfig: pathResolver(resultConfig.config.babelConfig || ''),
+      metroConfig: pathResolver(resultConfig.config.metroConfig || ''),
+      tsConfig: pathResolver(resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
+      entry: pathResolver(resultConfig.app.entry || ''),
     },
   };
   return resolvedReactNativePaths;
 }
+
+const podInstall = async () => {
+  const platform = os.platform();
+
+  if (platform === 'darwin') {
+    // macOS
+    execSync('npx pod-install', { stdio: 'inherit' });
+  }
+};
 
 //project specific initialization: react-native
 async function initNatiwindRNApp(
@@ -66,7 +66,7 @@ async function initNatiwindRNApp(
     );
 
     execSync(
-      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig} --config='${JSON.stringify(resolvedConfig)}'`
+      `npx jscodeshift -t ${BabelTransformerPath}  ${resolvedConfig.config.babelConfig} --tailwindConfigPath=${resolvedConfig.tailwind.config}`
     );
     execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${resolvedConfig.config.metroConfig}`
@@ -80,9 +80,9 @@ async function initNatiwindRNApp(
       permission
     );
 
-    execSync('npx pod-install', { stdio: 'inherit' });
+    await podInstall();
   } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 
@@ -106,7 +106,7 @@ async function generateConfigRNApp(permission: boolean) {
     },
     app: {
       entry: entryPath,
-      components: 'components/ui',
+      components: config.writableComponentsPath,
     },
   };
   const resolvedGluestackConfig = {
@@ -122,7 +122,7 @@ async function generateConfigRNApp(permission: boolean) {
       tsConfig: tsConfigPath.length ? tsConfigPath : 'tsconfig.json',
     },
     app: {
-      entry: path.resolve(_currDir, entryPath),
+      entry: pathResolver(entryPath),
     },
   };
 
@@ -135,7 +135,7 @@ async function generateConfigRNApp(permission: boolean) {
     resolvedConfig.config.metroConfig,
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
-    join(_currDir, 'nativewind-env.d.ts'),
+    pathResolver('nativewind-env.d.ts'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {

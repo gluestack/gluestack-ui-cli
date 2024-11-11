@@ -9,6 +9,12 @@ const fileExtensions = ['.tsx', '.jsx', '.ts', '.js'];
 const possibleIndexFiles = ['_app', 'index', 'App'];
 const possibleDirectories = ['src', 'pages', 'app', 'components'];
 
+const _currDir = process.cwd();
+
+const pathResolver = (p: string) => {
+  return path.resolve(_currDir, p).replace(/\\/g, '/');
+};
+
 function findDirectory(rootDir: string, relativePaths: string[]) {
   for (const relPath of relativePaths) {
     const dirPath = path.join(rootDir, relPath);
@@ -60,7 +66,9 @@ function getEntryPathAndComponentsPath(): {
   let FileExists: string[] = [];
   fileExtensions.forEach((ext) => {
     possibleIndexFiles.map((file) => {
-      if (fs.existsSync(path.join(projectRootPath, `${file}${ext}`))) {
+      if (
+        fs.existsSync(path.join(projectRootPath, `${file}${ext}`).normalize())
+      ) {
         FileExists.push(file);
       }
     });
@@ -68,19 +76,25 @@ function getEntryPathAndComponentsPath(): {
   // Check if any of the possible index files exist
   if (FileExists) {
     FileExists.forEach((file) => {
-      entryPath.push(`./${file}.{tsx,jsx,ts,js}`);
+      entryPath.push(path.join('.', `${file}.{tsx,jsx,ts,js}`));
     });
   }
   // Check if "src", "pages", "app" or "component" directories exist
   possibleDirectories.forEach((dir) => {
-    if (fs.existsSync(path.join(projectRootPath, dir))) {
-      entryPath.push(`./${dir}/**/*.{tsx,jsx,ts,js}`);
+    if (fs.existsSync(path.join(projectRootPath, dir).normalize())) {
+      entryPath.push(path.join('.', `${dir}/**/*.{tsx,jsx,ts,js}`));
     }
   });
 
   const resolvedPath = config.writableComponentsPath.split('/');
-  if (!entryPath.includes(`./${resolvedPath[0]}/**/*.{tsx,jsx,ts,js}`)) {
-    componentsPath.push(`./${resolvedPath[0]}/**/*.{tsx,jsx,ts,js}`);
+  if (
+    !entryPath.includes(
+      path.join('.', `${resolvedPath[0]}/**/*.{tsx,jsx,ts,js}`)
+    )
+  ) {
+    componentsPath.push(
+      path.join('.', `${resolvedPath[0]}/**/*.{tsx,jsx,ts,js}`)
+    );
   }
   entryPath = [...entryPath, ...componentsPath];
   return { entryPath };
@@ -130,4 +144,6 @@ export {
   getComponentsPath,
   generateMonoRepoConfig,
   findDirectory,
+  pathResolver,
+  _currDir,
 };

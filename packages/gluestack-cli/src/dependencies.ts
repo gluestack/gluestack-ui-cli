@@ -1,3 +1,11 @@
+import { join } from 'path';
+import { config } from './config';
+import { log } from '@clack/prompts';
+import fs from 'fs-extra';
+import os from 'os';
+
+const __homeDir = os.homedir();
+
 export interface Dependency {
   [key: string]: string;
 }
@@ -12,6 +20,11 @@ export interface Dependencies {
   [key: string]: ComponentConfig;
 }
 
+interface UIConfigJSON {
+  components: Dependencies;
+  IgnoredComponents: string[];
+}
+
 const projectBasedDependencies: Dependencies = {
   nextjs: {
     dependencies: {
@@ -21,7 +34,7 @@ const projectBasedDependencies: Dependencies = {
       '@gluestack/ui-next-adapter': 'latest',
     },
     devDependencies: {
-      '@types/react-native': '',
+      '@types/react-native': '0.72.8',
     },
   },
   expo: {
@@ -38,213 +51,59 @@ const projectBasedDependencies: Dependencies = {
     },
   },
 };
-const dependenciesConfig: Dependencies = {
-  'gluestack-ui-provider': {
-    dependencies: {
-      tailwindcss: '',
-      '@gluestack-ui/overlay': 'latest',
-      '@gluestack-ui/toast': 'latest',
-      '@gluestack-ui/nativewind-utils': '1.0.23',
-      'react-native-svg': '13.4.0',
-      nativewind: '4.0.36',
-    },
-    devDependencies: {
-      jscodeshift: '0.15.2',
-      prettier: '',
-    },
-  },
-  accordion: {
-    dependencies: {
-      '@gluestack-ui/accordion': 'latest',
-      '@expo/html-elements': '0.4.2',
-    },
-  },
-  actionsheet: {
-    dependencies: {
-      '@legendapp/motion': 'latest',
-      '@gluestack-ui/actionsheet': 'latest',
-    },
-  },
-  alert: {
-    dependencies: {
-      '@gluestack-ui/alert': 'latest',
-    },
-  },
-  'alert-dialog': {
-    dependencies: {
-      '@gluestack-ui/alert-dialog': 'latest',
-      '@legendapp/motion': 'latest',
-    },
-  },
-  avatar: {
-    dependencies: {
-      '@gluestack-ui/avatar': 'latest',
-    },
-  },
-  badge: { dependencies: {} },
-  box: { dependencies: {} },
-  button: {
-    dependencies: {
-      '@gluestack-ui/button': 'latest',
-    },
-  },
-  card: { dependencies: {} },
-  center: { dependencies: {} },
-  checkbox: {
-    dependencies: {
-      '@gluestack-ui/checkbox': 'latest',
-    },
-  },
-  divider: {
-    dependencies: {
-      '@gluestack-ui/divider': 'latest',
-    },
-  },
-  fab: {
-    dependencies: {
-      '@gluestack-ui/fab': 'latest',
-    },
-  },
-  'flat-list': {
-    dependencies: {},
-  },
-  'form-control': {
-    dependencies: {
-      '@gluestack-ui/form-control': 'latest',
-    },
-  },
-  heading: {
-    dependencies: {
-      '@expo/html-elements': '0.4.2',
-    },
-  },
-  hstack: {
-    dependencies: {},
-  },
-  icon: {
-    dependencies: {
-      '@gluestack-ui/icon': 'latest',
-    },
-  },
-  image: {
-    dependencies: {
-      '@gluestack-ui/image': 'latest',
-    },
-  },
-  'image-background': {
-    dependencies: {},
-  },
-  input: {
-    dependencies: {
-      '@gluestack-ui/input': 'latest',
-    },
-  },
-  'input-accessory-view': {
-    dependencies: {},
-  },
-  'keyboard-avoiding-view': {
-    dependencies: {},
-  },
-  link: {
-    dependencies: {
-      '@gluestack-ui/link': 'latest',
-    },
-  },
-  menu: {
-    dependencies: {
-      '@gluestack-ui/menu': 'latest',
-      '@legendapp/motion': 'latest',
-    },
-  },
-  modal: {
-    dependencies: {
-      '@gluestack-ui/modal': 'latest',
-      '@legendapp/motion': 'latest',
-    },
-  },
-  popover: {
-    dependencies: {
-      '@gluestack-ui/popover': 'latest',
-      '@legendapp/motion': 'latest',
-    },
-  },
-  pressable: {
-    dependencies: {
-      '@gluestack-ui/pressable': 'latest',
-    },
-  },
-  progress: {
-    dependencies: {
-      '@gluestack-ui/progress': 'latest',
-    },
-  },
-  radio: {
-    dependencies: {
-      '@gluestack-ui/radio': 'latest',
-    },
-  },
-  'refresh-control': { dependencies: {} },
-  'safe-area-view': { dependencies: {} },
-  'scroll-view': { dependencies: {} },
-  'section-list': {
-    dependencies: {},
-  },
-  select: {
-    dependencies: {
-      '@gluestack-ui/select': 'latest',
-      '@gluestack-ui/actionsheet': 'latest',
-      '@legendapp/motion': 'latest',
-      '@expo/html-elements': '0.4.2',
-    },
-  },
-  slider: {
-    dependencies: {
-      '@gluestack-ui/slider': 'latest',
-    },
-  },
-  spinner: {
-    dependencies: {
-      '@gluestack-ui/spinner': 'latest',
-    },
-  },
-  'status-bar': { dependencies: {} },
-  switch: {
-    dependencies: {
-      '@gluestack-ui/switch': 'latest',
-    },
-  },
-  text: { dependencies: {} },
-  textarea: {
-    dependencies: {
-      '@gluestack-ui/textarea': 'latest',
-    },
-  },
-  toast: {
-    dependencies: {
-      '@gluestack-ui/toast': 'latest',
-      '@legendapp/motion': 'latest',
-    },
-  },
-  tooltip: {
-    dependencies: {
-      '@gluestack-ui/tooltip': 'latest',
-      '@legendapp/motion': 'latest',
-    },
-  },
-  view: { dependencies: {} },
-  'virtualized-list': { dependencies: {} },
-  vstack: { dependencies: {} },
-  grid: {
-    dependencies: {},
-    hooks: ['useBreakpointValue'],
-  },
-};
+
+// Get dependency JSON
+async function getDependencyJSON(): Promise<UIConfigJSON> {
+  const dependencyJSONPath = join(
+    __homeDir,
+    config.gluestackDir,
+    config.dependencyConfigPath
+  );
+  if (!fs.existsSync(dependencyJSONPath)) {
+    log.error(
+      `\x1b[31mError: Dependency JSON file not found at ${dependencyJSONPath}\x1b[0m`
+    );
+    process.exit;
+  }
+  const dependencyJSON = await fs.readJSON(dependencyJSONPath);
+  return dependencyJSON;
+}
+
+// Get project based dependencies
+async function getProjectBasedDependencies(
+  projectType: string | undefined,
+  style: string
+) {
+  try {
+    if (
+      style === config.nativeWindRootPath &&
+      projectType &&
+      projectType !== 'library'
+    ) {
+      return {
+        dependencies: projectBasedDependencies[projectType].dependencies,
+        devDependencies:
+          projectBasedDependencies[projectType]?.devDependencies || {},
+      };
+    }
+    return { dependencies: {}, devDependencies: {} };
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+}
 
 // Ignore components that are in development or not in supported list
-const IgnoredComponents = ['bottomsheet'];
+const getIgnoredComponents = async (): Promise<string[]> => {
+  const dependencyJSON = await getDependencyJSON();
+  return dependencyJSON.IgnoredComponents;
+};
 
-const getComponentDependencies = (componentName: string): ComponentConfig => {
-  const config = dependenciesConfig[componentName];
+// Get dependencies for a component
+const getComponentDependencies = async (
+  componentName: string
+): Promise<ComponentConfig> => {
+  const dependencyJSON = await getDependencyJSON();
+  const config = dependencyJSON.components[componentName];
   if (!config) {
     return {
       dependencies: {},
@@ -260,9 +119,9 @@ const getComponentDependencies = (componentName: string): ComponentConfig => {
     hooks: config.hooks || [],
   };
 };
+
 export {
-  dependenciesConfig,
-  projectBasedDependencies,
-  IgnoredComponents,
+  getIgnoredComponents,
   getComponentDependencies,
+  getProjectBasedDependencies,
 };

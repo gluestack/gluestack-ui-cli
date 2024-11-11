@@ -1,15 +1,13 @@
 import { writeFileSync } from 'fs-extra';
 import { Transform } from 'jscodeshift';
 import { parse, print } from 'recast';
-import { ExpoResolvedConfig } from '../../../src/util/config/config-types';
 
 const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
     const source = file.source.trim();
     const cssPath = options.cssPath;
-    const config: ExpoResolvedConfig = options.config;
-    const isSDK50 = config.app.sdk50;
+    const isSDK50 = options.isSDK50;
     if (source.length === 0) {
       const metroConfigContent = isSDK50
         ? `const { getDefaultConfig } = require('expo/metro-config');
@@ -28,7 +26,7 @@ module.exports = withNativeWind(config, { input: '${cssPath}' });`;
       const ast = parse(metroConfigContent);
       // Print the AST back to code
       const output = print(ast).code;
-      writeFileSync(config.config.metroConfig, output, 'utf8');
+      writeFileSync(file.path, output, 'utf8');
       return null; // Return early after writing the file
     }
     const root = j(source);

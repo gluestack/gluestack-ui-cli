@@ -1,12 +1,10 @@
 import { Transform } from 'jscodeshift';
-import { ReactNativeResolvedConfig } from '../../../src/util/config/config-types';
 
 const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
-    const config: ReactNativeResolvedConfig = options.config;
-    const tailwindConfig = config.tailwind.config;
+    const tailwindConfig = options.tailwindConfigPath;
 
     // fetch tailwind config filenName from resolved path of tailwind.config.js
     const parts = tailwindConfig.split(/[/\\]/);
@@ -107,7 +105,7 @@ const transform: Transform = (file, api, options) => {
                 j.property(
                   'init',
                   j.stringLiteral('tailwind.config'),
-                  j.stringLiteral('./' + tailwindConfig)
+                  j.stringLiteral('./' + tailwindConfigFileName)
                 ),
               ])
             ),
