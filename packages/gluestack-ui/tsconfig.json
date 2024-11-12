@@ -9,7 +9,10 @@
     "esModuleInterop": true,
     "module": "UMD",
     "moduleResolution": "node",
-    "allowJs": true
+    "allowJs": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*", "node_modules/@types/*"]
 }
