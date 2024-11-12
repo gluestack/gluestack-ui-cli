@@ -11,7 +11,7 @@ const config = {
   tailwindConfigRootPath: 'example/storybook-nativewind/src/tailwind.config.js',
   UIconfigPath: 'gluestack-ui-provider/config.ts',
   writableComponentsPath: 'components/ui',
-  branchName: 'patch',
+  branchName: 'main',
   tagName: '@gluestack-ui/storybook@0.1.0',
   style: 'nativewind',
   providerComponent: 'gluestack-ui-provider',
