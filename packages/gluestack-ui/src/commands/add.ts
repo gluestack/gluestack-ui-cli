@@ -1,7 +1,7 @@
+import { componentAdder, getComponentGitRepo } from '@/component-adder';
+import { initializer } from '@/installer/initializer';
+import { installDependencies } from '@/utils';
 import { log } from '@clack/prompts';
-import { componentAdder, getComponentGitRepo } from '../component-adder';
-import { initializer } from '../installer/initializer';
-import { installDependencies } from '../utils';
 
 export const add = async (
   subCommand: string,

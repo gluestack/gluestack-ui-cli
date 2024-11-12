@@ -1,6 +1,10 @@
 import { confirm, log } from '@clack/prompts';
-import { initializer } from '../installer/initializer';
-import { removeComponent } from '../remove-component';
+import {
+  REMOVE_CONFIRMATION_MESSAGE,
+  INVALID_COMMAND_ERROR_MESSAGE,
+} from '@/Constants';
+import { initializer } from '@/installer/initializer';
+import { removeComponent } from '@/remove-component';
 
 export const remove = async (subCommand: string) => {
   const askUserToInit = true;
@@ -10,7 +14,7 @@ export const remove = async (subCommand: string) => {
     if (subCommand === '--all') {
       try {
         const shouldContinue = await confirm({
-          message: 'Are you sure you want to remove all components?',
+          message: REMOVE_CONFIRMATION_MESSAGE,
         });
         if (shouldContinue) {
           await removeComponent('--all');
@@ -21,9 +25,7 @@ export const remove = async (subCommand: string) => {
     } else if (subCommand) {
       await removeComponent(subCommand);
     } else {
-      log.error(
-        `\x1b[31mInvalid command, checkout help command by running npx gluestack-ui@latest help\x1b[0m`
-      );
+      log.error(INVALID_COMMAND_ERROR_MESSAGE);
     }
   }
 };

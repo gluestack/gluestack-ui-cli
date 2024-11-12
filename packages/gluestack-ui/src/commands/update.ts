@@ -3,6 +3,10 @@ import { getComponentGitRepo } from '../component-adder';
 import { initializer } from '../installer/initializer';
 import { updateComponent } from '../update-component';
 import { installDependencies } from '../utils';
+import {
+  INVALID_COMMAND_ERROR_MESSAGE,
+  UPDATE_CONFIRMATION_MESSAGE,
+} from '@/Constants';
 
 export const update = async (
   subCommand: string,
@@ -18,8 +22,7 @@ export const update = async (
       try {
         if (!forceUpdate) {
           const shouldContinue = await confirm({
-            message:
-              'Are you sure you want to update all components? This will remove all your existing changes and replace them with new components.\nPlease make sure to commit your current changes before proceeding.',
+            message: UPDATE_CONFIRMATION_MESSAGE,
           });
           if (shouldContinue) {
             await updateComponent('--all', forceUpdate);
@@ -33,9 +36,7 @@ export const update = async (
     } else if (subCommand) {
       await updateComponent(subCommand, forceUpdate);
     } else {
-      log.error(
-        `\x1b[31mInvalid command, checkout help command by running npx gluestack-ui@latest help\x1b[0m`
-      );
+      log.error(INVALID_COMMAND_ERROR_MESSAGE);
     }
     await installDependencies(installationMethod);
   }
