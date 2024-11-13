@@ -133,7 +133,7 @@ const wait = (msec: number): Promise<void> =>
   });
 
 //checking from root
-const detectLockFile = (): string | null => {
+export const detectLockFile = (): string | null => {
   const packageLockPath = join(projectRootPath, 'package-lock.json');
   const yarnLockPath = join(projectRootPath, 'yarn.lock');
   const pnpmLockPath = join(projectRootPath, 'pnpm-lock.yaml');
@@ -150,7 +150,7 @@ const detectLockFile = (): string | null => {
 };
 
 //checking from cwd
-function findLockFileType(): string | null {
+export function findLockFileType(): string | null {
   let currentDir = currDir;
   while (true) {
     const packageLockPath = join(currentDir, 'package-lock.json');
@@ -175,7 +175,7 @@ function findLockFileType(): string | null {
   }
 }
 
-const promptVersionManager = async (): Promise<any> => {
+export const promptVersionManager = async (): Promise<any> => {
   const packageManager = await select({
     message:
       'No lockfile detected. Please select a package manager to install dependencies:',
@@ -195,15 +195,13 @@ const promptVersionManager = async (): Promise<any> => {
 
 const installDependencies = async (
   input: string[] | string,
+  versionManager: string | null,
   additionalDependencies?: Dependencies | undefined
 ): Promise<void> => {
   try {
     //add npmrc file for legacy-peer-deps-support
-    execSync('npm config --location=project set legacy-peer-deps=true');
-    let versionManager: string | null = findLockFileType();
-    if (!versionManager) {
-      versionManager = await promptVersionManager();
-    }
+    // execSync('npm config --location=project set legacy-peer-deps=true');
+
     const dependenciesToInstall: {
       dependencies: Dependency;
       devDependencies: Dependency;
@@ -455,20 +453,25 @@ async function getExistingComponentStyle() {
 async function getAdditionalDependencies(
   projectType: string | undefined,
   style: string
-) {
+): Promise<any> {
   try {
     let additionalDependencies = {
       dependencies: {},
-      devDependencies: {} || undefined,
+      devDependencies: {},
     };
     if (style === config.nativeWindRootPath) {
       if (projectType && projectType !== 'library') {
         additionalDependencies.dependencies =
           projectBasedDependencies[projectType].dependencies;
+        // @ts-ignore
         additionalDependencies.devDependencies =
           projectBasedDependencies[projectType]?.devDependencies;
         return additionalDependencies;
-      } else return {};
+      } else
+        return {
+          dependencies: {},
+          devDependencies: {},
+        };
     }
   } catch (error) {
     log.error(`\x1b[31mError: ${(error as Error).message}\x1b[0m`);

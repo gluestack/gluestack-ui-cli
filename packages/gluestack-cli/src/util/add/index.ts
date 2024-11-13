@@ -5,9 +5,11 @@ import { log, confirm } from '@clack/prompts';
 import { config } from '../../config';
 import {
   cloneRepositoryAtRoot,
+  findLockFileType,
   getAllComponents,
   installDependencies,
   projectRootPath,
+  promptVersionManager,
   removeHyphen,
 } from '..';
 
@@ -52,7 +54,11 @@ const componentAdder = async ({
       })
     )
       .then(async () => {
-        await installDependencies(updatedComponents);
+        let versionManager: string | null = findLockFileType();
+        if (!versionManager) {
+          versionManager = await promptVersionManager();
+        }
+        await installDependencies(updatedComponents, versionManager);
         log.success(
           `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m component into project`
         );

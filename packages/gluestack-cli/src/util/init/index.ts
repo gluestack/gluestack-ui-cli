@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import { execSync } from 'child_process';
 import path, { join } from 'path';
 import { log, confirm, spinner } from '@clack/prompts';
-import fs, { copy, existsSync } from 'fs-extra';
+import fs, { copy, existsSync, writeFile } from 'fs-extra';
 import { RawConfig } from '../config/config-types';
 import {
   checkIfInitialized,
@@ -13,12 +13,16 @@ import {
 } from '../config';
 import {
   cloneRepositoryAtRoot,
+  findLockFileType,
   getAdditionalDependencies,
   installDependencies,
+  promptVersionManager,
 } from '..';
 import { generateConfigNextApp } from '../config/next-config-helper';
 import { generateConfigExpoApp } from '../config/expo-config-helper';
 import { generateConfigRNApp } from '../config/react-native-config-helper';
+import { checkNextVersion } from '../check-next-version';
+import { readFile } from 'fs-extra';
 
 const _currDir = process.cwd();
 const _homeDir = os.homedir();
@@ -46,21 +50,49 @@ const InitializeGlueStack = async ({
       );
       process.exit(1);
     }
+    const isNextjs15 = await checkNextVersion();
+
     const confirmOverride = await overrideWarning(filesToOverride(projectType));
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
     await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
     const inputComponent = [config.providerComponent];
-    const additionalDependencies = await getAdditionalDependencies(
+    let additionalDependencies = await getAdditionalDependencies(
       projectType,
       config.style
     );
-    await installDependencies(inputComponent, additionalDependencies);
+    if (isNextjs15) {
+      additionalDependencies = {
+        ...additionalDependencies,
+        devDependencies: {
+          ...additionalDependencies?.devDependencies,
+          'patch-package': 'latest',
+        },
+      };
+    }
+
+    let versionManager: string | null = findLockFileType();
+    if (!versionManager) {
+      versionManager = await promptVersionManager();
+    }
+
+    await installDependencies(
+      inputComponent,
+      versionManager,
+      additionalDependencies
+    );
     const s = spinner();
     s.start(
       '⏳ Generating project configuration. This might take a couple of minutes...'
     );
-    await generateProjectConfigAndInit(projectType, confirmOverride);
-    await addProvider();
+    await generateProjectConfigAndInit(
+      projectType,
+      confirmOverride,
+      isNextjs15
+    );
+    await addProvider(isNextjs15);
+    if (isNextjs15) {
+      execSync(`${versionManager} run postinstall`);
+    }
     s.stop(`\x1b[32mProject configuration generated.\x1b[0m`);
     log.step(
       'Please refer the above link for more details --> \x1b[33mhttps://gluestack.io/ui/docs/home/overview/introduction \x1b[0m'
@@ -73,7 +105,7 @@ const InitializeGlueStack = async ({
   }
 };
 
-async function addProvider() {
+async function addProvider(isNextjs15: boolean | undefined) {
   try {
     const targetPath = join(
       _currDir,
@@ -90,6 +122,23 @@ async function addProvider() {
 
     await fs.ensureDir(targetPath);
     await fs.copy(sourcePath, targetPath);
+    if (isNextjs15) {
+      const providerContent = await readFile(
+        join(
+          __dirname,
+          `${config.templatesDir}`,
+          'nextjs',
+          'next15',
+          'index.web.tsx'
+        ),
+        'utf8'
+      );
+      await writeFile(
+        join(targetPath, 'index.web.tsx'),
+        providerContent,
+        'utf8'
+      );
+    }
   } catch (err) {
     log.error(
       `\x1b[31mError occured while adding the provider. (${err as Error})\x1b[0m`
@@ -268,7 +317,8 @@ async function commonInitialization(
 //generate project config and initialize
 async function generateProjectConfigAndInit(
   projectType: string,
-  confirmOverride: boolean | symbol
+  confirmOverride: boolean | symbol,
+  isNextjs15: boolean | undefined
 ) {
   let permission;
   if (confirmOverride === false || typeof confirmOverride === 'symbol') {
@@ -278,7 +328,7 @@ async function generateProjectConfigAndInit(
   if (projectType !== 'library') {
     switch (projectType) {
       case config.nextJsProject:
-        await generateConfigNextApp(permission);
+        await generateConfigNextApp(permission, isNextjs15);
         break;
       case config.expoProject:
         await generateConfigExpoApp(permission);
