@@ -2,9 +2,9 @@ import { confirm, log } from '@clack/prompts';
 import {
   REMOVE_CONFIRMATION_MESSAGE,
   INVALID_COMMAND_ERROR_MESSAGE,
-} from '@/Constants';
-import { initializer } from '@/installer/initializer';
-import { removeComponent } from '@/remove-component';
+} from '../Constants';
+import { initializer } from '../installer/initializer';
+import { removeComponent } from '../remove-component';
 
 export const remove = async (subCommand: string) => {
   const askUserToInit = true;

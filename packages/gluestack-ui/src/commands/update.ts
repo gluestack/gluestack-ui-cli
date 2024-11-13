@@ -6,7 +6,7 @@ import { installDependencies } from '../utils';
 import {
   INVALID_COMMAND_ERROR_MESSAGE,
   UPDATE_CONFIRMATION_MESSAGE,
-} from '@/Constants';
+} from '../Constants';
 
 export const update = async (
   subCommand: string,

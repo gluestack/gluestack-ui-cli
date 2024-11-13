@@ -1,8 +1,8 @@
 import { log } from '@clack/prompts';
-import { INIT_GREETING_1, INIT_OUTRO_2, INIT_OUTRO_1 } from '@/Constants';
-import { initializer } from '@/installer/initializer';
-import { getComponentGitRepo } from '@/component-adder';
-import { installDependencies } from '@/utils';
+import { INIT_GREETING_1, INIT_OUTRO_2, INIT_OUTRO_1 } from '../Constants';
+import { initializer } from '../installer/initializer';
+import { getComponentGitRepo } from '../component-adder';
+import { installDependencies } from '../utils';
 
 export const init = async (installationMethod?: string) => {
   await getComponentGitRepo();

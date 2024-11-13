@@ -10,9 +10,8 @@
     "module": "UMD",
     "moduleResolution": "node",
     "allowJs": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "baseUrl": ".",
+    "paths": {}
   },
   "include": ["src/**/*", "node_modules/@types/*"]
 }
