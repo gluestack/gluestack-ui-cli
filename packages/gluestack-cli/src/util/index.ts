@@ -148,7 +148,7 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
   }
   if (!success) {
     s.stop('\x1b[31m' + 'Pulling failed!' + '\x1b[0m');
-    throw new Error('Error pulling remote branch!')
+    throw new Error('Error pulling remote branch!');
   } else s.stop('Git pull successful.');
 };
 
@@ -165,7 +165,7 @@ const wait = (msec: number): Promise<void> =>
   });
 
 //checking from cwd
-function findLockFileType(): string | null {
+export function findLockFileType(): string | null {
   const lockFiles: { [key: string]: string } = {
     'package-lock.json': 'npm',
     'yarn.lock': 'yarn',
@@ -201,7 +201,7 @@ function getPackageMangerFlag(options: any) {
   }
 }
 
-const promptVersionManager = async (): Promise<any> => {
+export const promptVersionManager = async (): Promise<any> => {
   const packageManager = await select({
     message:
       'No lockfile detected. Please select a package manager to install dependencies:',
@@ -232,6 +232,7 @@ async function ensureLegacyPeerDeps(): Promise<void> {
 
 const installDependencies = async (
   input: string[] | string,
+  versionManager: string | null,
   additionalDependencies?: ComponentConfig | undefined
 ): Promise<void> => {
   try {
