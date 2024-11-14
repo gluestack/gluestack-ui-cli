@@ -8,20 +8,16 @@ module.exports = {
         question: 'What would you like to \x1b[36mbuild\x1b[0m?',
         options: [
           { value: 'expo', label: 'Expo app', hint: 'Expo + gluestack-ui' },
+          { value: 'next', label: 'Next.js app', hint: 'Next + gluestack-ui' },
           {
-            value: 'nextjs',
-            label: 'Next.js app',
-            hint: 'Next + gluestack-ui',
-          },
-          {
-            value: 'react-native-cli',
+            value: 'react-native',
             label: 'React Native app',
             hint: 'React Native + gluestack-ui',
           },
         ],
       },
       Route: {
-        nextjs: {
+        next: {
           question: 'Would you like to use \x1b[36mApp Router\x1b[0m?',
           options: [
             {
@@ -47,21 +43,6 @@ module.exports = {
             { value: 'expo', label: 'No', hint: 'Expo app' },
           ],
         },
-      },
-      cocoaPods: {
-        question: 'Would you like to use \x1b[36mCocoaPods\x1b[0m?',
-        options: [
-          {
-            value: 'react-native-cli-cocoapods',
-            label: 'Yes',
-            hint: 'Only needed if you run your project in Xcode directly',
-          },
-          {
-            value: 'react-native-cli',
-            label: 'No',
-            hint: 'For Android or no iOS.',
-          },
-        ],
       },
     },
     style: {
@@ -93,113 +74,113 @@ module.exports = {
       },
     },
   },
-  // option: {
-  //   'expo-router-v3': {
-  //     hint: '',
-  //     label: 'expo app with expo router v3',
-  //     options: {
-  //       'with-themed-library': {
-  //         value: 'expo-router-with-gluestack-style-ejected',
-  //         hint: '',
-  //         label: 'themed library',
-  //       },
-  //       'with-gluestack-style': {
-  //         value: 'expo-router-with-gluestack-style',
-  //         hint: '',
-  //         label: 'themed library bundled',
-  //       },
-  //       'with-nativewind': {
-  //         value: 'expo-router-with-nativewind',
-  //         hint: '',
-  //         label: 'nativewind v4 styling',
-  //       },
-  //     },
-  //   },
-  //   expo: {
-  //     hint: '',
-  //     label: 'expo app',
-  //     options: {
-  //       'with-themed-library': {
-  //         value: 'expo-with-gluestack-style-ejected',
-  //         hint: '',
-  //         label: 'themed library',
-  //       },
-  //       'with-gluestack-style': {
-  //         value: 'expo-with-gluestack-style',
-  //         hint: '',
-  //         label: 'themed library bundled',
-  //       },
-  //       'with-nativewind': {
-  //         value: 'expo-with-nativewind',
-  //         hint: '',
-  //         label: 'nativewind v4 styling',
-  //       },
-  //     },
-  //   },
-  //   'next-app-router': {
-  //     hint: '',
-  //     label: 'next app with app router',
-  //     options: {
-  //       'with-themed-library': {
-  //         value: 'next-app-router-with-gluestack-style-ejected',
-  //         hint: '',
-  //         label: 'Themed Library',
-  //       },
-  //       'with-gluestack-style': {
-  //         value: 'next-app-router-with-gluestack-style',
-  //         hint: '',
-  //         label: 'themed library bundled',
-  //       },
-  //       'with-nativewind': {
-  //         value: 'next-app-router-with-nativewind',
-  //         hint: '',
-  //         label: 'nativewind v4 styling',
-  //       },
-  //     },
-  //   },
-  //   'next-page-router': {
-  //     hint: '',
-  //     label: 'next app with page router',
-  //     options: {
-  //       'with-themed-library': {
-  //         value: 'next-page-router-with-gluestack-style-ejected',
-  //         hint: '',
-  //         label: 'Themed Library',
-  //       },
-  //       'with-gluestack-style': {
-  //         value: 'next-page-router-with-gluestack-style',
-  //         hint: '',
-  //         label: 'themed library bundled',
-  //       },
-  //       'with-nativewind': {
-  //         value: 'next-page-router-with-nativewind',
-  //         hint: '',
-  //         label: 'nativewind v4 styling',
-  //       },
-  //     },
-  //   },
-  //   'react-native': {
-  //     hint: '',
-  //     label: 'react-native app',
-  //     options: {
-  //       'with-themed-library': {
-  //         value: 'reactNativeWithGluestackStyleEjected',
-  //         hint: '',
-  //         label: 'themed Library',
-  //       },
-  //       'with-gluestack-style': {
-  //         value: 'reactNativeWithGluestackStyle',
-  //         hint: '',
-  //         label: 'themed library bundled',
-  //       },
-  //       'with-nativewind': {
-  //         value: 'reactNativeWithNativewind',
-  //         hint: '',
-  //         label: 'nativewind v4 styling',
-  //       },
-  //     },
-  //   },
-  // },
+  option: {
+    'expo-router-v3': {
+      hint: '',
+      label: 'expo app with expo router v3',
+      options: {
+        'with-themed-library': {
+          value: 'expo-router-with-gluestack-style-ejected',
+          hint: '',
+          label: 'themed library',
+        },
+        'with-gluestack-style': {
+          value: 'expo-router-with-gluestack-style',
+          hint: '',
+          label: 'themed library bundled',
+        },
+        'with-nativewind': {
+          value: 'expo-router-with-nativewind',
+          hint: '',
+          label: 'nativewind v4 styling',
+        },
+      },
+    },
+    expo: {
+      hint: '',
+      label: 'expo app',
+      options: {
+        'with-themed-library': {
+          value: 'expo-with-gluestack-style-ejected',
+          hint: '',
+          label: 'themed library',
+        },
+        'with-gluestack-style': {
+          value: 'expo-with-gluestack-style',
+          hint: '',
+          label: 'themed library bundled',
+        },
+        'with-nativewind': {
+          value: 'expo-with-nativewind',
+          hint: '',
+          label: 'nativewind v4 styling',
+        },
+      },
+    },
+    'next-app-router': {
+      hint: '',
+      label: 'next app with app router',
+      options: {
+        'with-themed-library': {
+          value: 'next-app-router-with-gluestack-style-ejected',
+          hint: '',
+          label: 'Themed Library',
+        },
+        'with-gluestack-style': {
+          value: 'next-app-router-with-gluestack-style',
+          hint: '',
+          label: 'themed library bundled',
+        },
+        'with-nativewind': {
+          value: 'next-app-router-with-nativewind',
+          hint: '',
+          label: 'nativewind v4 styling',
+        },
+      },
+    },
+    'next-page-router': {
+      hint: '',
+      label: 'next app with page router',
+      options: {
+        'with-themed-library': {
+          value: 'next-page-router-with-gluestack-style-ejected',
+          hint: '',
+          label: 'Themed Library',
+        },
+        'with-gluestack-style': {
+          value: 'next-page-router-with-gluestack-style',
+          hint: '',
+          label: 'themed library bundled',
+        },
+        'with-nativewind': {
+          value: 'next-page-router-with-nativewind',
+          hint: '',
+          label: 'nativewind v4 styling',
+        },
+      },
+    },
+    'react-native': {
+      hint: '',
+      label: 'react-native app',
+      options: {
+        'with-themed-library': {
+          value: 'reactNativeWithGluestackStyleEjected',
+          hint: '',
+          label: 'themed Library',
+        },
+        'with-gluestack-style': {
+          value: 'reactNativeWithGluestackStyle',
+          hint: '',
+          label: 'themed library bundled',
+        },
+        'with-nativewind': {
+          value: 'reactNativeWithNativewind',
+          hint: '',
+          label: 'nativewind v4 styling',
+        },
+      },
+    },
+  },
   styleOptions: {
     'with-themed-library': 'themed Library with styling ejected',
     'with-gluestack-style': 'themed library bundled',
