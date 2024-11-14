@@ -18,7 +18,7 @@ import { join, relative } from 'path';
 import { execSync } from 'child_process';
 import { ensureFilesPromise } from '..';
 import { commonInitialization } from '../init';
-
+import { addReactNativeWebPatch } from '../init/addReactNativeWebPatch';
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
   const files = await fg.glob('**/*', {
@@ -72,7 +72,8 @@ async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
 //project specific initialization: nextjs
 async function initNatiwindNextApp(
   resolvedConfig: NextResolvedConfig,
-  permission: boolean
+  permission: boolean,
+  isNextjs15: boolean | undefined
 ) {
   try {
     const NextTransformer = join(
@@ -84,10 +85,15 @@ async function initNatiwindNextApp(
     let nextTransformerPath = '';
     let fileType = '';
 
-    if (nextConfigPath?.endsWith('.mjs') || nextConfigPath?.endsWith('.ts')) {
+    if (isNextjs15) {
+      await addReactNativeWebPatch();
+    }
+    if (nextConfigPath?.endsWith('.mjs')) {
       fileType = 'mjs';
     } else if (nextConfigPath?.endsWith('.js')) {
       fileType = 'js';
+    } else if (nextConfigPath?.endsWith('.ts')) {
+      fileType = 'ts';
     }
     nextTransformerPath = join(
       `${NextTransformer}/next-config-${fileType}-transform.ts`
@@ -101,8 +107,9 @@ async function initNatiwindNextApp(
       resolvedConfig.app.registry
     ) {
       // if app router add registry file to root
+      const registryPath = isNextjs15 ? ['nextjs', 'next15'] : ['common'];
       const registryContent = await readFile(
-        join(__dirname, config.templatesDir, 'common', 'registry.tsx'),
+        join(__dirname, config.templatesDir, ...registryPath, 'registry.tsx'),
         'utf8'
       );
       await writeFile(resolvedConfig.app.registry, registryContent, 'utf8');
@@ -141,7 +148,10 @@ async function initNatiwindNextApp(
   }
 }
 
-async function generateConfigNextApp(permission: boolean) {
+async function generateConfigNextApp(
+  permission: boolean,
+  isNextjs15: boolean | undefined
+) {
   const projectType = await getNextProjectType(_currDir);
   const entryPath = await getFilePath(['**/*layout.*', '**/*_app.*']);
   const globalCssPath = await getFilePath([
@@ -207,7 +217,7 @@ async function generateConfigNextApp(permission: boolean) {
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {
-    await initNatiwindNextApp(resolvedConfig, permission);
+    await await initNatiwindNextApp(resolvedConfig, permission, isNextjs15);
   }
 }
 
