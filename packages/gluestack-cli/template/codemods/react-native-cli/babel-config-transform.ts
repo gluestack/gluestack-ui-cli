@@ -1,9 +1,14 @@
 import { Transform } from 'jscodeshift';
 
-const transform: Transform = (file, api) => {
+const transform: Transform = (file, api, options) => {
   try {
     const j = api.jscodeshift;
     const root = j(file.source);
+    const tailwindConfig = options.tailwindConfigPath;
+
+    // fetch tailwind config filenName from resolved path of tailwind.config.js
+    const parts = tailwindConfig.split(/[/\\]/);
+    const tailwindConfigFileName = parts[parts.length - 1];
 
     // Find the module.exports assignment
     const moduleExports = root.find(j.AssignmentExpression, {
@@ -97,6 +102,11 @@ const transform: Transform = (file, api) => {
               j.identifier('alias'),
               j.objectExpression([
                 j.property('init', j.stringLiteral('@'), j.stringLiteral('./')),
+                j.property(
+                  'init',
+                  j.stringLiteral('tailwind.config'),
+                  j.stringLiteral('./' + tailwindConfigFileName)
+                ),
               ])
             ),
           ]),
@@ -155,6 +165,11 @@ const transform: Transform = (file, api) => {
             j.identifier('alias'),
             j.objectExpression([
               j.property('init', j.stringLiteral('@'), j.stringLiteral('./')),
+              j.property(
+                'init',
+                j.stringLiteral('tailwind.config'),
+                j.stringLiteral('./' + tailwindConfigFileName)
+              ),
             ])
           );
           moduleResolverConfig.properties.push(aliasProp);
@@ -164,6 +179,19 @@ const transform: Transform = (file, api) => {
         ) {
           aliasProp.value.properties.push(
             j.property('init', j.stringLiteral('@'), j.stringLiteral('./'))
+          );
+        } else if (
+          aliasProp.value.type === 'ObjectExpression' &&
+          !aliasProp.value.properties.some(
+            (p) => p.key.value === 'tailwind.config'
+          )
+        ) {
+          aliasProp.value.properties.push(
+            j.property(
+              'init',
+              j.stringLiteral('tailwind.config'),
+              j.stringLiteral('./' + tailwindConfigFileName)
+            )
           );
         }
       }

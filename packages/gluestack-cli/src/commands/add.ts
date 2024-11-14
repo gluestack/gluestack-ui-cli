@@ -1,19 +1,31 @@
 import { Command } from 'commander';
 import { z } from 'zod';
+import os from 'os';
+import { join } from 'path';
 import { handleError } from '../util/handle-error';
 import { log } from '@clack/prompts';
-import { componentAdder, hookAdder, isHookFromConfig } from '../util/add';
+import { componentAdder } from '../util/add';
 import { config } from '../config';
-import { checkWritablePath, isValidPath, projectRootPath } from '../util';
+import {
+  checkWritablePath,
+  cloneRepositoryAtRoot,
+  getPackageMangerFlag,
+  isValidPath,
+  projectRootPath,
+} from '../util';
 import { checkIfInitialized, getComponentsPath } from '../util/config';
 
+const _homeDir = os.homedir();
+
 const addOptionsSchema = z.object({
-  components: z.string().optional(),
+  components: z.array(z.string()),
   all: z.boolean(),
   useNpm: z.boolean(),
   useYarn: z.boolean(),
   usePnpm: z.boolean(),
+  useBun: z.boolean(),
   path: z.string().optional(),
+  templateOnly: z.boolean(),
 });
 
 export const add = new Command()
@@ -24,22 +36,25 @@ export const add = new Command()
   .option('--use-npm ,useNpm', 'use npm to install dependencies', false)
   .option('--use-yarn, useYarn', 'use yarn to install dependencies', false)
   .option('--use-pnpm, usePnpm', 'use pnpm to install dependencies', false)
+  .option('--use-bun, useBun', 'use bun to install dependencies', false)
   .option('--path <path>', 'path to the components directory')
+  .option(
+    '--template-only templateOnly',
+    'Only install the template without installing dependencies',
+    false
+  )
   .action(async (components, opts, command) => {
     try {
-      if (command.args.length > 1) {
-        log.error(
-          '\x1b[31mOnly one component can be provided at a time, please provide the component name you want to add or --all.\x1b[0m'
-        );
-        process.exit(1);
-      }
       const options = addOptionsSchema.parse({
-        components: components ?? '',
+        components: command.args.length > 0 ? command.args : [],
         ...opts,
       });
+      const isTemplate = options.templateOnly;
+      !isTemplate && console.log('\n\x1b[1mWelcome to gluestack-ui!\x1b[0m\n');
+
       if (
-        options.all === false &&
-        (options.components === '' || options.components === undefined)
+        (!options.all && options.components?.length === 0) ||
+        (options.all && options.components?.length > 0)
       ) {
         log.error(
           '\x1b[31mInvalid arguement, please provide the component/hook name you want to add or --all.\x1b[0m'
@@ -53,6 +68,19 @@ export const add = new Command()
         );
         process.exit(1);
       }
+      //if multiple package managers are used
+      if (
+        (options.useNpm && options.useYarn) ||
+        (options.useNpm && options.usePnpm) ||
+        (options.useYarn && options.usePnpm)
+      ) {
+        log.error(
+          `\x1b[31mMultiple package managers selected. Please select only one package manager.\x1b[0m`
+        );
+        process.exit(1);
+      }
+      //define package manager
+      getPackageMangerFlag(options);
       //function to get current path where GUIProvider is located
       const currWritablePath = await getComponentsPath(projectRootPath);
       if (currWritablePath) {
@@ -68,23 +96,17 @@ export const add = new Command()
         await checkWritablePath(options.path);
         config.writableComponentsPath = options.path;
       }
-      if (options.all) {
-        try {
-          await componentAdder({
-            requestedComponent: '--all',
-          });
-        } catch (err) {
-          log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
-        }
-      } else if (await isHookFromConfig(options.components)) {
-        options.components &&
-          (await hookAdder({
-            requestedHook: options.components,
-          }));
-      } else {
-        await componentAdder({
-          requestedComponent: options.components?.toLowerCase(),
-        });
+      !isTemplate &&
+        (await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir)));
+      // define args based on --all or components
+      const args = options.all
+        ? { addAll: true }
+        : { componentArgs: options.components.map((c) => c.toLowerCase()) };
+
+      try {
+        await componentAdder(args);
+      } catch (err) {
+        log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
       }
     } catch (err) {
       handleError(err);

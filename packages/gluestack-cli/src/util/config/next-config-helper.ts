@@ -2,7 +2,13 @@ import * as path from 'path';
 import fg from 'fast-glob';
 import { pathExists, readFile, writeFile } from 'fs-extra';
 import { config } from '../../config';
-import { findDirectory, generateConfig, getFilePath } from '.';
+import {
+  findDirectory,
+  generateConfig,
+  getFilePath,
+  pathResolver,
+  _currDir,
+} from '.';
 import {
   RawConfig,
   NextResolvedConfig,
@@ -10,11 +16,9 @@ import {
 } from './config-types';
 import { join, relative } from 'path';
 import { execSync } from 'child_process';
-import { log } from '@clack/prompts';
 import { ensureFilesPromise } from '..';
 import { commonInitialization } from '../init';
 
-const _currDir = process.cwd();
 //next project type initialization
 async function getNextProjectType(cwd: string): Promise<string | undefined> {
   const files = await fg.glob('**/*', {
@@ -43,21 +47,23 @@ async function getNextProjectType(cwd: string): Promise<string | undefined> {
 async function resolvedNextJsPaths(resultConfig: NextResolvedConfig) {
   const resolvedNextJsPaths = {
     tailwind: {
-      config: path.resolve(_currDir, resultConfig.tailwind.config),
-      css: path.resolve(_currDir, resultConfig.tailwind.css),
+      config: pathResolver(resultConfig.tailwind.config),
+      css: pathResolver(resultConfig.tailwind.css),
     },
     config: {
-      postCssConfig: path.resolve(
-        _currDir,
-        resultConfig.config.postCssConfig || ''
-      ),
-      nextConfig: path.resolve(_currDir, resultConfig.config.nextConfig || ''),
-      tsConfig: path.resolve(_currDir, resultConfig.config.tsConfig || ''),
+      postCssConfig: pathResolver(resultConfig.config.postCssConfig || ''),
+      nextConfig: pathResolver(resultConfig.config.nextConfig || ''),
+      tsConfig: pathResolver(resultConfig.config.tsConfig || ''),
     },
     app: {
-      entry: path.resolve(_currDir, resultConfig.app.entry || ''),
+      entry: pathResolver(resultConfig.app.entry || ''),
       type: resultConfig?.app?.type,
-      registry: resultConfig?.app?.registry,
+      registry: resultConfig?.app?.registry
+        ? resultConfig.app.registry.replace(/\\/g, '/')
+        : undefined,
+      page: resultConfig?.app?.page
+        ? path.resolve(_currDir, resultConfig.app.page)
+        : '',
     },
   };
   return resolvedNextJsPaths;
@@ -78,7 +84,7 @@ async function initNatiwindNextApp(
     let nextTransformerPath = '';
     let fileType = '';
 
-    if (nextConfigPath?.endsWith('.mjs')) {
+    if (nextConfigPath?.endsWith('.mjs') || nextConfigPath?.endsWith('.ts')) {
       fileType = 'mjs';
     } else if (nextConfigPath?.endsWith('.js')) {
       fileType = 'js';
@@ -96,10 +102,17 @@ async function initNatiwindNextApp(
     ) {
       // if app router add registry file to root
       const registryContent = await readFile(
-        join(__dirname, `${config.templatesDir}/common/registry.tsx`),
+        join(__dirname, config.templatesDir, 'common', 'registry.tsx'),
         'utf8'
       );
       await writeFile(resolvedConfig.app.registry, registryContent, 'utf8');
+      const pageTransformerPath = join(
+        `${NextTransformer}/next-add-page-type-transform.ts`
+      );
+      resolvedConfig.app.page?.length &&
+        execSync(
+          `npx jscodeshift -t ${pageTransformerPath} ${resolvedConfig.app.page}`
+        );
     }
     if (resolvedConfig.app?.entry?.includes('_app')) {
       const pageDirPath = path.dirname(resolvedConfig.app.entry);
@@ -110,14 +123,13 @@ async function initNatiwindNextApp(
       execSync(`npx jscodeshift -t ${transformerPath} ${docsPagePath}`);
     }
 
-    const options = JSON.stringify(resolvedConfig);
     const transformerPath = join(
-      `${NextTransformer}/next-add-provider-transform.ts --config='${options}'`
+      `${NextTransformer}/next-add-provider-transform.ts`
     );
     const rawCssPath = relative(_currDir, resolvedConfig.tailwind.css);
     const cssImportPath = '@/'.concat(rawCssPath);
     execSync(
-      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath='${config.writableComponentsPath}' --cssImportPath='${cssImportPath}'`
+      `npx jscodeshift -t ${transformerPath}  ${resolvedConfig.app.entry} --componentsPath=${config.writableComponentsPath} --cssImportPath=${cssImportPath} `
     );
     await commonInitialization(
       config.nextJsProject,
@@ -125,7 +137,7 @@ async function initNatiwindNextApp(
       permission
     );
   } catch (err) {
-    log.error(`\x1b[31mError: ${err as Error}\x1b[0m`);
+    throw new Error((err as Error).message);
   }
 }
 
@@ -143,8 +155,11 @@ async function generateConfigNextApp(permission: boolean) {
   let registryPath = '';
   if (projectType?.includes('app')) {
     const appDirectory = findDirectory(_currDir, ['src/app', 'app']);
-    registryPath = path.join(_currDir, appDirectory, 'registry.tsx');
+    registryPath = path.resolve(_currDir, appDirectory, 'registry.tsx');
   }
+  const pagePath = entryPath.includes('layout.')
+    ? await getFilePath(['**/*page.*'])
+    : undefined;
 
   const gluestackConfig: RawConfig = {
     tailwind: {
@@ -177,6 +192,7 @@ async function generateConfigNextApp(permission: boolean) {
       type: projectType,
       entry: entryPath,
       registry: registryPath,
+      page: pagePath,
     },
   };
 
@@ -186,7 +202,8 @@ async function generateConfigNextApp(permission: boolean) {
     resolvedConfig.app.registry ?? '',
     resolvedConfig.config.tsConfig,
     resolvedConfig.tailwind.css,
-    join(_currDir, 'nativewind-env.d.ts'),
+    resolvedConfig.config.postCssConfig,
+    pathResolver('nativewind-env.d.ts'),
   ];
   const filesEnsured = await ensureFilesPromise(filesTobeEnsured);
   if (permission && filesEnsured) {

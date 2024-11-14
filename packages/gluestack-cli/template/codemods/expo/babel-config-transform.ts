@@ -10,6 +10,7 @@ const transform: Transform = (file, api, options): string => {
     const j = api.jscodeshift;
     const root = j(file.source);
     const isSDK50 = options.isSDK50;
+    const tailwindConfig = options.tailwindConfig;
 
     root.find<ReturnStatement>(j.ReturnStatement).forEach((path) => {
       const returnObject = path.node.argument as ObjectExpression | null;
@@ -73,6 +74,10 @@ const transform: Transform = (file, api, options): string => {
           }
         }
 
+        // fetch tailwind config filenName from resolved path of tailwind.config.js
+        const parts = tailwindConfig.split(/[/\\]/);
+        const tailwindConfigFileName = parts[parts.length - 1];
+
         //plugin code modification
         const moduleResolverPlugin = j.arrayExpression([
           j.stringLiteral('module-resolver'),
@@ -85,6 +90,10 @@ const transform: Transform = (file, api, options): string => {
               j.identifier('alias'),
               j.objectExpression([
                 j.objectProperty(j.stringLiteral('@'), j.stringLiteral('./')),
+                j.objectProperty(
+                  j.stringLiteral('tailwind.config'),
+                  j.stringLiteral(`./` + tailwindConfigFileName)
+                ),
               ])
             ),
           ]),
