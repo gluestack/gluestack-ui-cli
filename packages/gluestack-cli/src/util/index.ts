@@ -85,7 +85,7 @@ async function checkComponentDependencies(
   return additionalDependencies;
 }
 
-const cloneRepositoryAtRoot = async (rootPath: string) => {
+const cloneRepositoryAtRoot = async (rootPath: string, alpha?: boolean) => {
   try {
     const clonedRepoExists = await checkIfFolderExists(rootPath);
     if (clonedRepoExists) {
@@ -93,14 +93,23 @@ const cloneRepositoryAtRoot = async (rootPath: string) => {
       const currBranch = await git.branchLocal();
       if (currBranch.current !== config.branchName) {
         fs.removeSync(rootPath);
-        await cloneComponentRepo(rootPath, config.repoUrl);
+        await cloneComponentRepo(rootPath, config.repoUrl, alpha);
       }
-      if (currBranch.current === config.branchName) {
+      if (alpha && currBranch.current !== config.alphaBranchName) {
+        fs.removeSync(rootPath);
+        await cloneComponentRepo(rootPath, config.repoUrl, alpha);
+      }
+
+      if (currBranch.current === config.branchName && !alpha) {
         log.step('Repository already cloned.');
         await pullComponentRepo(join(homeDir, config.gluestackDir));
       }
+      if (alpha && currBranch.current === config.alphaBranchName) {
+        log.step('Repository already cloned.');
+        await pullComponentRepo(join(homeDir, config.gluestackDir), alpha);
+      }
     } else {
-      await cloneComponentRepo(rootPath, config.repoUrl);
+      await cloneComponentRepo(rootPath, config.repoUrl, alpha);
     }
   } catch (err) {
     log.error(`\x1b[31m Cloning failed.\x1b[0m`);
@@ -110,7 +119,8 @@ const cloneRepositoryAtRoot = async (rootPath: string) => {
 
 const cloneComponentRepo = async (
   targetPath: string,
-  gitURL: string
+  gitURL: string,
+  alpha?: boolean
 ): Promise<void> => {
   const git = simpleGit();
   const s = spinner();
@@ -119,7 +129,7 @@ const cloneComponentRepo = async (
     await git.clone(gitURL, targetPath, [
       '--depth=1',
       '--branch',
-      config.branchName,
+      alpha ? config.alphaBranchName : config.branchName,
     ]);
     s.stop('\x1b[32m' + 'Cloning successful.' + '\x1b[0m');
   } catch (err) {
@@ -128,7 +138,10 @@ const cloneComponentRepo = async (
   }
 };
 
-const pullComponentRepo = async (targetpath: string): Promise<void> => {
+const pullComponentRepo = async (
+  targetpath: string,
+  alpha?: boolean
+): Promise<void> => {
   const s = spinner();
   s.start('⏳ Pulling latest changes...');
   let retry = 0;
@@ -136,7 +149,7 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
   while (!success && retry < 3) {
     try {
       await wait(1000);
-      await tryGitPull(targetpath);
+      await tryGitPull(targetpath, alpha);
       success = true;
     } catch (err) {
       log.error(`\x1b[31mError: ${(err as Error).message}\x1b[0m`);
@@ -152,10 +165,16 @@ const pullComponentRepo = async (targetpath: string): Promise<void> => {
   } else s.stop('Git pull successful.');
 };
 
-const tryGitPull = async (targetPath: string): Promise<void> => {
+const tryGitPull = async (
+  targetPath: string,
+  alpha?: boolean
+): Promise<void> => {
   const git = simpleGit(targetPath);
   if (fs.existsSync(targetPath)) {
-    await git.pull('origin', config.branchName);
+    await git.pull(
+      'origin',
+      alpha ? config.alphaBranchName : config.branchName
+    );
   } else log.error('\x1b[31m' + 'Target path does not exist' + '\x1b[0m');
 };
 
