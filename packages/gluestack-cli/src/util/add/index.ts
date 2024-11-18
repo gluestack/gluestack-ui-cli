@@ -183,7 +183,7 @@ const confirmOverride = async (
 
 const hookAdder = async (requestedHook: string[]) => {
   try {
-    console.log(`\n\x1b[1mAdding new hook...\x1b[0m\n`);
+    log.info(`\n\x1b[1mAdding new hook...\x1b[0m\n`);
     await writeHook(requestedHook);
     log.success(
       `\x1b[32mDone!\x1b[0m Added new \x1b[1mgluestack-ui\x1b[0m hook into project`
