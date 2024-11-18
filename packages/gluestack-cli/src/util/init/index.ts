@@ -40,9 +40,11 @@ interface TSConfig {
 const InitializeGlueStack = async ({
   projectType = 'library',
   isTemplate = false,
+  alpha,
 }: {
   projectType: string;
   isTemplate?: boolean;
+  alpha?: boolean;
 }) => {
   try {
     const initializeStatus = await checkIfInitialized(_currDir);
@@ -59,7 +61,7 @@ const InitializeGlueStack = async ({
       : await overrideWarning(filesToOverride(projectType));
 
     console.log(`\n\x1b[1mInitializing gluestack-ui v2...\x1b[0m\n`);
-    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir));
+    await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir), alpha);
     const inputComponent = [config.providerComponent];
     let additionalDependencies = await getProjectBasedDependencies(
       projectType,
