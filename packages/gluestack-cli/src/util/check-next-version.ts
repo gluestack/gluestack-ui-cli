@@ -105,13 +105,13 @@ export async function checkNextVersion(): Promise<boolean | undefined> {
     const result: VersionResult = await getNextjsVersion();
 
     if (result.error) {
-      log.error(`Error: ${result.error}`);
+      // log.error(`Error: ${result.error}`);
       return false;
     }
 
     return result.isNextjs15OrHigher;
   } catch (error) {
-    log.error(`Unexpected error: ${error}`);
+    // log.error(`Unexpected error: ${error}`);
     return undefined;
   }
 }
