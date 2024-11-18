@@ -110,13 +110,6 @@ async function initNatiwindExpoApp(
       'expo-add-provider-transform.ts'
     );
 
-    console.log(
-      resolvedConfig,
-      BabeltransformerPath,
-      resolvedConfig.app.sdk50,
-      'resolvedConfig'
-    );
-
     execSync(
       `npx jscodeshift -t ${metroTransformerPath}  ${
         resolvedConfig.config.metroConfig
