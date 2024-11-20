@@ -1,42 +1,61 @@
 diff --git a/node_modules/react-native-web/dist/cjs/exports/AppRegistry/renderApplication.js b/node_modules/react-native-web/dist/cjs/exports/AppRegistry/renderApplication.js
-index 0c0cb2f..83fd94b 100644
+index 0c0cb2f..ccaa88f 100644
 --- a/node_modules/react-native-web/dist/cjs/exports/AppRegistry/renderApplication.js
 +++ b/node_modules/react-native-web/dist/cjs/exports/AppRegistry/renderApplication.js
-@@ -1,6 +1,5 @@
- "use strict";
-
--var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard").default;
- var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
- exports.__esModule = true;
- exports.default = renderApplication;
-@@ -8,7 +7,7 @@ exports.getApplication = getApplication;
- var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/extends"));
- var _AppContainer = _interopRequireDefault(require("./AppContainer"));
- var _invariant = _interopRequireDefault(require("fbjs/lib/invariant"));
--var _render = _interopRequireWildcard(require("../render"));
-+var _render = require("../render");
- var _StyleSheet = _interopRequireDefault(require("../StyleSheet"));
- var _react = _interopRequireDefault(require("react"));
- /**
-@@ -24,9 +23,8 @@ var _react = _interopRequireDefault(require("react"));
+@@ -24,9 +24,8 @@ var _react = _interopRequireDefault(require("react"));
  function renderApplication(RootComponent, WrapperComponent, callback, options) {
    var shouldHydrate = options.hydrate,
      initialProps = options.initialProps,
 -    mode = options.mode,
      rootTag = options.rootTag;
 -  var renderFn = shouldHydrate ? mode === 'concurrent' ? _render.hydrate : _render.hydrateLegacy : mode === 'concurrent' ? _render.render : _render.default;
-+  var renderFn = shouldHydrate ? _render.hydrate : _render.render;
++  var renderFn = shouldHydrate ? _render.hydrate : _render.default;
    (0, _invariant.default)(rootTag, 'Expect to have a valid rootTag, instead got ', rootTag);
    return renderFn(/*#__PURE__*/_react.default.createElement(_AppContainer.default, {
      WrapperComponent: WrapperComponent,
+diff --git a/node_modules/react-native-web/dist/cjs/exports/findNodeHandle/index.js b/node_modules/react-native-web/dist/cjs/exports/findNodeHandle/index.js
+deleted file mode 100644
+index 73f254c..0000000
+--- a/node_modules/react-native-web/dist/cjs/exports/findNodeHandle/index.js
++++ /dev/null
+@@ -1,28 +0,0 @@
+-"use strict";
+-
+-exports.__esModule = true;
+-exports.default = void 0;
+-var _reactDom = require("react-dom");
+-/**
+- * Copyright (c) Nicolas Gallagher.
+- * Copyright (c) Meta Platforms, Inc. and affiliates.
+- *
+- * This source code is licensed under the MIT license found in the
+- * LICENSE file in the root directory of this source tree.
+- *
+- * 
+- */
+-
+-/**
+- * @deprecated imperatively finding the DOM element of a react component has been deprecated in React 18.
+- * You should use ref properties on the component instead.
+- */
+-var findNodeHandle = component => {
+-  var node;
+-  try {
+-    node = (0, _reactDom.findDOMNode)(component);
+-  } catch (e) {}
+-  return node;
+-};
+-var _default = exports.default = findNodeHandle;
+-module.exports = exports.default;
+\ No newline at end of file
 diff --git a/node_modules/react-native-web/dist/cjs/exports/render/index.js b/node_modules/react-native-web/dist/cjs/exports/render/index.js
 index b41ee11..18d9b2f 100644
 --- a/node_modules/react-native-web/dist/cjs/exports/render/index.js
 +++ b/node_modules/react-native-web/dist/cjs/exports/render/index.js
 @@ -10,15 +10,10 @@
-
+ 
  'use client';
-
+ 
 -var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
  exports.__esModule = true;
 -exports.default = renderLegacy;
@@ -80,7 +99,7 @@ index 3ea3964..e740204 100644
 +++ b/node_modules/react-native-web/dist/cjs/exports/unmountComponentAtNode/index.js
 @@ -1,8 +1,7 @@
  "use strict";
-
+ 
  exports.__esModule = true;
 -exports.default = void 0;
 -var _reactDom = require("react-dom");
@@ -100,16 +119,67 @@ index 3ea3964..e740204 100644
 +}
  module.exports = exports.default;
 \ No newline at end of file
+diff --git a/node_modules/react-native-web/dist/cjs/index.js b/node_modules/react-native-web/dist/cjs/index.js
+index b696270..1500876 100644
+--- a/node_modules/react-native-web/dist/cjs/index.js
++++ b/node_modules/react-native-web/dist/cjs/index.js
+@@ -2,11 +2,9 @@
+ 
+ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+ exports.__esModule = true;
+-exports.useWindowDimensions = exports.useLocaleContext = exports.useColorScheme = exports.unstable_createElement = exports.unmountComponentAtNode = exports.render = exports.processColor = exports.findNodeHandle = exports.YellowBox = exports.VirtualizedList = exports.View = exports.Vibration = exports.UIManager = exports.TouchableWithoutFeedback = exports.TouchableOpacity = exports.TouchableNativeFeedback = exports.TouchableHighlight = exports.Touchable = exports.TextInput = exports.Text = exports.Switch = exports.StyleSheet = exports.StatusBar = exports.Share = exports.SectionList = exports.ScrollView = exports.SafeAreaView = exports.RefreshControl = exports.ProgressBar = exports.Pressable = exports.Platform = exports.PixelRatio = exports.Picker = exports.PanResponder = exports.NativeModules = exports.NativeEventEmitter = exports.Modal = exports.LogBox = exports.Linking = exports.LayoutAnimation = exports.KeyboardAvoidingView = exports.Keyboard = exports.InteractionManager = exports.ImageBackground = exports.Image = exports.I18nManager = exports.FlatList = exports.Easing = exports.Dimensions = exports.DeviceEventEmitter = exports.Clipboard = exports.CheckBox = exports.Button = exports.BackHandler = exports.Appearance = exports.AppState = exports.AppRegistry = exports.Animated = exports.Alert = exports.ActivityIndicator = exports.AccessibilityInfo = void 0;
++exports.useWindowDimensions = exports.useLocaleContext = exports.useColorScheme = exports.unstable_createElement = exports.unmountComponentAtNode = exports.render = exports.processColor = exports.YellowBox = exports.VirtualizedList = exports.View = exports.Vibration = exports.UIManager = exports.TouchableWithoutFeedback = exports.TouchableOpacity = exports.TouchableNativeFeedback = exports.TouchableHighlight = exports.Touchable = exports.TextInput = exports.Text = exports.Switch = exports.StyleSheet = exports.StatusBar = exports.Share = exports.SectionList = exports.ScrollView = exports.SafeAreaView = exports.RefreshControl = exports.ProgressBar = exports.Pressable = exports.Platform = exports.PixelRatio = exports.Picker = exports.PanResponder = exports.NativeModules = exports.NativeEventEmitter = exports.Modal = exports.LogBox = exports.Linking = exports.LayoutAnimation = exports.KeyboardAvoidingView = exports.Keyboard = exports.InteractionManager = exports.ImageBackground = exports.Image = exports.I18nManager = exports.FlatList = exports.Easing = exports.Dimensions = exports.DeviceEventEmitter = exports.Clipboard = exports.CheckBox = exports.Button = exports.BackHandler = exports.Appearance = exports.AppState = exports.AppRegistry = exports.Animated = exports.Alert = exports.ActivityIndicator = exports.AccessibilityInfo = void 0;
+ var _createElement = _interopRequireDefault(require("./exports/createElement"));
+ exports.unstable_createElement = _createElement.default;
+-var _findNodeHandle = _interopRequireDefault(require("./exports/findNodeHandle"));
+-exports.findNodeHandle = _findNodeHandle.default;
+ var _processColor = _interopRequireDefault(require("./exports/processColor"));
+ exports.processColor = _processColor.default;
+ var _render = _interopRequireDefault(require("./exports/render"));
+diff --git a/node_modules/react-native-web/dist/cjs/vendor/react-native/VirtualizedList/index.js b/node_modules/react-native-web/dist/cjs/vendor/react-native/VirtualizedList/index.js
+index f9df024..4e07bc5 100644
+--- a/node_modules/react-native-web/dist/cjs/vendor/react-native/VirtualizedList/index.js
++++ b/node_modules/react-native-web/dist/cjs/vendor/react-native/VirtualizedList/index.js
+@@ -11,7 +11,6 @@ var _RefreshControl = _interopRequireDefault(require("../../../exports/RefreshCo
+ var _ScrollView = _interopRequireDefault(require("../../../exports/ScrollView"));
+ var _View = _interopRequireDefault(require("../../../exports/View"));
+ var _StyleSheet = _interopRequireDefault(require("../../../exports/StyleSheet"));
+-var _findNodeHandle = _interopRequireDefault(require("../../../exports/findNodeHandle"));
+ var _Batchinator = _interopRequireDefault(require("../Batchinator"));
+ var _clamp = _interopRequireDefault(require("../Utilities/clamp"));
+ var _infoLog = _interopRequireDefault(require("../infoLog"));
+@@ -588,9 +587,7 @@ class VirtualizedList extends _StateSafePureComponent.default {
+         };
+       });
+     };
+-    this._createViewToken = (index, isViewable, props
+-    // $FlowFixMe[missing-local-annot]
+-    ) => {
++    this._createViewToken = (index, isViewable, props) => {
+       var data = props.data,
+         getItem = props.getItem;
+       var item = getItem(data, index);
+@@ -988,9 +985,7 @@ class VirtualizedList extends _StateSafePureComponent.default {
+     var nestedContext = this.context;
+     return !!(nestedContext && !!nestedContext.horizontal === horizontalOrDefault(this.props.horizontal));
+   }
+-  _keyExtractor(item, index, props
+-  // $FlowFixMe[missing-local-annot]
+-  ) {
++  _keyExtractor(item, index, props) {
+     if (props.keyExtractor != null) {
+       return props.keyExtractor(item, index);
+     }
 diff --git a/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js b/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js
-index b53dff6..c56c1dc 100644
+index b53dff6..136577d 100644
 --- a/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js
 +++ b/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js
 @@ -11,15 +11,14 @@ import _extends from "@babel/runtime/helpers/extends";
-
+ 
  import AppContainer from './AppContainer';
  import invariant from 'fbjs/lib/invariant';
 -import renderLegacy, { hydrateLegacy, render, hydrate } from '../render';
-+import { render, hydrate } from '../render';
++import render, { hydrate } from '../render';
  import StyleSheet from '../StyleSheet';
  import React from 'react';
  export default function renderApplication(RootComponent, WrapperComponent, callback, options) {
@@ -123,7 +193,7 @@ index b53dff6..c56c1dc 100644
    return renderFn(/*#__PURE__*/React.createElement(AppContainer, {
      WrapperComponent: WrapperComponent,
 diff --git a/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js.flow b/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js.flow
-index b9df2af..2b671ba 100644
+index b9df2af..a9a350d 100644
 --- a/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js.flow
 +++ b/node_modules/react-native-web/dist/exports/AppRegistry/renderApplication.js.flow
 @@ -11,7 +11,7 @@
@@ -131,7 +201,7 @@ index b9df2af..2b671ba 100644
  import AppContainer from './AppContainer';
  import invariant from 'fbjs/lib/invariant';
 -import renderLegacy, { hydrateLegacy, render, hydrate } from '../render';
-+import { render, hydrate } from '../render';
++import render, { hydrate } from '../render';
  import StyleSheet from '../StyleSheet';
  import React from 'react';
  export type Application = {
@@ -143,14 +213,70 @@ index b9df2af..2b671ba 100644
    rootTag: any,
  }): Application;
  declare export function getApplication(RootComponent: ComponentType<Object>, initialProps: Object, WrapperComponent?: ?ComponentType<*>): {|
+diff --git a/node_modules/react-native-web/dist/exports/findNodeHandle/index.js b/node_modules/react-native-web/dist/exports/findNodeHandle/index.js
+deleted file mode 100644
+index e997fcf..0000000
+--- a/node_modules/react-native-web/dist/exports/findNodeHandle/index.js
++++ /dev/null
+@@ -1,24 +0,0 @@
+-/**
+- * Copyright (c) Nicolas Gallagher.
+- * Copyright (c) Meta Platforms, Inc. and affiliates.
+- *
+- * This source code is licensed under the MIT license found in the
+- * LICENSE file in the root directory of this source tree.
+- *
+- * 
+- */
+-
+-import { findDOMNode } from 'react-dom';
+-
+-/**
+- * @deprecated imperatively finding the DOM element of a react component has been deprecated in React 18.
+- * You should use ref properties on the component instead.
+- */
+-var findNodeHandle = component => {
+-  var node;
+-  try {
+-    node = findDOMNode(component);
+-  } catch (e) {}
+-  return node;
+-};
+-export default findNodeHandle;
+\ No newline at end of file
+diff --git a/node_modules/react-native-web/dist/exports/findNodeHandle/index.js.flow b/node_modules/react-native-web/dist/exports/findNodeHandle/index.js.flow
+deleted file mode 100644
+index 412af49..0000000
+--- a/node_modules/react-native-web/dist/exports/findNodeHandle/index.js.flow
++++ /dev/null
+@@ -1,18 +0,0 @@
+-/**
+- * Copyright (c) Nicolas Gallagher.
+- * Copyright (c) Meta Platforms, Inc. and affiliates.
+- *
+- * This source code is licensed under the MIT license found in the
+- * LICENSE file in the root directory of this source tree.
+- *
+- * @noflow
+- */
+-
+-import { findDOMNode } from 'react-dom';
+-
+-/**
+- * @deprecated imperatively finding the DOM element of a react component has been deprecated in React 18.
+- * You should use ref properties on the component instead.
+- */
+-declare var findNodeHandle: (component: any) => any;
+-export default findNodeHandle;
+\ No newline at end of file
 diff --git a/node_modules/react-native-web/dist/exports/render/index.js b/node_modules/react-native-web/dist/exports/render/index.js
 index aa91a2a..8f9a14d 100644
 --- a/node_modules/react-native-web/dist/exports/render/index.js
 +++ b/node_modules/react-native-web/dist/exports/render/index.js
 @@ -9,35 +9,15 @@
-
+ 
  'use client';
-
+ 
 -import { hydrate as domLegacyHydrate, render as domLegacyRender } from 'react-dom';
  import { createRoot as domCreateRoot, hydrateRoot as domHydrateRoot } from 'react-dom/client';
 -import unmountComponentAtNode from '../unmountComponentAtNode';
@@ -191,9 +317,9 @@ index 1bd771e..729d57d 100644
 --- a/node_modules/react-native-web/dist/exports/render/index.js.flow
 +++ b/node_modules/react-native-web/dist/exports/render/index.js.flow
 @@ -9,11 +9,7 @@
-
+ 
  'use client';
-
+ 
 -import { hydrate as domLegacyHydrate, render as domLegacyRender } from 'react-dom';
  import { createRoot as domCreateRoot, hydrateRoot as domHydrateRoot } from 'react-dom/client';
 -import unmountComponentAtNode from '../unmountComponentAtNode';
@@ -212,7 +338,7 @@ index 925051c..cea4dee 100644
 @@ -7,5 +7,7 @@
   * 
   */
-
+ 
 -import { unmountComponentAtNode } from 'react-dom';
 -export default unmountComponentAtNode;
 \ No newline at end of file
@@ -235,6 +361,27 @@ index b950090..90ec151 100644
 \ No newline at end of file
 +declare export default function unmountComponentAtNode(rootTag: any): any;
 \ No newline at end of file
+diff --git a/node_modules/react-native-web/dist/index.js b/node_modules/react-native-web/dist/index.js
+index 4f69987..8618c9a 100644
+--- a/node_modules/react-native-web/dist/index.js
++++ b/node_modules/react-native-web/dist/index.js
+@@ -1,5 +1,4 @@
+ export { default as unstable_createElement } from './exports/createElement';
+-export { default as findNodeHandle } from './exports/findNodeHandle';
+ export { default as processColor } from './exports/processColor';
+ export { default as render } from './exports/render';
+ export { default as unmountComponentAtNode } from './exports/unmountComponentAtNode';
+diff --git a/node_modules/react-native-web/dist/index.js.flow b/node_modules/react-native-web/dist/index.js.flow
+index fec1fd6..ec675fa 100644
+--- a/node_modules/react-native-web/dist/index.js.flow
++++ b/node_modules/react-native-web/dist/index.js.flow
+@@ -1,6 +1,5 @@
+ // @flow strict
+ export { default as unstable_createElement } from './exports/createElement';
+-export { default as findNodeHandle } from './exports/findNodeHandle';
+ export { default as processColor } from './exports/processColor';
+ export { default as render } from './exports/render';
+ export { default as unmountComponentAtNode } from './exports/unmountComponentAtNode';
 diff --git a/node_modules/react-native-web/dist/modules/addEventListener/__tests__/index-test.js.flow b/node_modules/react-native-web/dist/modules/addEventListener/__tests__/index-test.js.flow
 new file mode 100644
 index 0000000..9eb6144
@@ -776,3 +923,49 @@ index 0000000..49edfc6
 +  });
 +});
 \ No newline at end of file
+diff --git a/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js b/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js
+index 1f52b73..d0d37e0 100644
+--- a/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js
++++ b/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js
+@@ -15,7 +15,6 @@ import RefreshControl from '../../../exports/RefreshControl';
+ import ScrollView from '../../../exports/ScrollView';
+ import View from '../../../exports/View';
+ import StyleSheet from '../../../exports/StyleSheet';
+-import findNodeHandle from '../../../exports/findNodeHandle';
+ import Batchinator from '../Batchinator';
+ import clamp from '../Utilities/clamp';
+ import infoLog from '../infoLog';
+@@ -582,9 +581,7 @@ class VirtualizedList extends StateSafePureComponent {
+         };
+       });
+     };
+-    this._createViewToken = (index, isViewable, props
+-    // $FlowFixMe[missing-local-annot]
+-    ) => {
++    this._createViewToken = (index, isViewable, props) => {
+       var data = props.data,
+         getItem = props.getItem;
+       var item = getItem(data, index);
+@@ -982,9 +979,7 @@ class VirtualizedList extends StateSafePureComponent {
+     var nestedContext = this.context;
+     return !!(nestedContext && !!nestedContext.horizontal === horizontalOrDefault(this.props.horizontal));
+   }
+-  _keyExtractor(item, index, props
+-  // $FlowFixMe[missing-local-annot]
+-  ) {
++  _keyExtractor(item, index, props) {
+     if (props.keyExtractor != null) {
+       return props.keyExtractor(item, index);
+     }
+diff --git a/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js.flow b/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js.flow
+index d94e43c..f347eed 100644
+--- a/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js.flow
++++ b/node_modules/react-native-web/dist/vendor/react-native/VirtualizedList/index.js.flow
+@@ -16,7 +16,6 @@ import RefreshControl from '../../../exports/RefreshControl';
+ import ScrollView from '../../../exports/ScrollView';
+ import View, { type ViewProps } from '../../../exports/View';
+ import StyleSheet from '../../../exports/StyleSheet';
+-import findNodeHandle from '../../../exports/findNodeHandle';
+ import Batchinator from '../Batchinator';
+ import clamp from '../Utilities/clamp';
+ import infoLog from '../infoLog';
