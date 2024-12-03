@@ -21,6 +21,7 @@ const initOptionsSchema = z.object({
   path: z.string().optional(),
   templateOnly: z.boolean(),
   projectType: z.string(),
+  alpha: z.boolean(),
 });
 
 export const init = new Command()
@@ -44,6 +45,7 @@ export const init = new Command()
     'Type of project to initialize',
     'library'
   )
+  .option('--alpha', 'Use alpha version of the components', false)
   .action(async (opts) => {
     try {
       const options = initOptionsSchema.parse({ ...opts });
@@ -90,7 +92,7 @@ export const init = new Command()
         ? options.projectType
         : await detectProjectType(cwd);
       // Initialize the gluestack
-      InitializeGlueStack({ projectType, isTemplate });
+      InitializeGlueStack({ projectType, isTemplate, alpha: options.alpha });
     } catch (err) {
       handleError(err);
     }

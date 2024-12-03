@@ -26,6 +26,7 @@ const addOptionsSchema = z.object({
   useBun: z.boolean(),
   path: z.string().optional(),
   templateOnly: z.boolean(),
+  alpha: z.boolean(),
 });
 
 export const add = new Command()
@@ -43,6 +44,7 @@ export const add = new Command()
     'Only install the template without installing dependencies',
     false
   )
+  .option('--alpha', 'Install to alpha versions of components', false)
   .action(async (components, opts, command) => {
     try {
       const options = addOptionsSchema.parse({
@@ -50,7 +52,7 @@ export const add = new Command()
         ...opts,
       });
       const isTemplate = options.templateOnly;
-      !isTemplate && console.log('\n\x1b[1mWelcome to gluestack-ui!\x1b[0m\n');
+      !isTemplate && log.info('\n\x1b[1mWelcome to gluestack-ui!\x1b[0m\n');
 
       if (
         (!options.all && options.components?.length === 0) ||
@@ -97,7 +99,10 @@ export const add = new Command()
         config.writableComponentsPath = options.path;
       }
       !isTemplate &&
-        (await cloneRepositoryAtRoot(join(_homeDir, config.gluestackDir)));
+        (await cloneRepositoryAtRoot(
+          join(_homeDir, config.gluestackDir),
+          options.alpha
+        ));
       // define args based on --all or components
       const args = options.all
         ? { addAll: true }
