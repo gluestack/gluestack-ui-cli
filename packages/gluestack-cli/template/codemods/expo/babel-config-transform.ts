@@ -12,7 +12,119 @@ const transform: Transform = (file, api, options): string => {
     const isSDK50 = options.isSDK50;
     const tailwindConfig = options.tailwindConfig;
 
-    root.find<ReturnStatement>(j.ReturnStatement).forEach((path) => {
+    // Get the parts of tailwind config filename
+    const parts = tailwindConfig.split(/[/\\]/);
+    const tailwindConfigFileName = parts[parts.length - 1];
+
+    // Create the preset configurations
+    const nativewindPreset = j.arrayExpression([
+      j.stringLiteral('babel-preset-expo'),
+      j.objectExpression([
+        j.objectProperty(
+          j.identifier('jsxImportSource'),
+          j.stringLiteral('nativewind')
+        ),
+      ]),
+    ]);
+
+    const nativewindBabel = j.stringLiteral('nativewind/babel');
+
+    // Create the plugin configurations
+    const moduleResolverPlugin = j.arrayExpression([
+      j.stringLiteral('module-resolver'),
+      j.objectExpression([
+        j.objectProperty(
+          j.identifier('root'),
+          j.arrayExpression([j.stringLiteral('./')])
+        ),
+        j.objectProperty(
+          j.identifier('alias'),
+          j.objectExpression([
+            j.objectProperty(j.stringLiteral('@'), j.stringLiteral('./')),
+            j.objectProperty(
+              j.stringLiteral('tailwind.config'),
+              j.stringLiteral(`./` + tailwindConfigFileName)
+            ),
+          ])
+        ),
+      ]),
+    ]);
+
+    const reactNativeReanimatedPlugin = j.stringLiteral(
+      'react-native-reanimated/plugin'
+    );
+
+    // Create new module.exports with api parameter and cache config
+    const newConfig = j.program([
+      j.expressionStatement(
+        j.assignmentExpression(
+          '=',
+          j.memberExpression(j.identifier('module'), j.identifier('exports')),
+          j.functionExpression(
+            null,
+            [j.identifier('api')],
+            j.blockStatement([
+              j.expressionStatement(
+                j.callExpression(
+                  j.memberExpression(
+                    j.identifier('api'),
+                    j.identifier('cache')
+                  ),
+                  [j.literal(true)]
+                )
+              ),
+              j.returnStatement(
+                j.objectExpression([
+                  j.objectProperty(
+                    j.identifier('presets'),
+                    j.arrayExpression([nativewindPreset, nativewindBabel])
+                  ),
+                  j.objectProperty(
+                    j.identifier('plugins'),
+                    j.arrayExpression(
+                      isSDK50
+                        ? [moduleResolverPlugin]
+                        : [moduleResolverPlugin, reactNativeReanimatedPlugin]
+                    )
+                  ),
+                ])
+              ),
+            ])
+          )
+        )
+      ),
+    ]);
+
+    // If file is empty or has no return statement, use the new config
+    const returnStatements = root.find(j.ReturnStatement);
+    if (returnStatements.length === 0) {
+      return j(newConfig).toSource();
+    }
+
+    // Add api parameter and cache config to existing function
+    root.find(j.FunctionExpression).forEach((path) => {
+      path.node.params = [j.identifier('api')];
+
+      // Add api.cache(true) before the return statement
+      const body = path.node.body.body;
+      const returnIndex = body.findIndex(
+        (node) => node.type === 'ReturnStatement'
+      );
+
+      body.splice(
+        returnIndex,
+        0,
+        j.expressionStatement(
+          j.callExpression(
+            j.memberExpression(j.identifier('api'), j.identifier('cache')),
+            [j.literal(true)]
+          )
+        )
+      );
+    });
+
+    // Process return statements as before
+    returnStatements.forEach((path) => {
       const returnObject = path.node.argument as ObjectExpression | null;
 
       if (returnObject && returnObject.type === 'ObjectExpression') {
@@ -28,19 +140,7 @@ const transform: Transform = (file, api, options): string => {
             (property.key as any).name === 'plugins'
         ) as Property | undefined;
 
-        // presets code modification
-        const nativewindPreset = j.arrayExpression([
-          j.stringLiteral('babel-preset-expo'),
-          j.objectExpression([
-            j.objectProperty(
-              j.identifier('jsxImportSource'),
-              j.stringLiteral('nativewind')
-            ),
-          ]),
-        ]);
-
-        const nativewindBabel = j.stringLiteral('nativewind/babel');
-
+        // Handle presets
         if (!presetsProperty) {
           returnObject.properties.push(
             j.objectProperty(
@@ -51,59 +151,26 @@ const transform: Transform = (file, api, options): string => {
         } else {
           const presetsArray = presetsProperty.value as any;
 
-          // Check if 'babel-preset-expo' exists as a string in the presets array
           const babelPresetIndex = presetsArray.elements.findIndex(
             (element: any) => element.value === 'babel-preset-expo'
           );
 
           if (babelPresetIndex !== -1) {
-            // Replace the string 'babel-preset-expo' with nativewindPreset
             presetsArray.elements[babelPresetIndex] = nativewindPreset;
           }
 
-          // Check if 'nativewind/babel' is already in the presets array
           const nativewindBabelExists = presetsArray.elements.some(
             (element: any) =>
               element.type === 'StringLiteral' &&
               element.value === 'nativewind/babel'
           );
 
-          // Add 'nativewind/babel' to presets array if it's not already present
           if (!nativewindBabelExists) {
             presetsArray.elements.push(nativewindBabel);
           }
         }
 
-        // fetch tailwind config filenName from resolved path of tailwind.config.js
-        const parts = tailwindConfig.split(/[/\\]/);
-        const tailwindConfigFileName = parts[parts.length - 1];
-
-        //plugin code modification
-        const moduleResolverPlugin = j.arrayExpression([
-          j.stringLiteral('module-resolver'),
-          j.objectExpression([
-            j.objectProperty(
-              j.identifier('root'),
-              j.arrayExpression([j.stringLiteral('./')])
-            ),
-            j.objectProperty(
-              j.identifier('alias'),
-              j.objectExpression([
-                j.objectProperty(j.stringLiteral('@'), j.stringLiteral('./')),
-                j.objectProperty(
-                  j.stringLiteral('tailwind.config'),
-                  j.stringLiteral(`./` + tailwindConfigFileName)
-                ),
-              ])
-            ),
-          ]),
-        ]);
-
-        // const expoRouterBabel = j.stringLiteral('expo-router/babel');
-        const reactNativeReanimatedPlugin = j.stringLiteral(
-          'react-native-reanimated/plugin'
-        );
-
+        // Handle plugins
         if (!pluginsProperty) {
           isSDK50
             ? returnObject.properties.push(
@@ -125,7 +192,6 @@ const transform: Transform = (file, api, options): string => {
           const pluginsArray = pluginsProperty.value as any;
           const pluginElements = pluginsArray.elements;
 
-          // Check for module-resolver
           if (
             !pluginElements.some(
               (element: any) =>
@@ -136,19 +202,6 @@ const transform: Transform = (file, api, options): string => {
             pluginElements.push(moduleResolverPlugin);
           }
 
-          // Check for expo-router/babel
-          // if (
-          //   !pluginElements.some(
-          //     (element: any) =>
-          //       element.type === 'StringLiteral' &&
-          //       element.value === 'expo-router/babel'
-          //   ) &&
-          //   !isSDK50
-          // ) {
-          //   pluginElements.push(expoRouterBabel);
-          // }
-
-          // Check for react-native-reanimated/plugin
           if (
             !pluginElements.some(
               (element: any) =>
