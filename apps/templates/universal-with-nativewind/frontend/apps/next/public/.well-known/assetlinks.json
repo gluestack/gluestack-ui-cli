@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.applaunchkit.demo",
+      "sha256_cert_fingerprints": [
+        "D5:22:B0:6B:60:39:90:5B:1B:F2:1B:C2:FD:D1:DA:9F:2E:21:29:26:A7:00:BF:16:65:A3:98:53:C5:41:50:10"
+      ]
+    }
+  }
+]

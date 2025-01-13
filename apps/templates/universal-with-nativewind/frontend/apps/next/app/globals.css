@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+} */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-light: #f0f0f0; /* Light mode background color */
+    --bg-dark: #333; /* Dark mode background color */
+  }
+}
+body {
+  color: rgb(var(--foreground-rgb));
+  /* overflow: hidden; */
+  overscroll-behavior: none;
+  height: 100vh;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

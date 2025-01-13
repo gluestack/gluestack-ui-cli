@@ -1,0 +1,36 @@
+{
+  "name": "applaunchkit",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "expo:start": "cd apps/expo && DARK_MODE=media EXPO_USE_METRO_WORKSPACE_ROOT=1 npx expo start",
+    "expo:web": "cd apps/expo && DARK_MODE=class EXPO_USE_METRO_WORKSPACE_ROOT=1  npx expo start --web",
+    "expo:ios": "cd apps/expo && DARK_MODE=media EXPO_USE_METRO_WORKSPACE_ROOT=1  npx expo start --ios",
+    "expo:android": "cd apps/expo && DARK_MODE=media EXPO_USE_METRO_WORKSPACE_ROOT=1  npx expo start --android",
+    "expo:android-dev-build": "cd apps/expo &&  DARK_MODE=media npx expo run:android",
+    "expo:ios-dev-build": "cd apps/expo && DARK_MODE=media npx expo run:ios",
+    "expo:storybook-web": "cd apps/expo && DARK_MODE=class storybook dev -p 6006",
+    "expo:build-storybook": "cd apps/expo && storybook build",
+    "expo:storybook-generate": "cd apps/expo && sb-rn-get-stories --config-path .ondevice",
+    "expo:storybook-ios": "cd apps/expo && DARK_MODE=media EXPO_USE_METRO_WORKSPACE_ROOT=1 cross-env STORYBOOK_ENABLED='true'  npx expo start --ios",
+    "expo:storybook-android": "cd apps/expo && DARK_MODE=media EXPO_USE_METRO_WORKSPACE_ROOT=1 cross-env STORYBOOK_ENABLED='true'  npx expo start --android",
+    "next:dev": "cd apps/next && next dev",
+    "next:build": "cd apps/next && next build",
+    "next:start": "cd apps/next && next start",
+    "next:storybook": "cd apps/next && storybook dev -p 6006",
+    "build-storybook": "cd apps/next && storybook build",
+    "lint": "cd apps/next && npm run lint && cd ../expo && npm run lint",
+    "format": "cd apps/next && npx prettier --write \"{,!(node_modules)/**/}*.{tsx,ts,js,jsx}\" && cd ../expo && npx prettier --write \"{,!(node_modules)/**/}*.{tsx,ts,js,jsx}\"",
+    "postinstall": "patch-package"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {}
+}

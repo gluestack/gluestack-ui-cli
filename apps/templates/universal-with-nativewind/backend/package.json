@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "supabase:start": "cd supabase && npx supabase@latest start",
+    "supabase:webhook-serve": "cd supabase && npx supabase@latest functions serve --no-verify-jwt stripe-webhook --env-file ./supabase/functions/stripe-webhook/.env.development",
+    "supabase:stop": "cd supabase && npx supabase@latest stop",
+    "supabase:status": "cd supabase && npx supabase@latest status",
+    "supabase:dashboard": "open http://localhost:54323/",
+    "supabase:restart": "npm run supabase:stop && npm run supabase:start",
+    "supabase:reset": "cd supabase && npx supabase@latest db reset",
+    "supabase:login": "cd supabase && npx supabase@latest login",
+    "supabase:link": "cd supabase && npx supabase@latest link",
+    "supabase:generate-types": "cd supabase && npx supabase@latest gen types typescript --local --schema public > types_db.ts",
+    "supabase:generate-migration": "cd supabase && npx supabase@latest db diff | npx supabase@latest migration new",
+    "supabase:generate-seed": "cd supabase && npx supabase@latest db dump --data-only -f supabase/seed.sql",
+    "supabase:push": "cd supabase && npx supabase@latest db push",
+    "supabase:pull": "cd supabase && npx supabase@latest db pull",
+    "supabase:fn-deploy": "cd supabase && npx supabase@latest functions deploy",
+    "supabase:webhook-deploy": "cd supabase && npx supabase@latest functions deploy stripe-webhook --no-verify-jwt"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
