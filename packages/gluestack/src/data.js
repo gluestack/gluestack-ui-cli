@@ -1,49 +1,62 @@
 module.exports = {
   gitRepo: 'https://github.com/gluestack/gluestack-ui-cli.git',
   parentPath: 'apps/templates',
-  tag: 'generate/script',
+  branch: 'main',
   options: {
     framework: {
       default: {
         question: 'What would you like to \x1b[36mbuild\x1b[0m?',
         options: [
-          { value: 'expo', label: 'Expo app', hint: 'Expo + gluestack-ui' },
-          { value: 'next', label: 'Next.js app', hint: 'Next + gluestack-ui' },
           {
-            value: 'react-native',
-            label: 'React Native app',
-            hint: 'React Native + gluestack-ui',
+            value: 'expo-router',
+            label: 'Expo app',
+            hint: 'Expo Router + gluestack-ui',
           },
+          {
+            value: 'next-app-router',
+            label: 'Next.js app',
+            hint: 'Next App router + gluestack-ui',
+          },
+          {
+            value: 'universal',
+            label: 'Universal app',
+            hint: 'Next App router + Expo Router + gluestack-ui',
+          },
+          // {
+          //   value: 'react-native',
+          //   label: 'React Native app',
+          //   hint: 'React Native + gluestack-ui',
+          // },
         ],
       },
-      Route: {
-        next: {
-          question: 'Would you like to use \x1b[36mApp Router\x1b[0m?',
-          options: [
-            {
-              value: 'next-app-router',
-              label: 'Yes',
-              hint: 'Next.js with app router',
-            },
-            {
-              value: 'next-page-router',
-              label: 'No',
-              hint: 'Next.js with page router',
-            },
-          ],
-        },
-        expo: {
-          question: 'Would you like to use \x1b[36mExpo Router V3\x1b[0m?',
-          options: [
-            {
-              value: 'expo-router',
-              label: 'Yes',
-              hint: 'Expo app with Expo router V3',
-            },
-            { value: 'expo', label: 'No', hint: 'Expo app' },
-          ],
-        },
-      },
+      // Route: {
+      //   next: {
+      //     question: 'Would you like to use \x1b[36mApp Router\x1b[0m?',
+      //     options: [
+      //       {
+      //         value: 'next-app-router',
+      //         label: 'Yes',
+      //         hint: 'Next.js with app router',
+      //       },
+      //       {
+      //         value: 'next-page-router',
+      //         label: 'No',
+      //         hint: 'Next.js with page router',
+      //       },
+      //     ],
+      //   },
+      //   expo: {
+      //     question: 'Would you like to use \x1b[36mExpo Router V3\x1b[0m?',
+      //     options: [
+      //       {
+      //         value: 'expo-router',
+      //         label: 'Yes',
+      //         hint: 'Expo app with Expo router V3',
+      //       },
+      //       { value: 'expo', label: 'No', hint: 'Expo app' },
+      //     ],
+      //   },
+      // },
     },
     style: {
       bundle: {
@@ -197,5 +210,6 @@ module.exports = {
     'next-page-router-nw': 'next-page-router-with-nativewind',
     'react-native-gs': 'reactNativeWithGluestackStyleEjected',
     'react-native-nw': 'reactNativeWithNativeWind',
+    'universal-nw': 'universal-with-nativewind',
   },
 };
