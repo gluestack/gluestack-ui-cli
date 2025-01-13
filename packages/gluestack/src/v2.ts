@@ -4,15 +4,16 @@ import { cancel, text, select } from '@clack/prompts';
 import { execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
-const { gitRepo, tag, options } = templatesMap;
+const { gitRepo, branch, options } = templatesMap;
 
 export async function main(args: string[]) {
   const supportedFrameworkArgs = [
     '--expo',
-    '--expo-router',
+    // '--expo-router',
     '--next-app-router',
-    '--next-page-router',
-    '--react-native',
+    // '--next-page-router',
+    // '--react-native',
+    '--universal',
   ];
 
   const supportedStyleArgs = ['--gs', '--nw'];
@@ -36,7 +37,7 @@ export async function main(args: string[]) {
   // ];
 
   let selectedFramework = '';
-  let selectedRouter = '';
+  // let selectedRouter = '';
   let selectedStyle = '';
   let selectedPackageManager = '';
   let projName = '';
@@ -79,26 +80,25 @@ export async function main(args: string[]) {
       options: [...optionsType],
     });
     templateName = selectedFramework;
-    if (selectedFramework !== 'react-native') {
-      const { question, options: optionsType } =
-        // @ts-ignore
-        options.framework.Route[selectedFramework];
-      // @ts-ignore
-      selectedRouter = await select({
-        message: question,
-        options: [...optionsType],
-      });
-      templateName = selectedRouter;
-    }
+    // if (selectedFramework !== 'react-native') {
+    //   const { question, options: optionsType } =
+    //     // @ts-ignore
+    //     options.framework.Route[selectedFramework];
+    //   // @ts-ignore
+    //   selectedRouter = await select({
+    //     message: question,
+    //     options: [...optionsType],
+    //   });
+    //   templateName = selectedRouter;
+    // }
   }
 
   if (projName === '') {
-    // @ts-ignore
-    projName = await text({
+    projName = (await text({
       message: 'Enter the name of your project: ',
       placeholder: 'my-app',
       defaultValue: 'my-app',
-    });
+    })) as string;
   }
 
   if (selectedStyle === '') {
@@ -124,27 +124,32 @@ export async function main(args: string[]) {
     }
   }
 
-  const templateDir = templatesMap.map[templateName];
+  const templateDir =
+    templatesMap.map[templateName as keyof typeof templatesMap.map];
 
-  // @ts-ignore
-  await cloneProject(projName, templateDir);
-
-  await installDependencies(projName, selectedPackageManager);
-  console.log('done ...');
+  try {
+    await cloneProject(projName, templateDir);
+    if (!templateName.includes('universal')) {
+      await installDependencies(projName, selectedPackageManager);
+    }
+    console.log('done ...');
+  } catch (error: any) {
+    console.log(error.message, '\nPlease try again');
+  }
 }
 
 async function cloneProject(projectName: string, templateName: string) {
   const dirPath = path.join(process.cwd(), projectName);
   // console.log(dirPath);
   // console.log('Cloning Project...');
-  // try {
-  execSync(`mkdir ${projectName}`);
-  // } catch (error: any) {
-  //   console.log(`Folder already exists with name: ${projectName}`);
-  //   console.log('Overwriding the existing folder...');
-  //   execSync(`rm -rf ${projectName}`);
-  //   execSync(`mkdir ${projectName}`);
-  // }
+  try {
+    execSync(`mkdir ${projectName}`);
+  } catch (error: any) {
+    console.log(`Folder already exists with name: ${projectName}`);
+    console.log('Overwriding the existing folder...');
+    execSync(`rm -rf ${projectName}`);
+    execSync(`mkdir ${projectName}`);
+  }
   execSync('git init', { cwd: dirPath });
   execSync(`git remote add origin ${gitRepo}`, { cwd: dirPath });
   execSync('git config core.sparseCheckout true', { cwd: dirPath });
@@ -154,11 +159,15 @@ async function cloneProject(projectName: string, templateName: string) {
       cwd: dirPath,
     }
   );
-  execSync(`git pull origin ${tag}`, { cwd: dirPath });
+  execSync(`git pull origin ${branch}`, { cwd: dirPath });
   execSync(`mv apps/templates/${templateName}/* ./`, { cwd: dirPath });
   execSync('rm -rf apps', { cwd: dirPath });
   execSync('rm -rf .git', { cwd: dirPath });
   execSync('mv gitignore .gitignore', { cwd: dirPath });
+  execSync('git init', { cwd: dirPath });
+  execSync('git branch -M main', { cwd: dirPath });
+  execSync(`git add --all`, { cwd: dirPath });
+  execSync(`git commit -m "Init"`, { cwd: dirPath });
 }
 
 async function installDependencies(
