@@ -108,6 +108,18 @@ export async function main(args: string[]) {
   const templateDir =
     templatesMap.map[templateName as keyof typeof templatesMap.map];
 
+  if (templateName.includes('universal')) {
+    console.log(
+      `⏳ Creating a universal app. Hang tight, this may take a bit...`
+    );
+  } else if (templateName.includes('next')) {
+    console.log(
+      `⏳ Creating a next-app-router app. Hang tight, this may take a bit...`
+    );
+  } else if (templateName.includes('expo')) {
+    console.log(`⏳ Creating a expo app. Hang tight, this may take a bit...`);
+  }
+
   try {
     await cloneProject(projName, templateDir);
     if (!templateName.includes('universal')) {
@@ -146,6 +158,8 @@ async function cloneProject(projectName: string, templateName: string) {
   execSync(`mv apps/templates/${templateName}/* ./`, { cwd: dirPath });
   execSync('rm -rf apps', { cwd: dirPath });
   execSync('rm -rf .git', { cwd: dirPath });
+  !templateName.includes('universal') &&
+    execSync('mv gitignore .gitignore', { cwd: dirPath });
   execSync('git init', { cwd: dirPath });
   execSync('git branch -M main', { cwd: dirPath });
   execSync(`git add --all`, { cwd: dirPath });
