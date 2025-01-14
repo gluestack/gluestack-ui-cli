@@ -5,6 +5,7 @@ export function displayHelp() {
   console.log('  framework options:');
   console.log(`--next-app-router         Next.js with app router
     --expo-router             Expo app with Expo router V3
+    --universal               Universal app (Next.js with app router + Expo router)
     `);
   // styling options
   console.log('  style options:');
