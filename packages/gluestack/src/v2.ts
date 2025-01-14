@@ -158,8 +158,10 @@ async function cloneProject(projectName: string, templateName: string) {
   execSync(`mv apps/templates/${templateName}/* ./`, { cwd: dirPath });
   execSync('rm -rf apps', { cwd: dirPath });
   execSync('rm -rf .git', { cwd: dirPath });
-  !templateName.includes('universal') &&
+  if (!templateName.includes('universal')) {
     execSync('mv gitignore .gitignore', { cwd: dirPath });
+    execSync('mv npmrc .npmrc', { cwd: dirPath });
+  }
   execSync('git init', { cwd: dirPath });
   execSync('git branch -M main', { cwd: dirPath });
   execSync(`git add --all`, { cwd: dirPath });
