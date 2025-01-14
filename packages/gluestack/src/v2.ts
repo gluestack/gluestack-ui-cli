@@ -4,17 +4,21 @@ import { cancel, text, select } from '@clack/prompts';
 import { execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
+import chalk from 'chalk';
 const { gitRepo, branch, options } = templatesMap;
 
 export async function main(args: string[]) {
-  const supportedFrameworkArgs = [
-    '--expo',
-    // '--expo-router',
-    '--next-app-router',
-    // '--next-page-router',
-    // '--react-native',
-    '--universal',
-  ];
+  console.log(chalk.bold.magenta('\nWelcome to gluestack-ui v2!'));
+  console.log(chalk.yellow('Creating a new project with gluestack-ui v2.'));
+  console.log(
+    chalk.yellow(
+      `Please use ${chalk.green(
+        'npm create gluestack@1'
+      )} to use gluestack-ui v1. \n`
+    )
+  );
+
+  const supportedFrameworkArgs = ['--expo', '--next-app-router', '--universal'];
 
   const supportedStyleArgs = ['--gs', '--nw'];
 
@@ -25,19 +29,7 @@ export async function main(args: string[]) {
 
   const supportedDocumentationArgs = ['--help', '-h'];
 
-  // let supportedArgs = [
-  //   // frameworks
-  //   ...supportedFrameworkArgs,
-  //   // style options
-  //   ...supportedStyleArgs,
-  //   // package manager
-  //   ...supportedPackagemanagerArgs,
-  //   // documentation
-  //   ...supportedDocumentationArgs,
-  // ];
-
   let selectedFramework = '';
-  // let selectedRouter = '';
   let selectedStyle = '';
   let selectedPackageManager = '';
   let projName = '';
@@ -45,7 +37,7 @@ export async function main(args: string[]) {
   if (args.length > 0) {
     if (args.some((arg) => supportedDocumentationArgs.includes(arg))) {
       // trigger help commmand and exit.
-      displayHelp(options);
+      displayHelp();
     }
 
     if (!args[0].startsWith('-')) {
@@ -61,7 +53,7 @@ export async function main(args: string[]) {
         selectedPackageManager = arg.slice(6);
       } else {
         console.log(`Unsupported argument: ${arg}\n`);
-        displayHelp(options);
+        displayHelp();
       }
     });
   }
@@ -80,17 +72,6 @@ export async function main(args: string[]) {
       options: [...optionsType],
     });
     templateName = selectedFramework;
-    // if (selectedFramework !== 'react-native') {
-    //   const { question, options: optionsType } =
-    //     // @ts-ignore
-    //     options.framework.Route[selectedFramework];
-    //   // @ts-ignore
-    //   selectedRouter = await select({
-    //     message: question,
-    //     options: [...optionsType],
-    //   });
-    //   templateName = selectedRouter;
-    // }
   }
 
   if (projName === '') {
@@ -134,7 +115,9 @@ export async function main(args: string[]) {
     }
     console.log('done ...');
   } catch (error: any) {
-    console.log(error.message, '\nPlease try again');
+    console.error('Failed to create project');
+    console.error(error.message);
+    process.exit(1);
   }
 }
 
@@ -163,7 +146,6 @@ async function cloneProject(projectName: string, templateName: string) {
   execSync(`mv apps/templates/${templateName}/* ./`, { cwd: dirPath });
   execSync('rm -rf apps', { cwd: dirPath });
   execSync('rm -rf .git', { cwd: dirPath });
-  execSync('mv gitignore .gitignore', { cwd: dirPath });
   execSync('git init', { cwd: dirPath });
   execSync('git branch -M main', { cwd: dirPath });
   execSync(`git add --all`, { cwd: dirPath });
