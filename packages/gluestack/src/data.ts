@@ -1,4 +1,4 @@
-module.exports = {
+const data = {
   gitRepo: 'https://github.com/gluestack/gluestack-ui-cli.git',
   parentPath: 'apps/templates',
   branch: 'main',
@@ -213,3 +213,5 @@ module.exports = {
     'universal-nw': 'universal-with-nativewind',
   },
 };
+
+export default data;
