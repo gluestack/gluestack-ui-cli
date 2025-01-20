@@ -1,11 +1,11 @@
 #! /usr/bin/env node
-import path from 'path';
 import { cancel, text, select } from '@clack/prompts';
-import { execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
 import chalk from 'chalk';
-const { gitRepo, branch, options } = templatesMap;
+import { cloneProject, gitInit, installDependencies } from './utils';
+
+const { options } = templatesMap;
 
 export async function main(args: string[]) {
   console.log(chalk.bold.magenta('\nWelcome to gluestack-ui v2!'));
@@ -108,73 +108,32 @@ export async function main(args: string[]) {
   const templateDir =
     templatesMap.map[templateName as keyof typeof templatesMap.map];
 
+  let message = '';
   if (templateName.includes('universal')) {
-    console.log(
-      `⏳ Creating a universal app. Hang tight, this may take a bit...`
-    );
+    message = 'a universal';
   } else if (templateName.includes('next')) {
-    console.log(
-      `⏳ Creating a next-app-router app. Hang tight, this may take a bit...`
-    );
+    message = 'a next-app-router';
   } else if (templateName.includes('expo')) {
-    console.log(`⏳ Creating a expo app. Hang tight, this may take a bit...`);
+    message = 'an expo';
   }
+  console.log(
+    `⏳ Creating ${message} app. Hang tight, this may take a while...\n`
+  );
 
   try {
     await cloneProject(projName, templateDir);
     if (!templateName.includes('universal')) {
       await installDependencies(projName, selectedPackageManager);
     }
-    console.log('done ...');
+    await gitInit(projName);
+    console.log(
+      chalk.green(
+        '\nProject created successfully in ' + projName + ' folder.\n'
+      )
+    );
   } catch (error: any) {
     console.error('Failed to create project');
     console.error(error.message);
     process.exit(1);
   }
-}
-
-async function cloneProject(projectName: string, templateName: string) {
-  const dirPath = path.join(process.cwd(), projectName);
-  // console.log(dirPath);
-  // console.log('Cloning Project...');
-  try {
-    execSync(`mkdir ${projectName}`);
-  } catch (error: any) {
-    console.log(`Folder already exists with name: ${projectName}`);
-    console.log('Overwriding the existing folder...');
-    execSync(`rm -rf ${projectName}`);
-    execSync(`mkdir ${projectName}`);
-  }
-  execSync('git init', { cwd: dirPath });
-  execSync(`git remote add origin ${gitRepo}`, { cwd: dirPath });
-  execSync('git config core.sparseCheckout true', { cwd: dirPath });
-  execSync(
-    `echo "apps/templates/${templateName}" >> .git/info/sparse-checkout`,
-    {
-      cwd: dirPath,
-    }
-  );
-  execSync(`git pull origin ${branch}`, { cwd: dirPath });
-  execSync(`mv apps/templates/${templateName}/* ./`, { cwd: dirPath });
-  execSync('rm -rf apps', { cwd: dirPath });
-  execSync('rm -rf .git', { cwd: dirPath });
-  if (!templateName.includes('universal')) {
-    execSync('mv gitignore .gitignore', { cwd: dirPath });
-    execSync('mv npmrc .npmrc', { cwd: dirPath });
-  }
-  execSync('git init', { cwd: dirPath });
-  execSync('git branch -M main', { cwd: dirPath });
-  execSync(`git add --all`, { cwd: dirPath });
-  execSync(`git commit -m "Init"`, { cwd: dirPath });
-}
-
-async function installDependencies(
-  projectName: string,
-  selectedPackageManager: string
-) {
-  console.log('Installing Dependencies...');
-  execSync(`${selectedPackageManager} install`, {
-    cwd: path.join(process.cwd(), projectName),
-  });
-  console.log('Dependancies Installed!');
 }
