@@ -1,7 +1,7 @@
 const data = {
   gitRepo: 'https://github.com/gluestack/gluestack-ui-cli.git',
   parentPath: 'apps/templates',
-  branch: 'create-gluestack-templates',
+  branch: 'main',
   options: {
     framework: {
       default: {
