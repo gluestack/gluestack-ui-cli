@@ -1,19 +1,24 @@
 #! /usr/bin/env node
-import path from 'path';
 import { cancel, text, select } from '@clack/prompts';
-import { execSync } from 'child_process';
 import { displayHelp } from './help';
 import templatesMap from './data.js';
-const { gitRepo, tag, options } = templatesMap;
+import chalk from 'chalk';
+import { cloneProject, gitInit, installDependencies } from './utils';
+
+const { options } = templatesMap;
 
 export async function main(args: string[]) {
-  const supportedFrameworkArgs = [
-    '--expo',
-    '--expo-router',
-    '--next-app-router',
-    '--next-page-router',
-    '--react-native',
-  ];
+  console.log(chalk.bold.magenta('\nWelcome to gluestack-ui v2!'));
+  console.log(chalk.yellow('Creating a new project with gluestack-ui v2.'));
+  console.log(
+    chalk.yellow(
+      `Please use ${chalk.green(
+        'npm create gluestack@1'
+      )} to use gluestack-ui v1. \n`
+    )
+  );
+
+  const supportedFrameworkArgs = ['--expo', '--next-app-router', '--universal'];
 
   const supportedStyleArgs = ['--gs', '--nw'];
 
@@ -24,19 +29,7 @@ export async function main(args: string[]) {
 
   const supportedDocumentationArgs = ['--help', '-h'];
 
-  // let supportedArgs = [
-  //   // frameworks
-  //   ...supportedFrameworkArgs,
-  //   // style options
-  //   ...supportedStyleArgs,
-  //   // package manager
-  //   ...supportedPackagemanagerArgs,
-  //   // documentation
-  //   ...supportedDocumentationArgs,
-  // ];
-
   let selectedFramework = '';
-  let selectedRouter = '';
   let selectedStyle = '';
   let selectedPackageManager = '';
   let projName = '';
@@ -44,7 +37,7 @@ export async function main(args: string[]) {
   if (args.length > 0) {
     if (args.some((arg) => supportedDocumentationArgs.includes(arg))) {
       // trigger help commmand and exit.
-      displayHelp(options);
+      displayHelp();
     }
 
     if (!args[0].startsWith('-')) {
@@ -60,7 +53,7 @@ export async function main(args: string[]) {
         selectedPackageManager = arg.slice(6);
       } else {
         console.log(`Unsupported argument: ${arg}\n`);
-        displayHelp(options);
+        displayHelp();
       }
     });
   }
@@ -79,26 +72,20 @@ export async function main(args: string[]) {
       options: [...optionsType],
     });
     templateName = selectedFramework;
-    if (selectedFramework !== 'react-native') {
-      const { question, options: optionsType } =
-        // @ts-ignore
-        options.framework.Route[selectedFramework];
-      // @ts-ignore
-      selectedRouter = await select({
-        message: question,
-        options: [...optionsType],
-      });
-      templateName = selectedRouter;
-    }
+  }
+
+  // Universal Template coming soon...
+  if (templateName.includes('universal')) {
+    console.log(chalk.bgGreen('\nComing Soon...\n'));
+    process.exit(0);
   }
 
   if (projName === '') {
-    // @ts-ignore
-    projName = await text({
+    projName = (await text({
       message: 'Enter the name of your project: ',
       placeholder: 'my-app',
       defaultValue: 'my-app',
-    });
+    })) as string;
   }
 
   if (selectedStyle === '') {
@@ -124,50 +111,35 @@ export async function main(args: string[]) {
     }
   }
 
-  const templateDir = templatesMap.map[templateName];
+  const templateDir =
+    templatesMap.map[templateName as keyof typeof templatesMap.map];
 
-  // @ts-ignore
-  await cloneProject(projName, templateDir);
-
-  await installDependencies(projName, selectedPackageManager);
-  console.log('done ...');
-}
-
-async function cloneProject(projectName: string, templateName: string) {
-  const dirPath = path.join(process.cwd(), projectName);
-  // console.log(dirPath);
-  // console.log('Cloning Project...');
-  // try {
-  execSync(`mkdir ${projectName}`);
-  // } catch (error: any) {
-  //   console.log(`Folder already exists with name: ${projectName}`);
-  //   console.log('Overwriding the existing folder...');
-  //   execSync(`rm -rf ${projectName}`);
-  //   execSync(`mkdir ${projectName}`);
-  // }
-  execSync('git init', { cwd: dirPath });
-  execSync(`git remote add origin ${gitRepo}`, { cwd: dirPath });
-  execSync('git config core.sparseCheckout true', { cwd: dirPath });
-  execSync(
-    `echo "apps/templates/${templateName}" >> .git/info/sparse-checkout`,
-    {
-      cwd: dirPath,
-    }
+  let message = '';
+  if (templateName.includes('universal')) {
+    message = 'a universal';
+  } else if (templateName.includes('next')) {
+    message = 'a next-app-router';
+  } else if (templateName.includes('expo')) {
+    message = 'an expo';
+  }
+  console.log(
+    `⏳ Creating ${message} app. Hang tight, this may take a while...\n`
   );
-  execSync(`git pull origin ${tag}`, { cwd: dirPath });
-  execSync(`mv apps/templates/${templateName}/* ./`, { cwd: dirPath });
-  execSync('rm -rf apps', { cwd: dirPath });
-  execSync('rm -rf .git', { cwd: dirPath });
-  execSync('mv gitignore .gitignore', { cwd: dirPath });
-}
 
-async function installDependencies(
-  projectName: string,
-  selectedPackageManager: string
-) {
-  console.log('Installing Dependencies...');
-  execSync(`${selectedPackageManager} install`, {
-    cwd: path.join(process.cwd(), projectName),
-  });
-  console.log('Dependancies Installed!');
+  try {
+    await cloneProject(projName, templateDir);
+    if (!templateName.includes('universal')) {
+      await installDependencies(projName, selectedPackageManager);
+    }
+    await gitInit(projName);
+    console.log(
+      chalk.green(
+        '\nProject created successfully in ' + projName + ' folder.\n'
+      )
+    );
+  } catch (error: any) {
+    console.error('Failed to create project');
+    console.error(error.message);
+    process.exit(1);
+  }
 }

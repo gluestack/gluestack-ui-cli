@@ -1,6 +1,12 @@
 import { tva } from '@gluestack-ui/nativewind-utils/tva';
+import { isWeb } from '@gluestack-ui/nativewind-utils/IsWeb';
+
+const baseStyle = isWeb
+  ? 'font-sans tracking-sm my-0 bg-transparent border-0 box-border display-inline list-none margin-0 padding-0 position-relative text-start no-underline whitespace-pre-wrap word-wrap-break-word'
+  : '';
+
 export const textStyle = tva({
-  base: 'text-typography-700 font-normal font-body web:font-sans web:tracking-sm web:my-0 web:bg-transparent web:border-0 web:box-border web:display-inline web:list-none web:margin-0 web:padding-0 web:position-relative web:text-start web:no-underline web:whitespace-pre-wrap web:word-wrap-break-word',
+  base: `text-typography-700 font-body ${baseStyle}`,
 
   variants: {
     isTruncated: {

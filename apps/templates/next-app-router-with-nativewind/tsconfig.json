@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "jsxImportSource": "nativewind",
+    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -17,16 +17,20 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "tailwind.config": [
+        "./tailwind.config.ts"
+      ]
+    },
+    "jsxImportSource": "nativewind"
   },
   "include": [
     "next-env.d.ts",

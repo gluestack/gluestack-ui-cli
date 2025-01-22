@@ -1,0 +1,37 @@
+{
+    "include": [
+        "./index.ts",
+        "nativewind-env.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+    ],
+    "compilerOptions": {
+        "noEmit": false,
+        "declaration": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": true,
+        "esModuleInterop": true,
+        "ignoreDeprecations": "5.0",
+        "forceConsistentCasingInFileNames": true,
+        "jsxImportSource": "nativewind",
+        "jsx": "preserve",
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noImplicitUseStrict": false,
+        "noStrictGenericChecks": false,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "esnext",
+        "outDir": "./build"
+    },
+}

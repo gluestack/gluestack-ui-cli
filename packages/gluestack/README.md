@@ -2,10 +2,16 @@
 
 To use create-gluestack, you can run the following commands:
 
-- Initialize React, React Native and Nextjs projects with **gluestack-ui -**.
+- Initialize Expo and Nextjs projects with **gluestack-ui -**.
 
 ```bash
    npm create gluestack
+```
+
+or
+
+```bash
+   npx create-gluestack@latest
 ```
 
 ## Contributing
