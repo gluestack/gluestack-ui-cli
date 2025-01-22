@@ -74,6 +74,12 @@ export async function main(args: string[]) {
     templateName = selectedFramework;
   }
 
+  // Universal Template coming soon...
+  if (templateName.includes('universal')) {
+    console.log(chalk.bgGreen('\nComing Soon...\n'));
+    process.exit(0);
+  }
+
   if (projName === '') {
     projName = (await text({
       message: 'Enter the name of your project: ',
