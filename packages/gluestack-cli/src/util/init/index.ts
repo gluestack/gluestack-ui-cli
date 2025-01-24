@@ -241,9 +241,6 @@ async function updateTSConfig(
       tsConfig.compilerOptions.jsxImportSource = 'nativewind';
     }
     updatePaths(tsConfig.compilerOptions.paths, '@/*', ['./*']);
-    updatePaths(tsConfig.compilerOptions.paths, 'tailwind.config', [
-      `./${tailwindConfigFileName}`,
-    ]);
 
     await writeFileAsync(configPath, JSON.stringify(tsConfig, null, 2), 'utf8');
   } catch (err) {
