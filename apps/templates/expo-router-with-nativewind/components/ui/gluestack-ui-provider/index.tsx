@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { config } from './config';
-import { ColorSchemeName, useColorScheme, View, ViewProps } from 'react-native';
+import { Appearance, ColorSchemeName, View, ViewProps } from 'react-native';
 import { OverlayProvider } from '@gluestack-ui/overlay';
 import { ToastProvider } from '@gluestack-ui/toast';
-import { colorScheme as colorSchemeNW } from 'nativewind';
+import { colorScheme as colorSchemeNW, useColorScheme } from 'nativewind';
 
 type ModeType = 'light' | 'dark' | 'system';
 
@@ -25,11 +25,18 @@ export function GluestackUIProvider({
   children?: React.ReactNode;
   style?: ViewProps['style'];
 }) {
-  const colorScheme = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
 
   const colorSchemeName = getColorSchemeName(colorScheme, mode);
 
   colorSchemeNW.set(mode);
+
+  useEffect(() => {
+    if (!Appearance.getColorScheme()) {
+      Appearance.setColorScheme(colorScheme);
+      setColorScheme('system');
+    }
+  }, [colorScheme]);
 
   return (
     <View
