@@ -5,6 +5,7 @@ import { OverlayProvider } from '@gluestack-ui/overlay';
 import { ToastProvider } from '@gluestack-ui/toast';
 import { setFlushStyles } from '@gluestack-ui/nativewind-utils/flush';
 import { script } from './script';
+import { ModeType } from './types';
 
 const variableStyleTagId = 'nativewind-style';
 const createStyle = (styleTagId: string) => {
@@ -21,7 +22,7 @@ export function GluestackUIProvider({
   mode = 'light',
   ...props
 }: {
-  mode?: 'light' | 'dark' | 'system';
+  mode?: ModeType;
   children?: React.ReactNode;
 }) {
   let cssVariablesWithMode = ``;
@@ -80,6 +81,12 @@ export function GluestackUIProvider({
 
   return (
     <>
+      <script
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: `(${script.toString()})('${mode}')`,
+        }}
+      />
       <OverlayProvider>
         <ToastProvider>{props.children}</ToastProvider>
       </OverlayProvider>
