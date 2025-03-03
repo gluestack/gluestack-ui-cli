@@ -18,7 +18,11 @@ export async function main(args: string[]) {
     )
   );
 
-  const supportedFrameworkArgs = ['--expo', '--next-app-router', '--universal'];
+  const supportedFrameworkArgs = [
+    '--expo-router',
+    '--next-app-router',
+    '--universal',
+  ];
 
   const supportedStyleArgs = ['--gs', '--nw'];
 
