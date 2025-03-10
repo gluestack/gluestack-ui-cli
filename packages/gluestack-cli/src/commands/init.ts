@@ -12,6 +12,7 @@ import {
 } from '../util';
 import path, { resolve } from 'path';
 import fs from 'fs';
+import { checkNextVersion } from '../util/check-next-version';
 
 const initOptionsSchema = z.object({
   useNpm: z.boolean(),
@@ -59,6 +60,16 @@ export const init = new Command()
         );
         process.exit(1);
       }
+
+      //TODO : remove this check once nextjs 15 is supported properly
+      const isNextjs15 = await checkNextVersion();
+      if (isNextjs15) {
+        log.info(
+          `Next.js 15 is not supported by the init command.\n Please use 'npm create gluestack-ui@latest' to clone a new next 15 project.\n`
+        );
+        process.exit(1);
+      }
+
       //if multiple package managers are used
       if (
         (options.useNpm && options.useYarn) ||
