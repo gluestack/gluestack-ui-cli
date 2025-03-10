@@ -22,11 +22,15 @@ async function cloneProject(projectName: string, templateName: string) {
   }
   // Create new directory
   mkdirSync(projectName);
-  // Clone the project-template
-  execSync('git init', { cwd: dirPath });
-  execSync(`git remote add origin ${gitRepo}`, { cwd: dirPath });
-  execSync('git config core.sparseCheckout true', { cwd: dirPath });
-
+  try {
+    // Clone the project-template
+    execSync('git init', { cwd: dirPath });
+    execSync(`git remote add origin ${gitRepo}`, { cwd: dirPath });
+    execSync('git config core.sparseCheckout true', { cwd: dirPath });
+  } catch (error) {
+    console.log('Git not installed. Please install git and try again...');
+    process.exit(1);
+  }
   appendFileSync(
     path.join(dirPath, '.git', 'info', 'sparse-checkout'),
     path.join('apps', 'templates', templateName) + '\n'
