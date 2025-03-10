@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import { useServerInsertedHTML } from "next/navigation";
 import { StyleRegistry, createStyleRegistry } from "styled-jsx";
-// @ts-ignore
+// @ts-expect-error : AppRegistry is defined in react-native-web but its type is not defined
 import { AppRegistry } from "react-native-web";
 import { flush } from "@gluestack-ui/nativewind-utils/flush";
 
