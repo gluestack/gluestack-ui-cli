@@ -190,6 +190,7 @@ export function findLockFileType(): string | null {
     'yarn.lock': 'yarn',
     'pnpm-lock.yaml': 'pnpm',
     'bun.lockb': 'bun',
+    'bun.lock': 'bun',
   };
   let dir = currDir;
   while (dir !== dirname(dir)) {
