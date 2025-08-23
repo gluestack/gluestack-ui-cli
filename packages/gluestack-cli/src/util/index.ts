@@ -183,9 +183,13 @@ const wait = (msec: number): Promise<void> =>
     setTimeout(resolve, msec);
   });
 
+// Type definitions for package managers
+type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | null;
+type YarnVersion = 'classic' | 'berry' | null;
+
 //checking from cwd
-export function findLockFileType(): string | null {
-  const lockFiles: { [key: string]: string } = {
+export function findLockFileType(): PackageManager {
+  const lockFiles: { [key: string]: PackageManager } = {
     'package-lock.json': 'npm',
     'yarn.lock': 'yarn',
     'pnpm-lock.yaml': 'pnpm',
@@ -199,6 +203,34 @@ export function findLockFileType(): string | null {
     dir = dirname(dir);
   }
   return null;
+}
+
+function detectYarnVersion(): YarnVersion {
+  try {
+    const result = execSync('yarn --version', { encoding: 'utf8' }).trim();
+    const majorVersion = parseInt(result.split('.')[0]);
+    return majorVersion >= 2 ? 'berry' : 'classic';
+  } catch {
+    return null;
+  }
+}
+
+function isInWorkspace(): boolean {
+  // Check for yarn workspaces
+  let dir = currDir;
+  while (dir !== dirname(dir)) {
+    const packageJsonPath = join(dir, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        if (packageJson.workspaces) {
+          return true;
+        }
+      } catch {}
+    }
+    dir = dirname(dir);
+  }
+  return false;
 }
 
 function getPackageMangerFlag(options: any) {
@@ -239,14 +271,46 @@ export const promptVersionManager = async (): Promise<any> => {
 };
 
 async function ensureLegacyPeerDeps(): Promise<void> {
-  const commands: { [key: string]: string } = {
-    npm: 'npm config --location=project set legacy-peer-deps=true',
-    yarn: 'yarn config set legacy-peer-deps true',
-    pnpm: 'pnpm config set legacy-peer-deps true',
-  };
+  const packageManager = config.packageManager;
+  if (!packageManager) return;
 
-  const command = config.packageManager && commands[config.packageManager];
-  if (command) execSync(command);
+  const isWorkspaceEnv = isInWorkspace();
+  const yarnVersion = packageManager === 'yarn' ? detectYarnVersion() : null;
+
+  let command: string | null = null;
+
+  switch (packageManager) {
+    case 'npm':
+      if (isWorkspaceEnv) {
+        // Skip npm config in workspaces as it's not supported
+        console.log('Skipping npm config in workspace environment');
+        return;
+      }
+      command = 'npm config --location=project set legacy-peer-deps=true';
+      break;
+    
+    case 'yarn':
+      if (yarnVersion === 'berry') {
+        // Yarn berry uses different config
+        command = 'yarn config set npmConfigRegistry https://registry.npmjs.org/ && yarn config set npmAlwaysAuth false';
+      } else {
+        command = 'yarn config set legacy-peer-deps true';
+      }
+      break;
+    
+    case 'pnpm':
+      command = 'pnpm config set legacy-peer-deps true';
+      break;
+  }
+
+  if (command) {
+    try {
+      execSync(command);
+    } catch (error) {
+      console.warn(`Failed to set legacy-peer-deps config: ${error}`);
+      // Don't fail the entire process if config setting fails
+    }
+  }
 }
 
 const installDependencies = async (
@@ -312,10 +376,31 @@ const installDependencies = async (
         .map(([pkg, version]) => `${pkg}@${version}`)
         .join(' ') + flag;
 
+    const isWorkspaceEnv = isInWorkspace();
+    const yarnVersion = versionManager === 'yarn' ? detectYarnVersion() : null;
+
+    // Determine workspace flags
+    let workspaceFlag = '';
+    if (isWorkspaceEnv) {
+      switch (versionManager) {
+        case 'npm':
+          workspaceFlag = ' -w .'; // Install in current workspace
+          break;
+        case 'yarn':
+          if (yarnVersion === 'berry') {
+            workspaceFlag = ''; // Yarn berry handles workspaces differently
+          }
+          break;
+        case 'pnpm':
+          workspaceFlag = ' -w'; // Install in workspace root
+          break;
+      }
+    }
+
     const commands: { [key: string]: { install: string; devFlag: string } } = {
-      npm: { install: 'npm install', devFlag: ' --save-dev' },
+      npm: { install: `npm install${workspaceFlag}`, devFlag: ' --save-dev' },
       yarn: { install: 'yarn add', devFlag: ' --dev' },
-      pnpm: { install: 'pnpm i', devFlag: ' -D' },
+      pnpm: { install: `pnpm i${workspaceFlag}`, devFlag: ' -D' },
       bun: { install: 'bun add', devFlag: ' --dev' },
     };
     const { install, devFlag } = commands[versionManager];
@@ -533,4 +618,6 @@ export {
   ensureFilesPromise,
   getPackageMangerFlag,
   checkComponentDependencies,
+  detectYarnVersion,
+  isInWorkspace,
 };

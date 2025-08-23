@@ -16,6 +16,8 @@ import {
   findLockFileType,
   installDependencies,
   promptVersionManager,
+  isInWorkspace,
+  detectYarnVersion,
 } from '..';
 import { getProjectBasedDependencies } from '../../dependencies';
 import { generateConfigNextApp } from '../config/next-config-helper';
@@ -97,7 +99,16 @@ const InitializeGlueStack = async ({
 
     await addProvider(isNextjs15);
     if (isNextjs15) {
-      execSync(`${versionManager} run postinstall`);
+      // Handle workspace-aware postinstall command
+      const isWorkspaceEnv = isInWorkspace();
+      const yarnVersion = versionManager === 'yarn' ? detectYarnVersion() : null;
+      
+      let postinstallCommand = `${versionManager} run postinstall`;
+      if (isWorkspaceEnv && versionManager === 'npm') {
+        postinstallCommand = 'npm run postinstall -w .';
+      }
+      
+      execSync(postinstallCommand);
     }
     s.stop(`\x1b[32mProject configuration generated.\x1b[0m`);
     log.step(
