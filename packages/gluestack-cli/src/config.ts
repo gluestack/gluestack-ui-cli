@@ -11,7 +11,7 @@ const config = {
   reactNativeCLIProject: 'react-native-cli',
   tailwindConfigRootPath: 'example/storybook-nativewind/src/tailwind.config.js',
   writableComponentsPath: 'components/ui',
-  branchName: 'main',
+  branchName: 'main-v2',
   alphaBranchName: 'feat/nativewind-4.1-support',
   style: 'nativewind',
   providerComponent: 'gluestack-ui-provider',
